@@ -1,71 +1,77 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
 
-// Styles for the entry points this component's own markup renders. With `dataTable`, the
-// figures render as a `<wr-chart-table>` beside the plot, which its own sheet clips out of
-// sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+// Styles for the entry points this component's own markup renders: the chart theme every
+// hook below defaults to (`--wr-chart-*`), the empty / loading / error message, and the
+// `<wr-chart-table>` that `dataTable` renders beside the plot, which its own rule clips
+// out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/waterfall-chart');
 
 .wr-waterfall-chart {
   --wr-waterfall-chart-font-family: var(--wr-font-family-base);
   --wr-waterfall-chart-color: var(--wr-color-on-surface);
-  // Between two bars, and so the length of the connector that crosses it. Held to a
-  // quarter of one step's share of the drawing (see `$gap-in-row` below).
-  --wr-waterfall-chart-gap: var(--wr-space-sm);
+  // Between two bars, and so the length of the connector that crosses it: a share of one
+  // step's band, which is the step's own box, so every part of a step reads it against the
+  // same width. A length works too. Never more than half a band (see `$gap` below).
+  --wr-waterfall-chart-gap: var(--wr-chart-gap);
   // The room over and under the drawing with no figures printed; with them it grows to a
   // figure's line (see `$value-room` below).
   --wr-waterfall-chart-plot-inset-y: var(--wr-space-sm);
-  // Nearly square: a connector meets a bar at its corner, and a rounder corner leaves the
-  // line ending in mid-air beside the curve.
-  --wr-waterfall-chart-bar-radius: calc(var(--wr-border-radius-sm) / 3);
-  --wr-waterfall-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
-  --wr-waterfall-chart-baseline-color: var(--wr-border-base);
+  // On the end a bar runs to only - the top of a change up, the bottom of a change down -
+  // so the end it starts from, which a connector meets, stays square.
+  --wr-waterfall-chart-bar-radius: var(--wr-chart-bar-radius);
+  --wr-waterfall-chart-grid-color: var(--wr-chart-grid);
+  // The zero line, which every total stands on.
+  --wr-waterfall-chart-baseline-color: var(--wr-chart-zero);
   // Dashed, so a connector is never read as a gridline: both are thin horizontal lines, and
   // a connector stops at the next bar where a gridline crosses the plot.
-  --wr-waterfall-chart-connector-color: var(--wr-color-on-surface-muted);
+  --wr-waterfall-chart-connector-color: var(--wr-chart-axis);
   --wr-waterfall-chart-connector-width: 1px;
   // The hairline of a change of zero: neither an increase nor a decrease, so no intent —
-  // the running total carried through, in the connectors' neutral.
-  --wr-waterfall-chart-flat-color: var(--wr-color-on-surface-muted);
-  --wr-waterfall-chart-tick-gap: var(--wr-space-xs);
-  --wr-waterfall-chart-tick-font-size: var(--wr-text-xs);
+  // the running total carried through, in the palette's neutral.
+  --wr-waterfall-chart-flat-color: var(--wr-chart-8);
+  --wr-waterfall-chart-tick-gap: var(--wr-space-sm);
+  --wr-waterfall-chart-tick-font-size: var(--wr-chart-label-size);
   --wr-waterfall-chart-tick-line-height: var(--wr-text-xs-leading);
-  --wr-waterfall-chart-tick-color: var(--wr-color-on-surface-muted);
-  // The figure past a bar's end sits on the surface, not on the bar, so it takes the
-  // surface's text colour whatever the bar's.
-  --wr-waterfall-chart-value-font-size: var(--wr-text-xs);
+  --wr-waterfall-chart-tick-color: var(--wr-chart-label);
+  // The figure past a bar's end, in the muted ink every chart prints its values in.
+  --wr-waterfall-chart-value-font-size: var(--wr-chart-label-size);
   --wr-waterfall-chart-value-line-height: var(--wr-text-xs-leading);
-  --wr-waterfall-chart-value-color: var(--wr-color-on-surface);
+  --wr-waterfall-chart-value-color: var(--wr-chart-label);
   --wr-waterfall-chart-value-gap: var(--wr-space-xs);
-  --wr-waterfall-chart-label-font-size: var(--wr-text-xs);
-  --wr-waterfall-chart-label-color: var(--wr-color-on-surface-muted);
+  --wr-waterfall-chart-label-font-size: var(--wr-chart-label-size);
+  --wr-waterfall-chart-label-color: var(--wr-chart-label);
   --wr-waterfall-chart-labels-margin-top: var(--wr-space-sm);
   // A total's figure and label, a step heavier than a change's: one of the cues that tells
   // a total apart without its colour.
   --wr-waterfall-chart-total-font-weight: var(--wr-font-weight-medium);
-  // The column the tooltip is about.
-  --wr-waterfall-chart-active-bg: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+  // The band behind the step the tooltip is about.
+  --wr-waterfall-chart-active-bg: var(--wr-chart-band);
+  // How long a bar takes to reach a new value. 0s under reduced motion, with the token.
+  --wr-waterfall-chart-duration: var(--wr-chart-duration);
 
   // The room over and under the drawing: a figure's line and its gap when figures are
   // printed, so one past the highest or lowest bar stays inside the plot rather than over
-  // the legend above or the labels below.
+  // whatever is above or the labels below.
   $room: var(--wr-waterfall-chart-plot-inset-y);
   $value-room: max(
     var(--wr-waterfall-chart-plot-inset-y),
     calc(var(--wr-waterfall-chart-value-line-height) + var(--wr-waterfall-chart-value-gap))
   );
 
-  // The gap as drawn: the hook, held to a quarter of one step's share of the drawing, so
-  // a chart of many steps narrows its gaps with its bars instead of squeezing the bars to
-  // nothing and running out of its box. `--wr-waterfall-chart-steps` is the count, which
-  // the component writes on the host. A percentage is of the box that reads it, so the
-  // one length is written twice: against the row — the track and the labels, `25% / n` —
-  // and against a step — the connector and the figure, `n / (3n + 1)` of it. Those are
-  // the same: a step is an nth of the row less its share of the gaps.
-  $steps: var(--wr-waterfall-chart-steps, 1);
-  $gap-in-row: min(var(--wr-waterfall-chart-gap), calc(25% / $steps));
-  $gap-in-step: min(var(--wr-waterfall-chart-gap), calc(100% * $steps / (3 * $steps + 1)));
+  // The gap as drawn: the hook, held to half a band. Every step is a whole band - an nth
+  // of the drawing, with no gap between two - and its bar sits half the gap in from each
+  // side of it, so the gap between two bars is the hook resolved against a band wherever
+  // it is read: by the bar, by the connector that crosses it and by the figure's padding.
+  // A share of a band narrows with the bars; a length that outgrows them stops at half a
+  // band, where a fixed 8px squeezed the bars of a 150-step chart to nothing.
+  $gap: min(var(--wr-waterfall-chart-gap), 50%);
+
+  // The bar's two ends, as shares of the drawing's height from its bottom, which the
+  // component writes on the step.
+  $lo: var(--wr-waterfall-chart-lo, 0);
+  $hi: var(--wr-waterfall-chart-hi, 0);
 
   display: block;
   // The containing block of the out-of-flow `dataTable` copy, as on every chart that
@@ -79,6 +85,16 @@
   &__body {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  // The top tick is centred on the top gridline, so half of it stands over the drawing's
+  // top: inside the plot's own block padding by default, and given room here where a hook
+  // makes the tick taller than that, so it never leaves the chart's box.
+  &--axis &__body {
+    padding-block-start: max(
+      0px,
+      calc(var(--wr-waterfall-chart-tick-line-height) / 2 - var(--wr-waterfall-chart-plot-inset-y))
+    );
   }
 
   // As wide as the longest label: every label is in flow, in the one cell of a one-cell
@@ -124,12 +140,12 @@
     padding-block: $value-room;
   }
 
-  // The drawing: one column per step, side by side. The gridlines, the zero line and each
-  // column's parts are placed in it by percentage of its height from the bottom.
+  // The drawing: one band per step, side by side with nothing between them, so the pointer
+  // is always on one. The gridlines, the zero line and each band's parts are placed in it
+  // by percentage of its height from the bottom. Also the box the state message sits in.
   &__track {
     position: relative;
     display: flex;
-    gap: $gap-in-row;
     height: 100%;
   }
 
@@ -152,44 +168,99 @@
     border-block-start: 1px solid var(--wr-waterfall-chart-baseline-color);
   }
 
-  // The full height of the drawing, so the whole column answers the pointer, and as wide
-  // as a share of the plot less the gaps.
+  // The full height of the drawing, so the whole band answers the pointer, and as wide as
+  // a share of the plot.
   &__step {
     position: relative;
     flex: 1 1 0;
     min-width: 0;
+    transition: background-color var(--wr-chart-duration-short) var(--wr-chart-ease);
   }
 
   &__step--active {
-    background: var(--wr-waterfall-chart-active-bg);
+    background-color: var(--wr-waterfall-chart-active-bg);
   }
 
+  // ── The bar ───────────────────────────────────────────────────────────────────────
+  //
   // From one end to the other of what the step spans: a change from the running total
-  // before it to the one after, a total from zero. A change of zero keeps a hairline.
+  // before it to the one after, a total from zero. Two boxes, each as tall as the drawing
+  // and each moved by a TRANSFORM, so a new value is a compositor animation rather than a
+  // layout pass per frame per bar, which transitions of `bottom` and `height` were:
+  //
+  // - the CLIP is lifted until its bottom edge is the bar's lower end, and clips what it
+  //   holds;
+  // - the BAR inside it, which carries the paint, is lowered until its top edge is the
+  //   bar's upper end.
+  //
+  // What shows is where the two overlap: the bar. Nothing is scaled, so a rounded end
+  // keeps its shape while it moves - the clip rounds the lower end and the painted box
+  // the upper one, each only on the step that runs that way. The clip reaches above the
+  // drawing by however far the bar starts from the bottom, painting nothing there; it
+  // takes no pointer, and room above a box is never scrollable. The painted box reaches
+  // below, inside the clip, which is what keeps it out of any scroller's reach.
+  &__clip {
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc($gap / 2);
+    overflow: clip;
+    transform: translateY(calc($lo * -1%));
+    transition: transform var(--wr-waterfall-chart-duration) var(--wr-chart-ease);
+    pointer-events: none;
+  }
+
   &__bar {
     position: absolute;
-    inset-inline: 0;
-    bottom: calc(var(--wr-waterfall-chart-lo, 0) * 1%);
-    height: calc((var(--wr-waterfall-chart-hi, 0) - var(--wr-waterfall-chart-lo, 0)) * 1%);
-    min-height: 1px;
-    border-radius: var(--wr-waterfall-chart-bar-radius);
-    transition:
-      bottom var(--wr-duration-slow) var(--wr-ease-out),
-      height var(--wr-duration-slow) var(--wr-ease-out);
+    inset: 0;
+    transform: translateY(calc((100 - ($hi - $lo)) * 1%));
+    transition: transform var(--wr-waterfall-chart-duration) var(--wr-chart-ease);
     // The bar is an inline `background`, which forced colors resets to `Canvas`: every bar
     // would vanish into the page and leave its figure floating. The SVG charts keep their
     // fills there, so the HTML marks do too.
     forced-color-adjust: none;
   }
 
-  // No inline paint on a change of zero, so the hook paints it.
-  &__step--flat &__bar {
-    background: var(--wr-waterfall-chart-flat-color);
+  // The end a step runs to, rounded: the top of a change up and of a total above zero,
+  // which is the painted box's own top edge.
+  &__step--increase &__bar,
+  &__step--total:not(&__step--down) &__bar {
+    border-start-start-radius: var(--wr-waterfall-chart-bar-radius);
+    border-start-end-radius: var(--wr-waterfall-chart-bar-radius);
   }
 
-  // Past the end the step runs to: over its top, or under its bottom with `--below`.
-  // Its room is its column and half the gap on either side, less a quarter of the gap of
-  // padding, so two neighbours' figures always stand half a gap apart.
+  // And the bottom of a change down and of a total below zero, which is the clip's.
+  &__step--down &__clip {
+    border-end-start-radius: var(--wr-waterfall-chart-bar-radius);
+    border-end-end-radius: var(--wr-waterfall-chart-bar-radius);
+  }
+
+  // No inline paint on a change of zero, so the hook paints it: a hairline, since its two
+  // ends are one level and the overlap would be nothing.
+  &__step--flat &__bar {
+    background: var(--wr-waterfall-chart-flat-color);
+    transform: translateY(calc(100% - 1px));
+  }
+
+  // ── The figure ────────────────────────────────────────────────────────────────────
+  //
+  // Past the end the step runs to: over its top, or under its bottom with `--below`. The
+  // slot is as tall as the drawing and lifted by a transform until its bottom edge is
+  // that end, so the figure follows its bar without a layout pass; the line stands on
+  // that edge, or hangs from it. Upwards only, as the bar's clip: nothing to scroll to.
+  &__value-slot {
+    position: absolute;
+    inset: 0;
+    transform: translateY(calc($hi * -1%));
+    transition: transform var(--wr-waterfall-chart-duration) var(--wr-chart-ease);
+    pointer-events: none;
+  }
+
+  &__value-slot--below {
+    transform: translateY(calc($lo * -1%));
+  }
+
+  // Its room is its band, less a quarter of the gap of padding on either side, so two
+  // neighbours' figures always stand half a gap apart.
   //
   // A figure is printed whole or not at all, with no measuring, as the heatmap's values
   // are: the box is a wrapping flex line one figure tall, led by a zero-width item. A
@@ -199,21 +270,19 @@
   // the name and the data table carry the whole figure.
   &__value {
     position: absolute;
-    inset-inline: calc($gap-in-step / -2);
-    bottom: calc(var(--wr-waterfall-chart-hi, 0) * 1% + var(--wr-waterfall-chart-value-gap));
+    inset-inline: 0;
+    bottom: var(--wr-waterfall-chart-value-gap);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     box-sizing: border-box;
     block-size: var(--wr-waterfall-chart-value-line-height);
-    padding-inline: calc($gap-in-step / 4);
+    padding-inline: calc($gap / 4);
     overflow: hidden;
     font-size: var(--wr-waterfall-chart-value-font-size);
     line-height: var(--wr-waterfall-chart-value-line-height);
     color: var(--wr-waterfall-chart-value-color);
     font-variant-numeric: tabular-nums;
-    pointer-events: none;
-    transition: bottom var(--wr-duration-slow) var(--wr-ease-out);
 
     &::before {
       content: '';
@@ -232,46 +301,38 @@
     unicode-bidi: plaintext;
   }
 
-  // Not past either end of the plot, where there is no gap to borrow: past the last bar
-  // it would reach out of the chart's own box and give a scroller 4px to scroll. The steps
-  // are the track's only `div`s, between the gridlines and the zero line.
-  &__step:first-of-type &__value {
-    inset-inline-start: 0;
-  }
-
-  &__step:last-of-type &__value {
-    inset-inline-end: 0;
-  }
-
   &__value--below {
-    top: calc((100 - var(--wr-waterfall-chart-lo, 0)) * 1% + var(--wr-waterfall-chart-value-gap));
+    top: calc(100% + var(--wr-waterfall-chart-value-gap));
     bottom: auto;
-    transition: top var(--wr-duration-slow) var(--wr-ease-out);
   }
 
   &__step--total &__value {
     font-weight: var(--wr-waterfall-chart-total-font-weight);
   }
 
-  // From this column's inline end across the gap to the next one, centred on the running
-  // total the next bar starts from. Logical, so under RTL it crosses to the left.
+  // From this bar's inline end across the gap to the next one, on the running total the
+  // next bar starts from. Logical, so under RTL it crosses to the left. As tall as the
+  // drawing with the line on its bottom edge, and lifted to its level by a transform, as
+  // the bar is.
   &__connector {
     position: absolute;
-    inset-inline-start: 100%;
-    bottom: calc(var(--wr-waterfall-chart-level, 0) * 1%);
-    inline-size: $gap-in-step;
-    border-block-start: var(--wr-waterfall-chart-connector-width) dashed var(--wr-waterfall-chart-connector-color);
-    transform: translateY(50%);
+    inset-block: 0;
+    inset-inline-start: calc(100% - $gap / 2);
+    inline-size: $gap;
+    box-sizing: border-box;
+    border-block-end: var(--wr-waterfall-chart-connector-width) dashed var(--wr-waterfall-chart-connector-color);
+    transform: translateY(
+      calc(var(--wr-waterfall-chart-level, 0) * -1% + var(--wr-waterfall-chart-connector-width) / 2)
+    );
+    transition: transform var(--wr-waterfall-chart-duration) var(--wr-chart-ease);
     pointer-events: none;
-    transition: bottom var(--wr-duration-slow) var(--wr-ease-out);
   }
 
-  // A slot per step with the plot's own gap, so each label sits under its column.
+  // A slot per step, each a whole band, so each label sits under its bar.
   &__labels {
     grid-column: 2;
     grid-row: 2;
     display: flex;
-    gap: $gap-in-row;
     margin-block-start: var(--wr-waterfall-chart-labels-margin-top);
   }
 
@@ -297,8 +358,10 @@
 // A bar that moves to its new ends is motion nothing asked for twice: the new figure is
 // what matters, and it is drawn at once.
 @media (prefers-reduced-motion: reduce) {
+  .wr-waterfall-chart__step,
+  .wr-waterfall-chart__clip,
   .wr-waterfall-chart__bar,
-  .wr-waterfall-chart__value,
+  .wr-waterfall-chart__value-slot,
   .wr-waterfall-chart__connector {
     transition: none;
   }

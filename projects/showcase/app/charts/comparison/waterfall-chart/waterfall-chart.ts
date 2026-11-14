@@ -89,6 +89,7 @@ export default class WaterfallChartPageComponent {
     { label: 'Closing', value: 4750, total: true }
   ]"
 />`,
+    values: `<wr-waterfall-chart [steps]="bridge" showValues />`,
     totals: `<wr-waterfall-chart [steps]="months" />`,
     totalsTs: `months: WrWaterfallStep[] = [
   { label: 'Start', value: 1200, total: true }, // opens the chart
@@ -101,9 +102,9 @@ export default class WaterfallChartPageComponent {
   { label: 'Jun', value: 190 },
   { label: 'H1', value: 2140, total: true },
 ];`,
-    negative: `<wr-waterfall-chart [steps]="cash" />`,
+    negative: `<wr-waterfall-chart [steps]="cash" showValues />`,
     colors: `<wr-waterfall-chart totalColor="var(--wr-color-on-surface-muted)" [steps]="bridge" />`,
-    format: `<wr-waterfall-chart [steps]="bridge" [valueFormat]="format" />`,
+    format: `<wr-waterfall-chart [steps]="bridge" [valueFormat]="format" showValues />`,
     formatTs: `const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const compactUsd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' });
 
@@ -111,7 +112,13 @@ const compactUsd = new Intl.NumberFormat('en-US', { style: 'currency', currency:
 // Every figure arrives as its magnitude; the chart writes + or − in front.
 format = (value: number, where: WrWaterfallValueContext): string =>
   (where === 'label' ? compactUsd : usd).format(value);`,
-    quiet: `<wr-waterfall-chart [steps]="bridge" [showValues]="false" [showGrid]="false" />`,
+    grid: `<wr-waterfall-chart [steps]="bridge" [showGrid]="false" />
+<wr-waterfall-chart [steps]="bridge" [showAxis]="false" />
+<wr-waterfall-chart [steps]="bridge" [showGrid]="false" [showAxis]="false" showValues />
+<wr-waterfall-chart [steps]="bridge" [showConnectors]="false" showValues />`,
+    states: `<wr-waterfall-chart [steps]="[]" />
+<wr-waterfall-chart [steps]="bridge" loading />
+<wr-waterfall-chart [steps]="bridge" error errorLabel="The bridge is unavailable" />`,
     table: `<wr-waterfall-chart ariaLabel="Profit bridge" dataTable [steps]="bridge" />`,
   };
 
