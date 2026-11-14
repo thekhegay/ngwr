@@ -725,11 +725,34 @@ describe('WrWindow focus', () => {
   });
 
   describe('on open', () => {
-    it('moves to the first control in the body', () => {
+    it('moves to the window itself, not to a control in the body', () => {
       manager.open(FormBody, { title: 'Form' });
       TestBed.tick();
 
+      const win = q('wr-window')!;
+      expect(active()).toBe(win);
+      expect(win.getAttribute('tabindex')).toBe('-1');
+    });
+
+    it('moves to the first control in the body under autoFocus: "first-tabbable"', () => {
+      manager.open(FormBody, { title: 'Form', autoFocus: 'first-tabbable' });
+      TestBed.tick();
+
       expect(active()).toBe(q('.field'));
+    });
+
+    it('reads autoFocus: true as the default', () => {
+      manager.open(FormBody, { title: 'Form', autoFocus: true });
+      TestBed.tick();
+
+      expect(active()).toBe(q('wr-window'));
+    });
+
+    it('honours cdkFocusInitial under "first-tabbable" too', () => {
+      manager.open(PickedBody, { title: 'Picked', autoFocus: 'first-tabbable' });
+      TestBed.tick();
+
+      expect(active()).toBe(q('.picked'));
     });
 
     it('honours cdkFocusInitial, like the dialog and the drawer', () => {
@@ -781,7 +804,7 @@ describe('WrWindow focus', () => {
       manager.open(FormBody, { id: 'settings', title: 'Settings' });
       TestBed.tick();
 
-      expect(active()).toBe(q('.field'));
+      expect(active()).toBe(q('wr-window'));
     });
   });
 
@@ -843,7 +866,7 @@ describe('WrWindow focus', () => {
     it('moves to the window’s tab when the window is minimized with focus inside', () => {
       manager.open(FormBody, { title: 'Inbox', os: 'windows' });
       TestBed.tick();
-      expect(active()).toBe(q('.field'));
+      expect(active()).toBe(q('wr-window'));
 
       q('.wr-window__chrome-action--minimize')!.click();
       TestBed.tick();
@@ -872,7 +895,7 @@ describe('WrWindow focus', () => {
       TestBed.tick();
 
       expect(restoreTab()).toBeNull();
-      expect(active()).toBe(q('.field'));
+      expect(active()).toBe(q('wr-window'));
     });
 
     it('leaves every window open on an Escape pressed on a minimized window’s tab', () => {

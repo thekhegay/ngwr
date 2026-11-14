@@ -100,16 +100,11 @@
     display: none;
   }
 
-  // The window itself takes focus (`tabindex="-1"`) when its body has no
-  // control to open onto, so it carries the shared ring rather than the UA's.
-  // Outset: `overflow: clip` clips content, never the element's own outline.
-  // The halo and the drop shadow are both a `box-shadow`, so the second
-  // declaration keeps the two rather than trading the shadow for the halo.
-  &:focus-visible {
-    @include theme.focus-ring;
-    box-shadow:
-      0 0 0 var(--wr-focus-ring-offset) var(--wr-focus-ring-halo),
-      var(--wr-shadow-modal);
+  // The window itself takes focus (`tabindex="-1"`) when it opens, so the
+  // keyboard is inside it and no control is lit. It is a container, never a
+  // control, so it draws no ring; the active window is told by its chrome.
+  &:focus {
+    outline: none;
   }
 
   // Keyboard move / resize: a dashed ring says the arrow keys now move or size

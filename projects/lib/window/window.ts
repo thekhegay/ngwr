@@ -13,7 +13,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
-  type Injector,
+  Injector,
   type OnInit,
   TemplateRef,
   ViewEncapsulation,
@@ -25,6 +25,7 @@ import {
 } from '@angular/core';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { wrFocusOverlay } from 'ngwr/overlay';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WrWindowManager } from './services/window-manager';
@@ -188,6 +189,7 @@ export class WrWindow implements OnInit {
   private readonly manager = inject(WrWindowManager);
   private readonly elRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly focusTraps = inject(FocusTrapFactory);
+  private readonly ownInjector = inject(Injector);
   private readonly dir = inject(Directionality, { optional: true });
 
   /** Ends the pointer move in progress, if any: its listeners are on the document. */
@@ -295,26 +297,37 @@ export class WrWindow implements OnInit {
   // Focus
 
   /**
-   * Move focus into the window: to `[cdkFocusInitial]` or the first control in
-   * its body — the CDK's rule, the one `WrDialog` and `WrDrawer` follow — else
-   * to the window itself. The chrome buttons are not candidates: landing on
-   * Close, the first of them on macOS, is the one place a window must not open
-   * onto. Called after a render, by the container.
+   * Which of the two the window opens onto, from `WrWindowConfig.autoFocus`. Set
+   * by the container.
+   *
+   * @internal
+   */
+  initialFocus: 'first-tabbable' | 'dialog' = 'dialog';
+
+  /**
+   * Move focus into the window. Under `'dialog'`, to `[cdkFocusInitial]` in its
+   * body, else to the window itself, the rule `WrDialog` and `WrDrawer` follow.
+   * Under `'first-tabbable'`, to `[cdkFocusInitial]` or the first control in
+   * its body, else to the window itself. The chrome buttons are not candidates:
+   * landing on Close, the first of them on macOS, is the one place a window
+   * must not open onto. Called after a render, by the container.
    *
    * @internal
    */
   focusInitial(): void {
+    const mode = this.initialFocus;
     const host = this.elRef.nativeElement;
     if (!host.isConnected || this.state() === 'minimized') return;
     const body = host.querySelector<HTMLElement>('.wr-window__body');
-    if (body) {
-      // `deferAnchors`: no anchors go into the page, and nothing is trapped.
-      const finder = this.focusTraps.create(body, true);
-      const moved = finder.focusInitialElement({ preventScroll: true });
-      finder.destroy();
-      if (moved) return;
+    // `deferAnchors`: no anchors go into the page, and nothing is trapped.
+    const finder = this.focusTraps.create(body ?? host, true);
+    if (mode === 'dialog') {
+      wrFocusOverlay(host, finder, mode, this.ownInjector);
+      return;
     }
-    host.focus({ preventScroll: true });
+    const moved = !!body && finder.focusInitialElement({ preventScroll: true });
+    finder.destroy();
+    if (!moved) host.focus({ preventScroll: true });
   }
 
   /**
