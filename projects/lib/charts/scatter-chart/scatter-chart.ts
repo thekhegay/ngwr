@@ -26,7 +26,7 @@ import {
   WrChartTable,
   type WrChartTableData,
   wrChartAxis,
-  wrChartColor,
+  wrChartLegacyColor,
   wrChartMarker,
   wrChartMarkerExtent,
   wrChartMarkerPath,
@@ -257,7 +257,7 @@ export class WrScatterChart {
     this.series().map((s, index) => ({
       index,
       label: s.label,
-      color: s.color ?? wrChartColor(index),
+      color: s.color ?? wrChartLegacyColor(index),
       marker: wrChartMarker(index),
       points: s.data.flatMap((p, i) =>
         Number.isFinite(p.x) && Number.isFinite(p.y)

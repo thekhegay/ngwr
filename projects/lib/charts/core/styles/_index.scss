@@ -1,10 +1,180 @@
-// Public Sass entry for the charts' shared parts. Nothing an app imports draws from
-// here directly: a chart that renders `<wr-chart-table>` loads this sheet from its
-// own `_index.scss`, the way every component loads the styles of what it renders.
-//
-// No theme load, and on purpose: these rules read no token, and an entry point that
-// cannot leave a `var(--wr-*)` unresolved has no reason to drag the token layer in.
+// Public Sass entry for the charts' shared parts: the chart theme every chart paints
+// through, and the rules of the parts they all draw the same way. Nothing an app imports
+// draws from here directly: a chart loads this sheet from its own `_index.scss`, the way
+// every component loads the styles of what it renders.
 
+// The token layer whose roles every chart token below defaults to. Every chart that
+// loads this sheet loads the theme too, and Sass emits a module once, so this adds
+// nothing to a chart's output; it is what lets the sheet resolve its own reads.
+@use '../../../theme/styles';
+
+// ── The chart theme ────────────────────────────────────────────────────────────────
+//
+// One set of `--wr-chart-*` tokens for every chart: set one on `:root` and every chart
+// follows. Each chart's own `--wr-<chart>-*` hooks default to these, so a hook still
+// restyles one chart and a token restyles them all.
+//
+// Measured against `--wr-color-surface` (`#ffffff` light, `#0b1120` dark), WCAG relative
+// luminance:
+//
+// - the grid, `--wr-border-base`: 1.47:1 light, 1.41:1 dark, and 3.47 / 3.56 under
+//   `prefers-contrast: more`, where the role itself deepens. It was a 70% mix of the same
+//   role, which measured 1.14 and 1.10 and read as no grid at all.
+// - the zero line and the axis, `--wr-border-strong`: 2.54:1 light, 2.49:1 dark.
+// - the palette, in order, light: 4.89, 3.32, 5.18, 8.98, 3.27, 5.40, 3.30, 7.56; dark:
+//   4.07, 11.64, 8.48, 10.20, 12.44, 5.14, 5.01, 7.67. Every one clears the 3:1 WCAG asks
+//   of a graphic, on the surface and on `--wr-color-fill-subtle` (3.13 at the least).
+:root {
+  --wr-chart-grid: var(--wr-border-base);
+  --wr-chart-axis: var(--wr-border-strong);
+  --wr-chart-zero: var(--wr-border-strong);
+  --wr-chart-label: var(--wr-color-on-surface-muted);
+  --wr-chart-label-size: var(--wr-text-xs);
+  // A line's width, and a marker's diameter at rest.
+  --wr-chart-stroke: 2px;
+  --wr-chart-marker: 6px;
+  // On the value end of a bar only: the end on the baseline stays square.
+  --wr-chart-bar-radius: 2px;
+  // How much of one band (a category's share of the axis) is left empty beside its bars.
+  --wr-chart-gap: 20%;
+  // The line between two fills that touch: a stacked segment, a slice, a tile.
+  --wr-chart-separator: var(--wr-color-surface);
+  // The opacity of everything but the series under the pointer.
+  --wr-chart-dim: 0.35;
+  // The unfilled part of a gauge, a meter or a bullet, and a cell with no data.
+  --wr-chart-track: color-mix(in srgb, var(--wr-border-base) 60%, transparent);
+  // The band behind the category under the pointer.
+  --wr-chart-band: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+  // A mark moving to a new value, and a hover change. Both are 0s under reduced motion.
+  --wr-chart-duration: var(--wr-duration-slow);
+  --wr-chart-duration-short: var(--wr-duration-base);
+  --wr-chart-ease: var(--wr-ease-out);
+
+  // The categorical palette, in the order series take it. Not the status intents: a
+  // second series is not a success and a fourth is not a danger. The first is the brand
+  // colour, so a chart of one series is on brand and a rebrand carries it; the last is the
+  // neutral role. Neighbours alternate between a deep and a mid tone (1.47:1 apart in
+  // luminance at the least in light, and every neighbouring pair at least 0.129 apart in
+  // OKLab under simulated deuteranopia and protanopia in light, 0.086 in dark), so two
+  // series next to each other differ in lightness as well as in hue.
+  --wr-chart-1: var(--wr-color-primary);
+  --wr-chart-2: light-dark(#1a9e8f, #5fe0c8);
+  --wr-chart-3: light-dark(#c2410c, #f5975a);
+  --wr-chart-4: light-dark(#5b21b6, #c4b5fd);
+  --wr-chart-5: light-dark(#b7860b, #f2d042);
+  --wr-chart-6: light-dark(#b5329a, #d946cf);
+  --wr-chart-7: light-dark(#f0577b, #e8457f);
+  --wr-chart-8: var(--wr-color-on-surface-muted);
+
+  // Sequential: the first palette colour stepped toward the surface, so the scale turns
+  // over with the scheme by itself - the strongest step is the darkest on a light page
+  // and the lightest on a dark one. Steps 3 to 5 hold 3:1 against the surface; 1 and 2
+  // are tints, and a cell painted with one needs an edge or its value in text.
+  --wr-chart-seq-1: color-mix(in srgb, var(--wr-chart-1) 20%, var(--wr-color-surface));
+  --wr-chart-seq-2: color-mix(in srgb, var(--wr-chart-1) 40%, var(--wr-color-surface));
+  --wr-chart-seq-3: color-mix(in srgb, var(--wr-chart-1) 60%, var(--wr-color-surface));
+  --wr-chart-seq-4: color-mix(in srgb, var(--wr-chart-1) 80%, var(--wr-color-surface));
+  --wr-chart-seq-5: var(--wr-chart-1);
+
+  // Diverging: the two ends, each mixed toward the surface by the chart that draws the
+  // scale. Not success against danger, which a red-green reader cannot split.
+  --wr-chart-div-neg: var(--wr-color-danger);
+  --wr-chart-div-pos: var(--wr-color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --wr-chart-duration: 0s;
+    --wr-chart-duration-short: 0s;
+  }
+}
+
+// ── Hover ──────────────────────────────────────────────────────────────────────────
+//
+// A chart marks everything that belongs to one series with `data-wr-series`, its legend
+// rows included. While the pointer is on one, `useChartHover` puts `wr-chart--dim` on the
+// chart and `wr-chart-mark--on` on that series' marks, and the rest fall back. Zero
+// specificity, so a chart's own rule for a mark wins whatever order the sheets load in.
+:where([data-wr-series]) {
+  transition: opacity var(--wr-chart-duration-short) var(--wr-chart-ease);
+}
+
+:where(.wr-chart--dim) :where([data-wr-series]:not(.wr-chart-mark--on)) {
+  opacity: var(--wr-chart-dim);
+}
+
+// ── The legend beside the chart ────────────────────────────────────────────────────
+//
+// Above and below, the legend is a block before or after the chart's body and needs no
+// rule. At inline start or end the chart puts `wr-chart--legend-side` on its host: the
+// legend keeps its own width and the body takes the rest. The class is written twice on
+// purpose: every chart's own block sets its `display`, in a sheet that loads after this
+// one, and a single class would lose to it.
+.wr-chart--legend-side.wr-chart--legend-side {
+  display: flex;
+  align-items: flex-start;
+
+  > :where(:not(.wr-chart-legend, .wr-chart-table)) {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+// ── Empty, loading, error ──────────────────────────────────────────────────────────
+//
+// The message a chart shows in place of its marks, centred over the frame it keeps: the
+// grid and the axis stay, so the chart holds its size and still reads as a chart. The
+// chart positions the box it sits in.
+.wr-chart-state {
+  --wr-chart-state-color: var(--wr-chart-label);
+  --wr-chart-state-font-size: var(--wr-text-sm);
+  --wr-chart-state-gap: var(--wr-space-sm);
+  --wr-chart-state-error-color: var(--wr-color-danger-ink);
+  --wr-chart-state-spinner-size: 1em;
+  --wr-chart-state-spinner-color: var(--wr-chart-1);
+
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wr-chart-state-gap);
+  padding: var(--wr-chart-state-gap);
+  font-size: var(--wr-chart-state-font-size);
+  color: var(--wr-chart-state-color);
+  text-align: center;
+  pointer-events: none;
+
+  &--error {
+    color: var(--wr-chart-state-error-color);
+  }
+
+  // A ring with one arc of it painted, turning. Still under reduced motion, where the
+  // word beside it carries the state alone.
+  &__spinner {
+    flex: none;
+    width: var(--wr-chart-state-spinner-size);
+    height: var(--wr-chart-state-spinner-size);
+    border: 2px solid var(--wr-chart-track);
+    border-block-start-color: var(--wr-chart-state-spinner-color);
+    border-radius: 50%;
+    animation: wr-chart-state-spin 0.8s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+}
+
+@keyframes wr-chart-state-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+// ── The data table ─────────────────────────────────────────────────────────────────
+//
 // A chart's data table, read in full by assistive technology and drawn nowhere.
 //
 // The clip pattern on the HOST rather than on the `<table>`: a table grows to fit its

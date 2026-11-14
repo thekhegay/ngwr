@@ -1,31 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { COMPILE_TIMEOUT, compileSass } from '../../spec-sass';
-
 import { WR_CHART_MARKERS, wrChartMarker, wrChartMarkerExtent, wrChartMarkerPath } from './markers';
 import { WR_CHART_DASHES, WR_CHART_PALETTE, wrChartColor, wrChartDash } from './palette';
 
 describe('WR_CHART_PALETTE', () => {
-  it('is four intents and the neutral role, with no info', () => {
-    expect(WR_CHART_PALETTE).toEqual([
-      'var(--wr-color-primary)',
-      'var(--wr-color-success)',
-      'var(--wr-color-warning)',
-      'var(--wr-color-danger)',
-      'var(--wr-color-on-surface-muted)',
-    ]);
-  });
-
-  it('paints only through tokens the theme declares', { timeout: COMPILE_TIMEOUT }, () => {
-    // A token nothing declares is invalid at computed-value time, and the browser drops
-    // the whole declaration holding it: a series would vanish without a word.
-    const css = compileSass("@use 'theme/styles';");
-    for (const color of WR_CHART_PALETTE) {
-      const token = /var\((--wr-[a-z-]+)\)/.exec(color)?.[1] ?? '';
-      expect(css, token).toMatch(new RegExp(`${token}:`));
-    }
-  });
-
+  // What the palette is, and that every token of it is declared, is in `theme.spec.ts`.
   it('wraps past the end, and folds a negative or fractional index back in', () => {
     expect(wrChartColor(0)).toBe(WR_CHART_PALETTE[0]);
     expect(wrChartColor(WR_CHART_PALETTE.length)).toBe(WR_CHART_PALETTE[0]);

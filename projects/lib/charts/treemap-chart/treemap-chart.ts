@@ -23,7 +23,7 @@ import {
   viewChildren,
 } from '@angular/core';
 
-import { WrChartTable, type WrChartTableData, wrChartColor, useChartNumbers } from 'ngwr/charts/core';
+import { WrChartTable, type WrChartTableData, wrChartLegacyColor, useChartNumbers } from 'ngwr/charts/core';
 import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -127,7 +127,7 @@ function resolveNodes(
   key: string
 ): ResolvedNode[] {
   return nodes.map((node, i) => {
-    const color = node.color ?? inherited ?? wrChartColor(i);
+    const color = node.color ?? inherited ?? wrChartLegacyColor(i);
     const own = typeof node.value === 'number' && Number.isFinite(node.value) ? node.value : null;
     const ownSize = own !== null && own > 0 ? own : 0;
     const nodePath = [...path, node.label];
