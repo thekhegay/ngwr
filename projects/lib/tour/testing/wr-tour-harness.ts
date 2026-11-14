@@ -111,7 +111,29 @@ export class WrTourHarness extends ComponentHarness {
    * what an untitled step has instead of one.
    */
   async getAccessibleName(): Promise<string | null> {
-    return (await this.host()).getAttribute('aria-label');
+    return this.referenced('aria-labelledby');
+  }
+
+  /**
+   * What the card is described by, which is what a screen reader reads after the
+   * name when focus enters the dialog: the step's text.
+   */
+  async getDescription(): Promise<string | null> {
+    return this.referenced('aria-describedby');
+  }
+
+  /**
+   * The text of the elements an id-list attribute of the card names, joined by a
+   * space, or `null` when the attribute is absent or names nothing in the card.
+   */
+  private async referenced(attribute: string): Promise<string | null> {
+    const ids = ((await (await this.host()).getAttribute(attribute)) ?? '').split(/\s+/).filter(Boolean);
+    const texts: string[] = [];
+    for (const id of ids) {
+      const element = await this.locatorForOptional(`[id="${id}"]`)();
+      if (element) texts.push(await element.text());
+    }
+    return texts.length ? texts.join(' ') : null;
   }
 
   /** Whether the card announces itself as a modal dialog. */
