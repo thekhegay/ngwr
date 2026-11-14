@@ -40,6 +40,12 @@
     height var(--wr-transition-base);
 }
 
+// The card takes focus when a step opens, as `tabindex="-1"`: the keyboard is in
+// the tour and no button is lit. A container is not a control to ring.
+.wr-tour-popup:focus {
+  outline: none;
+}
+
 .wr-tour-popup {
   --wr-tour-popup-padding: var(--wr-space-lg);
   --wr-tour-popup-border: var(--wr-border-base);

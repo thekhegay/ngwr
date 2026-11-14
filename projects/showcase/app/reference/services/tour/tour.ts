@@ -80,9 +80,10 @@ tour.isLast(); // no step after this one`,
       default: '—',
     },
     {
-      name: 'start(steps)',
-      description: 'Begin a tour. Restarts if one is running; a no-op under SSR.',
-      type: '(steps: readonly WrTourStep[]) => void',
+      name: 'start(steps, options?)',
+      description:
+        'Begin a tour. Restarts if one is running; a no-op under SSR. `options.autoFocus` is where focus goes when a card opens: `"dialog"` (default, the card itself), `"first-tabbable"` (Next) or `false`.',
+      type: '(steps: readonly WrTourStep[], options?: WrTourOptions) => void',
       default: '—',
       sub: true,
     },

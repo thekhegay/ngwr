@@ -1,3 +1,3 @@
 export { WrTour } from './tour';
 export { WrTourPopup } from './tour-popup';
-export type { WrTourPlacement, WrTourStep } from './types';
+export type { WrTourOptions, WrTourPlacement, WrTourStep } from './types';
