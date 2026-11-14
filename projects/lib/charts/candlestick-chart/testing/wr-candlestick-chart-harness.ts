@@ -40,12 +40,13 @@ class CandleHarness extends ComponentHarness {
       );
     }
     const style = (await candle.getAttribute('style')) ?? '';
+    const [index, open, high, low, close] = await figures(candle);
     return {
-      index: await numberAttribute(candle, 'data-index'),
-      open: await numberAttribute(candle, 'data-open'),
-      high: await numberAttribute(candle, 'data-high'),
-      low: await numberAttribute(candle, 'data-low'),
-      close: await numberAttribute(candle, 'data-close'),
+      index,
+      open,
+      high,
+      low,
+      close,
       direction: increase ? 'increase' : 'decrease',
       left: styleNumber(style, 'left', '%'),
       top: styleNumber(style, 'top', '%'),
@@ -56,17 +57,20 @@ class CandleHarness extends ComponentHarness {
   }
 }
 
-/** A finite number off one attribute, or a sentence saying which one the candle lacks. */
-async function numberAttribute(element: TestElement, name: string): Promise<number> {
-  const raw = await element.getAttribute(name);
-  const value = raw === null ? Number.NaN : Number.parseFloat(raw);
-  if (!Number.isFinite(value)) {
+/**
+ * A candle's position and its four prices, off the one attribute the chart writes them
+ * in: `data-candle="index open high low close"`.
+ */
+async function figures(element: TestElement): Promise<number[]> {
+  const raw = await element.getAttribute('data-candle');
+  const values = (raw ?? '').split(' ').map(part => Number.parseFloat(part));
+  if (values.length !== 5 || !values.every(value => Number.isFinite(value))) {
     throw new Error(
-      `WrCandlestickChartHarness.getCandles(): a candle carries ${name}="${raw ?? ''}", which the component writes ` +
-        'as a finite number on every candle it draws.'
+      `WrCandlestickChartHarness.getCandles(): a candle carries data-candle="${raw ?? ''}", which the component ` +
+        'writes as five finite numbers on every candle it draws.'
     );
   }
-  return value;
+  return values;
 }
 
 /**
@@ -92,11 +96,13 @@ function styleNumber(style: string, property: string, unit: '%' | ''): number {
  * **Candles are read off what the component WROTE, never off a layout.** jsdom lays
  * nothing out, so a measured box would read 0 for a working chart and a broken one
  * alike. Every candle is a box the component places by percentage, and it carries its
- * period's prices in `data-*` attributes beside that placement — so {@link getCandles}
+ * period's prices in one `data-candle` attribute beside that placement — so {@link getCandles}
  * answers both questions a spec has: which period is this, and where did the chart put
  * it. A candle with the right prices at the wrong height is exactly the defect worth
- * catching. Hollow or filled is read as the `--increase` / `--decrease` modifier the
- * stylesheet draws it from; what that paints is a browser's question.
+ * catching. Rising or falling is read as the `--increase` / `--decrease` modifier the
+ * stylesheet draws it from; what that paints is a browser's question. Past two periods a
+ * pixel the chart merges them (`decimate`), and a candle read here is then the merged
+ * one: the index of its first period, and the prices the run comes to.
  *
  * **A body's width is not read**: it is a share of the slot that the stylesheet holds
  * between 1px and a ceiling, and jsdom has no stylesheet. {@link isDense} reads the
@@ -156,8 +162,8 @@ export class WrCandlestickChartHarness extends ComponentHarness {
   }
 
   /**
-   * Whether the chart is drawn dense: its bodies too narrow to leave hollow, so a rising
-   * one is dotted. Decided on the measured body in a browser, and on the assumed 560px
+   * Whether the chart is drawn dense: its bodies too narrow to leave hollow, so under
+   * `hollow` a rising one is dotted. Decided on the measured body in a browser, and on the assumed 560px
    * drawing before that — which is every unit test.
    */
   async isDense(): Promise<boolean> {
@@ -169,7 +175,26 @@ export class WrCandlestickChartHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-candlestick-chart__grid-line')()) !== null;
   }
 
-  /** The y-axis tick labels, top to bottom; `[]` with `showGrid` off. */
+  /** Whether the price axis' scale is printed beside the plot (`showAxis`). */
+  async hasAxis(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-candlestick-chart__y-axis')()) !== null;
+  }
+
+  /** Whether a rising body is drawn as an outline rather than solid (`hollow`). */
+  async isHollow(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-candlestick-chart--hollow');
+  }
+
+  /**
+   * The message the chart shows in place of its candles: "No data" with nothing to draw,
+   * or the loading or error message. `null` while it draws its candles.
+   */
+  async getStateLabel(): Promise<string | null> {
+    const state = await this.locatorForOptional('.wr-chart-state')();
+    return state ? (await state.text()).trim() : null;
+  }
+
+  /** The y-axis tick labels, top to bottom; `[]` with `showAxis` off. */
   async getYTicks(): Promise<string[]> {
     const ticks = await this.locatorForAll('.wr-candlestick-chart__y-tick')();
     return Promise.all(ticks.map(tick => tick.text()));

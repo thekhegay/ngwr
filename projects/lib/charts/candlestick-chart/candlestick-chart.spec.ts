@@ -45,6 +45,7 @@ const many = (count: number): WrCandlestickDatum[] =>
       [valueFormat]="valueFormat()"
       [height]="height()"
       [showGrid]="showGrid()"
+      [showAxis]="showAxis()"
       [tooltip]="tooltip()"
       [dataTable]="dataTable()"
     />
@@ -58,6 +59,7 @@ class Host {
   readonly valueFormat = signal<((value: number) => string) | null>(null);
   readonly height = signal<number>(240);
   readonly showGrid = signal(true);
+  readonly showAxis = signal(true);
   readonly tooltip = signal(true);
   readonly dataTable = signal(false);
 }
@@ -86,7 +88,7 @@ describe('WrCandlestickChart', () => {
   const candleEls = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-candlestick-chart__candle')];
   const candles = (): Drawn[] =>
     candleEls().map(candle => ({
-      index: candle.getAttribute('data-index'),
+      index: candle.getAttribute('data-candle')?.split(' ')[0] ?? null,
       direction: candle.classList.contains('wr-candlestick-chart__candle--increase')
         ? 'increase'
         : candle.classList.contains('wr-candlestick-chart__candle--decrease')
@@ -281,7 +283,7 @@ describe('WrCandlestickChart', () => {
       expect(strip.style.getPropertyValue('--wr-candlestick-chart-x-slot')).toBe('7.5');
     });
 
-    it('lays out a hidden copy of every label, once and a line each, to measure the widest', () => {
+    it('lays out a hidden copy of the longest few labels, once and a line each, to measure the widest', () => {
       // By characters "iiiiiiii" is the longest; laid out, "WWWWWWW" is the wider. The copy
       // carries both, so its width is whichever a browser draws wider.
       host().data.set([
@@ -294,16 +296,22 @@ describe('WrCandlestickChart', () => {
       render();
 
       const probe = root().querySelector('.wr-candlestick-chart__x-probe')!;
-      expect(probe.textContent.split('\n')).toEqual(['Mon', 'Tue', 'Wed', 'Thu', 'WWWWWWW', 'iiiiiiii', 'Two lines']);
+      // The three longest by characters, longest first: a few, so the widest is among them.
+      expect(probe.textContent.split('\n')).toEqual(['Two lines', 'iiiiiiii', 'WWWWWWW']);
     });
   });
 
   describe('axes', () => {
-    it('drops the gridlines and the ticks with `showGrid` off, and keeps the period labels', () => {
+    it('drops the gridlines with `showGrid` off, the ticks with `showAxis` off, and keeps the period labels', () => {
       host().showGrid.set(false);
       render();
 
       expect(root().querySelector('.wr-candlestick-chart__grid-line')).toBeNull();
+      // The scale is `showAxis`' own now: without the grid the ticks still print.
+      expect(texts('.wr-candlestick-chart__y-tick')).toHaveLength(6);
+
+      host().showAxis.set(false);
+      render();
       expect(root().querySelector('.wr-candlestick-chart__y-axis')).toBeNull();
       // The period labels are the time axis, as the line chart's `xLabels` are: without
       // them the candles are prices with no dates.
@@ -564,18 +572,17 @@ describe('WrCandlestickChart measured', () => {
   });
 
   it('measures again when the drawing is resized, and stops observing when destroyed', async () => {
-    let report: (() => void) | null = null;
+    // The observer every chart shares: it reports the box of each element it watches.
+    let report: ((width: number) => void) | null = null;
     let disconnected = false;
     vi.stubGlobal(
       'ResizeObserver',
       class {
-        constructor(callback: () => void) {
-          report = callback;
+        constructor(private readonly callback: (entries: unknown[]) => void) {}
+        observe(target: Element): void {
+          report = width => this.callback([{ target, contentRect: { width, height: 100 } }]);
         }
-        observe(): void {
-          // The drawing is the one thing observed; the spec reports a resize by hand.
-        }
-        disconnect(): void {
+        unobserve(): void {
           disconnected = true;
         }
       }
@@ -585,7 +592,7 @@ describe('WrCandlestickChart measured', () => {
 
     // Half as wide: 5px a slot, so the same label needs 9 slots and starts at the fourth.
     widths = { drawing: 500, probe: 30, candle: 3.5 };
-    report!();
+    report!(500);
     fixture.detectChanges();
     await fixture.whenStable();
     expect(labels().slice(0, 2)).toEqual(['D4', 'D13']);

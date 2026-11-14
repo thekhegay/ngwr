@@ -1,8 +1,9 @@
 @let active = activeSlot();
+@let shown = state();
 <!-- Two columns: the y tick labels at inline start and the plot beside them, with the
      period labels under the plot only, so their percentages are the drawing's. -->
 <div class="wr-candlestick-chart__body">
-  @if (showGrid()) {
+  @if (showAxis()) {
     <!-- HTML beside the drawing, in flow, so the column is exactly as wide as the longest
          label; each one hands the stylesheet the y of its own gridline. Hidden, as the
          drawing is one image: its name is what is announced, and the prices are the data
@@ -20,8 +21,6 @@
     role="img"
     [attr.aria-label]="resolvedAriaLabel()"
     [style.height.px]="height()"
-    (mousemove)="onPointerMove($event)"
-    (mouseleave)="tip.leave($event)"
   >
     <!-- Boxes placed by percentage rather than an SVG stretched to the plot: a body's
          width is a share of its slot held between 1px and a ceiling, which CSS can say
@@ -36,51 +35,63 @@
 
       @if (showGrid()) {
         @for (tick of yTicks(); track $index) {
-          <div class="wr-candlestick-chart__grid-line" [style.top.%]="tick.top"></div>
+          <div
+            class="wr-candlestick-chart__grid-line"
+            [class.wr-candlestick-chart__grid-line--zero]="tick.zero"
+            [style.top.%]="tick.top"
+          ></div>
         }
       }
 
-      @for (candle of candles(); track candle.index) {
-        <!-- The candle's box runs from its high to its low, as wide as its body. The wicks
-             are its two pseudo-elements, above and below the body, so a hollow body is
-             empty rather than crossed by the wick. -->
-        <div
-          #candleEl
-          class="wr-candlestick-chart__candle"
-          [class.wr-candlestick-chart__candle--increase]="candle.increase"
-          [class.wr-candlestick-chart__candle--decrease]="!candle.increase"
-          [style.left.%]="candle.left"
-          [style.top.%]="candle.top"
-          [style.height.%]="candle.height"
-          [style.--wr-candlestick-chart-upper]="candle.upper"
-          [style.--wr-candlestick-chart-lower]="candle.lower"
-          [attr.data-index]="candle.index"
-          [attr.data-open]="candle.open"
-          [attr.data-high]="candle.high"
-          [attr.data-low]="candle.low"
-          [attr.data-close]="candle.close"
-        >
-          <div class="wr-candlestick-chart__candle-body"></div>
-        </div>
+      @if (!shown) {
+        @for (candle of candles(); track candle.index) {
+          <!-- The candle's box runs from its high to its low, as wide as its body. The
+               wicks are its two pseudo-elements, above and below the body, so a hollow
+               body is empty rather than crossed by the wick. One class binding for its
+               class and its direction, and one attribute for the figures the test harness reads: a
+               chart of thousands pays for every binding thousands of times. -->
+          <div
+            #candleEl
+            [class]="candle.classes"
+            [style.left.%]="candle.left"
+            [style.top.%]="candle.top"
+            [style.height.%]="candle.height"
+            [style.--wr-candlestick-chart-upper]="candle.upper"
+            [style.--wr-candlestick-chart-lower]="candle.lower"
+            [attr.data-candle]="candle.figures"
+          >
+            <div class="wr-candlestick-chart__candle-body"></div>
+          </div>
+        }
       }
     </div>
   </div>
 
+  @if (shown) {
+    <!-- Empty, loading or failed: the message, over the grid and the axis the chart
+         keeps. Beside the plot in its own grid cell rather than inside it: the plot is
+         an `img`, which makes everything it holds presentational, and this is a live
+         region. -->
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  }
+
   <!-- The time axis, with or without the grid: the strip is as wide as the plot, and hands
        the stylesheet the room each label has; each label hands it the x of its candle, as
-       a percentage of the drawing's width. The hidden copy of every label, a line each, is
+       a percentage of the drawing's width. The hidden copy of the longest few, a line each, is
        what that room is measured against: it is as wide as the widest. -->
   <div class="wr-candlestick-chart__x-axis" aria-hidden="true" [style.--wr-candlestick-chart-x-slot]="xSlot()">
-    <span #probe class="wr-candlestick-chart__x-probe">{{ probeText() }}</span>
+    <span #probe class="wr-candlestick-chart__x-probe">{{ probes() }}</span>
     @for (label of xLabels(); track label.index) {
       <span class="wr-candlestick-chart__x-label" [style.--wr-candlestick-chart-x]="label.left">{{ label.label }}</span>
     }
   </div>
 </div>
 
-@if (dataTable()) {
+@if (dataTable() && (!shown || shown.kind === 'empty')) {
   <!-- The figures for a screen reader, beside the plot's `img` and never inside it:
        `img` makes everything it holds presentational. Clipped to nothing by its own
-       stylesheet, so it takes no room and draws nothing. -->
+       stylesheet, so it takes no room and draws nothing. Kept with nothing to draw: a
+       period with one price missing draws no candle and still has three to read. Not
+       while loading or failed, when the figures are not the chart's to give. -->
   <wr-chart-table [data]="tableData()" />
 }

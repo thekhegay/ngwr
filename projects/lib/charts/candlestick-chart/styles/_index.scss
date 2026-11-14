@@ -1,10 +1,10 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
 
-// Styles for the entry points this component's own markup renders. With `dataTable`,
-// the figures render as a `<wr-chart-table>` beside the plot, which its own sheet clips
-// out of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+// The chart theme every hook below defaults to (`--wr-chart-*`), the empty / loading /
+// error message, and the `<wr-chart-table>` that `dataTable` renders beside the plot,
+// which its own rule clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/candlestick-chart');
 
 // The lengths inside a candle, each against the candle's own height as every percentage
@@ -37,27 +37,30 @@ $-body: calc(100% - $-upper - $-lower);
   --wr-candlestick-chart-font-family: var(--wr-font-family-base);
   --wr-candlestick-chart-color: var(--wr-color-on-surface);
   // A rising candle and a falling one, named as the waterfall's change up and change
-  // down are. The two intents sit within 1.004:1 of each other in luminance, so they are
-  // never the only thing that tells the candles apart: a rising body is hollow and a
-  // falling one filled, whatever these say. Both measure over 4:1 against the surface in
-  // either scheme, past the 3:1 WCAG 1.4.11 asks of a mark a reader needs.
+  // down are: the status roles on purpose, since up and down are what they mean here,
+  // where a series of the chart palette would mean nothing. Both measure over 4:1 against
+  // the surface in either scheme, past the 3:1 WCAG 1.4.11 asks of a mark a reader needs.
+  // They sit within 1.004:1 of each other in luminance, so `hollow` is the cue for a
+  // reader who cannot split them: it draws a rising body as an outline.
   --wr-candlestick-chart-increase-color: var(--wr-color-success);
   --wr-candlestick-chart-decrease-color: var(--wr-color-danger);
   // The room above and below the drawing inside the plot, which the y labels read to
   // meet their gridlines.
   --wr-candlestick-chart-plot-inset-y: var(--wr-space-sm);
-  --wr-candlestick-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
-  --wr-candlestick-chart-tick-gap: var(--wr-space-xs);
-  --wr-candlestick-chart-tick-font-size: var(--wr-text-xs);
+  --wr-candlestick-chart-grid-color: var(--wr-chart-grid);
+  // The gridline at zero, when the prices reach it: the line they are read against.
+  --wr-candlestick-chart-zero-color: var(--wr-chart-zero);
+  --wr-candlestick-chart-tick-gap: var(--wr-space-sm);
+  --wr-candlestick-chart-tick-font-size: var(--wr-chart-label-size);
   --wr-candlestick-chart-tick-line-height: var(--wr-text-xs-leading);
-  --wr-candlestick-chart-tick-color: var(--wr-color-on-surface-muted);
+  --wr-candlestick-chart-tick-color: var(--wr-chart-label);
   // A body is 70% of its slot, never under 1px and never over this; the gap between two
   // candles is the rest of the slot, so it closes as the candles crowd.
   --wr-candlestick-chart-body-max-width: 1.5rem;
   --wr-candlestick-chart-body-border-width: 1px;
   --wr-candlestick-chart-wick-width: 1px;
   // The band behind the candle being read, under the gridlines, so they read across it.
-  --wr-candlestick-chart-cursor-bg: var(--wr-color-hover);
+  --wr-candlestick-chart-cursor-bg: var(--wr-chart-band);
 
   display: block;
   // The containing block of the out-of-flow `dataTable` copy, as on the line chart: a
@@ -75,6 +78,28 @@ $-body: calc(100% - $-upper - $-lower);
   &__body {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  // The top tick is centred on the top gridline, so half of it stands above the drawing.
+  // The plot's own block padding holds it while that is at least half a line; past that
+  // - a larger tick line-height, a smaller inset - the body keeps the rest, or the tick
+  // hangs out of the chart's own box and a card that clips cuts it. Nothing at the
+  // defaults, where the padding is exactly half a line.
+  &--axis &__body {
+    padding-block-start: max(
+      0px,
+      calc(var(--wr-candlestick-chart-tick-line-height) / 2 - var(--wr-candlestick-chart-plot-inset-y))
+    );
+  }
+
+  // Empty, loading or failed: the shared message, over the plot. A grid item in the
+  // plot's own cell rather than a child of it, since the plot is an `img`; the shared
+  // rule's `inset` has nothing to resolve against here and the cell sizes it instead.
+  &__body > .wr-chart-state {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   // As wide as the longest label: every label is in flow, in the one cell of a one-cell
@@ -131,6 +156,11 @@ $-body: calc(100% - $-upper - $-lower);
     border-block-start: 1px solid var(--wr-candlestick-chart-grid-color);
   }
 
+  // Zero, where the prices reach it.
+  &__grid-line--zero {
+    border-block-start-color: var(--wr-candlestick-chart-zero-color);
+  }
+
   // One slot wide, the full height of the drawing.
   &__cursor {
     position: absolute;
@@ -140,11 +170,10 @@ $-body: calc(100% - $-upper - $-lower);
     pointer-events: none;
   }
 
-  // A body is drawn at least tall enough to show what tells a rising one from a falling
-  // one: its two edges and a 2px inside while hollow, or two dashes and the gap between
-  // them while dense. Shorter — a candle that barely moved — it would draw as a solid
-  // line in either direction, and leave colour the only channel. Both directions grow
-  // alike, so a small rise never looks larger than a fall of the same size, and a body
+  // A body is drawn at least tall enough to read as a body, and under `hollow` to show
+  // what tells a rising one from a falling one: its two edges and a 2px inside, or two
+  // dashes and the gap between them while dense. Shorter - a candle that barely moved -
+  // it would draw as a line across its wick. Both directions grow alike, so a small rise never looks larger than a fall of the same size, and a body
   // grows into its own wicks, so the high and the low stay where they are (see the
   // functions at the top).
   $dash: 2px;
@@ -201,17 +230,22 @@ $-body: calc(100% - $-upper - $-lower);
     top: _wick($body-min, $-upper, $-lower);
     height: _body-height($body-min);
     border: var(--wr-candlestick-chart-body-border-width) solid currentColor;
-  }
-
-  &__candle--decrease &__candle-body {
+    // Solid both ways: a rise and a fall are the same mark in two colours, as heavy as
+    // every other chart's. An outlined rising body was two 1px edges, which read thin.
     background: currentColor;
   }
 
+  // On request, a rising body is an outline: the fill is then a second cue beside the
+  // colour, the one that survives greyscale and print.
+  &--hollow &__candle--increase &__candle-body {
+    background: transparent;
+  }
+
   // A body under 4px wide has no inside to leave hollow — its two edges and at most a
-  // pixel between them read as one bar — so a rising body is DOTTED instead, solid
-  // pixels with gaps between them down its length, and a falling one stays solid. A
-  // pattern is a channel that survives greyscale, where a lighter tint of the colour
-  // would fall under 3:1 against the surface.
+  // pixel between them read as one bar — so under `hollow` a rising body is DOTTED
+  // instead, solid pixels with gaps between them down its length, and a falling one
+  // stays solid. A pattern is a channel that survives greyscale, where a lighter tint of
+  // the colour would fall under 3:1 against the surface.
   &--dense &__candle::before {
     height: max(0px, _wick($dense-body-min, $-upper, $-lower));
   }
@@ -226,7 +260,7 @@ $-body: calc(100% - $-upper - $-lower);
     border-width: 0;
   }
 
-  &--dense &__candle--increase &__candle-body {
+  &--hollow#{&}--dense &__candle--increase &__candle-body {
     background: repeating-linear-gradient(to bottom, currentColor 0 $dash, transparent $dash 2 * $dash);
   }
 
@@ -250,7 +284,7 @@ $-body: calc(100% - $-upper - $-lower);
     overflow: hidden;
   }
 
-  // Every label, a line each, laid out and never seen: the component measures it to
+  // The longest few labels, a line each, laid out and never seen: the component measures it to
   // decide how many labels fit. A line breaks only where the component put a break, and
   // spaces collapse as a printed label's do, so the copy is exactly as wide as the widest
   // label.
@@ -293,6 +327,7 @@ $-body: calc(100% - $-upper - $-lower);
 @media (forced-colors: active) {
   .wr-candlestick-chart {
     --wr-candlestick-chart-grid-color: GrayText;
+    --wr-candlestick-chart-zero-color: CanvasText;
   }
 
   .wr-candlestick-chart__candle {
