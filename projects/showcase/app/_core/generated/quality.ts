@@ -37,19 +37,19 @@ export const QUALITY = {
   testingEntryPoints: 75,
 
   /** Distinct harness CLASSES those entry points publish, which is one fewer than the number of exported names: a date-picker's popup IS a calendar, so one class ships under two. A scan that stops at the barrel reports the higher number. */
-  harnessClasses: 113,
+  harnessClasses: 114,
 
   /** `@Component` classes a `public-api.ts` exports. Excludes the ones the library instantiates for itself (the toast host, the window container), which no consumer can write. */
-  components: 145,
+  components: 146,
 
   /** `@Directive` classes a `public-api.ts` exports, counted the same way. */
   directives: 56,
 
   /** `*.spec.ts` files under `projects/lib`, harness specs included. They sit beside the code they cover, and `tsconfig.lib.json` excludes them from the package. */
-  specFiles: 430,
+  specFiles: 437,
 
   /** Test cases those files DECLARE — `it(…)` / `test(…)` call sites, counted after comments and string bodies are stripped. */
-  testCases: 8269,
+  testCases: 8390,
 
   /** Whether `testCases` is a total or a floor. A parameterised form (`it.each`) or a call site inside a loop makes one site stand for an unknown number of cases; the generator prints the file and line, clears this, and the page prints the count as "N+" (`formatCount(n, { floor: true })`) rather than failing a documentation build over a legal spec. */
   testCasesAreExact: false,
