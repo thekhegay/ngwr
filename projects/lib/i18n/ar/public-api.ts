@@ -113,6 +113,7 @@ export const wrAr: WrI18nCatalog = {
     clearSelection: 'مسح التحديد',
     removeItem: 'إزالة {{label}}',
     noResults: 'لا توجد نتائج',
+    results: 'النتائج المتاحة: {{count}}',
     loading: 'جارٍ التحميل…',
     loadError: 'تعذّر تحميل النتائج',
     retry: 'إعادة المحاولة',

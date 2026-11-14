@@ -109,6 +109,7 @@ export const wrId: WrI18nCatalog = {
     clearSelection: 'Hapus pilihan',
     removeItem: 'Hapus {{label}}',
     noResults: 'Tidak ada hasil',
+    results: 'Jumlah hasil: {{count}}',
     loading: 'Memuat…',
     loadError: 'Gagal memuat hasil',
     retry: 'Coba lagi',

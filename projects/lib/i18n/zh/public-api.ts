@@ -109,6 +109,7 @@ export const wrZh: WrI18nCatalog = {
     clearSelection: '清除选择',
     removeItem: '移除 {{label}}',
     noResults: '无搜索结果',
+    results: '结果：{{count}}',
     loading: '加载中…',
     loadError: '无法加载结果',
     retry: '重试',

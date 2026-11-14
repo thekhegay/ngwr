@@ -109,6 +109,7 @@ export const wrPt: WrI18nCatalog = {
     clearSelection: 'Limpar seleção',
     removeItem: 'Remover {{label}}',
     noResults: 'Sem resultados',
+    results: 'Resultados disponíveis: {{count}}',
     loading: 'A carregar…',
     loadError: 'Não foi possível carregar os resultados',
     retry: 'Tentar novamente',

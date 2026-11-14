@@ -109,6 +109,7 @@ export const wrSv: WrI18nCatalog = {
     clearSelection: 'Rensa valet',
     removeItem: 'Ta bort {{label}}',
     noResults: 'Inga resultat',
+    results: 'Antal resultat: {{count}}',
     loading: 'Läser in…',
     loadError: 'Det gick inte att läsa in resultaten',
     retry: 'Försök igen',

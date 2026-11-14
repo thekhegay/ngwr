@@ -112,6 +112,7 @@ export const wrTr: WrI18nCatalog = {
     clearSelection: 'Seçimi temizle',
     removeItem: '{{label}} öğesini kaldır',
     noResults: 'Sonuç yok',
+    results: 'Bulunan sonuç: {{count}}',
     loading: 'Yükleniyor…',
     loadError: 'Sonuçlar yüklenemedi',
     retry: 'Tekrar dene',

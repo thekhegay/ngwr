@@ -115,6 +115,7 @@ export const wrPl: WrI18nCatalog = {
     clearSelection: 'Wyczyść wybór',
     removeItem: 'Usuń {{label}}',
     noResults: 'Brak wyników',
+    results: 'Liczba wyników: {{count}}',
     loading: 'Ładowanie…',
     loadError: 'Nie udało się wczytać wyników',
     retry: 'Spróbuj ponownie',

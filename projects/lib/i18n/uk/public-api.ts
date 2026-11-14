@@ -117,6 +117,7 @@ export const wrUk: WrI18nCatalog = {
     clearSelection: 'Очистити вибір',
     removeItem: 'Вилучити {{label}}',
     noResults: 'Нічого не знайдено',
+    results: 'Знайдено результатів: {{count}}',
     loading: 'Завантаження…',
     loadError: 'Не вдалося завантажити результати',
     retry: 'Повторити',

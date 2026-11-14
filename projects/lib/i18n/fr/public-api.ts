@@ -109,6 +109,7 @@ export const wrFr: WrI18nCatalog = {
     clearSelection: 'Effacer la sélection',
     removeItem: 'Retirer {{label}}',
     noResults: 'Aucun résultat',
+    results: 'Résultats disponibles : {{count}}',
     loading: 'Chargement…',
     loadError: 'Impossible de charger les résultats',
     retry: 'Réessayer',

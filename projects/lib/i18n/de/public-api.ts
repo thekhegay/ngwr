@@ -111,6 +111,7 @@ export const wrDe: WrI18nCatalog = {
     clearSelection: 'Auswahl aufheben',
     removeItem: '{{label}} entfernen',
     noResults: 'Keine Ergebnisse',
+    results: 'Ergebnisse: {{count}}',
     loading: 'Wird geladen…',
     loadError: 'Ergebnisse konnten nicht geladen werden',
     retry: 'Erneut versuchen',

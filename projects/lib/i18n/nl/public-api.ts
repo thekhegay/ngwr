@@ -109,6 +109,7 @@ export const wrNl: WrI18nCatalog = {
     clearSelection: 'Selectie wissen',
     removeItem: '{{label}} verwijderen',
     noResults: 'Geen resultaten',
+    results: 'Aantal resultaten: {{count}}',
     loading: 'Laden…',
     loadError: 'Resultaten konden niet worden geladen',
     retry: 'Opnieuw proberen',

@@ -30,6 +30,7 @@ import {
   model,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -82,6 +83,12 @@ let listboxUid = 0;
  * them it is "no option", as `-1` is.
  */
 const SELECT_ALL_INDEX = -2;
+
+/**
+ * How long the search status stands still before it is read out, in ms: longer
+ * than the gap between two keystrokes, so typing does not queue announcements.
+ */
+const ANNOUNCE_DELAY = 500;
 
 function searchLabelOf(option: WrSelectOptionRegistration): string {
   return option.searchLabel ? option.searchLabel() : option.label().toLowerCase();
@@ -506,10 +513,17 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   /** Search mode: label of the retry action on the error row. Falls back to `select.retry`. */
   readonly retryText = input<string | null>(null);
 
+  /**
+   * Search mode: what a screen reader hears once a search has settled on some
+   * options. `{{count}}` is their number. Falls back to `select.results`.
+   */
+  readonly resultsText = input<string | null>(null);
+
   protected readonly resolvedNoResults = useI18nText(this.noResultsText, 'select.noResults', 'No results');
   protected readonly resolvedLoading = useI18nText(this.loadingText, 'select.loading', 'Loading…');
   protected readonly resolvedLoadError = useI18nText(this.loadErrorText, 'select.loadError', 'Could not load results');
   protected readonly resolvedRetry = useI18nText(this.retryText, 'select.retry', 'Try again');
+  private readonly resultsFormat = useI18nFormatter('select.results', 'Results available: {{count}}');
 
   /**
    * Debounced search query, gated to searchable selects. Emits on every settled
@@ -1176,6 +1190,61 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     return this.visibleCount() === 0;
   });
 
+  /**
+   * Search mode: what the open panel has to say to someone who cannot see it.
+   * The loading, error and "no results" rows are text in a listbox, which a
+   * screen reader does not read unless the user walks there, and a count is
+   * nowhere on screen at all.
+   */
+  private readonly searchStatus = computed<{ readonly counted: boolean; readonly text: string } | null>(() => {
+    if (!this.isSearchable() || !this.isOpen()) return null;
+    if (this.isLoading() && !this.showLoadError()) return { counted: false, text: this.resolvedLoading() };
+    if (this.showLoadError()) return { counted: false, text: this.resolvedLoadError() };
+    if (this.hasNoResults()) return { counted: false, text: this.resolvedNoResults() };
+    const count = this.visibleCount();
+    if (count === 0) return null;
+    const given = this.resultsText();
+    return {
+      counted: true,
+      text: given ? given.replace(/\{\{\s*count\s*\}\}/g, String(count)) : this.resultsFormat({ count }),
+    };
+  });
+
+  /** Text of the one live region. Written {@link ANNOUNCE_DELAY} ms after the status last changed. */
+  protected readonly announcement = signal('');
+
+  /** The status last said, or taken as said when the panel opened: the same one is not said twice. */
+  private announced: string | null = null;
+  private announceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Says the search status once it has stood still. Every keystroke of a client
+   * filter moves the count and every debounced load passes through "Loading", so
+   * each change restarts the wait and only what the typing settles on is read. A
+   * panel that opens on its full list says nothing: the count is news once a
+   * query has changed it.
+   */
+  private announceStatus(status: { readonly counted: boolean; readonly text: string } | null, open: boolean): void {
+    if (this.announceTimer !== null) clearTimeout(this.announceTimer);
+    this.announceTimer = null;
+    if (!open) {
+      this.announced = null;
+      this.announcement.set('');
+      return;
+    }
+    if (status === null) return;
+    if (this.announced === null) {
+      this.announced = status.counted ? status.text : '';
+      if (status.counted) return;
+    }
+    this.announceTimer = setTimeout(() => {
+      this.announceTimer = null;
+      if (status.text === this.announced) return;
+      this.announced = status.text;
+      this.announcement.set(status.text);
+    }, ANNOUNCE_DELAY);
+  }
+
   /** Search mode: the error row, in place of "no results", after a failed load and through its retry. */
   protected readonly showLoadError = computed(
     () => this.isSearchable() && this.isOpen() && this.loadFailed() && (!this.isLoading() || this.retrying())
@@ -1610,6 +1679,13 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
     this.destroyRef.onDestroy(() => {
       this.endPanelPress();
       this.closeOverlay(false);
+      if (this.announceTimer !== null) clearTimeout(this.announceTimer);
+    });
+
+    effect(() => {
+      const status = this.searchStatus();
+      const open = this.isSearchable() && this.isOpen();
+      untracked(() => this.announceStatus(status, open));
     });
 
     // Close the panel if the control goes read-only or disabled while it is up —

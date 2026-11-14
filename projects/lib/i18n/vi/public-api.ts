@@ -111,6 +111,7 @@ export const wrVi: WrI18nCatalog = {
     clearSelection: 'Xóa lựa chọn',
     removeItem: 'Xóa {{label}}',
     noResults: 'Không có kết quả',
+    results: 'Số kết quả: {{count}}',
     loading: 'Đang tải…',
     loadError: 'Không thể tải kết quả',
     retry: 'Thử lại',
