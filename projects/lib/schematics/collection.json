@@ -28,6 +28,11 @@
       "schema": "./component-style/schema.json",
       "aliases": ["style"]
     },
+    "eject": {
+      "description": "Copy a component's source into the app, with its imports of other entry points rewritten to their package paths. `ng update` no longer updates the copy.",
+      "factory": "./eject/index#default",
+      "schema": "./eject/schema.json"
+    },
     "page": {
       "description": "Scaffold a starter page (form / table / dashboard) wired up with ngwr components.",
       "factory": "./page/index#default",
