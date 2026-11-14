@@ -167,6 +167,11 @@ export default class MigrationPageComponent {
       after:
         "Nothing else focuses a control on open either. `[wrPopconfirm]`, `WrTour`, `<wr-lightbox>` and a window focus their panel, with no ring; `[wrPopover]` and `[wrColorPickerTrigger]` leave focus on the trigger, and Tab from it walks into the panel; a pointer press on the calendar button of `<wr-date-picker>` and `<wr-date-range-picker>` leaves focus on the button. Set `autoFocus` (`'first-tabbable'`, or `true` on the date pickers) to keep the old focus; on a tour it is the second argument of `start()`.",
     },
+    {
+      before: '16.5',
+      after:
+        'Menus no longer focus an item on open. `[wrDropdown]`, `<wr-cascader>` and `<wr-tree openOn="overlay">` leave focus on the trigger, and `[wrContextMenu]` on the element that had it. ArrowDown or ArrowUp then moves into the panel, and so does Tab on a cascader or a tree. Bind `[autoFocus]="true"` on any of the four to keep the old focus. The command palette, the editor link panel and a date picker opened from the keyboard still focus on open.',
+    },
   ];
 
   /** What `migration-v15` does, before the tables say it per row. */
