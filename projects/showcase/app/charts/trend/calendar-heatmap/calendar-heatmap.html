@@ -1,18 +1,61 @@
 <ngwr-doc-page
   title="Calendar Heatmap"
-  updated="15.1.0"
+  updated="16.5.0"
   description="A year of daily values as a grid of days."
   [keywords]="['calendar-heatmap', 'github', 'wr-calendar-heatmap']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="One entry per day. `endDate` is the last day drawn, today by default. In a narrow container the year scrolls, and it opens on the newest weeks."
+    description="One entry per day. `endDate` is the last day drawn, today by default. A day takes one of five levels by its share of the largest day drawn: the chart theme's sequential scale, `--wr-chart-seq-1` to `-5`. A day of nothing is the track. In a narrow container the year scrolls, and it opens on the newest weeks."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
       <wr-calendar-heatmap [data]="data" [endDate]="endDate" ariaLabel="Commits in the year to 30 September" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Scale and key"
+    description="The key under the grid runs from 0 to the largest day. `legendPosition` moves it to `top` or drops it with `none`. `color` steps the five levels from a colour of your own, and `emptyColor` paints a day of nothing."
+  >
+    <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: grid; gap: 1.5rem; max-width: 100%">
+        <wr-calendar-heatmap
+          [data]="data"
+          [endDate]="endDate"
+          [weeks]="26"
+          legendPosition="top"
+          ariaLabel="Commits in the half year to 30 September"
+        />
+        <wr-calendar-heatmap
+          [data]="data"
+          [endDate]="endDate"
+          [weeks]="26"
+          color="var(--wr-chart-2)"
+          ariaLabel="Commits in the half year to 30 September"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no data the grid keeps its squares and says so under them. `loading` and `error` put their message there. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: grid; gap: 1.5rem; max-width: 100%">
+        <wr-calendar-heatmap [data]="[]" [endDate]="endDate" [weeks]="26" />
+        <wr-calendar-heatmap [data]="data" [endDate]="endDate" [weeks]="26" loading />
+        <wr-calendar-heatmap
+          [data]="data"
+          [endDate]="endDate"
+          [weeks]="26"
+          error
+          errorLabel="Commits are unavailable"
+        />
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
   <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` falls back to the browser `title`.'>
@@ -66,6 +109,21 @@
           <tr>
             <th scope="row">Weekday names</th>
             <td>Three of seven, since seven do not fit. The table names every day.</td>
+          </tr>
+          <tr>
+            <th scope="row">Lowest level</th>
+            <td>A tint of the surface. Every day has a faint edge, so it still reads on a dark page.</td>
+          </tr>
+          <tr>
+            <th scope="row">Scale key</th>
+            <td>Hidden from screen readers, like an axis. The table has the counts.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Forced colours</th>

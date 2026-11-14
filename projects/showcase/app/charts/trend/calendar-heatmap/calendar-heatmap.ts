@@ -55,6 +55,11 @@ export default class CalendarHeatmapPageComponent {
   protected readonly endDate = END_DATE;
 
   protected readonly snippets = {
+    scale: `<wr-calendar-heatmap [data]="data" [weeks]="26" legendPosition="top" />
+<wr-calendar-heatmap [data]="data" [weeks]="26" color="var(--wr-chart-2)" />`,
+    states: `<wr-calendar-heatmap [data]="[]" />
+<wr-calendar-heatmap [data]="data" loading />
+<wr-calendar-heatmap [data]="data" error errorLabel="Commits are unavailable" />`,
     basic: `<wr-calendar-heatmap [data]="contributions" endDate="2026-09-30" ariaLabel="Commits in the year to 30 September" />`,
     basicTs: `contributions: WrHeatmapDatum[] = [
   { date: '2025-10-01', value: 3 },
