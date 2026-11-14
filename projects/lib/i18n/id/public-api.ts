@@ -347,6 +347,7 @@ export const wrId: WrI18nCatalog = {
   carousel: {
     label: 'Korsel',
     goToSlide: 'Ke slide {{index}}',
+    position: 'Slide {{current}} dari {{total}}',
     prev: 'Slide sebelumnya',
     next: 'Slide berikutnya',
     pagination: 'Navigasi korsel',

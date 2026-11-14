@@ -27,9 +27,9 @@ const TRACK_OFFSET = /translateX\(\s*(?:calc\(\s*)?(-?[\d.]+)%/;
  *   `role="group"` and `aria-roledescription="slide"` and nothing else — no
  *   `aria-current`, no `aria-hidden` on the ones off-screen. The current slide is
  *   published in exactly two places, the dot carrying `aria-current="true"` and the
- *   track's own offset, and {@link getActiveIndex} reads them in that order. There
- *   is likewise no live region: the component announces a move to nobody, so a
- *   harness cannot report one.
+ *   track's own offset, and {@link getActiveIndex} reads them in that order. A
+ *   move the reader made is also said by the one live region, which
+ *   {@link getAnnouncement} reads; an autoplay tick is not.
  * - **It never drags.** The swipe the component supports is a touch gesture
  *   measured against the viewport's own width, and jsdom has no layout — that width
  *   is 0, so the "20% of the viewport" threshold is 0 too and EVERY drag clears it,
@@ -312,6 +312,41 @@ export class WrCarouselHarness extends ComponentHarness {
     return dots[index].click();
   }
 
+  // What the carousel says
+
+  /**
+   * The text of the live region: `Slide 2 of 3` after an arrow, a dot or a swipe
+   * moved the carousel, and empty before any move and after an autoplay tick.
+   */
+  async getAnnouncement(): Promise<string> {
+    return (await (await this.locatorFor('.wr-carousel__live')()).text()).trim();
+  }
+
+  /**
+   * Whether the live region speaks: `polite`, or `off` while the slides advance on
+   * their own, when a tick must not be read out.
+   */
+  async getLivePoliteness(): Promise<string | null> {
+    return (await this.locatorFor('.wr-carousel__live')()).getAttribute('aria-live');
+  }
+
+  // Autoplay
+
+  /**
+   * The name of the pause button, which says what a press does next: the pause
+   * label while autoplay is on, the play label while it is off, held or not.
+   * Throws when the carousel has no such button, which is every carousel
+   * without `autoplay`.
+   */
+  async getAutoplayLabel(): Promise<string | null> {
+    return (await this.autoplayButton('getAutoplayLabel')).getAttribute('aria-label');
+  }
+
+  /** Press the pause button. Throws without `autoplay`. */
+  async toggleAutoplay(): Promise<void> {
+    return (await this.autoplayButton('toggleAutoplay')).click();
+  }
+
   // Holding autoplay
 
   /**
@@ -331,8 +366,9 @@ export class WrCarouselHarness extends ComponentHarness {
   }
 
   /**
-   * Put keyboard focus on the first control the carousel renders — the previous
-   * arrow, or the first dot when the arrows are hidden.
+   * Put keyboard focus on the first control the carousel renders — the pause
+   * button under `autoplay`, else the previous arrow, or the first dot when the
+   * arrows are hidden.
    *
    * This is the keyboard half of the autoplay hold: WCAG 2.2.2 wants a way to stop
    * moving content, and hovering is not one for someone who never touches a mouse,
@@ -343,7 +379,7 @@ export class WrCarouselHarness extends ComponentHarness {
    *
    * Note what this is NOT: the dot of the slide showing. The dots are ordinary
    * buttons with no roving `tabindex`, so each of them is a tab stop of its own and
-   * the first one a Tab press meets is the prev arrow whatever slide is current —
+   * the first one a Tab press meets is the same whatever slide is current —
    * two different questions, answered here and by {@link getActiveIndex}.
    *
    * Throws when the carousel renders no controls at all, because then there is
@@ -412,11 +448,23 @@ export class WrCarouselHarness extends ComponentHarness {
    * them: the two arrows, then the dots.
    */
   private async controls(): Promise<TestElement[]> {
+    const toggle = await this.locatorForAll('.wr-carousel__toggle')();
     const navs = await this.locatorForAll('.wr-carousel__nav')();
-    return [...navs, ...(await this.dots())];
+    return [...toggle, ...navs, ...(await this.dots())];
   }
 
   /** One arrow, or a failure naming both reasons it might not be there. */
+  private async autoplayButton(method: string): Promise<TestElement> {
+    const button = await this.locatorForOptional('.wr-carousel__toggle')();
+    if (!button) {
+      throw new Error(
+        `WrCarouselHarness.${method}(): this carousel renders no pause button, which it does only with ` +
+          '[autoplay] on and two slides or more.'
+      );
+    }
+    return button;
+  }
+
   private async nav(side: 'prev' | 'next', caller: string): Promise<TestElement> {
     const button = await this.locatorForOptional(`.wr-carousel__nav--${side}`)();
     if (!button) {

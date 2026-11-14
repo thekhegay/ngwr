@@ -363,6 +363,7 @@ export const wrHe: WrI18nCatalog = {
   carousel: {
     label: 'קרוסלה',
     goToSlide: 'מעבר לשקופית {{index}}',
+    position: 'שקופית {{current}} מתוך {{total}}',
     prev: 'השקופית הקודמת',
     next: 'השקופית הבאה',
     pagination: 'ניווט בין שקופיות',

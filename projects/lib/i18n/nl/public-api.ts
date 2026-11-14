@@ -355,6 +355,7 @@ export const wrNl: WrI18nCatalog = {
   carousel: {
     label: 'Carrousel',
     goToSlide: 'Ga naar dia {{index}}',
+    position: 'Dia {{current}} van {{total}}',
     prev: 'Vorige dia',
     next: 'Volgende dia',
     pagination: 'Carrouselpaginering',

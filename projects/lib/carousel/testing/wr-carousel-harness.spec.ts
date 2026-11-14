@@ -485,6 +485,37 @@ describe('WrCarouselHarness', () => {
 
       expect(await gallery.getActiveIndex()).toBe(1);
     });
+
+    it('presses the pause button, and reads the name that follows the press', async () => {
+      const gallery = await start();
+      expect(await gallery.getAutoplayLabel()).toBe('Pause');
+      expect(await gallery.getLivePoliteness()).toBe('off');
+
+      await gallery.toggleAutoplay();
+      vi.advanceTimersByTime(2000);
+
+      expect(await gallery.getAutoplayLabel()).toBe('Play');
+      expect(await gallery.getActiveIndex()).toBe(0);
+      expect(await gallery.getLivePoliteness()).toBe('polite');
+    });
+
+    it('reads what a move said, and the silence of a tick', async () => {
+      const gallery = await start();
+
+      vi.advanceTimersByTime(500);
+      expect(await gallery.getActiveIndex()).toBe(1);
+      expect(await gallery.getAnnouncement()).toBe('');
+
+      await gallery.next();
+      expect(await gallery.getAnnouncement()).toBe('Slide 3 of 3');
+    });
+  });
+
+  it('names the cause when a carousel without autoplay is asked for its pause button', async () => {
+    const gallery = await carousel();
+
+    await expect(gallery.getAutoplayLabel()).rejects.toThrow(/renders no pause button/);
+    await expect(gallery.toggleAutoplay()).rejects.toThrow(/renders no pause button/);
   });
 });
 

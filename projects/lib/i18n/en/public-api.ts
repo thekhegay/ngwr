@@ -453,6 +453,7 @@ export const wrEn: WrI18nCatalog = {
   carousel: {
     label: 'Carousel',
     goToSlide: 'Go to slide {{index}}',
+    position: 'Slide {{current}} of {{total}}',
     prev: 'Previous slide',
     next: 'Next slide',
     pagination: 'Carousel pagination',

@@ -359,6 +359,7 @@ export const wrAr: WrI18nCatalog = {
   carousel: {
     label: 'العرض الدوّار',
     goToSlide: 'الانتقال إلى الشريحة {{index}}',
+    position: 'الشريحة {{current}} من {{total}}',
     prev: 'الشريحة السابقة',
     next: 'الشريحة التالية',
     pagination: 'ترقيم شرائح العرض الدوّار',

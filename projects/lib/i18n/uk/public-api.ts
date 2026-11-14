@@ -362,6 +362,7 @@ export const wrUk: WrI18nCatalog = {
   carousel: {
     label: 'Карусель',
     goToSlide: 'Перейти до слайда {{index}}',
+    position: 'Слайд {{current}} з {{total}}',
     prev: 'Попередній слайд',
     next: 'Наступний слайд',
     pagination: 'Нумерація слайдів',
