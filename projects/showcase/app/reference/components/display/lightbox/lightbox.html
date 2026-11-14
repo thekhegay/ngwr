@@ -3,7 +3,7 @@
   description="An image that opens full size in an overlay when clicked."
   [keywords]="['lightbox', 'image', 'preview', 'zoom', 'wr-lightbox', 'wr-image']"
   [labels]="['Component']"
-  updated="16.2.0"
+  updated="16.5.0"
 >
   <ngwr-doc-section
     title="Basic usage"
@@ -12,6 +12,11 @@
     <ngwr-doc-snippet [code]="snippets.basic">
       <wr-lightbox [src]="landscape" alt="Mountain lake" aspectRatio="3 / 2" style="width: 18rem" />
     </ngwr-doc-snippet>
+    <p>
+      Opening focuses the viewer itself, with no ring, and traps Tab in it. Set
+      <code>autoFocus="first-tabbable"</code> to open on the Close button, or <code>[autoFocus]="false"</code> to leave
+      focus on the thumbnail. Closing returns focus to the thumbnail.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
