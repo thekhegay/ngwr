@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Chart Legend"
   since="15.1.0"
-  updated="16.3.0"
+  updated="16.5.0"
   description="A chart's key: a swatch, a name and a value per series. Rows can toggle their series."
   [keywords]="['legend', 'chart-legend', 'wr-chart-legend']"
   [labels]="['Component']"
@@ -41,6 +41,29 @@
               <wr-sparkline [data]="metric.data" [color]="metric.color" [ariaLabel]="metric.label" />
             }
           }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Position"
+    description="`position` lays the rows out for where the legend sits: a wrapping row for `top` and `bottom`, a column for `start` and `end`, nothing for `none`. A chart that draws its own legend forwards its `legendPosition` here. Hovering a row dims the other series of that chart."
+  >
+    <ngwr-doc-code [code]="snippets.position" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>position="bottom"</code>
+          </p>
+          <ul wr-chart-legend [items]="sources"></ul>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>position="end"</code>
+          </p>
+          <ul wr-chart-legend position="end" [items]="sources"></ul>
         </div>
       </div>
     </ngwr-doc-snippet>
