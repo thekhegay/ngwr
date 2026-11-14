@@ -54,12 +54,20 @@ The lib ships an `ng` schematics suite — source in `projects/lib/schematics/`
   `templateUrl`, `styleUrl` and Sass loads, which is what keeps specs and
   harnesses out. A load that leaves the entry point becomes the package path of
   the entry point it names (`../utils` reads `ngwr/utils`, `../../theme/styles`
-  reads `ngwr/theme`); one with no public path (`animations/internal`,
-  `overlay/styles/arrow`, a theme partial under a `styleUrl` sheet) is left as
-  written and printed as a warning with file and line. The name is checked
-  against the `exports` map (no `*/testing`, `*/router`, `i18n/*`), then the
-  sources must declare a `@Component` or `@Directive`, which is what refuses
-  `ngwr/utils`. `source.ts` holds all of that with no tree and no network, so
+  reads `ngwr/theme`). One with no public path (`animations/internal`,
+  `splitter/internal`, `overlay/styles/arrow`, a theme partial under a
+  `styleUrl` sheet, which must not become `ngwr/theme` and emit the token layer
+  into a component sheet) is copied too, once, into `<path>/../_ngwr-internal/`
+  under its path in the library, its own imports followed the same way, and the
+  import rewritten to reach it there. Ejects into the same parent share that
+  folder, and a file already in it is never overwritten. A warning is left only
+  for an import whose file cannot be read, which is none in the current
+  library: keep it at none, since a warned line is a copy that does not compile.
+  A bare nested name resolves the way `component-style` does (`bar-chart` finds
+  `charts/bar-chart`). The name is checked against the `exports` map (no
+  `*/testing`, `*/router`, `i18n/*`), then the sources must declare a
+  `@Component` or `@Directive`, which is what refuses `ngwr/utils`.
+  `source.ts` holds all of that with no tree and no network, so
   the spec drives it over the repo's own `projects/lib` and a fake `fetch`.
 - `ng update ngwr@<latest major>` — ONE command from any earlier major. The CLI
   installs the target, then runs every migration in the TARGET's

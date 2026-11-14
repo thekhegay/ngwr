@@ -5,9 +5,10 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { dirname, join, posix } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { HostTree, type SchematicContext, type Tree } from '@angular-devkit/schematics';
@@ -137,6 +138,16 @@ const FIXTURE_FILES: Readonly<Record<string, string>> = {
     '',
   ].join('\n'),
   [`${RAW}/demo/styles/_rules.scss`]: "@use '../../theme/styles/mixins' as theme;\n\n.wr-demo {\n  color: red;\n}\n",
+  [`${RAW}/theme/styles/_mixins.scss`]: "@use 'sizes';\n@use '../../icon/styles' as icon;\n",
+  [`${RAW}/theme/styles/_sizes.scss`]: '$md: 1rem;\n',
+  [`${RAW}/utils/dom/index.ts`]: "export { wrGetRootFontSize } from './root-font-size';\n",
+  [`${RAW}/utils/dom/root-font-size.ts`]: [
+    "import { clamp } from '../../demo/internal/clamp';",
+    "import { wrNoop } from '..';",
+    '',
+    'export const wrGetRootFontSize = (): number => clamp(16) + Number(wrNoop());',
+    '',
+  ].join('\n'),
 };
 
 describe('ng g ngwr:eject', () => {
@@ -213,36 +224,84 @@ describe('ng g ngwr:eject', () => {
       expect(info.join('\n')).toContain('rename the selector and the `.wr-*` classes in the copy');
     });
 
-    it('copies a styleUrl shim and its rules, and warns on a partial with no public path', async () => {
-      const { tree, warnings } = await run({ entry: 'card', from: LIB });
+    it('copies a styleUrl shim and its rules, and the theme partial they read into the shared folder', async () => {
+      const { tree, info, warnings } = await run({ entry: 'card', from: LIB });
 
       expect(tree.exists('/src/app/ngwr/card/card.scss')).toBe(true);
-      expect(tree.exists('/src/app/ngwr/card/styles/_rules.scss')).toBe(true);
-      // Left as written: `ngwr/theme` would emit the whole token layer into the component's own sheet.
+      // Not `ngwr/theme`: that would emit the whole token layer into the component's own sheet.
       expect(tree.readText('/src/app/ngwr/card/styles/_rules.scss')).toContain(
-        "@use '../../theme/styles/mixins' as theme;"
+        "@use '../../_ngwr-internal/theme/styles/mixins' as theme;"
       );
-      expect(
-        warnings.some(line =>
-          /^ngwr: src\/app\/ngwr\/card\/styles\/_rules\.scss:\d+ '\.\.\/\.\.\/theme\/styles\/mixins' /.test(line)
-        )
-      ).toBe(true);
+      expect(filesUnder(tree, '/src/app/ngwr/_ngwr-internal')).toEqual(['theme/styles/_mixins.scss']);
+      expect(tree.readText('/src/app/ngwr/_ngwr-internal/theme/styles/_mixins.scss')).toMatch(
+        /^\/\/ Copied from ngwr@\S+ by `ng g ngwr:eject`: a private file that ejected components share\.\n/
+      );
+      expect(info.join('\n')).toContain('reads 1 private files of ngwr, kept in src/app/ngwr/_ngwr-internal');
+      expect(warnings).toEqual([]);
     });
 
-    it('warns with the file and line on an import of a folder the package does not export', async () => {
+    it('brings a folder the package does not export, with its own imports, and points the copy at it', async () => {
       const { tree, warnings } = await run({ entry: 'animations/reveal', from: LIB });
-      const line = readFileSync(join(LIB, 'animations/reveal/types/index.ts'), 'utf8')
-        .split('\n')
-        .findIndex(text => text.includes("from '../../internal'"));
+      const shared = '/src/app/ngwr/animations/_ngwr-internal';
 
-      // Two header lines and a blank one sit above the original.
-      expect(warnings).toContain(
-        `ngwr: src/app/ngwr/animations/reveal/types/index.ts:${line + 4} '../../internal' reaches code the package ` +
-          'exposes under no public path; replace it by hand.'
+      expect(warnings).toEqual([]);
+      expect(tree.readText('/src/app/ngwr/animations/reveal/types/index.ts')).toContain(
+        "from '../../_ngwr-internal/animations/internal';"
       );
-      expect(warnings.some(text => text.includes("styles/_index.scss:5 '../../internal/styles/mixins'"))).toBe(true);
-      expect(tree.readText('/src/app/ngwr/animations/reveal/types/index.ts')).toContain("from '../../internal';");
-      expect(filesUnder(tree, '/src/app/ngwr/animations').every(file => file.startsWith('reveal/'))).toBe(true);
+      expect(tree.readText('/src/app/ngwr/animations/reveal/styles/_index.scss')).toContain(
+        "@use '../../_ngwr-internal/animations/internal/styles/mixins' as core;"
+      );
+      expect(filesUnder(tree, shared)).toEqual(
+        expect.arrayContaining(['animations/internal/index.ts', 'animations/internal/stagger.ts'])
+      );
+      expect(filesUnder(tree, shared).filter(file => file.endsWith('.spec.ts'))).toEqual([]);
+    });
+
+    it.each(['card', 'popover', 'animations/reveal', 'resizable', 'button'])(
+      'ejects %s into Sass that compiles and TypeScript that imports only the copy or a public path',
+      async entry => {
+        const { tree, warnings } = await run({ entry, from: LIB });
+        const files = filesUnder(tree, '/src').map(file => `src/${file}`);
+
+        expect(warnings).toEqual([]);
+        expect(strayImports(tree, files)).toEqual([]);
+
+        const css = withOnDisk(tree, files, root =>
+          files
+            .filter(file => file.startsWith(`src/app/ngwr/${entry}/`) && /(styles\/_index|\/[^/_]+)\.scss$/.test(file))
+            .map(file => compileFile(join(root, file)))
+            .join('\n')
+        );
+        expect(css).toMatch(/\.wr-/);
+      }
+    );
+
+    it('shares the private files between components ejected side by side, and keeps an edited one', async () => {
+      const tree = new HostTree();
+      await run({ entry: 'card', from: LIB }, MANIFEST, NO_NETWORK, tree);
+      tree.overwrite('/src/app/ngwr/_ngwr-internal/theme/styles/_mixins.scss', '// mine\n');
+
+      const { info, warnings } = await run({ entry: 'list', from: LIB }, MANIFEST, NO_NETWORK, tree);
+
+      expect(tree.readText('/src/app/ngwr/_ngwr-internal/theme/styles/_mixins.scss')).toBe('// mine\n');
+      expect(tree.exists('/src/app/ngwr/_ngwr-internal/theme/styles/_focus.scss')).toBe(true);
+      expect(info.join('\n')).toContain('(1 added now)');
+      expect(warnings).toEqual([
+        `ngwr: src/app/ngwr/_ngwr-internal/theme/styles/_mixins.scss already exists and differs from ngwr@${MANIFEST.version}; it was left as it is.`,
+      ]);
+    });
+
+    it('puts the shared folder beside --path', async () => {
+      const { tree } = await run({ entry: 'card', from: LIB, path: 'libs/ui/card' });
+
+      expect(tree.exists('/libs/ui/_ngwr-internal/theme/styles/_mixins.scss')).toBe(true);
+    });
+
+    it('finds a nested entry point by its bare name', async () => {
+      const { tree, info } = await run({ entry: 'bar-chart', from: LIB });
+
+      expect(info[0]).toBe('ngwr: bar-chart is ngwr/charts/bar-chart.');
+      expect(tree.exists('/src/app/ngwr/charts/bar-chart/public-api.ts')).toBe(true);
     });
 
     it('refuses to write over an existing copy', async () => {
@@ -318,9 +377,15 @@ describe('ng g ngwr:eject', () => {
         'styles/_rules.scss',
         'types/index.ts',
       ]);
+      expect(filesUnder(tree, '/src/app/ngwr/_ngwr-internal')).toEqual([
+        'theme/styles/_mixins.scss',
+        'theme/styles/_sizes.scss',
+        'utils/dom/index.ts',
+        'utils/dom/root-font-size.ts',
+      ]);
       expect(info[0]).toBe('✓ Copied ngwr/demo@1.2.3 into src/app/ngwr/demo (8 files).');
       expect(asked[0]).toBe(`${RAW}/demo/public-api.ts`);
-      expect(asked.every(url => url.startsWith(`${RAW}/demo/`))).toBe(true);
+      expect(asked.every(url => url.startsWith(`${RAW}/`))).toBe(true);
       expect(asked.filter(url => /\.spec\.ts$|\/testing\//.test(url))).toEqual([]);
     });
 
@@ -347,18 +412,46 @@ describe('ng g ngwr:eject', () => {
       ]);
     });
 
-    it('warns on a deep import and on an unexported folder, with the line in the copy', async () => {
+    it('brings a private file and rewrites both ends: the copy reaches it, and it reaches back', async () => {
+      const { tree } = await run({ entry: 'demo' }, FIXTURE_MANIFEST, fakeFetch(FIXTURE_FILES).fetchFile);
+      const shared = '/src/app/ngwr/_ngwr-internal';
+
+      expect(tree.readText('/src/app/ngwr/demo/demo.ts')).toContain(
+        "import { wrGetRootFontSize } from '../_ngwr-internal/utils/dom';"
+      );
+      expect(tree.readText('/src/app/ngwr/demo/styles/_rules.scss')).toContain(
+        "@use '../../_ngwr-internal/theme/styles/mixins' as theme;"
+      );
+      // Inside the shared folder: a neighbour stays as written, the ejected
+      // component is reached in its folder, and an entry point by its package path.
+      const privateFile = tree.readText(`${shared}/utils/dom/root-font-size.ts`);
+      expect(tree.readText(`${shared}/utils/dom/index.ts`)).toContain("from './root-font-size';");
+      expect(privateFile).toContain("import { clamp } from '../../../demo/internal/clamp';");
+      const renamed = await run(
+        { entry: 'demo', path: 'libs/ui/mine' },
+        FIXTURE_MANIFEST,
+        fakeFetch(FIXTURE_FILES).fetchFile
+      );
+      expect(renamed.tree.readText('/libs/ui/_ngwr-internal/utils/dom/root-font-size.ts')).toContain(
+        "import { clamp } from '../../../mine/internal/clamp';"
+      );
+      expect(privateFile).toContain("import { wrNoop } from 'ngwr/utils';");
+      expect(tree.readText(`${shared}/theme/styles/_mixins.scss`).split('\n').slice(3, 5)).toEqual([
+        "@use 'sizes';",
+        "@use 'ngwr/icon' as icon;",
+      ]);
+    });
+
+    it('warns only on an import whose file cannot be read, with the line in the copy', async () => {
       const { tree, warnings } = await run({ entry: 'demo' }, FIXTURE_MANIFEST, fakeFetch(FIXTURE_FILES).fetchFile);
-      const reason = 'reaches code the package exposes under no public path; replace it by hand.';
 
       expect(warnings).toEqual([
-        `ngwr: src/app/ngwr/demo/demo.ts:7 '../utils/dom' ${reason}`,
-        `ngwr: src/app/ngwr/demo/demo.ts:8 '../internal/secret' ${reason}`,
-        `ngwr: src/app/ngwr/demo/styles/_rules.scss:4 '../../theme/styles/mixins' ${reason}`,
+        "ngwr: src/app/ngwr/demo/demo.ts:8 '../internal/secret' reaches a file that could not be read from the " +
+          'source, so nothing was copied for it.',
       ]);
-      const lines = tree.readText('/src/app/ngwr/demo/demo.ts').split('\n');
-      expect(lines[6]).toBe("import { wrGetRootFontSize } from '../utils/dom';");
-      expect(lines[7]).toBe("import { secret } from '../internal/secret';");
+      expect(tree.readText('/src/app/ngwr/demo/demo.ts').split('\n')[7]).toBe(
+        "import { secret } from '../internal/secret';"
+      );
     });
 
     it('says how to work offline when the request fails', async () => {
@@ -390,7 +483,12 @@ interface Sass {
   ): { css: string };
 }
 
-/** `sass` through `@angular/build`, as `component-style/index.spec.ts` resolves it. */
+/**
+ * `sass` through `@angular/build`, as `component-style/index.spec.ts` resolves
+ * it, and with an importer rather than `compileSass` from `spec-sass.ts`: that
+ * helper resolves through a load path, and no load path can express the `sass`
+ * condition `ngwr/button` resolves by.
+ */
 const sass = createRequire(createRequire(import.meta.url).resolve('@angular/build/package.json'))('sass') as Sass;
 
 /** Compiles a sheet, resolving `ngwr/<name>` through the `sass` condition, as a consumer's build does. */
@@ -409,4 +507,49 @@ function compile(source: string): string {
       },
     ],
   }).css;
+}
+
+/** Compiles a stylesheet on disk, so its relative loads resolve between the ejected files. */
+const compileFile = (path: string): string => compile(`@use '${pathToFileURL(path).href}';`);
+
+/** Writes the tree's files under a temporary folder for the length of `use`. */
+function withOnDisk<T>(tree: Tree, files: readonly string[], use: (root: string) => T): T {
+  const root = mkdtempSync(join(tmpdir(), 'ngwr-eject-'));
+  try {
+    for (const file of files) {
+      mkdirSync(dirname(join(root, file)), { recursive: true });
+      writeFileSync(join(root, file), tree.readText(`/${file}`));
+    }
+
+    return use(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+/**
+ * The imports of the ejected TypeScript that would not resolve in an app: a
+ * relative one with no file behind it among `files`, or an `ngwr/…` path the
+ * `exports` map does not carry.
+ */
+function strayImports(tree: Tree, files: readonly string[]): string[] {
+  const known = new Set(files);
+  const stray: string[] = [];
+
+  for (const file of files.filter(path => path.endsWith('.ts'))) {
+    for (const line of tree.readText(`/${file}`).split('\n')) {
+      if (/^\s*(\*|\/\*|\/\/)/.test(line)) continue;
+
+      for (const match of line.matchAll(/(?:\bfrom\s+|\bimport\s*\(\s*|^\s*import\s+)['"]([^'"]+)['"]/g)) {
+        const specifier = match[1];
+        const target = posix.normalize(posix.join(posix.dirname(file), specifier));
+        const resolves = specifier.startsWith('.')
+          ? known.has(`${target}.ts`) || known.has(`${target}/index.ts`)
+          : !/^ngwr(\/|$)/.test(specifier) || `.${specifier.slice(4)}` in MANIFEST.exports;
+        if (!resolves) stray.push(`${file}: ${specifier}`);
+      }
+    }
+  }
+
+  return stray;
 }

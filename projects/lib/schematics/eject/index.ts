@@ -6,12 +6,21 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { isAbsolute, join, posix, resolve } from 'node:path';
 
 import { type Rule, type SchematicContext, SchematicsException, type Tree } from '@angular-devkit/schematics';
 
 import type { Schema } from './schema';
-import { type Exports, type ReadSource, type Repository, collectEjected, ejectRawUrl, ejectRefusal } from './source';
+import {
+  EJECT_SHARED_DIR,
+  type Exports,
+  type ReadSource,
+  type Repository,
+  collectEjected,
+  ejectRawUrl,
+  ejectRefusal,
+  ejectTarget,
+} from './source';
 
 /** What the schematic reads from the ngwr manifest it shipped in. */
 interface EjectManifest {
@@ -75,6 +84,11 @@ function remoteSource(manifest: EjectManifest, fetchFile: EjectFetch): ReadSourc
   };
 }
 
+/** How many of the files sit in the shared folder. */
+function sharedCount(files: readonly { readonly path: string }[], isShared: (path: string) => boolean): number {
+  return files.filter(file => isShared(file.path)).length;
+}
+
 /**
  * `ng g ngwr:eject <entry>`: copies one component's source into the app, where
  * it can be edited freely and `ng update` no longer reaches it.
@@ -83,7 +97,9 @@ function remoteSource(manifest: EjectManifest, fetchFile: EjectFetch): ReadSourc
  * version, since the tarball ships compiled output only; `--from` reads a local
  * checkout instead. Imports that reach other entry points are rewritten to
  * their package paths, so the copy still uses the installed ngwr for everything
- * but itself. See `./source` for which files are copied and how.
+ * but itself; a private file it reads, which no package path exposes, is copied
+ * into `_ngwr-internal` beside the ejected folder, once for every component
+ * ejected there. See `./source` for which files are copied and how.
  *
  * `manifest` and `fetchFile` are parameters so a spec can pass its own; the
  * devkit calls this with the options alone.
@@ -94,13 +110,17 @@ function eject(
   fetchFile: EjectFetch = url => fetch(url)
 ): Rule {
   return async (tree: Tree, context: SchematicContext) => {
-    const entry = options.entry
+    const name = options.entry
       .trim()
       .replace(/^['"]+|['"]+$/g, '')
       .replace(/^ngwr\//, '')
       .replace(/^\/+|\/+$/g, '');
-    if (!entry) throw new SchematicsException('ngwr:eject: missing `entry`.');
+    if (!name) throw new SchematicsException('ngwr:eject: missing `entry`.');
     if (!manifest) throw new SchematicsException('ngwr:eject: could not read the installed ngwr manifest.');
+
+    const { logger } = context;
+    const entry = ejectTarget(name, manifest.exports);
+    if (entry !== name) logger.info(`ngwr: ${name} is ngwr/${entry}.`);
 
     const refusal = ejectRefusal(entry, manifest.exports);
     if (refusal) throw new SchematicsException(`ngwr:eject: ${refusal}`);
@@ -116,7 +136,8 @@ function eject(
       read = remoteSource(manifest, fetchFile);
     }
 
-    const ejected = await collectEjected(entry, manifest.exports, version, read);
+    const dest = (options.path?.trim() ? options.path.trim() : `src/app/ngwr/${entry}`).replace(/^\/+|\/+$/g, '');
+    const ejected = await collectEjected(entry, manifest.exports, version, read, posix.basename(dest));
     if (!ejected) {
       throw new SchematicsException(
         options.from
@@ -131,18 +152,38 @@ function eject(
       );
     }
 
-    const dest = (options.path?.trim() ? options.path.trim() : `src/app/ngwr/${entry}`).replace(/^\/+|\/+$/g, '');
-    const taken = ejected.files.map(file => `${dest}/${file.path}`).filter(path => tree.exists(path));
-    if (taken.length > 0) {
+    const shared = posix.join(dest, '..', EJECT_SHARED_DIR);
+    const placed = ejected.files.map(file => ({ ...file, path: posix.join(dest, file.path) }));
+    const isShared = (path: string): boolean => path.startsWith(`${shared}/`);
+
+    const taken = placed.find(file => !isShared(file.path) && tree.exists(file.path));
+    if (taken) {
       throw new SchematicsException(
-        `ngwr:eject: ${taken[0]} already exists. Delete the folder first, or pass another \`--path\`.`
+        `ngwr:eject: ${taken.path} already exists. Delete the folder first, or pass another \`--path\`.`
       );
     }
 
-    for (const file of ejected.files) tree.create(`${dest}/${file.path}`, file.content);
+    // A private file an earlier eject brought stays as it is: it may have been edited since.
+    const kept: string[] = [];
+    let brought = 0;
+    for (const file of placed) {
+      if (!tree.exists(file.path)) {
+        tree.create(file.path, file.content);
+        if (isShared(file.path)) brought++;
+      } else if (tree.readText(file.path) !== file.content) {
+        kept.push(file.path);
+      }
+    }
 
-    const { logger } = context;
-    logger.info(`✓ Copied ngwr/${entry}@${version} into ${dest} (${ejected.files.length} files).`);
+    logger.info(
+      `✓ Copied ngwr/${entry}@${version} into ${dest} (${placed.length - sharedCount(placed, isShared)} files).`
+    );
+    if (sharedCount(placed, isShared) > 0) {
+      logger.info(
+        `  It reads ${sharedCount(placed, isShared)} private files of ngwr, kept in ${shared} and shared by the ` +
+          `components ejected beside it (${brought} added now).`
+      );
+    }
     logger.info(`  Import it from that folder instead of 'ngwr/${entry}'. \`ng update\` no longer updates this copy.`);
     if (ejected.styles) {
       const sheet = `${dest}/${ejected.styles.replace(/\/_index\.scss$/, '')}`;
@@ -153,8 +194,11 @@ function eject(
         'To use both, rename the selector and the `.wr-*` classes in the copy.'
     );
 
+    for (const path of kept) {
+      logger.warn(`ngwr: ${path} already exists and differs from ngwr@${version}; it was left as it is.`);
+    }
     for (const warning of ejected.warnings) {
-      logger.warn(`ngwr: ${dest}/${warning.file}:${warning.line} '${warning.specifier}' ${warning.reason}.`);
+      logger.warn(`ngwr: ${posix.join(dest, warning.file)}:${warning.line} '${warning.specifier}' ${warning.reason}.`);
     }
 
     return tree;
