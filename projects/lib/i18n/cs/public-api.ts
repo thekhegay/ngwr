@@ -109,6 +109,7 @@ export const wrCs: WrI18nCatalog = {
     clearSelection: 'Zrušit výběr',
     removeItem: 'Odebrat {{label}}',
     noResults: 'Žádné výsledky',
+    results: 'Počet výsledků: {{count}}',
     loading: 'Načítání…',
     loadError: 'Výsledky se nepodařilo načíst',
     retry: 'Zkusit znovu',

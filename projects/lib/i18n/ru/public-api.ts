@@ -109,6 +109,7 @@ export const wrRu: WrI18nCatalog = {
     clearSelection: 'Очистить выбор',
     removeItem: 'Удалить {{label}}',
     noResults: 'Ничего не найдено',
+    results: 'Найдено результатов: {{count}}',
     loading: 'Загрузка…',
     loadError: 'Не удалось загрузить результаты',
     retry: 'Повторить',

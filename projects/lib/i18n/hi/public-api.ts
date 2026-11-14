@@ -109,6 +109,7 @@ export const wrHi: WrI18nCatalog = {
     clearSelection: 'चयन हटाएं',
     removeItem: '{{label}} हटाएं',
     noResults: 'कोई नतीजा नहीं',
+    results: 'उपलब्ध नतीजे: {{count}}',
     loading: 'लोड हो रहा है…',
     loadError: 'नतीजे लोड नहीं हो सके',
     retry: 'फिर से कोशिश करें',

@@ -156,6 +156,7 @@ export const wrEn: WrI18nCatalog = {
     clearSelection: 'Clear selection',
     removeItem: 'Remove {{label}}',
     noResults: 'No results',
+    results: 'Results available: {{count}}',
     loading: 'Loading…',
     loadError: 'Could not load results',
     retry: 'Try again',

@@ -111,6 +111,7 @@ export const wrJa: WrI18nCatalog = {
     clearSelection: '選択をクリア',
     removeItem: '{{label}}を削除',
     noResults: '該当なし',
+    results: '結果{{count}}件',
     loading: '読み込み中…',
     loadError: '結果を読み込めませんでした',
     retry: '再試行',

@@ -112,6 +112,7 @@ export const wrHe: WrI18nCatalog = {
     clearSelection: 'ניקוי הבחירה',
     removeItem: 'הסרת {{label}}',
     noResults: 'אין תוצאות',
+    results: 'תוצאות שנמצאו: {{count}}',
     loading: 'טוען…',
     loadError: 'לא ניתן לטעון את התוצאות',
     retry: 'ניסיון חוזר',

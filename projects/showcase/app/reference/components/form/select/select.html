@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="16.3.0"
+  updated="16.4.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -446,6 +446,24 @@
     description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Accessibility">
+    <ul>
+      <li>
+        A search select announces what its panel shows through one polite live region beside the field: loading, a
+        failed load, no results, and the number of options once a query has changed it.
+      </li>
+      <li>
+        It waits half a second after the last change, so typing is not interrupted and a load that answers sooner is
+        announced by its result alone. A count that did not change is not said again.
+      </li>
+      <li>
+        The sentences are <code>loadingText</code>, <code>loadErrorText</code>, <code>noResultsText</code> and
+        <code>resultsText</code>, whose <code ngNonBindable>{{count}}</code> is the number, from the
+        <code>select.results</code> catalog key.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Select API">

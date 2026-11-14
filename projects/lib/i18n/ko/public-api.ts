@@ -109,6 +109,7 @@ export const wrKo: WrI18nCatalog = {
     clearSelection: '선택 해제',
     removeItem: '{{label}} 제거',
     noResults: '검색 결과 없음',
+    results: '검색 결과 {{count}}개',
     loading: '불러오는 중…',
     loadError: '결과를 불러오지 못했습니다',
     retry: '다시 시도',
