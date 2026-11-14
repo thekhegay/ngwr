@@ -25,7 +25,7 @@ type Exports = Readonly<Record<string, unknown>>;
 /** Reads one file by its path under `projects/lib`, or `null` when there is none. */
 type ReadSource = (path: string) => Promise<string | null>;
 
-/** An import the copy cannot keep: it reaches code the package exposes under no path. */
+/** An import left as written, because the file it names could not be read. */
 interface EjectWarning {
   /** The file's path inside the ejected folder. */
   readonly file: string;
@@ -36,7 +36,7 @@ interface EjectWarning {
 }
 
 interface EjectedFile {
-  /** The file's path inside the ejected folder. */
+  /** The file's path from the ejected folder; a shared private file starts with `../_ngwr-internal/`. */
   readonly path: string;
   readonly content: string;
 }
@@ -123,13 +123,17 @@ function ownerOf(path: string, entryPoints: readonly string[]): string | null {
   return owner;
 }
 
-const NO_PUBLIC_PATH = 'reaches code the package exposes under no public path; replace it by hand';
-const NOT_FOUND = 'could not be read from the source, so the file it names was not copied';
+const NOT_FOUND = 'reaches a file that could not be read from the source, so nothing was copied for it';
 
-/** The header each copied file opens with. */
-function ejectHeader(file: string, entry: string, version: string): string {
+/** The folder private files are copied to, beside the ejected one and shared by its neighbours. */
+const EJECT_SHARED_DIR = '_ngwr-internal';
+
+/** The header each copied file opens with. `entry` is `null` for a private file in the shared folder. */
+function ejectHeader(file: string, entry: string | null, version: string): string {
   const lines = [
-    `Copied from ngwr@${version}, entry point ngwr/${entry}, by \`ng g ngwr:eject\`.`,
+    entry === null
+      ? `Copied from ngwr@${version} by \`ng g ngwr:eject\`: a private file that ejected components share.`
+      : `Copied from ngwr@${version}, entry point ngwr/${entry}, by \`ng g ngwr:eject\`.`,
     '`ng update` no longer updates this copy.',
   ];
 
@@ -151,13 +155,23 @@ const SASS_LOAD = /^(\s*@(use|forward|import)\s+)(['"])([^'"]+)\3(.*)$/;
  *
  * Starts at `public-api.ts`, the barrel and the stylesheet the `exports` map
  * names, and follows every relative import, `templateUrl`, `styleUrl` and Sass
- * load that stays inside the entry point. One that leaves it is not followed:
+ * load. Where one lands decides what happens to it:
  *
- * - it names another entry point, so it becomes that entry point's package path
+ * - inside the entry point: the file is copied, at the same place in the folder;
+ * - on another entry point: the import becomes that entry point's package path
  *   (`../utils` reads `ngwr/utils`, `../../button/styles` reads `ngwr/button`),
- *   and the copy keeps using the installed package for everything but itself;
- * - or it reaches a file no package path exposes, which is left as written and
- *   reported with its file and line.
+ *   so the copy keeps using the installed package for everything but itself;
+ * - on a file no package path exposes (`animations/internal`, a theme partial):
+ *   the file is copied too, under `../_ngwr-internal/<its path in the library>`,
+ *   its own imports are followed the same way, and the import is rewritten to
+ *   reach it there. Later ejects beside this one share that folder.
+ *
+ * A file path in the result is relative to the ejected folder, so a shared one
+ * starts with `../_ngwr-internal/`. Only an import whose file cannot be read is
+ * left as written and reported.
+ *
+ * `folder` is the name of the folder the copy is written to, which a private
+ * file reaching back into the component has to spell.
  *
  * Resolves to `null` when the entry point has no `public-api.ts` to start from.
  */
@@ -165,7 +179,8 @@ async function collectEjected(
   entry: string,
   exports: Exports,
   version: string,
-  read: ReadSource
+  read: ReadSource,
+  folder: string = posix.basename(entry)
 ): Promise<Ejected | null> {
   const entryPoints = codeEntryPoints(exports);
   const loaded = new Map<string, string | null>();
@@ -196,17 +211,25 @@ async function collectEjected(
     return false;
   };
 
-  const inside = (path: string): string => posix.relative(entry, path);
+  const own = (path: string): boolean => ownerOf(path, entryPoints) === entry;
+  /** Where a library path lands, relative to the ejected folder. */
+  const placed = (path: string): string => (own(path) ? posix.relative(entry, path) : `../${EJECT_SHARED_DIR}/${path}`);
+  const header = (file: string): string => ejectHeader(file, own(file) ? entry : null, version);
+
   /** `line` is 1-based in the source; the warning names the line in the copy, below its header. */
-  const warn = (file: string, line: number, specifier: string, reason: string): void => {
-    const header = ejectHeader(file, entry, version).split('\n').length - 1;
-    warnings.push({ file: inside(file), line: line + header, specifier, reason });
+  const warn = (file: string, line: number, specifier: string): void => {
+    warnings.push({
+      file: placed(file),
+      line: line + header(file).split('\n').length - 1,
+      specifier,
+      reason: NOT_FOUND,
+    });
   };
 
   /** The package path a load that leaves the entry point should read, or `null` when it has none. */
   const publicPath = (target: string, sass: boolean): string | null => {
     const owner = ownerOf(target, entryPoints);
-    if (owner === null) return null;
+    if (owner === null || owner === entry) return null;
 
     const rest = target.slice(owner.length + 1);
     if (!sass) return rest === '' || rest === 'index' || rest === 'public-api' ? `ngwr/${owner}` : null;
@@ -217,6 +240,33 @@ async function collectEjected(
     const shipsStyles = isRecord(entryExports) && 'sass' in entryExports;
 
     return shipsStyles && /^styles(\/_?index(\.scss)?)?$/.test(rest) ? `ngwr/${owner}` : null;
+  };
+
+  /**
+   * What a relative specifier reads once both ends are placed, or `null` to
+   * leave it as written: two files on the same side keep their distance.
+   */
+  const relocated = (file: string, target: string): string | null => {
+    if (own(file) === own(target)) return null;
+
+    // From the parent both folders sit in, where the ejected one has a name:
+    // a private file reaching back into the component has to spell it.
+    const fromParent = (path: string): string => posix.join(folder, placed(path));
+    const relative = posix.relative(posix.dirname(fromParent(file)), fromParent(target));
+
+    return relative.startsWith('.') ? relative : `./${relative}`;
+  };
+
+  const sassCandidates = (target: string): readonly string[] => {
+    const base = posix.basename(target).replace(/\.scss$/, '');
+    const parent = posix.dirname(target);
+
+    return [
+      `${parent}/_${base}.scss`,
+      `${parent}/${base}.scss`,
+      `${parent}/${base}/_index.scss`,
+      `${parent}/${base}/index.scss`,
+    ];
   };
 
   const rewriteTs = async (file: string, source: string): Promise<string> => {
@@ -232,16 +282,15 @@ async function collectEjected(
         if (!specifier.startsWith('.')) continue;
 
         const target = posix.normalize(posix.join(dir, specifier));
-        if (ownerOf(target, entryPoints) === entry) {
-          const found = await follow(target === entry ? [`${entry}/index.ts`] : [`${target}.ts`, `${target}/index.ts`]);
-          if (!found) warn(file, index + 1, specifier, NOT_FOUND);
-          continue;
-        }
-
-        const replacement = publicPath(target, false);
+        let replacement = publicPath(target, false);
         if (replacement === null) {
-          warn(file, index + 1, specifier, NO_PUBLIC_PATH);
-        } else {
+          if (!(await follow(target === entry ? [`${entry}/index.ts`] : [`${target}.ts`, `${target}/index.ts`]))) {
+            warn(file, index + 1, specifier);
+            continue;
+          }
+          replacement = relocated(file, target);
+        }
+        if (replacement !== null) {
           lines[index] = lines[index].replace(`${match[2]}${specifier}${match[2]}`, `'${replacement}'`);
         }
       }
@@ -251,10 +300,7 @@ async function collectEjected(
     for (const list of source.matchAll(TS_STYLE_URLS)) {
       resources.push(...[...list[1].matchAll(/(['"])([^'"]+)\1/g)].map(match => match[2]));
     }
-    for (const resource of resources) {
-      const target = posix.normalize(posix.join(dir, resource));
-      if (ownerOf(target, entryPoints) === entry) await follow([target]);
-    }
+    for (const resource of resources) await follow([posix.normalize(posix.join(dir, resource))]);
 
     return lines.join('\n');
   };
@@ -271,28 +317,21 @@ async function collectEjected(
       if (/^(sass:|ngwr(\/|$)|https?:)/.test(specifier) || specifier.endsWith('.css')) continue;
 
       const target = posix.normalize(posix.join(dir, specifier));
-      if (ownerOf(target, entryPoints) === entry) {
-        const base = posix.basename(target).replace(/\.scss$/, '');
-        const parent = posix.dirname(target);
-        const found = await follow([
-          `${parent}/_${base}.scss`,
-          `${parent}/${base}.scss`,
-          `${parent}/${base}/_index.scss`,
-          `${parent}/${base}/index.scss`,
-        ]);
-        if (!found) warn(file, index + 1, specifier, NOT_FOUND);
+      const packagePath = publicPath(target, true);
+      if (packagePath !== null) {
+        // A `@use` with no `as` is named after its last segment, which the package path changes.
+        const namespace = rule === 'use' && !/^\s+as\s/.test(tail) ? ` as ${posix.basename(specifier)}` : '';
+        lines[index] = `${head}${quote}${packagePath}${quote}${namespace}${tail}`;
         continue;
       }
 
-      const replacement = publicPath(target, true);
-      if (replacement === null) {
-        warn(file, index + 1, specifier, NO_PUBLIC_PATH);
+      if (!(await follow(sassCandidates(target)))) {
+        warn(file, index + 1, specifier);
         continue;
       }
 
-      // A `@use` with no `as` is named after its last segment, which the package path changes.
-      const namespace = rule === 'use' && !/^\s+as\s/.test(tail) ? ` as ${posix.basename(specifier)}` : '';
-      lines[index] = `${head}${quote}${replacement}${quote}${namespace}${tail}`;
+      const replacement = relocated(file, target);
+      if (replacement !== null) lines[index] = `${head}${quote}${replacement}${quote}${tail}`;
     }
 
     return lines.join('\n');
@@ -311,23 +350,36 @@ async function collectEjected(
     const source = (await load(file)) ?? '';
     let content = source;
     if (file.endsWith('.ts')) {
-      declarable ||= /^\s*@(Component|Directive)\s*\(/m.test(source);
+      declarable ||= own(file) && /^\s*@(Component|Directive)\s*\(/m.test(source);
       content = await rewriteTs(file, source);
     } else if (file.endsWith('.scss')) {
       content = await rewriteSass(file, source);
     }
-    files.set(file, ejectHeader(file, entry, version) + content);
+    files.set(file, header(file) + content);
   }
 
   return {
     files: [...files]
-      .map(([path, content]) => ({ path: inside(path), content }))
+      .map(([path, content]) => ({ path: placed(path), content }))
       .sort((a, b) => (a.path < b.path ? -1 : 1)),
     warnings,
     declarable,
-    styles: styles === null ? null : inside(styles),
+    styles: styles === null ? null : placed(styles),
   };
 }
 
-export { collectEjected, ejectHeader, ejectRawUrl, ejectRefusal, ejectableEntryPoints };
+/**
+ * The entry point a name refers to: itself, or the one nested entry point a
+ * bare name ends, the way `component-style` reads `bar-chart`.
+ */
+function ejectTarget(name: string, exports: Exports): string {
+  const candidates = ejectableEntryPoints(exports);
+  if (candidates.includes(name) || name.includes('/')) return name;
+
+  const nested = candidates.filter(candidate => candidate.endsWith(`/${name}`));
+
+  return nested.length === 1 ? nested[0] : name;
+}
+
+export { EJECT_SHARED_DIR, collectEjected, ejectHeader, ejectRawUrl, ejectRefusal, ejectTarget, ejectableEntryPoints };
 export type { EjectWarning, Ejected, EjectedFile, Exports, ReadSource, Repository };

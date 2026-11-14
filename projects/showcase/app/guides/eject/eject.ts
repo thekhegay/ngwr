@@ -46,7 +46,7 @@ import { WrButton } from './ngwr/button';`,
   };
 
   protected readonly options: readonly Option[] = [
-    { name: '<entry>', does: 'The path under ngwr/: button, select, charts/bar-chart' },
+    { name: '<entry>', does: 'The path under ngwr/: button, select, charts/bar-chart. A bare bar-chart works too' },
     { name: '--path', does: 'Where the copy goes. Default: src/app/ngwr/<entry>' },
     { name: '--from', does: 'A local checkout of the ngwr repository to copy from, for work offline' },
     { name: '--dry-run', does: 'Lists the files and writes nothing' },

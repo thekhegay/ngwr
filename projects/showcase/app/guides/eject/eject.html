@@ -77,8 +77,9 @@
       classes in the copy.
     </p>
     <p>
-      A few components read a file the package exposes under no path. The command copies the rest and prints each such
-      line as a warning, with the file and the line to fix.
+      A few components read private files of ngwr that no package path exposes. The command copies those too, into
+      <code>_ngwr-internal</code>
+      beside the ejected folder. Components ejected side by side share it, and a file already there is left as it is.
     </p>
   </ngwr-doc-section>
 
@@ -89,7 +90,9 @@
       <code>ngwr/button</code>
       and restore
       <code>&#64;use 'ngwr/button';</code>
-      in the stylesheet. Updates reach the component again.
+      in the stylesheet. Updates reach the component again. Once no ejected component is left, delete
+      <code>_ngwr-internal</code>
+      too.
     </p>
   </ngwr-doc-section>
 
