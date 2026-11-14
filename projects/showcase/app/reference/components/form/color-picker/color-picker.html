@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Color Picker"
-  updated="16.3.0"
+  updated="16.5.0"
   description="Pick a colour inline, or from a button that opens the picker."
   [keywords]="['color', 'colour', 'picker', 'palette', 'hsv', 'hex', 'wr-color-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -95,6 +95,11 @@
         {{ triggered() }}
       </button>
     </ngwr-doc-snippet>
+    <p>
+      Opening leaves focus on the trigger, and Tab from there walks into the picker. Set
+      <code>autoFocus="first-tabbable"</code> to open on the saturation surface, or <code>"dialog"</code> to focus the
+      panel. Closing returns focus to the trigger.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Color utilities" description="Parse and convert colours without a picker.">
