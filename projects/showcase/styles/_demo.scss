@@ -22,6 +22,19 @@
   }
 }
 
+// A colour sample beside its token in a table: a square painted by an inline
+// `background`, as tall as the text beside it. Kept under forced colors, where a
+// background is otherwise reset to the page's own.
+.ngwr-demo-swatch {
+  display: inline-block;
+  inline-size: 0.875rem;
+  block-size: 0.875rem;
+  margin-inline-end: var(--wr-space-xs);
+  border-radius: 2px;
+  vertical-align: -0.125em;
+  forced-color-adjust: none;
+}
+
 // A box a demo scrolls inside, so a sticky element can be seen pinning on the
 // page. Focusable, since a scrolling region must be reachable by keyboard, so
 // it takes the site's ring. `scroll-padding` keeps a focused row out from under

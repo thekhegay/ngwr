@@ -84,6 +84,8 @@ export default class ChartLegendPageComponent {
   }
 }`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
+    position: `<ul wr-chart-legend [items]="sources"></ul>
+<ul wr-chart-legend position="end" [items]="sources"></ul>`,
   };
 
   protected readonly typeSnippet = `interface WrChartLegendItem {
@@ -95,6 +97,8 @@ export default class ChartLegendPageComponent {
 }
 
 type WrChartMarker = 'circle' | 'square' | 'triangle' | 'diamond' | 'cross' | 'triangle-down';
+
+type WrChartLegendPosition = 'top' | 'bottom' | 'start' | 'end' | 'none';
 
 interface WrChartLegendToggle {
   index: number;
@@ -138,6 +142,11 @@ interface WrChartLegendToggle {
       type: 'string',
       default: 'undefined',
       sub: true,
+    },
+    {
+      name: 'WrChartLegendPosition',
+      description: 'Where a legend sits beside its chart.',
+      type: "'top' | 'bottom' | 'start' | 'end' | 'none'",
     },
     { name: 'WrChartLegendToggle', description: 'What `(toggled)` emits.', type: 'interface' },
     { name: 'index', description: "The row's position in `items`.", type: 'number', required: true, sub: true },

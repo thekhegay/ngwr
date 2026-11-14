@@ -20,9 +20,9 @@ import { API } from '#core/generated/api';
 export default class BarChartPageComponent {
   protected readonly bars: readonly WrBarChartDatum[] = [
     { label: 'Mon', value: 12 },
-    { label: 'Tue', value: 18, color: 'var(--wr-color-success)' },
+    { label: 'Tue', value: 18 },
     { label: 'Wed', value: 9 },
-    { label: 'Thu', value: 24, color: 'var(--wr-color-warning)' },
+    { label: 'Thu', value: 24, color: 'var(--wr-chart-3)' },
     { label: 'Fri', value: 17 },
     { label: 'Sat', value: 6 },
     { label: 'Sun', value: 11 },
@@ -81,6 +81,29 @@ export default class BarChartPageComponent {
 <wr-bar-chart [data]="week" [lines]="lastWeek" />`,
     comboTs: `target: WrBarLine[] = [{ label: 'Target', data: [30, 34, 36, 42] }];
 lastWeek: WrBarLine[] = [{ label: 'Last week', data: [10, 15, 12, 20, 19, 8, 9] }];`,
+    grid: `<wr-bar-chart [data]="week" />
+<wr-bar-chart [data]="week" [showGrid]="false" />
+<wr-bar-chart [data]="week" [showAxis]="false" />
+<wr-bar-chart [data]="week" [showGrid]="false" [showAxis]="false" showValues />`,
+    values: `<wr-bar-chart [data]="week" showValues />
+<wr-bar-chart [categories]="quarters" [series]="balance" stacked showValues />`,
+    legend: `<wr-bar-chart [categories]="quarters" [series]="regions" legendPosition="top" />
+<wr-bar-chart [categories]="quarters" [series]="regions" legendPosition="end" />`,
+    states: `<wr-bar-chart [data]="[]" />
+<wr-bar-chart [data]="week" loading />
+<wr-bar-chart [data]="week" error errorLabel="Sales are unavailable" />`,
+    theme: `// Every chart on the page.
+:root {
+  --wr-chart-grid: var(--wr-border-subtle);
+  --wr-chart-bar-radius: 4px;
+  --wr-chart-2: light-dark(#0f766e, #5eead4);
+}
+
+// This chart only.
+.wr-bar-chart {
+  --wr-bar-chart-bar-max-size: 2rem;
+  --wr-bar-chart-grid-color: transparent;
+}`,
     toggle: `<wr-bar-chart [categories]="quarters" [series]="regions" toggleableLegend [(hiddenSeries)]="hidden" />`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
     dataTable: `<wr-bar-chart [categories]="quarters" [series]="regions" ariaLabel="Sales by region" dataTable />`,
@@ -148,7 +171,7 @@ type WrBarOrientation = 'vertical' | 'horizontal';`;
     },
     {
       name: 'color',
-      description: 'CSS colour for the bars, their outline and the legend key.',
+      description: 'CSS colour for the bars and the legend key.',
       type: 'string',
       default: 'palette',
       sub: true,

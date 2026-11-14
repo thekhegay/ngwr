@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Bar Chart"
-  updated="15.1.0"
-  description="Bars for one or several series, grouped or stacked, standing up or lying along a row, with lines over them."
+  updated="16.5.0"
+  description="Bars for one or several series, grouped or stacked, standing up or lying along a row, on a grid and a value axis, with lines over them."
   [keywords]="['bar-chart', 'wr-bar-chart', 'grouped-bar', 'stacked-bar', 'horizontal-bar', 'combo-chart']"
   [labels]="['Component']"
 >
@@ -15,7 +15,7 @@
   </ngwr-doc-section>
   <ngwr-doc-section
     title="Grouped"
-    description="`series` with `categories` draws a bar per series in every category. Each series has its own dash on the outline as well as its colour."
+    description="`series` with `categories` draws a bar per series in every category. Each series takes the next colour of the chart palette. Hover a bar or a legend row to dim the other series."
   >
     <ngwr-doc-code [code]="snippets.grouped" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -24,7 +24,7 @@
   </ngwr-doc-section>
   <ngwr-doc-section
     title="Stacked"
-    description="`stacked` piles the series, so the end of each pile is the total. Negative values stack down from zero. Names, the tooltip and the table keep each series' own value. Each printed total is announced too."
+    description="`stacked` piles the series, so the end of each pile is the total. Negative values stack down from zero. A 1px line parts the segments. Names, the tooltip and the table keep each series' own value."
   >
     <ngwr-doc-code [code]="snippets.stacked" language="angular-html" />
     <ngwr-doc-code [code]="snippets.stackedTs" language="angular-ts" />
@@ -54,6 +54,96 @@
       <div class="ngwr-demo-pair">
         <wr-bar-chart [categories]="quarters" [series]="regions" [lines]="target" stacked />
         <wr-bar-chart [data]="week" [lines]="lastWeek" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Grid and axis"
+    description="The value axis is snapped to round numbers and drawn as gridlines with a scale beside it. `showGrid` and `showAxis` turn each off. With both off the axis is fitted to the data, so the longest bar reaches the end of the plot."
+  >
+    <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Grid and axis (default)</p>
+          <wr-bar-chart [data]="week" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showGrid]="false"</code>
+          </p>
+          <wr-bar-chart [data]="week" [showGrid]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showAxis]="false"</code>
+          </p>
+          <wr-bar-chart [data]="week" [showAxis]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Both off, values printed</p>
+          <wr-bar-chart [data]="week" [showGrid]="false" [showAxis]="false" showValues />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Value labels"
+    description="`showValues` prints each value past the end of its bar: a pile's total with `stacked`. Off by default, since the axis already reads the values. Labels are compact from a thousand up; `valueFormat` writes every number."
+  >
+    <ngwr-doc-code [code]="snippets.values" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <wr-bar-chart [data]="week" showValues />
+        <wr-bar-chart [categories]="quarters" [series]="balance" stacked showValues />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Legend position"
+    description="`legendPosition` puts the legend at `bottom` (default), `top`, `start` or `end`, or leaves it out with `none`. A single series has no legend unless `showLegend` asks for one."
+  >
+    <ngwr-doc-code [code]="snippets.legend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="top"</code>
+          </p>
+          <wr-bar-chart [categories]="quarters" [series]="regions" legendPosition="top" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="end"</code>
+          </p>
+          <wr-bar-chart [categories]="quarters" [series]="regions" legendPosition="end" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no data the chart keeps its frame and says so. `loading` and `error` put their message in place of the bars. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-bar-chart [data]="[]" [height]="140" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-bar-chart [data]="week" [height]="140" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-bar-chart [data]="week" [height]="140" error errorLabel="Sales are unavailable" />
+        </div>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -105,6 +195,198 @@
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Chart theme"
+    description="Every chart paints through one set of `--wr-chart-*` tokens. Set a token on `:root` to restyle every chart at once; each chart's own `--wr-<chart>-*` hooks default to them, so a hook still restyles one chart."
+  >
+    <ngwr-doc-code [code]="snippets.theme" language="scss" />
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Token</th>
+            <th scope="col">Default</th>
+            <th scope="col">Paints</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>--wr-chart-grid</code></th>
+            <td><code>var(--wr-border-base)</code></td>
+            <td>Gridlines</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-axis</code></th>
+            <td><code>var(--wr-border-strong)</code></td>
+            <td>Axis lines and tick marks</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-zero</code></th>
+            <td><code>var(--wr-border-strong)</code></td>
+            <td>The zero line</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-label</code></th>
+            <td><code>var(--wr-color-on-surface-muted)</code></td>
+            <td>Tick labels and printed values</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-label-size</code></th>
+            <td><code>var(--wr-text-xs)</code></td>
+            <td>Their size</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-stroke</code></th>
+            <td><code>2px</code></td>
+            <td>Line width</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-marker</code></th>
+            <td><code>6px</code></td>
+            <td>Marker diameter</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-bar-radius</code></th>
+            <td><code>2px</code></td>
+            <td>The value end of a bar</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-gap</code></th>
+            <td><code>20%</code></td>
+            <td>The share of a band left empty beside its bars</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-separator</code></th>
+            <td><code>var(--wr-color-surface)</code></td>
+            <td>The line between two fills that touch</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-dim</code></th>
+            <td><code>0.35</code></td>
+            <td>Opacity of every series but the hovered one</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-track</code></th>
+            <td><code>color-mix(in srgb, var(--wr-border-base) 60%, transparent)</code></td>
+            <td>The unfilled part of a gauge or a meter</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-band</code></th>
+            <td><code>color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent)</code></td>
+            <td>The band behind the hovered category</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-duration</code></th>
+            <td><code>var(--wr-duration-slow)</code></td>
+            <td>A mark moving to a new value</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-duration-short</code></th>
+            <td><code>var(--wr-duration-base)</code></td>
+            <td>A hover change</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-ease</code></th>
+            <td><code>var(--wr-ease-out)</code></td>
+            <td>The easing of both</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-div-neg</code></th>
+            <td><code>var(--wr-color-danger)</code></td>
+            <td>The low end of a diverging scale</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-div-pos</code></th>
+            <td><code>var(--wr-color-primary)</code></td>
+            <td>The high end of a diverging scale</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      The palette is not the status colours: a second series is not a success. Series take it in order. Every colour
+      holds 3:1 against the surface in both schemes, and neighbours differ in lightness as well as in hue. The
+      sequential scale steps the first colour toward the surface, so it turns over with the scheme.
+    </p>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Token</th>
+            <th scope="col">Colour</th>
+            <th scope="col">Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>--wr-chart-1</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-1)"></span> Brand</td>
+            <td><code>var(--wr-color-primary)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-2</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-2)"></span> Teal</td>
+            <td><code>light-dark(#1a9e8f, #5fe0c8)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-3</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-3)"></span> Orange</td>
+            <td><code>light-dark(#c2410c, #f5975a)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-4</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-4)"></span> Violet</td>
+            <td><code>light-dark(#5b21b6, #c4b5fd)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-5</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-5)"></span> Amber</td>
+            <td><code>light-dark(#b7860b, #f2d042)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-6</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-6)"></span> Magenta</td>
+            <td><code>light-dark(#b5329a, #d946cf)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-7</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-7)"></span> Pink</td>
+            <td><code>light-dark(#f0577b, #e8457f)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-8</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-8)"></span> Neutral</td>
+            <td><code>var(--wr-color-on-surface-muted)</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-seq-1</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-seq-1)"></span> Step 1</td>
+            <td><code>color-mix(in srgb, var(--wr-chart-1) 20%, var(--wr-color-surface))</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-seq-2</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-seq-2)"></span> Step 2</td>
+            <td><code>color-mix(in srgb, var(--wr-chart-1) 40%, var(--wr-color-surface))</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-seq-3</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-seq-3)"></span> Step 3</td>
+            <td><code>color-mix(in srgb, var(--wr-chart-1) 60%, var(--wr-color-surface))</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-seq-4</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-seq-4)"></span> Step 4</td>
+            <td><code>color-mix(in srgb, var(--wr-chart-1) 80%, var(--wr-color-surface))</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--wr-chart-seq-5</code></th>
+            <td><span class="ngwr-demo-swatch" style="background: var(--wr-chart-seq-5)"></span> Step 5</td>
+            <td><code>var(--wr-chart-1)</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
   <ngwr-doc-section title="Accessibility">
     <div class="ngwr-table">
       <table>
@@ -137,8 +419,15 @@
           <tr>
             <th scope="row">Series</th>
             <td>
-              Each has its own dash on the bar outline as well as its colour, so bars differ without hue. Each line has
-              its own dash and marker.
+              Neighbouring palette colours differ in lightness as well as in hue, every bar is named, and the tooltip
+              and the data table name each series. Each line has its own dash and marker.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
             </td>
           </tr>
           <tr>
