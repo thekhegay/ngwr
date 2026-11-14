@@ -69,6 +69,16 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Scale key"
+    description="`wr-chart-scale` is the key of a colour scale: its steps side by side, lowest first, between the labels of its two ends. The heatmap and the calendar heatmap draw their own with it, and it stands alone for a key several charts share. Each step is any CSS colour; the sequential tokens `--wr-chart-seq-1` to `-5` are the scale those charts use."
+  >
+    <ngwr-doc-code [code]="snippets.scale" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-chart-scale aria-hidden="true" minLabel="0" maxLabel="120" [steps]="scaleSteps" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Accessibility">
     <div class="ngwr-table">
       <table>
@@ -109,6 +119,10 @@
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Scale key API">
+    <ngwr-doc-api [rows]="scaleApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Types">

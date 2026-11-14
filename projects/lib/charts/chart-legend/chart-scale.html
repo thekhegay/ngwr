@@ -1,0 +1,16 @@
+@let part = parts();
+@if (minLabel() !== null) {
+  <span class="wr-chart-scale__label" [wrChartLegendPart]="part.label">{{ minLabel() }}</span>
+}
+@if (steps().length > 0) {
+  <span class="wr-chart-scale__ramp" [wrChartLegendPart]="part.ramp">
+    @for (step of steps(); track $index) {
+      <span class="wr-chart-scale__step" [wrChartLegendPart]="part.step" [style.background]="step"></span>
+    }
+  </span>
+}
+@if (maxLabel() !== null) {
+  <span class="wr-chart-scale__label" [wrChartLegendPart]="part.label">{{ maxLabel() }}</span>
+}
+<!-- What the chart keys beside the ramp: a heatmap's empty cell. -->
+<ng-content />
