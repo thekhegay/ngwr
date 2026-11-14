@@ -7,7 +7,12 @@ import { Subject } from 'rxjs';
 
 import { WrDialog, type WrDialogRef } from 'ngwr/dialog';
 import { WrDrawerManager } from 'ngwr/drawer';
-import { WR_ANCHORED_FALLBACKS, WR_ANCHORED_POSITIONS, wrAnchoredPositions } from 'ngwr/overlay';
+import {
+  WR_ANCHORED_FALLBACKS,
+  WR_ANCHORED_POSITIONS,
+  type WrOverlayAutoFocus,
+  wrAnchoredPositions,
+} from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrPopover } from './popover';
@@ -268,20 +273,18 @@ describe('WrPopover', () => {
     });
 
     /**
-     * WCAG F85, the documented failure of 2.4.3: the overlay container sits at
-     * the end of `<body>`, so a dialog that never takes focus is neither next in
-     * the tab order nor given it — Tab from the trigger went to the next control
-     * on the PAGE and left the panel behind. The pane itself takes focus rather
-     * than the first control inside it; Tab from the pane reaches that control
-     * anyway, because the pane precedes its own content.
+     * Opening does not move focus: the panel is the user's to enter. WCAG F85
+     * (a dialog neither next in the tab order nor given focus) is answered by
+     * Tab on the trigger walking in, pinned in the round-trip suite below.
      */
-    it('moves focus into the panel when it opens from a click', () => {
+    it('leaves focus on the trigger when it opens from a click', () => {
+      trigger('click').focus();
       open();
 
       const pane = popoverPane()!;
-      expect(document.activeElement, 'the dialog opened behind the tab order').toBe(pane);
+      expect(document.activeElement, 'opening moved focus unasked').toBe(trigger('click'));
+      // Focusable all the same, so `autoFocus="dialog"` and a press on its padding land on it.
       expect(pane.tabIndex).toBe(-1);
-      // And the content is rendered by then, so a reader has something to read.
       expect(pane.querySelector('.panel-action')).toBeTruthy();
     });
 
@@ -414,7 +417,7 @@ describe('WrPopover', () => {
      * hover is something a keyboard cannot do — so a hover popover with no key
      * of its own was content only a mouse could reach.
      */
-    it.each(['Enter', ' '])('opens from the keyboard with %j, and takes focus like a click popover', key => {
+    it.each(['Enter', ' '])('opens from the keyboard with %j, and leaves focus on the trigger', key => {
       trigger('hover').focus();
       const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
       trigger('hover').dispatchEvent(event);
@@ -423,7 +426,7 @@ describe('WrPopover', () => {
       const pane = popoverPane()!;
       expect(pane, 'the keyboard could not open it').toBeTruthy();
       expect(trigger('hover').getAttribute('aria-expanded')).toBe('true');
-      expect(document.activeElement, 'opened behind the tab order').toBe(pane);
+      expect(document.activeElement, 'opening moved focus unasked').toBe(trigger('hover'));
       expect(event.defaultPrevented).toBe(true);
     });
 
@@ -962,7 +965,7 @@ describe('WrPopover keyboard round trip', () => {
 
   it('hands Tab off the last stop to the trigger, leaves the move to the browser, and closes', async () => {
     await openFromKeyboard();
-    expect(document.activeElement).toBe(pane());
+    expect(document.activeElement).toBe(outside('trigger'));
 
     // `.parked` follows it in the DOM and is not a stop.
     const event = await tab(inside('last'));
@@ -1014,8 +1017,26 @@ describe('WrPopover keyboard round trip', () => {
     expect(outside('trigger').getAttribute('aria-expanded')).toBe('true');
   });
 
+  it('walks Tab on the trigger into the panel, since opening left focus on the trigger', async () => {
+    await openFromKeyboard();
+    const event = await tab(outside('trigger'));
+
+    expect(event.defaultPrevented, 'the browser would carry Tab on through the page').toBe(true);
+    expect(document.activeElement).toBe(inside('first'));
+    expect(pane()).toBeTruthy();
+  });
+
+  it('leaves Shift+Tab on the trigger to the browser', async () => {
+    await openFromKeyboard();
+    const event = await tab(outside('trigger'), true);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(outside('trigger'));
+  });
+
   it('closes when focus leaves for the page some other way, and leaves it there', async () => {
     await openFromKeyboard();
+    inside('first').focus();
     outside('after').focus();
     await fixture.whenStable();
 
@@ -1493,5 +1514,100 @@ describe('WrPopover while disabled', () => {
     tick(500);
 
     expect(tooltipPane()).toBeNull();
+  });
+});
+
+/**
+ * Opening a popover moves focus only when asked: by `autoFocus`, or by a
+ * `cdkFocusInitial` the consumer put in the content. The close hands focus back
+ * to the trigger in every mode it was moved in.
+ */
+describe('WrPopover autoFocus', () => {
+  @Component({
+    imports: [WrPopover],
+    template: `
+      <button type="button" class="trigger" [wrPopover]="marked() ? withMarker : plain" [autoFocus]="autoFocus()">
+        Settings
+      </button>
+
+      <ng-template #plain>
+        <button type="button" class="first">First</button>
+        <button type="button" class="second">Second</button>
+      </ng-template>
+      <ng-template #withMarker>
+        <button type="button" class="first">First</button>
+        <button type="button" class="second" cdkFocusInitial>Second</button>
+      </ng-template>
+    `,
+  })
+  class FocusHost {
+    readonly autoFocus = signal<WrOverlayAutoFocus>(false);
+    readonly marked = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<FocusHost>>;
+
+  const trigger = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.trigger')!;
+  const pane = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-popover-overlay');
+  const inside = (cls: 'first' | 'second'): HTMLElement => pane()!.querySelector<HTMLElement>(`.${cls}`)!;
+
+  const open = async (mode: WrOverlayAutoFocus, marked = false): Promise<void> => {
+    fixture.componentInstance.autoFocus.set(mode);
+    fixture.componentInstance.marked.set(marked);
+    await fixture.whenStable();
+    trigger().focus();
+    trigger().click();
+    // The focus move on open waits for the render after it.
+    await fixture.whenStable();
+    TestBed.tick();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    // jsdom lays nothing out, and the CDK passes over a control with no box.
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(FocusHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('moves nothing by default', async () => {
+    await open(false);
+    expect(pane()).toBeTruthy();
+    expect(document.activeElement).toBe(trigger());
+  });
+
+  it('focuses the panel itself under "dialog"', async () => {
+    await open('dialog');
+    expect(document.activeElement).toBe(pane());
+  });
+
+  it('focuses the first control under "first-tabbable"', async () => {
+    await open('first-tabbable');
+    expect(document.activeElement).toBe(inside('first'));
+  });
+
+  it.each<WrOverlayAutoFocus>([false, 'dialog', 'first-tabbable'])(
+    'lets a cdkFocusInitial in the content win under %j',
+    async mode => {
+      await open(mode, true);
+      expect(document.activeElement).toBe(inside('second'));
+    }
+  );
+
+  it('hands focus back to the trigger when Escape closes it with focus inside', async () => {
+    await open('dialog');
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await fixture.whenStable();
+
+    expect(pane()).toBeNull();
+    expect(document.activeElement).toBe(trigger());
   });
 });

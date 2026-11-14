@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Popover"
-  updated="16.3.0"
+  updated="16.5.0"
   description="Show a template, or a text tooltip, next to its trigger."
   [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
   [labels]="['Directive', 'CDK Overlay']"
@@ -18,6 +18,11 @@
         </div>
       </ng-template>
     </ngwr-doc-snippet>
+    <p>
+      Opening leaves focus on the trigger, and Tab from there walks into the panel. Set
+      <code>autoFocus="dialog"</code> to focus the panel or <code>"first-tabbable"</code> for its first control; a
+      <code>cdkFocusInitial</code> in your content always takes focus. Closing returns focus to the trigger.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
