@@ -195,6 +195,11 @@ one element at a time; a step whose target is missing is skipped, not floated.
   Every component a template renders needs its line. A name from before v15
   (`bar-chart`) lands on its nested entry point (`ngwr/charts/bar-chart`).
 - `ng g ngwr:page <form|table|dashboard>` — starter page wired with ngwr.
+- `ng g ngwr:eject <entry>` — copies one component's source into
+  `src/app/ngwr/<entry>` (`--path` to change it), fetched from GitHub at the tag
+  of the installed version, or from a local checkout with `--from <dir>`.
+  Imports of other entry points become package paths; `ng update` no longer
+  updates the copy. Guide: `/guides/eject`.
 - `ng update ngwr` — runs upgrade migrations.
 
 ## Upgrading
