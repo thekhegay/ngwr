@@ -6,6 +6,7 @@ export {
   wrAnchoredPositions,
 } from './wr-anchored-positions';
 export { wrAppendOverlayClose } from './wr-overlay-close';
+export { type WrOverlayAutoFocus, wrFocusOverlay } from './wr-focus-overlay';
 export { wrFollowDirection } from './wr-follow-direction';
 export { wrFollowSize } from './wr-follow-size';
 export { wrMirrorOffsets } from './wr-mirror-offsets';

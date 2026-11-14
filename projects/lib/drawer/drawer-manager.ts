@@ -13,7 +13,7 @@ import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList } from 'ngwr/utils';
 
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
@@ -210,7 +210,7 @@ export class WrDrawerManager {
       // strategy moves focus in and leaves Tab free to walk out to the page.
       const trap = modal ? this.focusTrapFactory.create(host) : this.plainFocusTrapFactory.create(host, true);
       drawerRef.focusTrap = trap;
-      void trap.focusInitialElementWhenReady();
+      wrFocusOverlay(host, trap, options.autoFocus ?? 'dialog', this.parentInjector);
     }
 
     return drawerRef;

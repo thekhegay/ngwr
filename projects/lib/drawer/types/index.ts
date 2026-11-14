@@ -1,2 +1,2 @@
 export type { WrDrawerPosition } from './drawer-position';
-export type { WrDrawerOptions } from './drawer-options';
+export type { WrDrawerAutoFocus, WrDrawerOptions } from './drawer-options';

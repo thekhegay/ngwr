@@ -43,9 +43,10 @@
   <div wrDialogContent>{{ data.message }}</div>
 }
 <!--
-  Initial focus sits on the safe answer of a danger question and on the confirm
-  button otherwise, through the `cdkFocusInitial` the focus trap already reads.
-  An alert has one button, and it takes the focus.
+  Under `autoFocus: 'first-tabbable'` initial focus sits on the safe answer of a
+  danger question and on the confirm button otherwise, through the
+  `cdkFocusInitial` the focus trap already reads. An alert has one button, and
+  it takes the focus. In the other modes none of them is marked.
 -->
 <div wrDialogFooter>
   @if (alert) {
@@ -54,7 +55,7 @@
       type="button"
       class="wr-dialog-confirm__action wr-dialog-confirm__action--ok"
       [color]="color"
-      [attr.cdkFocusInitial]="''"
+      [attr.cdkFocusInitial]="focusInitial ? '' : null"
       (click)="ref.close()"
     >
       {{ confirmLabel() }}
@@ -64,7 +65,7 @@
       wr-btn
       type="button"
       class="wr-dialog-confirm__action wr-dialog-confirm__action--cancel"
-      [attr.cdkFocusInitial]="danger ? '' : null"
+      [attr.cdkFocusInitial]="focusInitial && danger ? '' : null"
       (click)="ref.close(false)"
     >
       {{ cancelLabel() }}
@@ -74,7 +75,7 @@
       type="button"
       class="wr-dialog-confirm__action wr-dialog-confirm__action--confirm"
       [color]="color"
-      [attr.cdkFocusInitial]="danger ? null : ''"
+      [attr.cdkFocusInitial]="focusInitial && !danger ? '' : null"
       (click)="ref.close(true)"
     >
       {{ confirmLabel() }}

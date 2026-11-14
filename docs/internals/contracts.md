@@ -69,6 +69,13 @@ because it is guidance rather than a plan.
   move", and so did the output's own JSDoc — both wrong since the emit has
   always sat in the drag's cleanup. A consumer persisting the position wants
   the landing rather than the path, which is what it does.
+- Dialogs and drawers focus their PANEL on open (`autoFocus: 'dialog'`, since
+  16.5), not the first control: a ring on a button nobody pressed is noise, and
+  `false` is not the default because a modal that moves no focus strands
+  keyboard and screen-reader users behind the backdrop. The panel is
+  `tabindex="-1"` with `outline: none` on `:focus`. The library's own
+  `cdkFocusInitial` (confirm, alert) follows the option and is only emitted
+  under `'first-tabbable'`; the consumer's own always wins.
 - `wr-sortable-list` in a group: `move` fires ONCE, on the list the item
   arrived in, and never on the one it left, which reports through
   `itemsChange` alone; a keyboard move writes `[(items)]` on both lists at
