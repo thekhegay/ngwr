@@ -26,9 +26,8 @@ export interface WrCandlestickChartHarnessCandle {
   /** The period's close. */
   readonly close: number;
   /**
-   * `'increase'` for a candle drawn rising — hollow, in the increase colour — and
-   * `'decrease'` for one drawn falling, filled: the waterfall's words for a change up and
-   * a change down.
+   * `'increase'` for a candle drawn rising, in the increase colour, and `'decrease'` for
+   * one drawn falling: the waterfall's words for a change up and a change down.
    */
   readonly direction: 'increase' | 'decrease';
   /** Where the candle's centre sits, as a percentage of the drawing's width from its left edge. */

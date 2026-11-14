@@ -16,13 +16,24 @@ const DATA: readonly WrCandlestickDatum[] = [
 @Component({
   imports: [WrCandlestickChart],
   template: `
-    <wr-candlestick-chart [data]="data()" [ariaLabel]="ariaLabel()" [showGrid]="showGrid()" [dataTable]="dataTable()" />
+    <wr-candlestick-chart
+      [data]="data()"
+      [ariaLabel]="ariaLabel()"
+      [showGrid]="showGrid()"
+      [showAxis]="showAxis()"
+      [hollow]="hollow()"
+      [loading]="loading()"
+      [dataTable]="dataTable()"
+    />
   `,
 })
 class Host {
   readonly data = signal<readonly WrCandlestickDatum[]>(DATA);
   readonly ariaLabel = signal<string | null>('ACME, daily');
   readonly showGrid = signal(true);
+  readonly showAxis = signal(true);
+  readonly hollow = signal(false);
+  readonly loading = signal(false);
   readonly dataTable = signal(false);
 }
 
@@ -87,14 +98,20 @@ describe('WrCandlestickChartHarness', () => {
     expect((await (await chart()).getCandles()).map(candle => candle.index)).toEqual([1, 2]);
   });
 
-  it('reads the ticks and the labels, and keeps the labels without the grid', async () => {
+  it('reads the ticks and the labels, and keeps the labels without the grid and the scale', async () => {
     const harness = await chart();
 
     expect(await harness.hasGrid()).toBe(true);
+    expect(await harness.hasAxis()).toBe(true);
     expect(await harness.getYTicks()).toEqual(['115', '110', '105', '100', '95', '90']);
     expect(await harness.getXLabels()).toEqual(['Mon', 'Tue']);
 
+    // The grid alone: the scale stays.
     host().showGrid.set(false);
+    await fixture.whenStable();
+    expect([await harness.hasGrid(), await harness.hasAxis()]).toEqual([false, true]);
+
+    host().showAxis.set(false);
     await fixture.whenStable();
 
     // The period labels are the time axis, not part of the grid.
@@ -103,6 +120,19 @@ describe('WrCandlestickChartHarness', () => {
       [],
       ['Mon', 'Tue'],
     ]);
+    expect(await harness.hasAxis()).toBe(false);
+  });
+
+  it('reads whether a rising body is hollow, and the message of a state', async () => {
+    const harness = await chart();
+    expect([await harness.isHollow(), await harness.getStateLabel()]).toEqual([false, null]);
+
+    host().hollow.set(true);
+    host().loading.set(true);
+    await fixture.whenStable();
+
+    expect([await harness.isHollow(), await harness.getStateLabel()]).toEqual([true, 'Loading…']);
+    expect(await harness.getCandleCount()).toBe(0);
   });
 
   it('reads the dense decision and the thinned labels for many candles', async () => {
