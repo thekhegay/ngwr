@@ -1,13 +1,14 @@
 <ngwr-doc-page
   title="Bullet Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="One measure against its target, over qualitative bands: Stephen Few's bullet graph, a compact replacement for a gauge."
   [keywords]="['bullet-chart', 'bullet-graph', 'kpi', 'target', 'wr-bullet-chart']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="The value is the bar, the target the marker across it. `ranges` are the upper limits of the bands, drawn as greys that fade from zero outwards."
+    description="The value is the bar, the target the marker across it. `ranges` are the upper limits of the bands, drawn as tints of the first chart palette colour that fade from zero outwards, parted by a 1px line."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -108,6 +109,27 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With neither a value nor a target the track is empty and says so. `loading` and `error` put their message there. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: grid; gap: 1rem; width: 100%">
+        <wr-bullet-chart label="Revenue" [value]="null" />
+        <wr-bullet-chart label="Revenue" [value]="270" [target]="250" [ranges]="[150, 225, 300]" loading />
+        <wr-bullet-chart
+          label="Revenue"
+          [value]="270"
+          [target]="250"
+          [ranges]="[150, 225, 300]"
+          error
+          errorLabel="Revenue is unavailable"
+        />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Accessibility">
     <div class="ngwr-table">
       <table>
@@ -139,6 +161,13 @@
           <tr>
             <th scope="row">Colour</th>
             <td>The bands differ in lightness, and the bar and the marker in shape, so none of it relies on hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Keyboard</th>
