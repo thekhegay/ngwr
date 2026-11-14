@@ -5,7 +5,12 @@ import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
-import { WR_ANCHORED_FALLBACKS, WR_ANCHORED_POSITIONS, wrAnchoredPositions } from 'ngwr/overlay';
+import {
+  WR_ANCHORED_FALLBACKS,
+  WR_ANCHORED_POSITIONS,
+  type WrOverlayAutoFocus,
+  wrAnchoredPositions,
+} from 'ngwr/overlay';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrPopconfirm } from './popconfirm';
@@ -17,6 +22,7 @@ import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
     <button
       type="button"
       [wrPopconfirm]="message()"
+      [autoFocus]="autoFocus()"
       (confirmed)="log.push('confirmed')"
       (cancelled)="log.push('cancelled')"
     >
@@ -27,6 +33,7 @@ import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
 })
 class Host {
   readonly message = signal('Delete this for good?');
+  readonly autoFocus = signal<WrOverlayAutoFocus>('dialog');
   readonly log: string[] = [];
 }
 
@@ -77,6 +84,13 @@ describe('WrPopconfirm', () => {
     click(trigger());
   };
 
+  /** The focus move on open waits for the render after it. */
+  const settle = async (): Promise<void> => {
+    await fixture.whenStable();
+    TestBed.tick();
+    await fixture.whenStable();
+  };
+
   const elsewhere = (): HTMLButtonElement =>
     (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('#elsewhere')!;
 
@@ -117,13 +131,63 @@ describe('WrPopconfirm', () => {
     expect(trigger().getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('moves focus into the panel, landing on the safe choice', () => {
-    // Focus used to stay on the trigger, and the overlay container sits at the end
-    // of `<body>` — so Tab went to the next thing on the PAGE and the only way to
-    // confirm was unreachable. Cancel first, because the action being confirmed is
-    // usually the destructive one.
+  it('moves focus onto the panel itself on open, not onto a button', async () => {
+    // Focus has to be inside: the overlay container sits at the end of `<body>`,
+    // so Tab from the trigger went to the next thing on the PAGE. It lands on the
+    // pane, so no button is lit until the user moves to one.
     open();
+    await settle();
+    expect(document.activeElement).toBe(pane());
+    expect(pane()!.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('lands on Cancel under autoFocus="first-tabbable"', async () => {
+    // jsdom lays nothing out, and the CDK passes over a control with no box.
+    const boxes = vi
+      .spyOn(HTMLElement.prototype, 'getClientRects')
+      .mockReturnValue([new DOMRect(0, 0, 120, 32)] as unknown as DOMRectList);
+    try {
+      fixture.componentInstance.autoFocus.set('first-tabbable');
+      fixture.detectChanges();
+      open();
+      await settle();
+      expect(document.activeElement).toBe(cancel());
+    } finally {
+      boxes.mockRestore();
+    }
+  });
+
+  it('leaves focus on the trigger under [autoFocus]="false", and Tab walks in', async () => {
+    fixture.componentInstance.autoFocus.set(false);
+    fixture.detectChanges();
+    trigger().focus();
+    open();
+    await settle();
+    expect(document.activeElement).toBe(trigger());
+
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    trigger().dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(cancel());
+  });
+
+  it('hands focus back to the trigger on close, from the pane as from a button', async () => {
+    trigger().focus();
+    open();
+    await settle();
+    expect(document.activeElement).toBe(pane());
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(document.activeElement).toBe(trigger());
+  });
+
+  it('takes Shift+Tab on the pane back to the trigger', async () => {
+    open();
+    await settle();
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true });
+    pane()!.dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(true);
+    expect(panel()).toBeNull();
+    expect(document.activeElement).toBe(trigger());
   });
 
   it('takes Escape from wherever the focus happens to be', () => {

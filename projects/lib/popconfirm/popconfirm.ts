@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { FocusMonitor } from '@angular/cdk/a11y';
+import { type FocusTrap, FocusMonitor, FocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
@@ -25,7 +25,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
+import {
+  WR_OVERLAY,
+  WrOutsideClick,
+  type WrOverlayAutoFocus,
+  wrFocusOverlay,
+  wrFollowDirection,
+  wrMirrorOffsets,
+} from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
 import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
@@ -68,6 +75,7 @@ let popconfirmUid = 0;
     class: 'wr-popconfirm-trigger',
     '[class.wr-popconfirm-trigger--disabled]': 'disabled()',
     '(click)': 'toggle($event)',
+    '(keydown)': 'onTriggerKeydown($event)',
     '[attr.aria-haspopup]': 'disabled() ? null : "dialog"',
     '[attr.aria-expanded]': 'disabled() ? null : isOpen()',
     // Names the dialog this trigger opened, as every other overlay trigger in the
@@ -122,6 +130,16 @@ export class WrPopconfirm {
   readonly panelClass = input<WrClassInput>(null);
 
   /**
+   * Where focus goes when the panel opens. `'dialog'` puts it on the panel
+   * itself, with no ring, so Tab reaches Cancel and no button is lit;
+   * `'first-tabbable'` puts it on Cancel; `false` leaves it on the trigger,
+   * and Tab from there walks into the panel. Closing hands focus back to the
+   * trigger in every mode.
+   * @default 'dialog'
+   */
+  readonly autoFocus = input<WrOverlayAutoFocus>('dialog');
+
+  /**
    * Turns the question off: a click on the host opens nothing and is left to
    * propagate, `open()` does nothing, and an open panel closes without
    * `cancelled`. The host publishes no popup ARIA meanwhile and carries
@@ -143,6 +161,7 @@ export class WrPopconfirm {
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly focusTraps = inject(FocusTrapFactory);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly dir = inject(Directionality, { optional: true });
   private readonly outsideClick = inject(WrOutsideClick);
@@ -157,6 +176,7 @@ export class WrPopconfirm {
   readonly isOpen = this.openState.asReadonly();
 
   private overlayRef: OverlayRef | null = null;
+  private finder: FocusTrap | null = null;
 
   private readonly uid = ++popconfirmUid;
 
@@ -233,6 +253,7 @@ export class WrPopconfirm {
     pane.setAttribute('aria-modal', 'false');
     pane.setAttribute('aria-label', this.resolvedAriaLabel());
     pane.setAttribute('aria-describedby', this.messageId);
+    pane.tabIndex = -1;
 
     const portal = new ComponentPortal(WrPopconfirmPanel, this.vcr);
     const ref = this.overlayRef.attach(portal);
@@ -241,14 +262,19 @@ export class WrPopconfirm {
     ref.setInput('confirmText', this.resolvedConfirm());
     ref.setInput('cancelText', this.resolvedCancel());
     ref.setInput('confirmColor', this.confirmColor());
-    // Render now rather than next frame: the buttons have to exist before focus can
-    // move to one, and a deferred focus is the class of bug this repo keeps finding.
     ref.changeDetectorRef.detectChanges();
-    // Focus has to enter the panel — the overlay container sits at the end of
-    // `<body>`, so Tab from the trigger went to the next thing on the PAGE and the
-    // only way to confirm was unreachable. Cancel first: the action being confirmed
-    // is usually the destructive one.
-    pane.querySelector<HTMLElement>('.wr-popconfirm__actions wr-btn')?.focus();
+    // Focus has to be able to enter the panel: the overlay container sits at the
+    // end of `<body>`, so Tab from the trigger went to the next thing on the PAGE
+    // and the only way to confirm was unreachable. It enters on open as
+    // `autoFocus` says, and never onto a button unasked: the panel itself by
+    // default, Cancel under `'first-tabbable'` (the action being confirmed is
+    // usually the destructive one). Under `false` Tab on the trigger walks in,
+    // see `onTriggerKeydown`.
+    //
+    // `deferAnchors`: the trap is only the finder `wrFocusOverlay` asks for. No
+    // anchors go into the page and nothing is trapped.
+    this.finder = this.focusTraps.create(pane, true);
+    wrFocusOverlay(pane, this.finder, this.autoFocus(), this.injector);
     // And it has to LEAVE with the panel: Tab past Confirm went on to the end of
     // `<body>` and Shift+Tab before Cancel to the foot of the page, each with the
     // question still on screen and `aria-expanded` still true. See `onPaneKeydown`.
@@ -303,6 +329,8 @@ export class WrPopconfirm {
     // removed, and the pane is about to be.
     pane.removeEventListener('keydown', this.onPaneKeydown);
     pane.removeEventListener('focusout', this.onPaneFocusOut);
+    this.finder?.destroy();
+    this.finder = null;
     this.overlayRef.dispose();
     this.overlayRef = null;
     this.openState.set(false);
@@ -327,7 +355,7 @@ export class WrPopconfirm {
     const stops = [...pane.querySelectorAll<HTMLElement>('.wr-popconfirm__action')];
     const active = document.activeElement;
     if (event.shiftKey) {
-      if (active !== stops[0]) return;
+      if (active !== pane && active !== stops[0]) return;
       event.preventDefault();
     } else if (active !== stops.at(-1)) {
       return;
@@ -335,6 +363,21 @@ export class WrPopconfirm {
     wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
     this.dismiss();
   };
+
+  /**
+   * Tab on the trigger while the panel is open walks into it, as it would into a
+   * panel rendered beside the trigger. The way in when focus did not move on
+   * open (`autoFocus` is `false`).
+   *
+   * @internal
+   */
+  protected onTriggerKeydown(event: KeyboardEvent): void {
+    const pane = this.overlayRef?.overlayElement;
+    if (!pane || event.key !== 'Tab' || event.shiftKey || event.defaultPrevented) return;
+    if (event.target !== this.host.nativeElement) return;
+    event.preventDefault();
+    (pane.querySelector<HTMLElement>('.wr-popconfirm__action') ?? pane).focus();
+  }
 
   /**
    * Focus that leaves the panel by any other road (a click on something

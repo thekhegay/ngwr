@@ -260,14 +260,15 @@ describe('WrPopconfirmHarness', () => {
     expect(await publish.getConfirmColor()).toBe('primary');
   });
 
-  it('lands focus inside the dialog, on the safe choice', async () => {
+  it('lands focus inside the dialog, on the panel itself', async () => {
     const remove = await get('Delete');
     await remove.open();
 
     // Focus used to stay on the trigger, and the overlay container sits at the end
     // of `<body>` — so Tab went to the next thing on the PAGE and the only way to
-    // confirm was unreachable.
-    expect(await remove.getFocusedActionLabel()).toBe('Keep');
+    // confirm was unreachable. It lands on the panel, so no button is lit.
+    expect(await remove.isPanelFocused()).toBe(true);
+    expect(await remove.getFocusedActionLabel()).toBeNull();
     expect(await remove.isTriggerFocused()).toBe(false);
 
     // And it reports the action that actually holds focus rather than the first one:
@@ -442,6 +443,9 @@ describe('WrPopconfirmHarness — two dialogs open at once', () => {
 
     // The second `open()` moved focus into ITS panel, so the first one holds none —
     // an unscoped read would claim both dialogs had a focused action.
+    expect(await a.isPanelFocused()).toBe(false);
+    expect(await b.isPanelFocused()).toBe(true);
+    await (await b.getHarness(WrButtonHarness.with({ text: 'Leave it' }))).focus();
     expect(await a.getFocusedActionLabel()).toBeNull();
     expect(await b.getFocusedActionLabel()).toBe('Leave it');
   });
