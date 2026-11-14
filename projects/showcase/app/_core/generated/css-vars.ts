@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1764 hook(s) across 115 page(s). A property is here only when the
+ * 1772 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 38 declaration(s) are one component setting
@@ -1394,6 +1394,14 @@ export const CSS_VARS = {
       { name: "--wr-graph-card-line-height", default: "var(--wr-leading-tight)", scope: ".wr-graph" },
       { name: "--wr-graph-card-padding", default: "var(--wr-space-sm) var(--wr-space-md)", scope: ".wr-graph" },
       { name: "--wr-graph-card-radius", default: "var(--wr-border-radius-base)", scope: ".wr-graph" },
+      { name: "--wr-graph-control-background", default: "var(--wr-color-surface)", scope: ".wr-graph" },
+      { name: "--wr-graph-control-border", default: "var(--wr-border-base)", scope: ".wr-graph" },
+      { name: "--wr-graph-control-color", default: "var(--wr-color-on-surface)", scope: ".wr-graph" },
+      { name: "--wr-graph-control-hover-background", default: "var(--wr-color-hover)", scope: ".wr-graph" },
+      { name: "--wr-graph-control-radius", default: "var(--wr-border-radius-base)", scope: ".wr-graph" },
+      { name: "--wr-graph-control-size", default: "1.75rem", scope: ".wr-graph" },
+      { name: "--wr-graph-controls-gap", default: "var(--wr-space-xs)", scope: ".wr-graph" },
+      { name: "--wr-graph-controls-offset", default: "var(--wr-space-sm)", scope: ".wr-graph" },
       { name: "--wr-graph-edge-color", default: "color-mix(in srgb, var(--wr-color-on-surface-muted) 60%, var(--wr-color-surface))", scope: ".wr-graph" },
       { name: "--wr-graph-edge-width", default: "1px", scope: ".wr-graph" },
       { name: "--wr-graph-font-family", default: "var(--wr-font-family-base)", scope: ".wr-graph" },
