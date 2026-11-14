@@ -4,6 +4,9 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/donut-chart'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+// The chart theme every hook below defaults to (`--wr-chart-*`), the hover-dim rule and
+// the empty / loading / error message.
+@use '../../core/styles' as core-styles; // WrChartState
 @include theme.loaded('charts/donut-chart');
 
 .wr-donut-chart {
@@ -11,19 +14,27 @@
   --wr-donut-chart-font-family: var(--wr-font-family-base);
   --wr-donut-chart-color: var(--wr-color-on-surface);
   // The gap between two slices: each is stroked in the surface the chart sits on, so the
-  // gap is a shape that tells two slices apart without hue.
-  --wr-donut-chart-slice-gap-color: var(--wr-color-surface);
+  // gap is a shape that tells two slices apart without hue. Its width is in pixels at any
+  // `size`: the stroke does not scale with the drawing.
+  --wr-donut-chart-slice-gap-color: var(--wr-chart-separator);
+  --wr-donut-chart-slice-gap-width: 1px;
+  // The ring with no slice on it: under a state, or with every slice hidden.
+  --wr-donut-chart-track-color: var(--wr-chart-track);
 
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--wr-donut-chart-gap);
+  // No `gap`: the room between the drawing and the legend is the legend's own margin, on
+  // whichever side `legendPosition` puts it. See `&__legend`.
   font-family: var(--wr-donut-chart-font-family);
   color: var(--wr-donut-chart-color);
 
+  // The box a state's message is centred in. Never narrower than its `size` beside a
+  // legend, and never grown by it.
   &__surface {
     position: relative;
     display: inline-block;
+    flex: none;
   }
 
   svg {
@@ -32,8 +43,14 @@
     height: auto;
   }
 
+  // The opacity transition for the hover-dim is the shared rule's, on `data-wr-series`.
   &__slice {
     stroke: var(--wr-donut-chart-slice-gap-color);
+    stroke-width: var(--wr-donut-chart-slice-gap-width);
+  }
+
+  &__track {
+    fill: var(--wr-donut-chart-track-color);
   }
 
   &__center {
@@ -56,7 +73,8 @@
   }
 
   &__center-value {
-    --wr-donut-chart-center-value-font-size: var(--wr-text-2xl);
+    // The headline figure of a radial chart, the size the gauge prints its reading at.
+    --wr-donut-chart-center-value-font-size: var(--wr-text-xl);
     --wr-donut-chart-center-value-font-weight: var(--wr-font-weight-semibold);
     --wr-donut-chart-center-value-line-height: var(--wr-leading-tight);
 
@@ -71,25 +89,24 @@
 
   &__center-label {
     --wr-donut-chart-center-label-margin-top: var(--wr-space-xs);
-    --wr-donut-chart-center-label-font-size: var(--wr-text-xs);
-    --wr-donut-chart-center-label-color: var(--wr-color-on-surface-muted);
+    --wr-donut-chart-center-label-font-size: var(--wr-chart-label-size);
+    --wr-donut-chart-center-label-color: var(--wr-chart-label);
 
     margin-top: var(--wr-donut-chart-center-label-margin-top);
     font-size: var(--wr-donut-chart-center-label-font-size);
     color: var(--wr-donut-chart-center-label-color);
   }
 
+  // The room between the legend and the drawing, on whichever side `legendPosition` puts
+  // it: the shared legend rule reads `--wr-chart-legend-space`, and `--wr-donut-chart-gap`
+  // is the chart's own name for it, from when the legend was always below. The row or the
+  // column, the margin and the centring are the shared legend's.
   &__legend {
     --wr-donut-chart-legend-gap-y: var(--wr-space-sm);
     --wr-donut-chart-legend-gap-x: var(--wr-space-lg);
+    --wr-chart-legend-space: var(--wr-donut-chart-gap);
 
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
     gap: var(--wr-donut-chart-legend-gap-y) var(--wr-donut-chart-legend-gap-x);
-    justify-content: center;
   }
 
   &__legend-item {
@@ -108,23 +125,22 @@
     color: inherit;
   }
 
+  // The shared legend's dot, 8px, as the tooltip keys a row.
   &__swatch {
-    width: 0.625rem;
-    height: 0.625rem;
-    border-radius: 50%;
     // The key to the slices, whose SVG fills forced colors keeps — so an inline
     // `background` reset to `Canvas` left the legend pointing at nothing.
     forced-color-adjust: none;
   }
 
   &__legend-label {
-    --wr-donut-chart-legend-label-font-weight: var(--wr-font-weight-medium);
+    // The row's own weight, as in every chart's legend.
+    --wr-donut-chart-legend-label-font-weight: inherit;
 
     font-weight: var(--wr-donut-chart-legend-label-font-weight);
   }
 
   &__legend-value {
-    --wr-donut-chart-legend-value-color: var(--wr-color-on-surface-muted);
+    --wr-donut-chart-legend-value-color: var(--wr-chart-legend-value-color);
 
     color: var(--wr-donut-chart-legend-value-color);
     font-variant-numeric: tabular-nums;
@@ -134,11 +150,31 @@
   }
 }
 
+// Beside the legend the chart is a row: the drawing keeps its `size` and the legend is
+// centred against it. The shared side rule makes the host a block-level flex box whose
+// body takes the rest of the row, which suits a plot that fills its container; this
+// drawing has a size of its own, so the chart stays as wide as its parts. The class is
+// doubled as the shared rule doubles it, and the chart's own name outweighs it.
+.wr-donut-chart.wr-chart--legend-side.wr-chart--legend-side {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+
+  > .wr-donut-chart__surface {
+    flex: none;
+  }
+}
+
 // The SVG keeps its fills under forced colors, so the slices keep their colours and the
 // legend still keys them; the gap between them is drawn in the surface, which means
 // nothing on a forced palette, so it takes the page's own colour and still parts them.
 @media (forced-colors: active) {
   .wr-donut-chart__slice {
     stroke: Canvas;
+  }
+
+  // The track is a tint of a border role, which a forced palette has no place for.
+  .wr-donut-chart__track {
+    fill: GrayText;
   }
 }

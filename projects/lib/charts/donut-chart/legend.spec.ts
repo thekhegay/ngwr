@@ -106,9 +106,9 @@ describe('WrDonutChart legend', () => {
     expect(buttons().map(button => button.getAttribute('aria-pressed'))).toEqual(['true', 'false', 'true']);
     expect(paths()).toHaveLength(2);
     expect(paths().map(path => path.getAttribute('fill'))).toEqual([
-      'var(--wr-color-primary)',
+      'var(--wr-chart-1)',
       // Social keeps the colour of its own position.
-      'var(--wr-color-warning)',
+      'var(--wr-chart-3)',
     ]);
     // Direct is 30 of the 50 still shown: 60% of the ring, from twelve o'clock to 126°,
     // a large arc. Social starts exactly there, so the ring closes with no gap.
@@ -156,12 +156,13 @@ describe('WrDonutChart legend', () => {
     host().hidden.set([0, 1, 2]);
     render();
 
-    expect(paths()).toEqual([]);
+    // No slice: the one path left is the track the ring keeps.
+    expect(root().querySelectorAll('.wr-donut-chart__slice')).toHaveLength(0);
     expect(rows()).toHaveLength(3);
   });
 
   it('closes an open tooltip when its slice is hidden under it', async () => {
-    paths()[2].dispatchEvent(new MouseEvent('mouseenter'));
+    paths()[2].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     render();
     expect(chip()?.querySelector('.wr-chart-tooltip__label')?.textContent.trim()).toBe('Social');
 
@@ -176,7 +177,7 @@ describe('WrDonutChart legend', () => {
     host().hidden.set([0]);
     render();
 
-    paths()[1].dispatchEvent(new MouseEvent('mouseenter'));
+    paths()[1].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     render();
 
     expect(chip()?.querySelector('.wr-chart-tooltip__label')?.textContent.trim()).toBe('Social');

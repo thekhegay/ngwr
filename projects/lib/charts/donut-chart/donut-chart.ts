@@ -6,10 +6,16 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, type ElementRef, ViewEncapsulation, computed, input, model, viewChild } from '@angular/core';
 
-import { WR_CHART_LEGEND_BLOCK, WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
-import { wrChartLegacyColor, useChartNumbers } from 'ngwr/charts/core';
+import {
+  WR_CHART_LEGEND_BLOCK,
+  WrChartLegend,
+  type WrChartLegendItem,
+  type WrChartLegendPosition,
+} from 'ngwr/charts/chart-legend';
+import { WrChartState, useChartHover, useChartNumbers, useChartState, wrChartColor } from 'ngwr/charts/core';
 import { useI18nText } from 'ngwr/i18n';
 import { useChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -53,8 +59,18 @@ const MAX_HIT_ANGLE = Math.PI / 12;
  * <wr-donut-chart [segments]="segments" pie />
  * ```
  *
- * The legend is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), and with
+ * **The look is the chart theme's.** A slice with no `color` takes the next colour of
+ * the shared palette (`--wr-chart-1` to `--wr-chart-8`), and every two slices are parted
+ * by a line in `--wr-chart-separator`, 1px at any `size`. Hovering a slice or a legend
+ * row dims the others.
+ *
+ * **The legend** is a `ul[wr-chart-legend]` (`ngwr/charts/chart-legend`), placed by
+ * `legendPosition` and left out for a single slice unless `showLegend` asks for it. With
  * `toggleableLegend` its rows show and hide their slices through `hiddenSegments`.
+ *
+ * **Empty, loading, error.** With nothing to draw the chart keeps its ring as a track
+ * and says "No data"; `loading` and `error` put their own message there in place of the
+ * slices.
  *
  * @see https://ngwr.dev/charts/donut-chart
  */
@@ -62,8 +78,13 @@ const MAX_HIT_ANGLE = Math.PI / 12;
   selector: 'wr-donut-chart',
   templateUrl: './donut-chart.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-donut-chart', '[class.wr-donut-chart--pie]': 'pie()' },
-  imports: [WrChartLegend],
+  host: {
+    // `wr-chart--legend`: the shared rule that keeps the legend's room from the drawing.
+    class: 'wr-donut-chart wr-chart--legend',
+    '[class.wr-donut-chart--pie]': 'pie()',
+    '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
+  },
+  imports: [NgTemplateOutlet, WrChartLegend, WrChartState],
   // The legend's rows keep the classes this chart drew before it drew them through
   // `WrChartLegend`: `.wr-donut-chart__legend-item`, `__swatch`, `__legend-label` and
   // `__legend-value`.
@@ -72,11 +93,14 @@ const MAX_HIT_ANGLE = Math.PI / 12;
 export class WrDonutChart {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('charts/donut-chart');
+    // One listener pair for the whole chart: a slice and a sliver's wider target each
+    // carry `data-wr-index`, and `data-wr-series` for the dim.
+    useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
   }
 
   /**
    * The slices, drawn clockwise from twelve o'clock. A segment with no `color`
-   * takes the next entry from the chart's fallback palette.
+   * takes the next colour of the chart palette, `--wr-chart-1` to `--wr-chart-8`.
    */
   readonly segments = input<readonly WrDonutSegment[]>([]);
 
@@ -114,8 +138,42 @@ export class WrDonutChart {
    */
   readonly pie = input(false, { transform: coerceBooleanProperty });
 
-  /** Show the legend under the chart. @default true */
-  readonly showLegend = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Show the legend. `'auto'` shows it when there is something to tell apart - two
+   * segments or more - and leaves it out for a single one; `true` shows it for one
+   * segment too. @default 'auto'
+   */
+  readonly showLegend = input<boolean | 'auto', unknown>('auto', {
+    transform: (value: unknown): boolean | 'auto' => (value === 'auto' ? 'auto' : coerceBooleanProperty(value)),
+  });
+
+  /**
+   * Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or
+   * `end` of it as a column, or `none` for no legend at all - `hiddenSegments` still
+   * hides a slice from outside. @default 'bottom'
+   */
+  readonly legendPosition = input<WrChartLegendPosition>('bottom');
+
+  /**
+   * A request for the chart's data is in flight: the slices give way to the loading
+   * message, over the ring drawn as a track. @default false
+   */
+  readonly loading = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * The chart's data failed to load: the slices give way to the error message. `loading`
+   * wins while both are set. @default false
+   */
+  readonly error = input(false, { transform: coerceBooleanProperty });
+
+  /** The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`. */
+  readonly emptyLabel = input<string | null>(null);
+
+  /** The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`. */
+  readonly loadingLabel = input<string | null>(null);
+
+  /** The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`. */
+  readonly errorLabel = input<string | null>(null);
 
   /**
    * Make each legend row a toggle button that shows and hides its slice, through
@@ -148,8 +206,13 @@ export class WrDonutChart {
   /** Smaller label under the value. Not rendered with `pie`, which has no hole to hold it. */
   readonly centerLabel = input<string>('');
 
-  /** Whether the centre text renders: some is given, and there is a hole to print it in. */
-  protected readonly showCenter = computed(() => !this.pie() && (!!this.centerValue() || !!this.centerLabel()));
+  /**
+   * Whether the centre text renders: some is given, there is a hole to print it in, and
+   * no state's message is there instead.
+   */
+  protected readonly showCenter = computed(
+    () => !this.pie() && !this.state() && (!!this.centerValue() || !!this.centerLabel())
+  );
 
   /**
    * Show a tooltip with the slice's label and value on hover. Pointer only — the
@@ -223,7 +286,7 @@ export class WrDonutChart {
         // the weight is the arc's, not the data's, and printing it named a "0" the data
         // never had. A value that is not a number has no figure to print.
         text: Number.isFinite(s.value) ? this.numbers.value(s.value) : '',
-        color: s.color ?? wrChartLegacyColor(i),
+        color: s.color ?? wrChartColor(i),
         hidden: isHidden,
         path: isHidden ? '' : this.arcPath(startAngle, endAngle),
         percent: (share / total) * 100,
@@ -259,7 +322,7 @@ export class WrDonutChart {
    * paints in no theme and in no forced-colors palette.
    */
   protected readonly hits = computed(() => {
-    if (!this.pie() || !this.tooltip()) return [];
+    if (!this.pie() || !this.tooltip() || this.state()) return [];
     const min = Math.min(MAX_HIT_ANGLE, HIT_PX / (this.size() / 2));
     const drawn = this.slices()
       .map((slice, index) => ({ index, start: slice.startAngle, end: slice.endAngle }))
@@ -330,6 +393,54 @@ export class WrDonutChart {
   );
 
   /**
+   * Whether the chart draws its legend: unless `legendPosition` is `none` or `showLegend`
+   * is off, and under `showLegend="auto"` only with two segments or more, since a single
+   * slice has nothing to tell apart.
+   */
+  protected readonly legendShown = computed(() => {
+    const show = this.showLegend();
+    const rows = this.legendItems().length;
+    if (show === false || rows === 0 || this.legendPosition() === 'none') return false;
+    return show === true || rows > 1;
+  });
+
+  /** Whether the legend comes before the drawing, in the DOM as on screen: above it, or at inline start. */
+  protected readonly legendFirst = computed(() => {
+    const position = this.legendPosition();
+    return position === 'top' || position === 'start';
+  });
+
+  /** Whether the legend sits beside the drawing rather than above or below it. */
+  protected readonly legendSide = computed(() => {
+    const position = this.legendPosition();
+    return position === 'start' || position === 'end';
+  });
+
+  /**
+   * Whether the chart has nothing to draw: no segment, or none with a share to take. A
+   * slice hidden from the legend still counts, so hiding every slice is not "No data".
+   */
+  private readonly empty = computed(() => this.segments().every(s => weight(s.value) === 0));
+
+  /** What the chart shows in place of its slices, or `null` while it draws them. */
+  protected readonly state = useChartState({
+    loading: this.loading,
+    error: this.error,
+    empty: this.empty,
+    emptyLabel: this.emptyLabel,
+    loadingLabel: this.loadingLabel,
+    errorLabel: this.errorLabel,
+  });
+
+  /**
+   * The whole ring, or the whole disc of a pie, as one path: the frame the chart keeps
+   * while it has no slice to draw - under a state, or with every slice hidden.
+   */
+  protected readonly track = computed(() =>
+    this.state() || this.slices().every(slice => !slice.path) ? this.arcPath(0, Math.PI * 2) : null
+  );
+
+  /**
    * One tooltip for the whole chart, pointing at the hovered slice: at the middle of
    * its OUTER arc, on the side that part of the ring faces — above for a slice whose
    * middle is in the top quarter, below for the bottom one, beside it for the two at
@@ -345,7 +456,8 @@ export class WrDonutChart {
   protected readonly tip = useChartTooltip(this.tooltip, index => {
     const slice = this.slices()[index];
     const svg = this.svg()?.nativeElement;
-    if (!slice?.path || !svg) return null;
+    // No slice is drawn under a state, so a chip open on one lets go.
+    if (!slice?.path || !svg || this.state()) return null;
     const box = svg.getBoundingClientRect();
     // The drawing's y runs downwards, so a positive sine is the lower half.
     const cos = Math.cos(slice.midAngle);

@@ -52,6 +52,11 @@ export default class DonutChartPageComponent {
     pie: `<wr-donut-chart [segments]="devices" pie />`,
     tooltip: `<wr-donut-chart [segments]="segments" />
 <wr-donut-chart [segments]="segments" [tooltip]="false" />`,
+    legend: `<wr-donut-chart [segments]="sources" legendPosition="end" />
+<wr-donut-chart [segments]="sources" legendPosition="top" />`,
+    states: `<wr-donut-chart [segments]="[]" />
+<wr-donut-chart [segments]="segments" loading />
+<wr-donut-chart [segments]="segments" error errorLabel="Unavailable" />`,
     toggle: `<wr-donut-chart [segments]="sources" toggleableLegend [(hiddenSegments)]="hidden" />`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
   };
