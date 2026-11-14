@@ -775,4 +775,30 @@ describe('chart tooltip swatch under forced colors', () => {
       expect(swatch, cls).toMatch(/forced-color-adjust:\s*none/);
     }
   });
+
+  it(
+    "mutes a row's name by the chip's own colour, and sets its value a step larger",
+    { timeout: COMPILE_TIMEOUT },
+    () => {
+      // Under a heading the numbers are what the eye should land on. The name is muted as a
+      // share of the chip's text rather than by the muted role, so an inverted chip follows.
+      const css = compileSass(`@use 'popover/styles';`);
+      const rule = (cls: string): string => new RegExp(`\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+      expect(rule('wr-chart-tooltip__row-label')).toMatch(
+        /--wr-chart-tooltip-row-label-color: color-mix\(in srgb, currentColor 72%, transparent\)/
+      );
+      expect(rule('wr-chart-tooltip__row-label')).toMatch(/color: var\(--wr-chart-tooltip-row-label-color\)/);
+      expect(rule('wr-chart-tooltip__row-value')).toMatch(
+        /--wr-chart-tooltip-row-value-font-size: var\(--wr-text-sm\)/
+      );
+      expect(rule('wr-chart-tooltip__row-value')).toMatch(/font-size: var\(--wr-chart-tooltip-row-value-font-size\)/);
+      expect(rule('wr-chart-tooltip__row-value')).toMatch(/font-variant-numeric: tabular-nums/);
+      expect(rule('wr-chart-tooltip__head')).toMatch(/font-weight: var\(--wr-chart-tooltip-head-font-weight\)/);
+      for (const cls of ['wr-chart-tooltip__swatch', 'wr-chart-tooltip__row-swatch']) {
+        expect(rule(cls)).toMatch(/width: 0\.5rem/);
+        expect(rule(cls)).toMatch(/border-radius: 50%/);
+      }
+    }
+  );
 });

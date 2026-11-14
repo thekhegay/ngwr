@@ -14,7 +14,8 @@
   --wr-chart-legend-color: var(--wr-color-on-surface);
   --wr-chart-legend-label-font-weight: inherit;
   --wr-chart-legend-value-color: var(--wr-color-on-surface-muted);
-  --wr-chart-legend-dot-size: 0.625rem;
+  // 8px, the dot the tooltip keys a row with.
+  --wr-chart-legend-dot-size: 0.5rem;
   --wr-chart-legend-marker-size: 0.75rem;
   // A hidden series is struck through as well as muted, so its state is not carried by
   // colour alone, and its key fades: the key is `aria-hidden`, the label says it.
@@ -25,6 +26,8 @@
   --wr-chart-legend-toggle-padding-x: var(--wr-space-xs);
   --wr-chart-legend-toggle-radius: var(--wr-border-radius-sm);
   --wr-chart-legend-toggle-hover-bg: var(--wr-color-hover);
+  // The room between the legend and the chart it sits beside, on whichever side that is.
+  --wr-chart-legend-space: var(--wr-space-md);
 
   margin: 0;
   gap: var(--wr-chart-legend-gap-y) var(--wr-chart-legend-gap-x);
@@ -38,6 +41,39 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
+}
+
+// At inline start or end the rows run down a column, as wide as the longest of them.
+.wr-chart-legend--start,
+.wr-chart-legend--end {
+  flex: none;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+// Nothing drawn, and nothing for a pointer or a screen reader to find.
+.wr-chart-legend--none {
+  display: none;
+}
+
+// The room between a chart and the legend it draws. Only inside a chart that opted in
+// (`wr-chart--legend`), so a legend an app places itself keeps no margin it did not ask
+// for, and a chart that still places its own legend keeps its own.
+:where(.wr-chart--legend) > .wr-chart-legend--top {
+  margin-block-end: var(--wr-chart-legend-space);
+}
+
+:where(.wr-chart--legend) > .wr-chart-legend--bottom {
+  margin-block-start: var(--wr-chart-legend-space);
+  justify-content: center;
+}
+
+:where(.wr-chart--legend) > .wr-chart-legend--start {
+  margin-inline-end: var(--wr-chart-legend-space);
+}
+
+:where(.wr-chart--legend) > .wr-chart-legend--end {
+  margin-inline-start: var(--wr-chart-legend-space);
 }
 
 .wr-chart-legend__item {

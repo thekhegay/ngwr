@@ -15,7 +15,7 @@ import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrChartLegendPart } from './internal/chart-legend-part';
 import { WR_CHART_LEGEND_BLOCK } from './tokens';
-import type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './types';
+import type { WrChartLegendItem, WrChartLegendPosition, WrChartLegendToggle, WrChartMarker } from './types';
 
 /**
  * A chart's key: one row per series, each a swatch, a name and an optional value.
@@ -29,6 +29,16 @@ import type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './ty
  * in the series' `dash`, or the series' `marker`. A dot is a span painted with an
  * inline background, a line or a marker is an SVG, and every key is `aria-hidden`:
  * the row's text is its name.
+ *
+ * **`position` says where the legend sits beside its chart**: `top`, `bottom`, `start`
+ * or `end`, or `none` to draw nothing. Above and below it is a wrapping row; at inline
+ * start or end it is a column. A chart that draws its own legend forwards its
+ * `legendPosition` here and places the list; a legend that stands alone is placed by
+ * the app, and `position` only picks the row or the column.
+ *
+ * **Hovering a row dims the rest of its chart.** Every row carries `data-wr-series`
+ * with its position, the attribute a chart puts on that series' marks, so the chart's
+ * hover fades every other series while the pointer is on a row.
  *
  * **Toggling is opt-in.** With `toggleable`, every row is a
  * `<button type="button" aria-pressed>` that shows and hides its series: pressed
@@ -71,6 +81,11 @@ import type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './ty
     // list semantics in Safari, and with them the list's `aria-label`.
     role: 'list',
     '[class.wr-chart-legend--toggleable]': 'toggleable()',
+    '[class.wr-chart-legend--top]': "position() === 'top'",
+    '[class.wr-chart-legend--bottom]': "position() === 'bottom'",
+    '[class.wr-chart-legend--start]': "position() === 'start'",
+    '[class.wr-chart-legend--end]': "position() === 'end'",
+    '[class.wr-chart-legend--none]': "position() === 'none'",
     '[attr.aria-label]': 'label()',
   },
   imports: [NgTemplateOutlet, WrChartLegendPart],
@@ -82,6 +97,14 @@ export class WrChartLegend {
 
   /** One row per series, in the chart's order. */
   readonly items = input<readonly WrChartLegendItem[]>([]);
+
+  /**
+   * Where the legend sits beside its chart. `top` and `bottom` lay the rows out in a
+   * wrapping line, `start` and `end` in a column, and `none` draws nothing - the
+   * list stays in the DOM, hidden, so `hiddenSeries` keeps working from outside.
+   * @default 'bottom'
+   */
+  readonly position = input<WrChartLegendPosition>('bottom');
 
   /**
    * Make each row a toggle button that shows and hides its series, through
@@ -152,4 +175,4 @@ export class WrChartLegend {
   }
 }
 
-export type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './types';
+export type { WrChartLegendItem, WrChartLegendPosition, WrChartLegendToggle, WrChartMarker } from './types';
