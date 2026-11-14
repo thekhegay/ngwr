@@ -7,6 +7,7 @@
 
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   type ConnectedPosition,
   type FlexibleConnectedPositionStrategyOrigin,
@@ -105,6 +106,19 @@ function pointerOrigin(pageX: number, pageY: number): FlexibleConnectedPositionS
 export class WrContextMenu {
   /** Menu to open. Pass a `<wr-context-menu>` template reference. */
   readonly menu = input.required<WrContextMenuPanel>({ alias: 'wrContextMenu' });
+
+  /**
+   * Focus the first item when the menu opens. Off, focus stays on the element
+   * that had it, and while the menu is open ArrowDown / ArrowUp anywhere on the
+   * page walk into it at its first / last item; a letter jumps to the item it
+   * starts. Closing hands focus back only when it was inside.
+   *
+   * Bind it, `[autoFocus]="true"`: a bare `autoFocus` attribute is also the
+   * native `autofocus`.
+   *
+   * @default false
+   */
+  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly focusMonitor = inject(FocusMonitor);
@@ -319,7 +333,7 @@ export class WrContextMenu {
   // Overlay
 
   private openOverlay(x: number, y: number): void {
-    // Read before `wrFocusMenuItemAt` below takes the keyboard: this is the
+    // Read before anything moves the keyboard into the menu: this is the
     // element the close hands it back to. A pane row is not a candidate — a
     // previous menu may still be fading out — and neither is `<body>`, which is
     // where focus already is when nobody has it.
@@ -354,7 +368,7 @@ export class WrContextMenu {
       scrollStrategy: this.scrollStrategies.noop(),
       panelClass: ['wr-context-menu-overlay'],
     });
-    wrListenForMenuTypeahead(this.overlayRef.overlayElement, () => this.liveLocale?.());
+    const typeInMenu = wrListenForMenuTypeahead(this.overlayRef.overlayElement, () => this.liveLocale?.());
 
     // The direction `create()` just captured is a string the CDK never reads
     // again, so a flip while the menu is open would leave `overlayX: 'start'`
@@ -399,22 +413,16 @@ export class WrContextMenu {
     // stays where you put it" than a menu that simply slides with the page.
     const sync = (): void => positionStrategy.reapplyLastPosition();
 
-    // Move the keyboard INTO the menu. Without this the pane painted a
-    // `role="menu"` that could be seen and never entered: rows are
-    // `tabindex="-1"` (the roving-focus contract) and the pane is not a tab
-    // stop, so ArrowDown / Enter / ArrowRight all went to whatever still held
-    // focus behind the menu and only Escape worked — the dispatcher routes that
-    // one regardless of focus.
-    //
-    // Unconditional, unlike `wr-dropdown`'s `openedByPointer` gate: there is no
-    // hover open here. Every path into this method is a deliberate request for
-    // the menu (right-click, Shift+F10, the Menu key, a long-press), which is
-    // also when a native context menu takes the keyboard.
+    // Opening moves no focus unless `autoFocus` asks. The menu is still
+    // reachable: rows are `tabindex="-1"` (the roving-focus contract) and the
+    // pane is not a tab stop, but the dispatcher subscription below hears every
+    // keydown on the page while the menu is open, so ArrowDown / ArrowUp / Home
+    // / End and a typed letter walk in from wherever focus is.
     //
     // Synchronous, and it can be: `attach()` above runs the embedded view's
     // first change detection itself (CDK's `attachTemplatePortal`), so the rows
     // and their `[class]` host binding are already in the DOM.
-    wrFocusMenuItemAt(pane, 0);
+    if (this.autoFocus()) wrFocusMenuItemAt(pane, 0);
 
     // Trigger the open transition on the next frame — adding the class
     // synchronously with attach would skip the initial 0→1 frame and
@@ -497,7 +505,11 @@ export class WrContextMenu {
         // submenu, Enter on an item): `preventDefault()` is how it says so, and
         // moving the cursor on top of that would undo it.
         if (event.defaultPrevented) return;
-        wrHandleMenuNavigation(pane, event);
+        if (wrHandleMenuNavigation(pane, event)) return;
+        // A letter typed with focus still outside every pane: the panes' own
+        // capture listeners never saw it.
+        const target = event.target;
+        if (!(target instanceof Element && target.closest('.wr-context-menu-overlay'))) typeInMenu(event);
       });
   }
 
@@ -553,8 +565,8 @@ export class WrContextMenu {
     // Mark immediately so a subsequent right-click opens a fresh menu
     // rather than landing on the disposing one.
     this.overlayRef = null;
-    // Hand the keyboard back. The menu takes focus on open, so a dismissal that
-    // left it in the pane would strand it on `<body>` once the pane is disposed
+    // Hand the keyboard back. A dismissal that left focus in the pane would
+    // strand it on `<body>` once the pane is disposed
     // and the next Tab would restart at the top of the document. Only when the
     // caret was actually in the chain: Escape reaches this overlay from anywhere
     // on the page (CDK's dispatcher routes it by stacking order, not by focus),

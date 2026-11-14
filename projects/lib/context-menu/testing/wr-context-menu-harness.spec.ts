@@ -1,3 +1,4 @@
+import { TestKey } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -255,13 +256,14 @@ describe('WrContextMenuHarness', () => {
     expect(await copy.getIconName()).toBeNull();
   });
 
-  it('takes the keyboard on open and roves it with the arrows', async () => {
+  it('leaves the keyboard alone on open and takes it on ArrowDown', async () => {
     const menu = await get();
     await menu.open();
 
-    // Every open here is deliberate (there is no hover trigger), so the cursor
-    // goes in unconditionally — otherwise the pane paints a `role="menu"` a
-    // keyboard user can see and never enter, since the rows are `tabindex="-1"`.
+    // Opening moves no focus; ArrowDown anywhere on the page walks in at the
+    // first row, since the rows are `tabindex="-1"` and Tab cannot reach them.
+    expect(await menu.getFocusedItemText()).toBeNull();
+    await (await menu.host()).sendKeys(TestKey.DOWN_ARROW);
     expect(await menu.getFocusedItemText()).toBe('Cut');
     const focused = await Promise.all((await menu.getItems()).map(item => item.isFocused()));
     expect(focused).toEqual([true, false, false]);

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Context Menu"
-  updated="16.4.0"
+  updated="16.5.0"
   description="A right-click menu for any element."
   [keywords]="['context menu', 'right click', 'menu', 'submenu', 'wr-context-menu']"
   [labels]="['Overlay']"
@@ -108,7 +108,10 @@
     <ngwr-doc-code [code]="snippets.exportAs" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Keyboard" description="The arrows that open and close a submenu swap under RTL.">
+  <ngwr-doc-section
+    title="Keyboard"
+    description="Opening leaves focus on the element that had it, and ArrowDown anywhere on the page walks into the open menu. Bind `[autoFocus]` to `true` on the trigger to focus the first item on open. The arrows that open and close a submenu swap under RTL."
+  >
     <div class="ngwr-table">
       <table>
         <thead>
@@ -120,7 +123,7 @@
         <tbody>
           <tr>
             <th scope="row">ArrowDown, ArrowUp</th>
-            <td>Next or previous item, wrapping.</td>
+            <td>Next or previous item, wrapping. With focus still outside the menu: its first or last item.</td>
           </tr>
           <tr>
             <th scope="row">Home, End</th>
@@ -144,7 +147,7 @@
           </tr>
           <tr>
             <th scope="row">Escape</th>
-            <td>Closes one level: a submenu, then the menu.</td>
+            <td>Closes one level: a submenu, then the menu. Focus returns to where it was if it had moved in.</td>
           </tr>
           <tr>
             <th scope="row">Tab</th>

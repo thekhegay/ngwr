@@ -114,6 +114,12 @@ export default class ContextMenuPageComponent {
       default: '—',
       description: 'Menu to open on right-click. Required.',
     },
+    {
+      name: 'autoFocus',
+      type: 'boolean',
+      default: 'false',
+      description: 'Focus the first item when the menu opens. Off, focus stays where it was and ArrowDown walks in.',
+    },
   ];
 
   protected readonly panelApi: readonly DocApiRow[] = [

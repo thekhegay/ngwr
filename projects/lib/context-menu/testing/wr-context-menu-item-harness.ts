@@ -112,8 +112,8 @@ export class WrContextMenuItemHarness extends ComponentHarness {
   /**
    * Whether the item holds the menu's roving focus.
    *
-   * The menu moves focus onto its first enabled row as the pane renders and the
-   * arrows walk it from there, so this is where the keyboard is. Opening a
+   * ArrowDown moves focus onto the menu's first enabled row and the arrows walk
+   * it from there, so this is where the keyboard is. Opening a
    * submenu hands the cursor to the submenu's own first row, which leaves the
    * item that owns it unfocused while its pane is up.
    */
