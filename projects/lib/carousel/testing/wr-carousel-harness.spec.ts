@@ -25,6 +25,7 @@ import { WrCarouselHarness } from './wr-carousel-harness';
     <wr-carousel
       [(active)]="active"
       [autoplay]="autoplay()"
+      [pauseButton]="pauseButton()"
       [loop]="loop()"
       [showArrows]="showArrows()"
       [showDots]="showDots()"
@@ -40,6 +41,7 @@ class Host {
   readonly slides = signal(['Alps', 'Fjords', 'Dunes']);
   readonly active = signal(0);
   readonly autoplay = signal(false);
+  readonly pauseButton = signal(false);
   readonly loop = signal(true);
   readonly showArrows = signal(true);
   readonly showDots = signal(true);
@@ -446,8 +448,9 @@ describe('WrCarouselHarness', () => {
     afterEach(() => vi.useRealTimers());
 
     /** Switch autoplay on. The interval is created from an effect, so it needs a pass. */
-    const start = async (): Promise<WrCarouselHarness> => {
+    const start = async (withButton = true): Promise<WrCarouselHarness> => {
       fixture.componentInstance.autoplay.set(true);
+      fixture.componentInstance.pauseButton.set(withButton);
       await fixture.whenStable();
       return carousel();
     };
@@ -471,6 +474,22 @@ describe('WrCarouselHarness', () => {
       expect(await gallery.getActiveIndex()).toBe(2);
     });
 
+    it('draws no pause button under autoplay alone, and still holds and advances', async () => {
+      const gallery = await start(false);
+      expect(await gallery.hasPauseButton()).toBe(false);
+      await expect(gallery.getAutoplayLabel()).rejects.toThrow(/\[pauseButton\]/);
+      await expect(gallery.toggleAutoplay()).rejects.toThrow(/\[pauseButton\]/);
+
+      // Focus lands on the first arrow, as it did before the button existed.
+      await gallery.focus();
+      expect(await gallery.isFocused()).toBe(true);
+      vi.advanceTimersByTime(2000);
+      expect(await gallery.getActiveIndex()).toBe(0);
+      await gallery.blur();
+      vi.advanceTimersByTime(500);
+      expect(await gallery.getActiveIndex()).toBe(1);
+    });
+
     it('holds while the keyboard is inside it', async () => {
       const gallery = await start();
 
@@ -488,6 +507,7 @@ describe('WrCarouselHarness', () => {
 
     it('presses the pause button, and reads the name that follows the press', async () => {
       const gallery = await start();
+      expect(await gallery.hasPauseButton()).toBe(true);
       expect(await gallery.getAutoplayLabel()).toBe('Pause');
       expect(await gallery.getLivePoliteness()).toBe('off');
 
@@ -511,7 +531,7 @@ describe('WrCarouselHarness', () => {
     });
   });
 
-  it('names the cause when a carousel without autoplay is asked for its pause button', async () => {
+  it('names the cause when a carousel without a pause button is asked for its pause button', async () => {
     const gallery = await carousel();
 
     await expect(gallery.getAutoplayLabel()).rejects.toThrow(/renders no pause button/);

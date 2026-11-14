@@ -17,7 +17,7 @@ import { WrCarouselSlide } from './carousel-slide';
 @Component({
   imports: [WrCarousel, WrCarouselSlide],
   template: `
-    <wr-carousel [(active)]="active" [autoplay]="autoplay()" [intervalMs]="500">
+    <wr-carousel [(active)]="active" [autoplay]="autoplay()" [pauseButton]="pauseButton()" [intervalMs]="500">
       @for (label of slides(); track label) {
         <wr-carousel-slide>{{ label }}</wr-carousel-slide>
       }
@@ -28,6 +28,22 @@ class Host {
   readonly slides = signal(['one', 'two', 'three']);
   readonly active = signal(0);
   readonly autoplay = signal(true);
+  readonly pauseButton = signal(true);
+}
+
+/** Autoplay with nothing else asked for: the shape the default has to hold for. */
+@Component({
+  imports: [WrCarousel, WrCarouselSlide],
+  template: `
+    <wr-carousel [(active)]="active" autoplay [intervalMs]="500">
+      <wr-carousel-slide>one</wr-carousel-slide>
+      <wr-carousel-slide>two</wr-carousel-slide>
+      <wr-carousel-slide>three</wr-carousel-slide>
+    </wr-carousel>
+  `,
+})
+class Plain {
+  readonly active = signal(0);
 }
 
 /**
@@ -84,6 +100,49 @@ describe('WrCarousel autoplay controls', () => {
     vi.useRealTimers();
   });
 
+  describe('without pauseButton', () => {
+    let plain: ReturnType<typeof TestBed.createComponent<Plain>>;
+    const plainRoot = (): HTMLElement => plain.nativeElement as HTMLElement;
+    const plainHost = (): HTMLElement => plainRoot().querySelector<HTMLElement>('wr-carousel')!;
+    const tick = (ms: number): void => {
+      vi.advanceTimersByTime(ms);
+      plain.detectChanges();
+    };
+
+    beforeEach(() => {
+      mount();
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'browser' }] });
+      plain = TestBed.createComponent(Plain);
+      plain.detectChanges();
+    });
+    afterEach(() => plain.destroy());
+
+    it('draws no button even under autoplay', () => {
+      expect(plainRoot().querySelector('.wr-carousel__toggle')).toBeNull();
+    });
+
+    it('still advances, holds on hover and on focus, and stays quiet', () => {
+      tick(500);
+      expect(plain.componentInstance.active()).toBe(1);
+      expect(plainRoot().querySelector('.wr-carousel__live')!.getAttribute('aria-live')).toBe('off');
+
+      plainHost().dispatchEvent(new MouseEvent('mouseenter'));
+      plain.detectChanges();
+      tick(5000);
+      expect(plain.componentInstance.active()).toBe(1);
+      expect(plainRoot().querySelector('.wr-carousel__live')!.getAttribute('aria-live')).toBe('polite');
+
+      plainHost().dispatchEvent(new MouseEvent('mouseleave'));
+      plainRoot()
+        .querySelector('.wr-carousel__nav--next')!
+        .dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+      plain.detectChanges();
+      tick(5000);
+      expect(plain.componentInstance.active()).toBe(1);
+    });
+  });
+
   describe('the pause button', () => {
     it('is a real button, first in the carousel, and only under autoplay', () => {
       mount();
@@ -93,6 +152,11 @@ describe('WrCarousel autoplay controls', () => {
       expect(host().firstElementChild).toBe(toggle());
 
       mount(false, false);
+      expect(toggle()).toBeNull();
+
+      mount();
+      fixture.componentInstance.pauseButton.set(false);
+      fixture.detectChanges();
       expect(toggle()).toBeNull();
     });
 
@@ -168,7 +232,7 @@ describe('WrCarousel autoplay controls', () => {
       @Component({
         imports: [WrCarousel, WrCarouselSlide],
         template: `
-          <wr-carousel autoplay pauseLabel="Stop the slides" playLabel="Start the slides">
+          <wr-carousel autoplay pauseButton pauseLabel="Stop the slides" playLabel="Start the slides">
             <wr-carousel-slide>one</wr-carousel-slide>
             <wr-carousel-slide>two</wr-carousel-slide>
           </wr-carousel>
