@@ -110,7 +110,7 @@
     display: contents;
   }
 
-  // The last word and the button never part.
+  // The last character and the button never part; the rest of a long value can still break.
   &--wrap &__tail {
     display: inline;
     white-space: nowrap;

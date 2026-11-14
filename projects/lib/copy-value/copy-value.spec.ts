@@ -218,24 +218,44 @@ describe('WrCopyValue', () => {
   });
 
   describe('wrap', () => {
-    it('puts the last word and the button inside one tail, the rest in the text', () => {
+    it('puts the last character and the button inside one tail, the rest in the text', () => {
       fixture.componentInstance.value.set('Long supplier name ltd');
       fixture.componentInstance.wrap.set(true);
       fixture.detectChanges();
 
       const tail = host().querySelector<HTMLElement>('.wr-copy-value__tail')!;
-      expect(text()!.textContent).toBe('Long supplier name ');
-      expect(tail.firstChild!.textContent).toBe('ltd');
+      expect(text()!.textContent).toBe('Long supplier name lt');
+      expect(tail.firstChild!.textContent).toBe('d');
       expect(tail.querySelector('.wr-copy-value__button')).toBe(button());
       expect(host().textContent).toContain('Long supplier name ltd');
     });
 
-    it('keeps a one-word value whole in the tail', () => {
+    it('keeps a one-character value whole in the tail', () => {
+      fixture.componentInstance.value.set('X');
       fixture.componentInstance.wrap.set(true);
       fixture.detectChanges();
 
       expect(text()!.textContent).toBe('');
-      expect(host().querySelector('.wr-copy-value__tail')!.textContent).toContain('ORD-1042');
+      expect(host().querySelector('.wr-copy-value__tail')!.firstChild!.textContent).toBe('X');
+    });
+
+    it('leaves only the last character of a long unbroken id in the tail', () => {
+      const id = `${'a'.repeat(59)}Z`;
+      fixture.componentInstance.value.set(id);
+      fixture.componentInstance.wrap.set(true);
+      fixture.detectChanges();
+
+      expect(text()!.textContent).toBe('a'.repeat(59));
+      expect(host().querySelector('.wr-copy-value__tail')!.firstChild!.textContent).toBe('Z');
+    });
+
+    it('never splits a surrogate pair', () => {
+      fixture.componentInstance.value.set('ab\u{1F600}');
+      fixture.componentInstance.wrap.set(true);
+      fixture.detectChanges();
+
+      expect(text()!.textContent).toBe('ab');
+      expect(host().querySelector('.wr-copy-value__tail')!.firstChild!.textContent).toBe('\u{1F600}');
     });
 
     it('leaves the tail empty and the full text in the text span when not wrapping', () => {
