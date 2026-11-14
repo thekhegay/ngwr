@@ -193,7 +193,11 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
     return WR_COLORS.find(color => present.includes(`wr-btn--${color}`)) ?? null;
   }
 
-  /** Which action holds keyboard focus, by label, or `null` when focus is elsewhere. */
+  /**
+   * Which action holds keyboard focus, by label, or `null` when focus is
+   * elsewhere: on the panel itself right after it opens, unless `autoFocus` is
+   * `'first-tabbable'`.
+   */
   async getFocusedActionLabel(): Promise<string | null> {
     for (const action of await this.allInPanel('.wr-popconfirm__action')) {
       if (await action.isFocused()) return action.text();
@@ -204,6 +208,11 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
   /** Answer the question: click confirm, which emits `confirmed` and closes the dialog. */
   async confirm(): Promise<void> {
     return (await this.action('confirm')).click();
+  }
+
+  /** Whether the panel itself holds focus, as it does right after it opens by default. */
+  async isPanelFocused(): Promise<boolean> {
+    return (await this.pane()).isFocused();
   }
 
   /** Decline: click cancel, which emits `cancelled` and closes the dialog. */
@@ -217,10 +226,13 @@ export class WrPopconfirmHarness extends ContentContainerComponentHarness {
    * Sent at the pane rather than at the focused button, because the target makes
    * no difference: the key is picked up by the overlay's keyboard dispatcher,
    * which keeps one listener on the document and routes to the topmost overlay.
-   * The pane is the one element guaranteed to be there.
+   * The panel inside the pane is the one element guaranteed to be there, and it
+   * is not the pane itself: `sendKeys` focuses its target first, and the pane
+   * takes focus, so typing at one of two open dialogs would dismiss the other by
+   * moving focus out of it.
    */
   async sendEscape(): Promise<void> {
-    return (await this.pane()).sendKeys(TestKey.ESCAPE);
+    return (await this.inPanel('.wr-popconfirm')).sendKeys(TestKey.ESCAPE);
   }
 
   /**

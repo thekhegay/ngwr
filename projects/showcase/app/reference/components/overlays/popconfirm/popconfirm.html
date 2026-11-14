@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Popconfirm"
-  updated="16.3.0"
+  updated="16.5.0"
   description='Ask "Are you sure?" next to a button before its action runs.'
   [keywords]="['popconfirm', 'confirm', 'wr-popconfirm']"
   [labels]="['Directive', 'CDK Overlay']"
@@ -23,6 +23,11 @@
         Last result: {{ status() }}
       </span>
     </ngwr-doc-snippet>
+    <p>
+      Opening focuses the panel itself, with no ring, and Tab reaches Cancel. Set
+      <code>autoFocus="first-tabbable"</code> to open on Cancel, or <code>[autoFocus]="false"</code> to leave focus on
+      the trigger. Closing returns focus to the trigger.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
