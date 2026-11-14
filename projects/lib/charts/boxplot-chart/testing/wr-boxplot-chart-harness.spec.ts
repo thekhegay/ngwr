@@ -27,6 +27,8 @@ const GROUPS: readonly WrBoxplotGroup[] = [
       [xLabel]="xLabel()"
       [yLabel]="yLabel()"
       [showGrid]="showGrid()"
+      [showAxis]="showAxis()"
+      [loading]="loading()"
       [dataTable]="dataTable()"
     />
   `,
@@ -37,6 +39,8 @@ class Host {
   readonly xLabel = signal<string | null>(null);
   readonly yLabel = signal<string | null>(null);
   readonly showGrid = signal(true);
+  readonly showAxis = signal(true);
+  readonly loading = signal(false);
   readonly dataTable = signal(false);
 }
 
@@ -70,7 +74,7 @@ describe('WrBoxplotChartHarness', () => {
         label: 'North',
         slotStart: 0,
         slotWidth: 33.333,
-        color: 'var(--wr-color-primary)',
+        color: 'var(--wr-chart-1)',
         stats: { min: 1, q1: 3.5, median: 6, q3: 8.5, max: 10, outliers: [30] },
         position: {
           upperWhisker: { top: 75, bottom: 78.75 },
@@ -104,7 +108,7 @@ describe('WrBoxplotChartHarness', () => {
         label: 'West',
         slotStart: 66.667,
         slotWidth: 33.333,
-        color: 'var(--wr-color-primary)',
+        color: 'var(--wr-chart-1)',
         stats: null,
         position: null,
       },
@@ -121,7 +125,7 @@ describe('WrBoxplotChartHarness', () => {
     }
   );
 
-  it('reads the ticks, and none without the grid', async () => {
+  it('reads the ticks, and none without the scale', async () => {
     const harness = await chart();
 
     expect(await harness.hasGrid()).toBe(true);
@@ -129,8 +133,23 @@ describe('WrBoxplotChartHarness', () => {
 
     host().showGrid.set(false);
     await fixture.whenStable();
+    // The grid and the scale are an input each: the ticks stay until `showAxis` is off.
+    expect([await harness.hasGrid(), await harness.hasAxis()]).toEqual([false, true]);
+    expect(await harness.getYTicks()).toEqual(['40', '30', '20', '10', '0']);
 
-    expect([await harness.hasGrid(), await harness.getYTicks()]).toEqual([false, []]);
+    host().showAxis.set(false);
+    await fixture.whenStable();
+    expect([await harness.hasAxis(), await harness.getYTicks()]).toEqual([false, []]);
+  });
+
+  it('reads the message the chart shows in place of its boxes', async () => {
+    const harness = await chart();
+    expect(await harness.getStateLabel()).toBeNull();
+
+    host().loading.set(true);
+    await fixture.whenStable();
+    expect(await harness.getStateLabel()).toBe('Loading…');
+    expect(await harness.getGroupCount()).toBe(0);
   });
 
   it('reads the axis names the chart draws, and none it does not', async () => {

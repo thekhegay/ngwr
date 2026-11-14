@@ -1,10 +1,10 @@
 @use '../../../theme/styles' as theme;
 @use '../../../popover/styles' as popover-styles; // the `.wr-tooltip` chip the hover tooltip renders into
 
-// Styles for the entry points this component's own markup renders. With `dataTable`,
-// the figures render as a `<wr-chart-table>` beside the plot, which its own sheet clips
-// out of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+// The chart theme every hook below defaults to (`--wr-chart-*`), the empty / loading /
+// error message, and the `<wr-chart-table>` that `dataTable` renders beside the plot,
+// which its own rule clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/boxplot-chart');
 
 .wr-boxplot-chart {
@@ -15,45 +15,49 @@
   // top or the bottom by half its dot.
   --wr-boxplot-chart-plot-inset-x: var(--wr-space-sm);
   --wr-boxplot-chart-plot-inset-y: var(--wr-space-sm);
-  --wr-boxplot-chart-grid-color: color-mix(in srgb, var(--wr-border-base) 70%, transparent);
-  --wr-boxplot-chart-tick-gap: var(--wr-space-xs);
-  --wr-boxplot-chart-tick-font-size: var(--wr-text-xs);
+  // The gridlines and the one at zero: the chart theme's, as on every chart.
+  --wr-boxplot-chart-grid-color: var(--wr-chart-grid);
+  --wr-boxplot-chart-zero-color: var(--wr-chart-zero);
+  --wr-boxplot-chart-tick-gap: var(--wr-space-sm);
+  --wr-boxplot-chart-tick-font-size: var(--wr-chart-label-size);
   --wr-boxplot-chart-tick-line-height: var(--wr-text-xs-leading);
-  --wr-boxplot-chart-tick-color: var(--wr-color-on-surface-muted);
-  // The group names under the drawing: what each box IS, so in the text colour rather
-  // than the ticks' muted one, as the radar's axis names are.
-  --wr-boxplot-chart-label-font-size: var(--wr-text-xs);
+  --wr-boxplot-chart-tick-color: var(--wr-chart-label);
+  // The group names under the drawing, in the chart theme's label colour, as the names
+  // under a bar chart's bars are.
+  --wr-boxplot-chart-label-font-size: var(--wr-chart-label-size);
   --wr-boxplot-chart-label-line-height: var(--wr-text-xs-leading);
-  --wr-boxplot-chart-label-color: var(--wr-color-on-surface);
+  --wr-boxplot-chart-label-color: var(--wr-chart-label);
   --wr-boxplot-chart-label-gap: var(--wr-space-xs);
-  --wr-boxplot-chart-title-font-size: var(--wr-text-xs);
-  --wr-boxplot-chart-title-font-weight: var(--wr-font-weight-medium);
-  --wr-boxplot-chart-title-color: var(--wr-color-on-surface-muted);
+  // An axis' name: the scale's size, heavier and in full ink, so it reads as the name of
+  // the numbers beside it.
+  --wr-boxplot-chart-title-font-size: var(--wr-chart-label-size);
+  --wr-boxplot-chart-title-font-weight: var(--wr-font-weight-semibold);
+  --wr-boxplot-chart-title-color: var(--wr-color-on-surface);
   --wr-boxplot-chart-title-gap: var(--wr-space-xs);
   // A box is a share of its slot, up to a width that keeps one group from becoming a
   // slab; the caps are half as wide. A percentage here is the SLOT's: it resolves where
   // the box reads it.
   --wr-boxplot-chart-box-width: min(3rem, 60%);
   --wr-boxplot-chart-cap-width: calc(var(--wr-boxplot-chart-box-width) / 2);
-  --wr-boxplot-chart-box-radius: var(--wr-border-radius-sm);
+  --wr-boxplot-chart-box-radius: var(--wr-chart-bar-radius);
   // How much of the group's colour the box is filled with, at rest and while hovered.
   // See-through, so the gridlines read across it.
   --wr-boxplot-chart-box-tint: 20%;
   --wr-boxplot-chart-box-tint-active: 40%;
-  // The box's edge, the whiskers, the caps and the outliers' rings, all in the group's
-  // colour.
-  --wr-boxplot-chart-line-width: 2px;
-  // The median in the text colour and heavier than the box's edge, so it reads by tone
-  // and by weight whatever the group's colour is.
+  // The box's edge, the whiskers and the caps, all in the group's colour and as wide as
+  // every chart's line.
+  --wr-boxplot-chart-line-width: var(--wr-chart-stroke);
+  // The median in the text colour and a pixel heavier than the box's edge, so it reads by
+  // tone and by weight whatever the group's colour is.
   --wr-boxplot-chart-median-color: var(--wr-color-on-surface);
-  --wr-boxplot-chart-median-width: 3px;
-  // An outlier is a ring, hollow so two that overlap stay two.
-  --wr-boxplot-chart-outlier-size: 0.5rem;
-  --wr-boxplot-chart-outlier-fill: var(--wr-color-surface);
-  // The slot the tooltip is reading, washed top to bottom. See-through, as the box is, so
-  // the gridlines read across it: the theme's hover fill is opaque, and the slot is drawn
-  // over the gridlines. The waterfall's wash, under the same name.
-  --wr-boxplot-chart-active-bg: color-mix(in srgb, var(--wr-color-on-surface) 6%, transparent);
+  --wr-boxplot-chart-median-width: calc(var(--wr-chart-stroke) + 1px);
+  // An outlier is a dot the size of every chart's marker, in the group's colour, with a
+  // hairline of the surface round it so two that overlap stay two.
+  --wr-boxplot-chart-outlier-size: var(--wr-chart-marker);
+  --wr-boxplot-chart-outlier-ring: var(--wr-chart-separator);
+  // The slot the tooltip is reading, washed top to bottom: the chart theme's band, which
+  // is see-through, as the box is, so the gridlines read across it.
+  --wr-boxplot-chart-active-bg: var(--wr-chart-band);
 
   $inset-y: var(--wr-boxplot-chart-plot-inset-y);
   $line: var(--wr-boxplot-chart-line-width);
@@ -74,33 +78,78 @@
   // are categories with no order of their own, so they read in the page's direction and
   // the first stands beside the axis either way. A chart whose x axis is ordered — a
   // sequence on the line and candlestick charts, a number on the scatter — keeps it
-  // physical instead.
+  // physical instead. Three columns: the value axis' name, its ticks, the plot; a column
+  // with nothing in it is no width at all.
   &__body {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: auto auto minmax(0, 1fr);
   }
 
-  // The axes' names, set horizontally: the value axis' above the plot at the ticks' side,
-  // where a reader looks first, and the groups' centred under their names.
+  // The top tick is centred on the top gridline, so half of it stands above the drawing:
+  // the plot's block padding holds it by default, and this keeps it inside the chart's
+  // box when the tick grows or the padding shrinks.
+  &--axis &__body {
+    padding-block-start: max(
+      0px,
+      calc(var(--wr-boxplot-chart-tick-line-height) / 2 - var(--wr-boxplot-chart-plot-inset-y))
+    );
+  }
+
+  // Empty, loading or failed: the shared message, over the plot. A grid item in the
+  // plot's own cell rather than a child of the plot, which is an `img`.
+  &__body > .wr-chart-state {
+    position: relative;
+    inset: auto;
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  // The axes' names. A name is the host's own text, in whatever language, so it takes its
+  // direction from that text (`plaintext`).
   &__y-title,
   &__x-title {
     font-size: var(--wr-boxplot-chart-title-font-size);
     font-weight: var(--wr-boxplot-chart-title-font-weight);
     color: var(--wr-boxplot-chart-title-color);
-    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
   }
 
+  // The value axis' name runs ALONG its axis, reading upwards, in a column of its own
+  // outside the scale, as the scatter chart's does. Set level above the plot it read as a
+  // caption or a legend entry; turned, it is the name of the axis it lies along and of
+  // nothing else. One line: a name longer than the plot is tall is cut with an ellipsis
+  // rather than growing the plot - it contributes no height to its row (`height: 0`) and
+  // then takes the row's (`min-height: 100%`).
   &__y-title {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 1;
-    margin-block-end: var(--wr-boxplot-chart-title-gap);
-    text-align: start;
+    justify-self: center;
+    height: 0;
+    min-height: 100%;
+    // In a vertical line the block axis runs across the page: this is the room between
+    // the name and the scale, on the name's plot side.
+    margin-block-start: var(--wr-boxplot-chart-title-gap);
+    overflow: hidden;
+    line-height: var(--wr-boxplot-chart-tick-line-height);
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    text-orientation: sideways;
+    transform: rotate(180deg);
+
+    // The gutter is on the other side of the plot, and so is the room.
+    &:dir(rtl) {
+      margin-block-start: 0;
+      margin-block-end: var(--wr-boxplot-chart-title-gap);
+    }
   }
 
   &__x-title {
-    grid-column: 2;
-    grid-row: 4;
+    grid-column: 3;
+    grid-row: 3;
     margin-block-start: var(--wr-boxplot-chart-title-gap);
+    overflow-wrap: anywhere;
     text-align: center;
   }
 
@@ -109,8 +158,8 @@
   // moves down by its own gridline's share of the drawing, inside the plot's block
   // padding, then up by half itself: the scatter's y axis, for the same reasons.
   &__y-axis {
-    grid-column: 1;
-    grid-row: 2;
+    grid-column: 2;
+    grid-row: 1;
     display: grid;
     grid-template-rows: minmax(0, 1fr);
     padding-inline-end: var(--wr-boxplot-chart-tick-gap);
@@ -137,8 +186,8 @@
   }
 
   &__plot {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column: 3;
+    grid-row: 1;
     position: relative;
     padding: $inset-y var(--wr-boxplot-chart-plot-inset-x);
   }
@@ -155,6 +204,11 @@
     top: calc(var(--wr-boxplot-chart-y, 0) * 1%);
     border-block-start: 1px solid var(--wr-boxplot-chart-grid-color);
     transform: translateY(-50%);
+  }
+
+  // Zero, when the axis reaches it: the stronger line of the chart theme.
+  &__grid-line--zero {
+    border-block-start-color: var(--wr-boxplot-chart-zero-color);
   }
 
   // One slot of the drawing, top to bottom, and the group's hover target. Every mark
@@ -234,9 +288,10 @@
     top: calc(var(--wr-boxplot-chart-y, 0) * 1%);
     width: var(--wr-boxplot-chart-outlier-size);
     height: var(--wr-boxplot-chart-outlier-size);
-    border: $line solid $color;
     border-radius: 50%;
-    background: var(--wr-boxplot-chart-outlier-fill);
+    background: $color;
+    // A ring that takes no room, so the dot is the marker's size whatever the ring's is.
+    box-shadow: 0 0 0 1px var(--wr-boxplot-chart-outlier-ring);
     transform: translate(-50%, -50%);
   }
 
@@ -254,8 +309,8 @@
   // percentages are the drawing's. The names are out of flow, so the strip is given one
   // line's height.
   &__x-axis {
-    grid-column: 2;
-    grid-row: 3;
+    grid-column: 3;
+    grid-row: 2;
     position: relative;
     height: var(--wr-boxplot-chart-label-line-height);
     margin-block-start: var(--wr-boxplot-chart-label-gap);
@@ -289,10 +344,21 @@
 // page, which is the right drawing here: the colour of a group says nothing its name
 // does not, the outlines all stay, and the box's tint and the hover wash go. Only the
 // gridlines would come out as heavy as the boxes, so they keep the system's muted
-// colour.
+// colour, the one at zero the text's; and an outlier is a background with no border, so
+// it is painted in the text colour by hand rather than left to vanish into the page.
 @media (forced-colors: active) {
   .wr-boxplot-chart__grid-line {
     border-color: GrayText;
+    forced-color-adjust: none;
+  }
+
+  .wr-boxplot-chart__grid-line--zero {
+    border-color: CanvasText;
+  }
+
+  .wr-boxplot-chart__outlier {
+    background: CanvasText;
+    box-shadow: none;
     forced-color-adjust: none;
   }
 }

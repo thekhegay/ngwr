@@ -12,6 +12,19 @@ import {
 } from '#core/components';
 import { API } from '#core/generated/api';
 
+/** `count` request latencies in ms: most near `typical`, one in ten far above it. The same on every render. */
+function latencies(count: number, typical: number, seed: number): number[] {
+  let state = seed;
+  const random = (): number => {
+    state = (state * 16807) % 2147483647;
+    return state / 2147483647;
+  };
+  return Array.from({ length: count }, () => {
+    const base = typical * (0.8 + 0.4 * random());
+    return Math.round(random() < 0.1 ? base + typical * 6 * random() ** 2 : base);
+  });
+}
+
 @Component({
   selector: 'ngwr-boxplot-chart-page',
   templateUrl: './boxplot-chart.html',
@@ -37,12 +50,19 @@ export default class BoxplotChartPageComponent {
   protected readonly releases: readonly WrBoxplotGroup[] = [
     { label: 'v14', stats: { min: 80, q1: 101, median: 118, q3: 134, max: 170, outliers: [240, 262] } },
     { label: 'v15', stats: { min: 70, q1: 92, median: 104, q3: 121, max: 150, outliers: [31] } },
-    { label: 'v15.1', stats: { min: 61, q1: 80, median: 90, q3: 101, max: 128 }, color: 'var(--wr-color-success)' },
+    { label: 'v15.1', stats: { min: 61, q1: 80, median: 90, q3: 101, max: 128 }, color: 'var(--wr-chart-2)' },
   ];
 
   /** Ten values and one far above them. */
   protected readonly anatomy: readonly WrBoxplotGroup[] = [
     { label: 'Sample', values: [12, 14, 15, 17, 18, 19, 21, 22, 24, 27, 48] },
+  ];
+
+  /** Twenty thousand latencies per service, each with a long tail of slow requests. */
+  protected readonly services: readonly WrBoxplotGroup[] = [
+    { label: 'Auth', values: latencies(20_000, 40, 11) },
+    { label: 'Search', values: latencies(20_000, 90, 23) },
+    { label: 'Checkout', values: latencies(20_000, 140, 37) },
   ];
 
   private readonly secondsFormat = new Intl.NumberFormat('en-US', { style: 'unit', unit: 'second' });
@@ -64,7 +84,7 @@ export default class BoxplotChartPageComponent {
     statsTs: `releases: WrBoxplotGroup[] = [
   { label: 'v14', stats: { min: 80, q1: 101, median: 118, q3: 134, max: 170, outliers: [240, 262] } },
   { label: 'v15', stats: { min: 70, q1: 92, median: 104, q3: 121, max: 150, outliers: [31] } },
-  { label: 'v15.1', stats: { min: 61, q1: 80, median: 90, q3: 101, max: 128 }, color: 'var(--wr-color-success)' },
+  { label: 'v15.1', stats: { min: 61, q1: 80, median: 90, q3: 101, max: 128 }, color: 'var(--wr-chart-2)' },
 ];`,
     anatomy: `<wr-boxplot-chart
   ariaLabel="Eleven values, one outlier"
@@ -74,6 +94,14 @@ export default class BoxplotChartPageComponent {
     formatTs: `const unit = new Intl.NumberFormat('en-US', { style: 'unit', unit: 'second' });
 
 seconds = (value: number): string => unit.format(value);`,
+    grid: `<wr-boxplot-chart [groups]="releases" />
+<wr-boxplot-chart [groups]="releases" [showGrid]="false" />
+<wr-boxplot-chart [groups]="releases" [showAxis]="false" />`,
+    states: `<wr-boxplot-chart [groups]="[]" />
+<wr-boxplot-chart [groups]="releases" loading />
+<wr-boxplot-chart [groups]="releases" error errorLabel="Build times are unavailable" />`,
+    large: `<!-- 20,000 values a group: a hundred outliers drawn per side, all of them counted in the tooltip -->
+<wr-boxplot-chart ariaLabel="Request latency" yLabel="Latency, ms" [groups]="services" />`,
     table: `<wr-boxplot-chart ariaLabel="Response time by region" dataTable [groups]="regions" />`,
   };
 

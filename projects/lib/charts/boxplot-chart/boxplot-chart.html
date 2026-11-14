@@ -1,13 +1,12 @@
-@let active = activeGroup();
-<!-- Two columns: the value axis' ticks at inline start and the drawing beside them, with
-     the axis' name above and the group names under the drawing only, so their
-     percentages are the drawing's. -->
+@let shown = state();
+<!-- Three columns: the value axis' name along it, its ticks, and the drawing beside them,
+     with the group names under the drawing only, so their percentages are the drawing's. -->
 <div class="wr-boxplot-chart__body">
   @if (yLabel()) {
     <div class="wr-boxplot-chart__y-title">{{ yLabel() }}</div>
   }
 
-  @if (showGrid()) {
+  @if (showAxis()) {
     <!-- In flow, so the column is exactly as wide as the longest label; each one hands
          the stylesheet the y of its own gridline. Hidden, as the drawing is one image:
          its name is what is announced, and the numbers are the data table's. -->
@@ -26,74 +25,81 @@
     <div class="wr-boxplot-chart__drawing" aria-hidden="true">
       @if (showGrid()) {
         @for (tick of yTicks(); track $index) {
-          <span class="wr-boxplot-chart__grid-line" [style.--wr-boxplot-chart-y]="tick.top"></span>
+          <span
+            class="wr-boxplot-chart__grid-line"
+            [class.wr-boxplot-chart__grid-line--zero]="tick.zero"
+            [style.--wr-boxplot-chart-y]="tick.top"
+          ></span>
         }
       }
 
       <!-- By position, not by label: two groups may share one. Each slot is the hover
            target for its group, top to bottom, so the pointer need not find a 2px
-           whisker. It carries the group's numbers in `data-*`, beside the placement. -->
-      @for (g of drawnGroups(); track g.index) {
-        <div
-          #group
-          class="wr-boxplot-chart__group"
-          [class.wr-boxplot-chart__group--active]="active === g.index"
-          [class.wr-boxplot-chart__group--empty]="!g.marks"
-          [style.--wr-boxplot-chart-slot-start]="g.start"
-          [style.--wr-boxplot-chart-slot-width]="g.slot"
-          [style.--wr-boxplot-chart-group-color]="g.color"
-          [attr.data-min]="g.stats?.min"
-          [attr.data-q1]="g.stats?.q1"
-          [attr.data-median]="g.stats?.median"
-          [attr.data-q3]="g.stats?.q3"
-          [attr.data-max]="g.stats?.max"
-          (mouseenter)="onEnter(g.index, $event)"
-          (mouseleave)="tip.leave($event)"
-        >
-          @if (g.marks; as m) {
-            <span
-              class="wr-boxplot-chart__whisker wr-boxplot-chart__whisker--upper"
-              [style.--wr-boxplot-chart-top]="m.upper.top"
-              [style.--wr-boxplot-chart-bottom]="m.upper.bottom"
-            ></span>
-            <span
-              class="wr-boxplot-chart__whisker wr-boxplot-chart__whisker--lower"
-              [style.--wr-boxplot-chart-top]="m.lower.top"
-              [style.--wr-boxplot-chart-bottom]="m.lower.bottom"
-            ></span>
-            <span
-              class="wr-boxplot-chart__cap wr-boxplot-chart__cap--upper"
-              [style.--wr-boxplot-chart-y]="m.max"
-            ></span>
-            <span
-              class="wr-boxplot-chart__cap wr-boxplot-chart__cap--lower"
-              [style.--wr-boxplot-chart-y]="m.min"
-            ></span>
-            <span
-              class="wr-boxplot-chart__box"
-              [style.--wr-boxplot-chart-top]="m.box.top"
-              [style.--wr-boxplot-chart-bottom]="m.box.bottom"
-            ></span>
-            <span class="wr-boxplot-chart__median" [style.--wr-boxplot-chart-y]="m.median"></span>
-            @for (o of m.outliers; track $index) {
+           whisker: `data-wr-index` is what the chart's one hover listener reads. Its five
+           numbers ride in one attribute, for the harness. Under `loading` and `error`
+           the slots give way to the message. -->
+      @if (slotsShown()) {
+        @for (g of drawnGroups(); track g.index) {
+          <div
+            [class]="g.classes"
+            [style.--wr-boxplot-chart-slot-start]="g.start"
+            [style.--wr-boxplot-chart-slot-width]="g.slot"
+            [style.--wr-boxplot-chart-group-color]="g.color"
+            [attr.data-wr-index]="g.index"
+            [attr.data-box]="g.figures"
+          >
+            @if (g.marks; as m) {
               <span
-                class="wr-boxplot-chart__outlier"
-                [style.--wr-boxplot-chart-y]="o.top"
-                [attr.data-value]="o.value"
+                class="wr-boxplot-chart__whisker wr-boxplot-chart__whisker--upper"
+                [style.--wr-boxplot-chart-top]="m.upper.top"
+                [style.--wr-boxplot-chart-bottom]="m.upper.bottom"
+              ></span>
+              <span
+                class="wr-boxplot-chart__whisker wr-boxplot-chart__whisker--lower"
+                [style.--wr-boxplot-chart-top]="m.lower.top"
+                [style.--wr-boxplot-chart-bottom]="m.lower.bottom"
+              ></span>
+              <span
+                class="wr-boxplot-chart__cap wr-boxplot-chart__cap--upper"
+                [style.--wr-boxplot-chart-y]="m.max"
+              ></span>
+              <span
+                class="wr-boxplot-chart__cap wr-boxplot-chart__cap--lower"
+                [style.--wr-boxplot-chart-y]="m.min"
+              ></span>
+              <span
+                class="wr-boxplot-chart__box"
+                [style.--wr-boxplot-chart-top]="m.box.top"
+                [style.--wr-boxplot-chart-bottom]="m.box.bottom"
+              ></span>
+              <span class="wr-boxplot-chart__median" [style.--wr-boxplot-chart-y]="m.median"></span>
+              @for (o of m.outliers; track $index) {
+                <span
+                  class="wr-boxplot-chart__outlier"
+                  [style.--wr-boxplot-chart-y]="o.top"
+                  [attr.data-value]="o.value"
+                ></span>
+              }
+              <!-- Paints nothing: the span from the topmost mark to the lowest, outliers
+                 included, which the tooltip points at so its chip covers none of them. -->
+              <span
+                class="wr-boxplot-chart__extent"
+                [style.--wr-boxplot-chart-top]="m.extent.top"
+                [style.--wr-boxplot-chart-bottom]="m.extent.bottom"
               ></span>
             }
-            <!-- Paints nothing: the span from the topmost mark to the lowest, outliers
-                 included, which the tooltip points at so its chip covers none of them. -->
-            <span
-              class="wr-boxplot-chart__extent"
-              [style.--wr-boxplot-chart-top]="m.extent.top"
-              [style.--wr-boxplot-chart-bottom]="m.extent.bottom"
-            ></span>
-          }
-        </div>
+          </div>
+        }
       }
     </div>
   </div>
+
+  @if (shown) {
+    <!-- Empty, loading or failed: the message, over the grid and the axis the chart keeps.
+         Beside the plot in its grid cell, never inside it: `img` makes what it holds
+         presentational, and the message is a live region. -->
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  }
 
   <!-- Each name is centred under its slot and ellipsised past it; the tooltip and the
        data table carry it whole. -->
@@ -113,7 +119,7 @@
   }
 </div>
 
-@if (dataTable()) {
+@if (dataTable() && slotsShown()) {
   <!-- The figures for a screen reader, beside the plot's `img` and never inside it:
        `img` makes everything it holds presentational. Clipped to nothing by its own
        stylesheet, so it takes no room and draws nothing. -->
