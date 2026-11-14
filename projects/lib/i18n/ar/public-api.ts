@@ -146,9 +146,7 @@ export const wrAr: WrI18nCatalog = {
   fileUpload: {
     browse: 'انقر للاستعراض',
     dropZone: 'أو أفلت الملفات هنا',
-    removeFile: 'إزالة الملف',
-    invalid: 'نوع ملف غير مدعوم',
-    tooBig: 'حجم الملف كبير جدًا',
+    removeFile: 'إزالة {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'بايت',
     unitKb: 'كيلوبايت',

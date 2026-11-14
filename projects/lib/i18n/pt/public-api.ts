@@ -140,9 +140,7 @@ export const wrPt: WrI18nCatalog = {
   fileUpload: {
     browse: 'Clique para procurar',
     dropZone: 'ou arraste os ficheiros para aqui',
-    removeFile: 'Remover ficheiro',
-    invalid: 'Tipo de ficheiro não suportado',
-    tooBig: 'Ficheiro demasiado grande',
+    removeFile: 'Remover {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

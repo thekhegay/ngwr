@@ -138,9 +138,7 @@ export const wrZh: WrI18nCatalog = {
   fileUpload: {
     browse: '点击选择文件',
     dropZone: '或将文件拖放到此处',
-    removeFile: '移除文件',
-    invalid: '不支持的文件类型',
-    tooBig: '文件过大',
+    removeFile: '移除 {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

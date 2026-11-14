@@ -200,9 +200,7 @@ export const wrEn: WrI18nCatalog = {
   fileUpload: {
     browse: 'Click to browse',
     dropZone: 'or drop files here',
-    removeFile: 'Remove file',
-    invalid: 'Unsupported file type',
-    tooBig: 'File too large',
+    removeFile: 'Remove {{name}}',
     // File size, as a template plus a unit table. The number itself goes through
     // `Intl.NumberFormat`, so the decimal separator follows `LOCALE_ID`; what a
     // catalog owns here is the unit abbreviation and whether a space sits before

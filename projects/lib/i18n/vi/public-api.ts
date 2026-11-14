@@ -144,9 +144,7 @@ export const wrVi: WrI18nCatalog = {
   fileUpload: {
     browse: 'Nhấn để chọn tệp',
     dropZone: 'hoặc kéo thả tệp vào đây',
-    removeFile: 'Xóa tệp',
-    invalid: 'Loại tệp không được hỗ trợ',
-    tooBig: 'Tệp quá lớn',
+    removeFile: 'Xóa {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

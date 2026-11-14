@@ -148,9 +148,7 @@ export const wrPl: WrI18nCatalog = {
   fileUpload: {
     browse: 'Kliknij, aby wybrać',
     dropZone: 'lub upuść pliki tutaj',
-    removeFile: 'Usuń plik',
-    invalid: 'Nieobsługiwany typ pliku',
-    tooBig: 'Plik jest za duży',
+    removeFile: 'Usuń {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

@@ -142,9 +142,7 @@ export const wrJa: WrI18nCatalog = {
   fileUpload: {
     browse: 'クリックしてファイルを選択',
     dropZone: 'またはファイルをここにドロップ',
-    removeFile: 'ファイルを削除',
-    invalid: '対応していないファイル形式',
-    tooBig: 'ファイルサイズが大きすぎます',
+    removeFile: '{{name}}を削除',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'KB',

@@ -140,9 +140,7 @@ export const wrSv: WrI18nCatalog = {
   fileUpload: {
     browse: 'Klicka för att bläddra',
     dropZone: 'eller släpp filer här',
-    removeFile: 'Ta bort filen',
-    invalid: 'Filtypen stöds inte',
-    tooBig: 'Filen är för stor',
+    removeFile: 'Ta bort {{name}}',
     size: '{{value}} {{unit}}',
     unitByte: 'B',
     unitKb: 'kB',
