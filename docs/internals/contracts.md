@@ -84,10 +84,24 @@ because it is guidance rather than a plan.
   default and Tab on the trigger walks into it, which is what keeps WCAG F85
   answered with the pane at the end of `<body>`; the date pickers move in for
   the keyboard (Enter on the calendar button, `Alt+ArrowDown`) and not for a
-  pointer press. Roving arrows, Home / End, typeahead, a submenu opened by its
-  arrow, the editor of an inline edit and the hand-back of focus on close are
-  the user's own moves and stay. Menus, the command palette, the cascader and
-  the overlay tree still take focus on open: their keyboard lives in the panel.
+  pointer press. Menus follow the same rule: `[wrDropdown]`, `wr-cascader` and
+  an overlay `wr-tree` leave focus on the trigger, and `[wrContextMenu]` on
+  whatever had it. ArrowDown / ArrowUp on the trigger walk in (anywhere on the
+  page for a context menu, through the CDK keyboard dispatcher, which listens
+  only while an overlay is open), a letter typed there goes to the panel's
+  typeahead, and Tab walks into the cascader and the tree, whose panels hold a
+  tab stop; a menu has none, so Tab closes it. `[autoFocus]="true"` restores
+  the focus on open; bind it, since a bare `autoFocus` attribute is also the
+  native `autofocus`. Roving arrows, Home / End, typeahead, a submenu opened by
+  its arrow, the editor of an inline edit and the hand-back of focus on close
+  are the user's own moves and stay.
+- Three overlays still take focus on open, each because the open IS a request
+  to type or to walk. The command palette focuses its search field: it has no
+  trigger to stay on and the query is the whole interface. The editor's link
+  panel (Mod-K) focuses its URL field: the caret was in the document, and
+  leaving it there would type the address into the text. A date picker opened
+  from the keyboard focuses the grid date: Enter on the calendar button asked
+  for the grid, and the field itself stays the place to type a date.
 - `wr-sortable-list` in a group: `move` fires ONCE, on the list the item
   arrived in, and never on the one it left, which reports through
   `itemsChange` alone; a keyboard move writes `[(items)]` on both lists at
