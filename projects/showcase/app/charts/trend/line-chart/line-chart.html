@@ -1,11 +1,14 @@
 <ngwr-doc-page
   title="Line Chart"
-  updated="15.1.0"
+  updated="16.5.0"
   description="One or more series of values as lines or as an area chart, overlaid or stacked."
   [keywords]="['line-chart', 'wr-line-chart', 'area-chart', 'stacked-area']"
   [labels]="['Component']"
 >
-  <ngwr-doc-section title="Multi-series">
+  <ngwr-doc-section
+    title="Multi-series"
+    description="Each series takes the next colour of the chart palette and its own dash. Hover a line or a legend row to dim the other series."
+  >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-line-chart style="width: 100%" [series]="series" [xLabels]="xLabels" />
@@ -29,7 +32,122 @@
       <wr-line-chart style="width: 100%" [series]="channels" [xLabels]="xLabels" showArea stacked />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
-  <ngwr-doc-section title="Tooltip" description='`[tooltip]="false"` also hides the crosshair and markers.'>
+  <ngwr-doc-section
+    title="Grid and axis"
+    description="The y axis is snapped to round numbers and drawn as gridlines with a scale beside it; the line at zero is stronger. `showGrid` and `showAxis` turn each off."
+  >
+    <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Grid and axis (default), zero line</p>
+          <wr-line-chart [series]="balance" [xLabels]="xLabels" [height]="180" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showGrid]="false"</code>
+          </p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [height]="180" [showGrid]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showAxis]="false"</code>
+          </p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [height]="180" [showAxis]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Both off</p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [height]="180" [showGrid]="false" [showAxis]="false" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Legend position"
+    description="`legendPosition` puts the legend at `bottom` (default), `top`, `start` or `end`, or leaves it out with `none`. A single series has no legend unless `showLegend` asks for one."
+  >
+    <ngwr-doc-code [code]="snippets.legend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="top"</code>
+          </p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [height]="180" legendPosition="top" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="end"</code>
+          </p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [height]="180" legendPosition="end" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">One series (no legend)</p>
+          <wr-line-chart [series]="visits" [xLabels]="xLabels" [height]="180" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">One series, <code>showLegend</code></p>
+          <wr-line-chart [series]="visits" [xLabels]="xLabels" [height]="180" showLegend />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no data the chart keeps its frame and says so. `loading` and `error` put their message in place of the lines. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-line-chart [series]="[]" [height]="140" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-line-chart [series]="series" [xLabels]="xLabels" [height]="140" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-line-chart
+            [series]="series"
+            [xLabels]="xLabels"
+            [height]="140"
+            error
+            errorLabel="Traffic is unavailable"
+          />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Long series"
+    description="Past two points a pixel, each pixel column keeps its first, lowest, highest and last point: the same line on screen from a fraction of the path. Peaks survive; the tooltip and the table still read every point. `decimate` turns it off."
+  >
+    <ngwr-doc-code [code]="snippets.decimate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">4,000 points, decimated (default)</p>
+          <wr-line-chart [series]="load" [height]="180" [showDots]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[decimate]="false"</code>
+          </p>
+          <wr-line-chart [series]="load" [height]="180" [showDots]="false" [decimate]="false" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Tooltip"
+    description='The tooltip is the chip every chart shares: the x label over a row per series. `[tooltip]="false"` also hides the crosshair and markers.'
+  >
     <ngwr-doc-code [code]="snippets.tooltip" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div class="ngwr-demo-pair">
@@ -121,8 +239,15 @@
           <tr>
             <th scope="row">Tooltip</th>
             <td>
-              Pointer only. <kbd>Escape</kbd> closes it. It moves to the bottom of the plot when the top would cover the
-              points it reads.
+              Pointer only. <kbd>Escape</kbd> closes it. It points at the markers it reads from above, and flips below
+              them for room.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code> region, the error one a
+              <code>role="alert"</code>.
             </td>
           </tr>
           <tr>
@@ -132,6 +257,12 @@
         </tbody>
       </table>
     </div>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Styling"
+    description="The chart paints through the shared `--wr-chart-*` tokens; its own `--wr-line-chart-*` hooks default to them. The tooltip is drawn in an overlay, so its hooks are set on `.wr-line-chart__tooltip`."
+  >
+    <ngwr-doc-code [code]="snippets.theme" language="scss" />
   </ngwr-doc-section>
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

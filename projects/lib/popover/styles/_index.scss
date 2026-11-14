@@ -102,7 +102,7 @@
 }
 
 // The chip a chart's hover tooltip renders into (`useChartTooltip()`, used by
-// every chart but `wr-line-chart`, which draws its own). It carries `.wr-tooltip`
+// every chart). It carries `.wr-tooltip`
 // as well, so everything above is its look and the arrow below is its arrow; this
 // only lays out the inside.
 //
@@ -148,10 +148,10 @@
     }
   }
 
-  // Several values about one section — every series at a radar's axis, a scatter
-  // point's x, y and size: the heading on the first line, a row per value under it.
-  // A column whose lines all take the chip's width, so each row's value lands on the
-  // inline end and the numbers line up, as they do in `wr-line-chart`'s own tooltip.
+  // Several values about one section — every series at a radar's axis or a line
+  // chart's x, a scatter point's x, y and size: the heading on the first line, a row
+  // per value under it. A column whose lines all take the chip's width, so each row's
+  // value lands on the inline end and the numbers line up.
   &--rows {
     flex-direction: column;
     align-items: stretch;
