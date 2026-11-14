@@ -555,6 +555,7 @@ export const DOC_ROUTES: Readonly<
   "reference/utils/wr-throttle": {"title":"wrThrottle","kind":"Util","labels":["Util"],"description":"Runs a callback at most once every `waitMs`, on the leading and the trailing edge."},
   "reference/utils/wr-to-class-list": {"title":"wrToClassList","kind":"Util","labels":["Util"],"description":"Flattens class inputs into a de-duplicated list of single class names."},
   "reference/utils/wr-trap-focus": {"title":"wrTrapFocus","kind":"Util","labels":["Util"],"description":"Keeps Tab and Shift+Tab cycling inside a container, such as a dialog."},
+  "reference/utils/wr-typeahead": {"title":"wrTypeahead","kind":"Util","labels":["Util"],"description":"Type-to-jump for a list: the letters typed in a row select the next row that starts with them."},
   "reference/validators/card-number": {"title":"cardNumber","kind":"Validator","labels":["Validator"],"description":"Check a card number: 13 to 19 digits with a valid Luhn checksum."},
   "reference/validators/cvc": {"title":"cvc","kind":"Validator","labels":["Validator"],"description":"Check a card security code: 3 digits, or 4 for Amex."},
   "reference/validators/hex-color": {"title":"hexColor","kind":"Validator","labels":["Validator"],"description":"Check a hex colour such as `#abc` or `#1a2b3c`."},
