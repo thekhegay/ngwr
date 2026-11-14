@@ -150,6 +150,10 @@ describe('wrChartLabelStep', () => {
       <i data-wr-series="1" id="b1"><b id="deep"></b></i>
     </div>
     <p id="gutter"></p>
+    <div data-wr-hold id="track">
+      <div data-wr-index="2" id="third"><i data-wr-series="2" id="c0"></i></div>
+      <div data-wr-index="3" id="fourth"></div>
+    </div>
   `,
 })
 class HoverHost {
@@ -231,6 +235,35 @@ describe('useChartHover', () => {
     over('b1');
     root().dispatchEvent(new MouseEvent('mouseleave'));
     expect(root().classList).not.toContain('wr-chart--dim');
+    expect(on()).toEqual([]);
+  });
+
+  it('holds the section, its band and the dim across a gap marked data-wr-hold', () => {
+    create();
+    const banded = (): string[] => [...root().querySelectorAll('.wr-chart-section--on')].map(section => section.id);
+
+    // Outside a hold area a section is reported and never banded.
+    over('a0');
+    expect(banded()).toEqual([]);
+
+    over('c0');
+    expect(fixture.componentInstance.entered).toEqual([0, 2]);
+    expect(banded()).toEqual(['third']);
+    expect(on()).toEqual(['c0']);
+
+    // The gap between two bars: nothing closes.
+    over('track');
+    expect(fixture.componentInstance.left).toEqual([]);
+    expect(banded()).toEqual(['third']);
+    expect(on()).toEqual(['c0']);
+
+    over('fourth');
+    expect(fixture.componentInstance.entered).toEqual([0, 2, 3]);
+    expect(banded()).toEqual(['fourth']);
+
+    root().dispatchEvent(new MouseEvent('mouseleave'));
+    expect(fixture.componentInstance.left).toHaveLength(1);
+    expect(banded()).toEqual([]);
     expect(on()).toEqual([]);
   });
 

@@ -144,11 +144,12 @@
   --wr-chart-state-error-color: var(--wr-color-danger-ink);
   --wr-chart-state-spinner-size: 1em;
   --wr-chart-state-spinner-color: var(--wr-chart-1);
-  // What the words sit on: nothing, unless a chart lays the message over a filled track,
-  // where `prefers-contrast: more` deepens the fill until the muted and error colours
-  // drop under 4.5:1. Such a chart sets the surface, which both are measured against.
-  --wr-chart-state-label-bg: transparent;
-  --wr-chart-state-label-padding: 0;
+  // A plate under the spinner and the words, so the gridlines and a track do not run
+  // through them, and the muted and error colours keep the contrast they are measured
+  // to against the surface.
+  --wr-chart-state-bg: var(--wr-color-surface);
+  --wr-chart-state-padding: var(--wr-space-xs) var(--wr-space-sm);
+  --wr-chart-state-radius: var(--wr-border-radius-sm);
 
   position: absolute;
   inset: 0;
@@ -156,7 +157,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--wr-chart-state-gap);
   padding: var(--wr-chart-state-gap);
   font-size: var(--wr-chart-state-font-size);
   color: var(--wr-chart-state-color);
@@ -167,10 +167,13 @@
     color: var(--wr-chart-state-error-color);
   }
 
-  &__label {
-    padding: var(--wr-chart-state-label-padding);
-    border-radius: var(--wr-border-radius-sm);
-    background: var(--wr-chart-state-label-bg);
+  &__plate {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--wr-chart-state-gap);
+    padding: var(--wr-chart-state-padding);
+    border-radius: var(--wr-chart-state-radius);
+    background: var(--wr-chart-state-bg);
   }
 
   // A ring with one arc of it painted, turning. Still under reduced motion, where the

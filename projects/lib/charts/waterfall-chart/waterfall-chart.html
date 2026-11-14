@@ -38,6 +38,9 @@
         }
       }
 
+      <!-- Before the bars, so a bar that reaches zero covers it and a total of 0 draws nothing. -->
+      <span class="wr-waterfall-chart__baseline" aria-hidden="true"></span>
+
       @if (shown) {
         <!-- Empty, loading or failed: the message, over the grid and the scale the chart keeps. -->
         <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
@@ -80,9 +83,6 @@
           </div>
         }
       }
-
-      <!-- After the bars, so it is drawn over them where zero runs through the plot. -->
-      <span class="wr-waterfall-chart__baseline" aria-hidden="true"></span>
     </div>
   </div>
 

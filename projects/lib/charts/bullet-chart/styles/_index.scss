@@ -245,8 +245,7 @@
     .wr-chart-state {
       --wr-chart-state-gap: var(--wr-space-xs);
       --wr-chart-state-font-size: var(--wr-chart-label-size);
-      --wr-chart-state-label-bg: var(--wr-color-surface);
-      --wr-chart-state-label-padding: 0 var(--wr-space-xs);
+      --wr-chart-state-padding: 0 var(--wr-space-xs);
     }
   }
 

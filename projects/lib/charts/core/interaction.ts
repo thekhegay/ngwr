@@ -138,6 +138,10 @@ export function wrChartDim(host: Element, key: string | null): void {
  * the whole chart for every bar the pointer crossed; these are native listeners, so a
  * move runs no pass at all unless the chart's own handler writes a signal.
  *
+ * A gap the chart marks with `data-wr-hold` keeps the section and the dim as they are, so
+ * crossing from one bar to the next does not close and reopen the tooltip; a section in
+ * such an area takes `wr-chart-section--on`, so a band the chart paints on it stays too.
+ *
  * It also drives the shared hover-dim: the nearest element carrying `data-wr-series`
  * names the series under the pointer, and {@link wrChartDim} fades the rest. Legend rows
  * carry the attribute too, so hovering a row dims the chart the same way.
@@ -158,23 +162,43 @@ export function useChartHover(handlers: WrChartHoverHandlers): void {
     wrChartDim(host, key);
   };
 
+  let current: Element | null = null;
+  const band = (section: Element | null): void => {
+    current?.classList.remove('wr-chart-section--on');
+    current = section?.closest('[data-wr-hold]') ? section : null;
+    current?.classList.add('wr-chart-section--on');
+  };
+
+  const inHost = (el: Element | null | undefined): el is Element => !!el && host.contains(el);
+
   const over = (event: MouseEvent): void => {
     const target = event.target instanceof Element ? event.target : null;
     const section = target?.closest('[data-wr-index]');
-    const mark = target?.closest('[data-wr-series]');
-    dim(mark && host.contains(mark) ? mark.getAttribute('data-wr-series') : null);
+    const series = target?.closest('[data-wr-series]');
+    // In the room a chart holds open between its marks (`data-wr-hold`, the gaps between
+    // its bars), the pointer is still on the drawing: what it last pointed at stays,
+    // rather than closing and reopening a few pixels on.
+    const held = !inHost(series) && inHost(target?.closest('[data-wr-hold]'));
+    if (!held) dim(inHost(series) ? series.getAttribute('data-wr-series') : null);
+    if (held && !inHost(section)) return;
 
-    const next = section && host.contains(section) ? Number(section.getAttribute('data-wr-index')) : null;
+    const next = inHost(section) ? Number(section.getAttribute('data-wr-index')) : null;
     if (next === index) return;
     index = next;
-    if (next === null || !Number.isFinite(next)) handlers.leave(event);
-    else handlers.enter(next);
+    if (next === null || !Number.isFinite(next)) {
+      band(null);
+      handlers.leave(event);
+    } else {
+      band(section ?? null);
+      handlers.enter(next);
+    }
   };
 
   const leave = (event: MouseEvent): void => {
     dim(null);
     if (index === null) return;
     index = null;
+    band(null);
     handlers.leave(event);
   };
 

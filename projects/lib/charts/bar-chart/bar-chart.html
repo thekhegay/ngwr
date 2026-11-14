@@ -75,7 +75,7 @@
         }
       </div>
     }
-    <div #trackEl class="wr-bar-chart__track" [style.--wr-bar-chart-zero]="zero()">
+    <div #trackEl class="wr-bar-chart__track" data-wr-hold [style.--wr-bar-chart-zero]="zero()">
       @if (showGrid()) {
         <!-- Under the bars: a line at every tick of the value axis. -->
         <div class="wr-bar-chart__grid" aria-hidden="true">
@@ -84,6 +84,8 @@
           }
         </div>
       }
+      <!-- Before the bars, so a bar standing on zero covers it and a 0 draws nothing. -->
+      <div class="wr-bar-chart__baseline"></div>
       @if (shown) {
         <!-- Empty, loading or failed: the message, over the grid and the axis the chart keeps. -->
         <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
@@ -186,8 +188,6 @@
           </div>
         }
       }
-      <!-- After the bars, so it is drawn over them where zero runs through the plot. -->
-      <div class="wr-bar-chart__baseline"></div>
       @if (!shown) {
         @for (line of lineLayers(); track line.index) {
           <!-- Over the bars and the baseline, and out of the pointer's way, so hovering a

@@ -743,7 +743,7 @@ describe('WrBarChart stylesheet on the chart theme', { timeout: COMPILE_TIMEOUT 
   });
 
   it('bands the category under the pointer, and lands at once under reduced motion', () => {
-    expect(rule('.wr-bar-chart__category:hover, .wr-bar-chart__column:hover')).toMatch(
+    expect(rule('.wr-bar-chart__category.wr-chart-section--on, .wr-bar-chart__column.wr-chart-section--on')).toMatch(
       /background-color: var\(--wr-bar-chart-band\)/
     );
     expect(css()).toMatch(
