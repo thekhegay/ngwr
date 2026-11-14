@@ -4,27 +4,14 @@
 // Styles for the entry points this component's own markup renders. With `dataTable`, the
 // figures render as a `<wr-chart-table>` beside the matrix, which its own sheet clips out
 // of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartScale
 @include theme.loaded('charts/heatmap-chart');
 
-// A level's paint: the scale's colour (`--wr-heatmap-chart-scale-color`, which the component
-// writes from its `color` input) mixed toward the surface, by the level's place on the scale
-// (`--wr-heatmap-chart-level`, 0 to 1, which the component writes on every cell and every
-// legend swatch). The lowest level keeps `--wr-heatmap-chart-min-share` of the colour, so it
-// is a faint tint rather than the surface itself — the surface is what an EMPTY cell shows
-// — and the highest is the colour.
-//
-// Mixed in OKLab rather than sRGB, because OKLab's lightness is the one that moves evenly:
-// the levels are told apart by lightness alone, so evenly spaced shares have to look evenly
-// spaced, in the light scheme and the dark one.
-$fill: color-mix(
-  in oklab,
-  var(--wr-heatmap-chart-scale-color, var(--wr-color-primary))
-    calc(
-      var(--wr-heatmap-chart-min-share) + (100% - var(--wr-heatmap-chart-min-share)) * var(--wr-heatmap-chart-level, 1)
-    ),
-  var(--wr-heatmap-chart-surface)
-);
+// A level's paint, which the component writes on every cell as `--wr-heatmap-chart-fill`:
+// a step of the sequential scale below (`--wr-heatmap-chart-step-1` to `-5`), or between
+// two steps a mix of them. A cell with none written takes the highest step.
+$fill: var(--wr-heatmap-chart-fill, var(--wr-heatmap-chart-step-5));
 
 // The share of white a printed value takes, 1 or 0, from its cell's luminance `y` (see
 // `__value`). A string, so Sass passes the relative-colour channel name through untouched.
@@ -33,16 +20,29 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
 .wr-heatmap-chart {
   --wr-heatmap-chart-font-family: var(--wr-font-family-base);
   --wr-heatmap-chart-color: var(--wr-color-on-surface);
-  // What every level is mixed toward, and how much of the colour the lowest level keeps.
+  // What shows behind the cells, and what a colour of the chart's own is stepped toward.
   --wr-heatmap-chart-surface: var(--wr-color-surface);
-  --wr-heatmap-chart-min-share: 15%;
+  // The five steps a level is painted from: the chart theme's sequential scale, the first
+  // palette colour stepped toward the surface, so the scale turns over with the scheme and
+  // an app that retints the theme retints the heatmap. It was a mix of this chart's own,
+  // in OKLab from 15%, whose lowest level all but vanished on a dark surface.
+  --wr-heatmap-chart-step-1: var(--wr-chart-seq-1);
+  --wr-heatmap-chart-step-2: var(--wr-chart-seq-2);
+  --wr-heatmap-chart-step-3: var(--wr-chart-seq-3);
+  --wr-heatmap-chart-step-4: var(--wr-chart-seq-4);
+  --wr-heatmap-chart-step-5: var(--wr-chart-seq-5);
   // The cells. A row is a fixed height and the columns share the width, so the matrix
   // fills its container and never scrolls: a scroller would need a tab stop.
   --wr-heatmap-chart-cell-height: 2rem;
-  --wr-heatmap-chart-gap: 2px;
-  // 2px — a micro radius for cells that may be only a few pixels wide; the border-radius
-  // tokens (6px+) would round a narrow column into a capsule.
-  --wr-heatmap-chart-cell-radius: 2px;
+  // Half the smallest space token, 2px: what parts two cells here and two days of a
+  // calendar heatmap.
+  --wr-heatmap-chart-gap: calc(var(--wr-space-xs) / 2);
+  // The chart theme's radius, small enough for a cell only a few pixels wide.
+  --wr-heatmap-chart-cell-radius: var(--wr-chart-bar-radius);
+  // A faint line inside every cell's edge, in the text colour: the lowest levels are
+  // tints of the surface (1.3:1 against it in light, 1.2:1 in dark), and the edge is what
+  // keeps one readable as a cell. On the higher levels it disappears into the paint.
+  --wr-heatmap-chart-cell-edge: color-mix(in srgb, var(--wr-color-on-surface) 14%, transparent);
   --wr-heatmap-chart-cell-padding-x: var(--wr-space-xs);
   // The values `showValues` prints. Their colour is picked per cell (see `__value`).
   --wr-heatmap-chart-value-font-size: var(--wr-text-xs);
@@ -56,18 +56,20 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
   --wr-heatmap-chart-active-ring: var(--wr-color-on-surface);
   --wr-heatmap-chart-active-ring-width: 2px;
   // The row and column names, muted as an axis' labels are on every chart.
-  --wr-heatmap-chart-label-font-size: var(--wr-text-xs);
+  --wr-heatmap-chart-label-font-size: var(--wr-chart-label-size);
   --wr-heatmap-chart-label-line-height: var(--wr-text-xs-leading);
-  --wr-heatmap-chart-label-color: var(--wr-color-on-surface-muted);
+  --wr-heatmap-chart-label-color: var(--wr-chart-label);
   --wr-heatmap-chart-label-gap: var(--wr-space-sm);
   --wr-heatmap-chart-row-label-max-width: 10rem;
-  // The colour-scale legend under the matrix.
+  // The scale key beside the matrix: the shared key, through this chart's own hooks.
   --wr-heatmap-chart-legend-margin-top: var(--wr-space-md);
   --wr-heatmap-chart-legend-gap: var(--wr-space-sm);
-  --wr-heatmap-chart-legend-font-size: var(--wr-text-xs);
-  --wr-heatmap-chart-legend-color: var(--wr-color-on-surface-muted);
-  --wr-heatmap-chart-swatch-width: 1.25rem;
+  --wr-heatmap-chart-legend-font-size: var(--wr-chart-label-size);
+  --wr-heatmap-chart-legend-color: var(--wr-chart-label);
+  --wr-heatmap-chart-swatch-width: 0.75rem;
   --wr-heatmap-chart-swatch-height: 0.75rem;
+  // The least the matrix is tall while it has no cell to draw: empty, loading, an error.
+  --wr-heatmap-chart-idle-height: 8rem;
 
   display: block;
   // The containing block of the out-of-flow `dataTable` copy, as on the line chart: a
@@ -78,6 +80,32 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
   font-family: var(--wr-heatmap-chart-font-family);
   color: var(--wr-heatmap-chart-color);
 
+  // A colour of the chart's own (`color`): the same five steps, from that colour toward
+  // the surface, in the shares the chart theme steps its own scale by.
+  &--tinted {
+    --wr-heatmap-chart-step-1: color-mix(
+      in srgb,
+      var(--wr-heatmap-chart-scale-color) 20%,
+      var(--wr-heatmap-chart-surface)
+    );
+    --wr-heatmap-chart-step-2: color-mix(
+      in srgb,
+      var(--wr-heatmap-chart-scale-color) 40%,
+      var(--wr-heatmap-chart-surface)
+    );
+    --wr-heatmap-chart-step-3: color-mix(
+      in srgb,
+      var(--wr-heatmap-chart-scale-color) 60%,
+      var(--wr-heatmap-chart-surface)
+    );
+    --wr-heatmap-chart-step-4: color-mix(
+      in srgb,
+      var(--wr-heatmap-chart-scale-color) 80%,
+      var(--wr-heatmap-chart-surface)
+    );
+    --wr-heatmap-chart-step-5: var(--wr-heatmap-chart-scale-color);
+  }
+
   // The names and the cells share one grid's tracks: an `auto` column for the row names,
   // one equal column per column of the data, an `auto` row for the column names and one
   // fixed row per row of the data. A grid follows `direction`, so under RTL the row names
@@ -87,6 +115,20 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
     grid-template-columns: auto repeat(var(--wr-heatmap-chart-columns, 1), minmax(0, 1fr));
     grid-template-rows: auto repeat(var(--wr-heatmap-chart-rows, 1), var(--wr-heatmap-chart-cell-height));
     gap: var(--wr-heatmap-chart-gap);
+    // What the state message is laid over.
+    position: relative;
+    min-width: 0;
+
+    &--idle {
+      min-height: var(--wr-heatmap-chart-idle-height);
+    }
+  }
+
+  // The message of an empty, loading or failed chart, over the cells' own area.
+  &__status {
+    grid-row: 2 / -1;
+    grid-column: 2 / -1;
+    position: relative;
   }
 
   &__column-labels,
@@ -190,6 +232,7 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
     overflow: hidden;
     border-radius: var(--wr-heatmap-chart-cell-radius);
     background: $fill;
+    box-shadow: inset 0 0 0 1px var(--wr-heatmap-chart-cell-edge);
     // The levels are the chart, so they keep their colours under forced colors, as the SVG
     // charts' fills do; forced colors would otherwise paint every cell as the page.
     forced-color-adjust: none;
@@ -246,15 +289,18 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
     }
   }
 
+  // The scale key is the shared one (`wr-chart-scale`), drawn through this chart's hooks:
+  // its room from the matrix, its type, and a step the size of the old swatch hooks.
   &__legend {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: var(--wr-heatmap-chart-legend-gap);
-    margin-block-start: var(--wr-heatmap-chart-legend-margin-top);
-    font-size: var(--wr-heatmap-chart-legend-font-size);
-    color: var(--wr-heatmap-chart-legend-color);
+    --wr-chart-legend-space: var(--wr-heatmap-chart-legend-margin-top);
+    --wr-chart-scale-gap: var(--wr-heatmap-chart-legend-gap);
+    --wr-chart-scale-font-size: var(--wr-heatmap-chart-legend-font-size);
+    --wr-chart-scale-color: var(--wr-heatmap-chart-legend-color);
+    --wr-chart-scale-step-width: var(--wr-heatmap-chart-swatch-width);
+    --wr-chart-scale-step-height: var(--wr-heatmap-chart-swatch-height);
+    --wr-chart-scale-step-gap: var(--wr-heatmap-chart-gap);
+    --wr-chart-scale-step-radius: var(--wr-heatmap-chart-cell-radius);
+    --wr-chart-scale-step-edge: var(--wr-heatmap-chart-cell-edge);
   }
 
   &__legend-label {
@@ -265,18 +311,11 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
     unicode-bidi: plaintext;
   }
 
-  // The levels side by side, as one bar from the lowest to the highest.
-  &__scale {
-    display: inline-flex;
-    border-radius: var(--wr-heatmap-chart-cell-radius);
-    overflow: hidden;
-  }
-
+  // The key of an empty cell, beside the ramp: a step's size, hatched (below).
   &__swatch {
     flex: none;
     inline-size: var(--wr-heatmap-chart-swatch-width);
     block-size: var(--wr-heatmap-chart-swatch-height);
-    background: $fill;
     forced-color-adjust: none;
   }
 
@@ -290,6 +329,7 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
       var(--wr-heatmap-chart-empty-hatch) 0 1px,
       var(--wr-heatmap-chart-surface) 1px 5px
     );
+    box-shadow: none;
     outline: 1px dashed var(--wr-heatmap-chart-empty-border);
     outline-offset: -1px;
   }
@@ -300,6 +340,7 @@ $white: 'clamp(0, (0.17913 - y) * infinity, 1)';
 
   // Above its neighbours, so the ring is not painted over by the next cell, and after the
   // empty cell's outline, which it replaces. Every cell is positioned already (`__cell`).
+  // Set by hand on the one cell the tooltip reads, never bound on every cell.
   &__cell--active {
     z-index: 1;
     outline: var(--wr-heatmap-chart-active-ring-width) solid var(--wr-heatmap-chart-active-ring);
