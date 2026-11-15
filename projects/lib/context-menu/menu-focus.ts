@@ -75,23 +75,26 @@ export function wrHandleMenuNavigation(pane: HTMLElement, event: KeyboardEvent):
  * belongs to one ("save a" for "Save as") stops before the row's own Space
  * activates it. The listener goes with the pane. `locale` is the interface
  * language, for the case folding.
+ *
+ * @returns the handler, for a key typed while focus is still outside the menu.
  */
-export function wrListenForMenuTypeahead(pane: HTMLElement, locale?: () => string | undefined): void {
+export function wrListenForMenuTypeahead(
+  pane: HTMLElement,
+  locale?: () => string | undefined
+): (event: KeyboardEvent) => void {
   const typeahead = wrTypeahead({ locale });
-  pane.addEventListener(
-    'keydown',
-    event => {
-      const items = wrMenuItems(pane);
-      const index = typeahead.handleKey(
-        event,
-        items.map(item => item.querySelector('.wr-context-menu-item__label')?.textContent ?? ''),
-        items.indexOf(document.activeElement as HTMLElement)
-      );
-      if (index === null) return;
-      event.preventDefault();
-      if (event.key === ' ') event.stopPropagation();
-      items[index]?.focus();
-    },
-    true
-  );
+  const onKeydown = (event: KeyboardEvent): void => {
+    const items = wrMenuItems(pane);
+    const index = typeahead.handleKey(
+      event,
+      items.map(item => item.querySelector('.wr-context-menu-item__label')?.textContent ?? ''),
+      items.indexOf(document.activeElement as HTMLElement)
+    );
+    if (index === null) return;
+    event.preventDefault();
+    if (event.key === ' ') event.stopPropagation();
+    items[index]?.focus();
+  };
+  pane.addEventListener('keydown', onKeydown, true);
+  return onKeydown;
 }

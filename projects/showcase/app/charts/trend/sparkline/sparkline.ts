@@ -21,7 +21,10 @@ export default class SparklinePageComponent {
 
   protected readonly snippets = {
     basic: `<wr-sparkline [data]="data" width="100%" height="4rem" />`,
-    area: `<wr-sparkline [data]="data" [showArea]="true" color="var(--wr-color-success)" width="100%" height="4rem" />`,
+    inline: `<strong>1,284</strong>
+<wr-sparkline [data]="data" ariaLabel="Signups, last 30 days" />
+<wr-sparkline [data]="data" color="var(--wr-chart-2)" [strokeWidth]="2" ariaLabel="Visits, last 30 days" />`,
+    area: `<wr-sparkline [data]="data" [showArea]="true" color="var(--wr-chart-2)" width="100%" height="4rem" />`,
     tooltip: `<wr-sparkline [data]="data" ariaLabel="Signups" />
 <wr-sparkline [data]="data" ariaLabel="Signups" [tooltip]="false" />`,
   };

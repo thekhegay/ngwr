@@ -253,6 +253,13 @@ export const wrId: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  // What a chart shows in place of its marks: no data, a request in flight, a failed
+  // load. One set for every chart; each has a `*Label` input over it.
+  chart: {
+    empty: 'Tidak ada data',
+    loading: 'Memuat…',
+    error: 'Gagal memuat',
+  },
   barChart: {
     label: 'Diagram batang',
     total: 'Total',

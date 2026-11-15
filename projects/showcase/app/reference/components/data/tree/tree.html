@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Tree"
-  updated="16.4.0"
+  updated="16.5.0"
   description="A nested list to browse and select from, inline or as a dropdown picker."
   [keywords]="['tree', 'tree-select', 'wr-tree', 'hierarchy', 'folders']"
   [labels]="['Composite']"
@@ -226,7 +226,10 @@
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Keyboard" description="The arrows that open and close a branch swap under RTL.">
+  <ngwr-doc-section
+    title="Keyboard"
+    description="An overlay tree leaves focus on the trigger when it opens, and ArrowDown or Tab there moves into the panel. Bind `[autoFocus]` to `true` to focus the cursor row on open. The arrows that open and close a branch swap under RTL."
+  >
     <div class="ngwr-table">
       <table>
         <thead>
@@ -238,7 +241,18 @@
         <tbody>
           <tr>
             <th scope="row">ArrowDown, ArrowUp</th>
-            <td>Next or previous visible row.</td>
+            <td>
+              Next or previous visible row. On the overlay trigger: opens the panel; once it is open, moves focus to the
+              cursor row.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Tab</th>
+            <td>On the trigger of an open panel, moves into it. In the panel, closes it and moves on.</td>
+          </tr>
+          <tr>
+            <th scope="row">Escape</th>
+            <td>Closes the overlay panel, focus on the trigger.</td>
           </tr>
           <tr>
             <th scope="row">ArrowRight</th>
@@ -256,7 +270,7 @@
             <th scope="row">Type a letter</th>
             <td>
               Moves to the next visible row that starts with what you typed; the same letter again cycles. It opens no
-              branch.
+              branch. Works from the trigger of an open panel too.
             </td>
           </tr>
           <tr>

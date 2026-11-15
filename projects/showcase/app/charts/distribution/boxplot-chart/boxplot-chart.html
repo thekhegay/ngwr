@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="Box Plot"
   since="15.1.0"
+  updated="16.5.0"
   description="How the values of several groups are spread: the median, the middle half, the range and the outliers of each, side by side."
   [keywords]="['boxplot-chart', 'box-plot', 'box-and-whisker', 'quartiles', 'distribution', 'wr-boxplot-chart']"
   [labels]="['Component']"
@@ -81,6 +82,81 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Grid and axis"
+    description="The value axis is snapped to round numbers and drawn as gridlines with a scale beside it. `showGrid` and `showAxis` turn each off. `yLabel` runs along the axis."
+  >
+    <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Grid and axis (default)</p>
+          <wr-boxplot-chart ariaLabel="Build time by release" [height]="180" [groups]="releases" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showGrid]="false"</code>
+          </p>
+          <wr-boxplot-chart ariaLabel="Build time by release" [height]="180" [groups]="releases" [showGrid]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showAxis]="false"</code>
+          </p>
+          <wr-boxplot-chart ariaLabel="Build time by release" [height]="180" [groups]="releases" [showAxis]="false" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no group to draw the chart keeps its frame and says so. `loading` and `error` put their message in place of the boxes. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-boxplot-chart ariaLabel="Build time by release" [height]="140" [groups]="[]" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-boxplot-chart ariaLabel="Build time by release" [height]="140" [groups]="releases" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-boxplot-chart
+            ariaLabel="Build time by release"
+            [height]="140"
+            [groups]="releases"
+            error
+            errorLabel="Build times are unavailable"
+          />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Large groups"
+    description="Raw values are sorted once, in a typed array. A group with more than a hundred outliers on one side of its box draws a hundred of them, the nearest and the farthest included. The tooltip still counts every one."
+  >
+    <ngwr-doc-code [code]="snippets.large" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-boxplot-chart
+        style="width: 100%"
+        ariaLabel="Request latency, 20,000 requests per service"
+        yLabel="Latency, ms"
+        [groups]="services"
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Number format"
     description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it for the ticks, the tooltip and the data table."
   >
@@ -142,7 +218,7 @@
           </tr>
           <tr>
             <th scope="row">Forced colours</th>
-            <td>Every mark is drawn as an outline in the system text colour.</td>
+            <td>Every mark is drawn in the system text colour.</td>
           </tr>
         </tbody>
       </table>

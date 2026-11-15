@@ -64,6 +64,12 @@
   backdrop-filter: blur(2px);
 }
 
+// `autoFocus: 'dialog'` focuses the panel by script. It is a container, never a
+// control, so the browser's own ring on it would read as a stray frame.
+.wr-dialog-panel:focus {
+  outline: none;
+}
+
 .wr-dialog-panel {
   --wr-dialog-bg: var(--wr-color-surface);
   --wr-dialog-radius: var(--wr-border-radius-lg);

@@ -16,25 +16,25 @@ const levels = new WeakMap<HTMLElement, WrDropdownLevel>();
  * On the pane and in the capture phase, so each level keeps its own run and a
  * Space that belongs to one ("save a" for "Save as") stops before the item's
  * own Space activates it. The listener goes with the pane.
+ *
+ * @returns the handler, for a key typed on the trigger while focus is still there.
  */
-function listenForTypeahead(pane: HTMLElement, locale?: () => string | undefined): void {
+function listenForTypeahead(pane: HTMLElement, locale?: () => string | undefined): (event: KeyboardEvent) => void {
   const typeahead = wrTypeahead({ locale });
-  pane.addEventListener(
-    'keydown',
-    event => {
-      const items = wrDropdownItems(pane);
-      const index = typeahead.handleKey(
-        event,
-        items.map(item => item.textContent),
-        items.indexOf(document.activeElement as HTMLElement)
-      );
-      if (index === null) return;
-      event.preventDefault();
-      if (event.key === ' ') event.stopPropagation();
-      items[index]?.focus();
-    },
-    true
-  );
+  const onKeydown = (event: KeyboardEvent): void => {
+    const items = wrDropdownItems(pane);
+    const index = typeahead.handleKey(
+      event,
+      items.map(item => item.textContent),
+      items.indexOf(document.activeElement as HTMLElement)
+    );
+    if (index === null) return;
+    event.preventDefault();
+    if (event.key === ' ') event.stopPropagation();
+    items[index]?.focus();
+  };
+  pane.addEventListener('keydown', onKeydown, true);
+  return onKeydown;
 }
 
 /**
@@ -61,12 +61,16 @@ export interface WrDropdownLevel {
 /**
  * `locale` is the interface language, for the type-ahead's case folding.
  *
+ * @returns the level's type-ahead, to feed a key typed outside its pane.
  * @internal
  */
-export function wrDropdownRegisterLevel(level: WrDropdownLevel, locale?: () => string | undefined): void {
+export function wrDropdownRegisterLevel(
+  level: WrDropdownLevel,
+  locale?: () => string | undefined
+): (event: KeyboardEvent) => void {
   levels.set(level.pane, level);
   if (level.parent) level.parent.child = level;
-  listenForTypeahead(level.pane, locale);
+  return listenForTypeahead(level.pane, locale);
 }
 
 /** @internal */

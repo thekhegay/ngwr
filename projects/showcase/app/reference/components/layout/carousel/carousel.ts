@@ -33,7 +33,7 @@ export default class CarouselPageComponent {
     ink: `var(--wr-color-${intent}-contrast)`,
   }));
 
-  protected readonly snippet = `<wr-carousel [(active)]="i" autoplay style="aspect-ratio: 16 / 9">
+  protected readonly snippet = `<wr-carousel [(active)]="i" autoplay pauseButton style="aspect-ratio: 16 / 9">
   <wr-carousel-slide>Slide 1</wr-carousel-slide>
   <wr-carousel-slide>Slide 2</wr-carousel-slide>
 </wr-carousel>`;

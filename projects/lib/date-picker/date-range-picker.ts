@@ -336,6 +336,16 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   readonly panelAriaLabel = input<string | null>(null);
 
   /**
+   * Move focus into the panel when a pointer press on the calendar button
+   * opens it. Off by default: the press leaves focus on the button, and the
+   * keyboard is what moves in, by Enter or Space on the button, `Alt+ArrowDown`
+   * in the field, or `ArrowDown` once the panel is open. Closing hands focus
+   * back to where it came from whenever it was inside.
+   * @default false
+   */
+  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Extra CSS classes for the calendar panel's overlay pane.
    *
    * The pane is appended to the overlay container, not to this component, so
@@ -713,7 +723,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.openOverlay(this.fieldEl(end), false);
   }
 
-  protected toggleOverlay(): void {
+  protected toggleOverlay(event: MouseEvent): void {
     // `readonly` blocks the calendar too — otherwise the inputs refuse typing
     // while the popover happily edits the same value.
     if (this.disabled() || this.readonly()) return;
@@ -721,7 +731,10 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
       // Focus is already on the trigger — nothing to restore.
       this.closeOverlay();
     } else {
-      this.openOverlay(this.triggerEl()?.nativeElement ?? null, true);
+      // A click with no pointer behind it (`detail` 0) is Enter or Space on the
+      // button: the keyboard asked for the panel, so it goes in. A pointer press
+      // moves nothing unless `autoFocus` says so.
+      this.openOverlay(this.triggerEl()?.nativeElement ?? null, event.detail === 0 || this.autoFocus());
     }
   }
 
@@ -758,6 +771,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
   /** The input element for an end — the two are otherwise addressed by index. */
   private fieldEl(end: RangeEnd): HTMLInputElement {
     return end === 0 ? this.startEl().nativeElement : this.endEl().nativeElement;
+  }
+
+  /** `ArrowDown` on the calendar button moves into the panel a pointer press opened. */
+  protected onTriggerArrow(event: Event): void {
+    if (!this.overlayRef) return;
+    event.preventDefault();
+    this.focusPanel();
   }
 
   /**

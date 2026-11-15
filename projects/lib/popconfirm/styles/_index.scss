@@ -16,6 +16,12 @@
 @use '../../button/styles' as button-styles; // WrButton
 @include theme.loaded('popconfirm');
 
+// The pane takes focus on open, as `tabindex="-1"`: the keyboard is inside the
+// panel and no button is lit. A container is not a control to ring.
+.wr-popconfirm-overlay:focus {
+  outline: none;
+}
+
 .wr-popconfirm-overlay {
   > .wr-popconfirm {
     display: block;

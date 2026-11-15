@@ -50,6 +50,19 @@ async function numberAttribute(element: TestElement, name: string): Promise<numb
 }
 
 /** One row of the data table: a group's name and its cells. */
+/** A drawn group's five numbers, lower whisker first, off the one attribute the chart writes them in. */
+async function figures(group: TestElement): Promise<number[]> {
+  const raw = await group.getAttribute('data-box');
+  const values = (raw ?? '').split(' ').map(part => Number.parseFloat(part));
+  if (values.length !== 5 || !values.every(value => Number.isFinite(value))) {
+    throw new Error(
+      `WrBoxplotChartHarness.getGroups(): a drawn group carries data-box="${raw ?? ''}", which the component writes ` +
+        'as five finite numbers on every group with a box.'
+    );
+  }
+  return values;
+}
+
 class TableRowHarness extends ComponentHarness {
   static hostSelector = '.wr-chart-table tbody tr';
 
@@ -92,12 +105,13 @@ class GroupHarness extends ComponentHarness {
       );
     }
     const dots = await this.outliers();
+    const [min, q1, middle, q3, max] = await figures(group);
     const stats: WrBoxplotChartHarnessStats = {
-      min: await numberAttribute(group, 'data-min'),
-      q1: await numberAttribute(group, 'data-q1'),
-      median: await numberAttribute(group, 'data-median'),
-      q3: await numberAttribute(group, 'data-q3'),
-      max: await numberAttribute(group, 'data-max'),
+      min,
+      q1,
+      median: middle,
+      q3,
+      max,
       outliers: await Promise.all(dots.map(dot => numberAttribute(dot, 'data-value'))),
     };
     const position: WrBoxplotChartHarnessPosition = {
@@ -204,7 +218,21 @@ export class WrBoxplotChartHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-boxplot-chart__grid-line')()) !== null;
   }
 
-  /** The value axis' tick labels, top to bottom; `[]` with `showGrid` off. */
+  /** Whether the value axis' scale is printed beside the plot (`showAxis`). */
+  async hasAxis(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-boxplot-chart__y-axis')()) !== null;
+  }
+
+  /**
+   * The message the chart shows in place of its boxes: "No data" with nothing to draw, or
+   * the loading or error message. `null` while it draws its boxes.
+   */
+  async getStateLabel(): Promise<string | null> {
+    const state = await this.locatorForOptional('.wr-chart-state')();
+    return state ? (await state.text()).trim() : null;
+  }
+
+  /** The value axis' tick labels, top to bottom; `[]` with `showAxis` off. */
   async getYTicks(): Promise<string[]> {
     const ticks = await this.locatorForAll('.wr-boxplot-chart__y-tick')();
     return Promise.all(ticks.map(tick => tick.text()));

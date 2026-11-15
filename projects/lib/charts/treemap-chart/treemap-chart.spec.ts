@@ -431,13 +431,13 @@ describe('WrTreemapChart', () => {
         tiles().map(tile => [tile.querySelector('.wr-treemap-chart__label')?.textContent.trim(), color(tile)])
       )
     ).toEqual({
-      A: 'var(--wr-color-primary)',
-      A1: 'var(--wr-color-primary)',
+      A: 'var(--wr-chart-1)',
+      A1: 'var(--wr-chart-1)',
       B: '#123456',
       B1: '#123456',
       B2: 'red',
       // The palette keeps counting by position, whatever B brought of its own.
-      C: 'var(--wr-color-warning)',
+      C: 'var(--wr-chart-3)',
     });
   });
 
@@ -598,28 +598,41 @@ describe('WrTreemapChart', () => {
 });
 
 describe('WrTreemapChart measured', () => {
-  type Callback = (entries: { contentRect: { width: number; height: number } }[]) => void;
-  let observed: { callback: Callback; disconnected: boolean } | null = null;
+  interface Entry {
+    target: Element;
+    contentRect: { width: number; height: number };
+  }
+  type Callback = (entries: Entry[]) => void;
+  /** Every observer built, with what it watches: the charts share one. */
+  let observers: { callback: Callback; targets: Set<Element> }[] = [];
 
   beforeEach(() => {
-    observed = null;
+    observers = [];
     vi.stubGlobal(
       'ResizeObserver',
       class {
-        private readonly record: { callback: Callback; disconnected: boolean };
+        private readonly record: { callback: Callback; targets: Set<Element> };
         constructor(callback: Callback) {
-          this.record = { callback, disconnected: false };
-          observed = this.record;
+          this.record = { callback, targets: new Set() };
+          observers.push(this.record);
         }
-        observe(): void {
+        observe(target: Element): void {
           // The callback is driven by hand below.
+          this.record.targets.add(target);
+        }
+        unobserve(target: Element): void {
+          this.record.targets.delete(target);
         }
         disconnect(): void {
-          this.record.disconnected = true;
+          this.record.targets.clear();
         }
       }
     );
   });
+
+  /** Reports a size for `plot`, as the shared observer's one callback a frame does. */
+  const report = (plot: Element, width: number, height: number): void =>
+    observers[0].callback([{ target: plot, contentRect: { width, height } }]);
 
   afterEach(() => vi.unstubAllGlobals());
 
@@ -642,8 +655,9 @@ describe('WrTreemapChart measured', () => {
     ]);
 
     // Measured 200 × 400: two squares one above the other.
-    expect(observed).not.toBeNull();
-    observed!.callback([{ contentRect: { width: 200, height: 400 } }]);
+    const plot = (fixture.nativeElement as HTMLElement).querySelector('.wr-treemap-chart__plot')!;
+    expect(observers).toHaveLength(1);
+    report(plot, 200, 400);
     fixture.detectChanges();
     expect(boxes()).toEqual([
       { start: 0, top: 0, width: 100, height: 50 },
@@ -651,12 +665,58 @@ describe('WrTreemapChart measured', () => {
     ]);
 
     // A hidden chart measures nothing, and keeps the layout it had.
-    observed!.callback([{ contentRect: { width: 0, height: 0 } }]);
+    report(plot, 0, 0);
     fixture.detectChanges();
     expect(boxes()[1].top).toBe(50);
 
     fixture.destroy();
-    expect(observed!.disconnected).toBe(true);
+    expect(observers[0].targets.size).toBe(0);
+  });
+
+  it('measures every treemap on the page through one observer', async () => {
+    TestBed.resetTestingModule();
+    const fixtures = [TestBed.createComponent(Host), TestBed.createComponent(Host), TestBed.createComponent(Host)];
+    for (const fixture of fixtures) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+
+    // One `ResizeObserver` delivers every chart's size in one callback a frame; each
+    // treemap built its own, so three charts were three observers and three callbacks.
+    expect(observers).toHaveLength(1);
+    expect(observers[0].targets.size).toBe(3);
+    for (const fixture of fixtures) fixture.destroy();
+  });
+
+  it('cuts no new layout for a fraction of a pixel', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.data.set([
+      { label: 'A', value: 5 },
+      { label: 'B', value: 3 },
+      { label: 'C', value: 2 },
+    ]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+    const plot = root.querySelector('.wr-treemap-chart__plot')!;
+    const styles = (): string[] =>
+      [...root.querySelectorAll<HTMLElement>('.wr-treemap-chart__tile')].map(tile => tile.getAttribute('style') ?? '');
+
+    report(plot, 301, 200);
+    fixture.detectChanges();
+    const cut = styles();
+
+    // A drag reports a new width every frame, most of them the same whole pixel: 301.3
+    // is the layout 301 already has, where it used to be cut again for each.
+    report(plot, 301.3, 200.2);
+    fixture.detectChanges();
+    expect(styles()).toEqual(cut);
+
+    report(plot, 120, 400);
+    fixture.detectChanges();
+    expect(styles()).not.toEqual(cut);
+    fixture.destroy();
   });
 });
 
@@ -711,7 +771,7 @@ class TooltipHost {
 
 /**
  * The tooltip follows the tile under the pointer, read off the element the pointer is
- * over, so jsdom can drive it with a `mousemove` on a tile. The chip is given a size and
+ * over, so jsdom can drive it with a `mouseover` on a tile. The chip is given a size and
  * the document one, and the case reads what the chip says and what the drawing marks;
  * where the chip paints is measured in a browser.
  */
@@ -733,7 +793,7 @@ describe('WrTreemapChart tooltip', () => {
         .join(' ')
     );
   const move = (target: Element): void => {
-    target.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+    target.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -760,9 +820,7 @@ describe('WrTreemapChart tooltip', () => {
 
     expect(heading()).toEqual(['Veg / Kale', '40']);
     // Veg is the second top-level node in the data, so the second palette colour.
-    expect(chip()!.querySelector<HTMLElement>('.wr-chart-tooltip__swatch')!.style.background).toBe(
-      'var(--wr-color-success)'
-    );
+    expect(chip()!.querySelector<HTMLElement>('.wr-chart-tooltip__swatch')!.style.background).toBe('var(--wr-chart-2)');
     expect(rows()).toEqual(['Share 40%']);
   });
 
@@ -803,7 +861,7 @@ describe('WrTreemapChart tooltip', () => {
       expect(chip()).not.toBeNull();
 
       root()
-        .querySelector('.wr-treemap-chart__plot')!
+        .querySelector('wr-treemap-chart')!
         .dispatchEvent(new MouseEvent('mouseleave', { relatedTarget: document.body }));
       vi.advanceTimersByTime(150);
       fixture.detectChanges();

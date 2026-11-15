@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDrawerFooter, WrDrawerTitle } from './directives';
 import { WrDrawer } from './drawer';
-import type { WrDrawerPosition } from './types';
+import type { WrDrawerAutoFocus, WrDrawerPosition } from './types';
 
 @Component({
   imports: [WrDrawer],
@@ -320,7 +320,7 @@ describe('WrDrawer without a backdrop', () => {
     template: `
       <button type="button" class="opener" (click)="open.set(true)">Open</button>
       <input class="page-field" />
-      <wr-drawer [(open)]="open" [hasBackdrop]="hasBackdrop()" [closable]="false">
+      <wr-drawer [(open)]="open" [hasBackdrop]="hasBackdrop()" [closable]="false" autoFocus="first-tabbable">
         <button type="button" class="inside">Inside</button>
       </wr-drawer>
     `,
@@ -806,4 +806,87 @@ describe('WrDrawerTitle template reference', () => {
 
     fixture.destroy();
   });
+});
+
+describe('WrDrawer autoFocus', () => {
+  @Component({
+    imports: [WrDrawer],
+    template: `
+      <button type="button" class="opener">Open</button>
+      <wr-drawer [(open)]="open" [closable]="false" [autoFocus]="mode()">
+        <button type="button" class="inside">Inside</button>
+        @if (marked()) {
+          <input class="wanted" cdkFocusInitial />
+        }
+      </wr-drawer>
+    `,
+  })
+  class AutoHost {
+    readonly open = signal(false);
+    readonly mode = signal<WrDrawerAutoFocus>('dialog');
+    readonly marked = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<AutoHost>>;
+  const q = (selector: string): HTMLElement => document.querySelector<HTMLElement>(selector)!;
+
+  const openIn = async (mode?: WrDrawerAutoFocus, marked = false): Promise<void> => {
+    if (mode !== undefined) fixture.componentInstance.mode.set(mode);
+    fixture.componentInstance.marked.set(marked);
+    fixture.detectChanges();
+    q('.opener').focus();
+    fixture.componentInstance.open.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    TestBed.tick();
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(AutoHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('focuses the panel by default', async () => {
+    await openIn();
+    expect(document.activeElement).toBe(q('.wr-drawer-overlay'));
+  });
+
+  it('focuses the first tabbable element with "first-tabbable"', async () => {
+    await openIn('first-tabbable');
+    expect(document.activeElement).toBe(q('.inside'));
+  });
+
+  it('leaves focus where it was with false', async () => {
+    await openIn(false);
+    expect(document.activeElement).toBe(q('.opener'));
+  });
+
+  for (const mode of ['first-tabbable', 'dialog', false] as const) {
+    it(`lets cdkFocusInitial win and returns focus on close, ${String(mode)}`, async () => {
+      await openIn(mode, true);
+      expect(document.activeElement).toBe(q('.wanted'));
+
+      fixture.componentInstance.open.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(document.activeElement).toBe(q('.opener'));
+    });
+
+    it(`keeps Tab inside, ${String(mode)}`, async () => {
+      await openIn(mode);
+      const anchors = document.querySelectorAll<HTMLElement>('.cdk-focus-trap-anchor');
+      anchors[anchors.length - 1].focus();
+      expect(document.activeElement).toBe(q('.inside'));
+    });
+  }
 });

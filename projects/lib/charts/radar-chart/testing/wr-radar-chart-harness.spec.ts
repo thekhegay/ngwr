@@ -78,7 +78,7 @@ describe('WrRadarChartHarness', () => {
   it('tells a closed outline from one left open across a missing value', async () => {
     expect(await chart.getPolygonCount()).toBe(2);
     expect(await chart.getPolygons()).toEqual([
-      { color: 'var(--wr-color-primary)', dash: '', closed: true },
+      { color: 'var(--wr-chart-1)', dash: '', closed: true },
       { color: '#123456', dash: '7 4', closed: false },
     ]);
     // Only the closed one is filled, and the missing value has no dot.
@@ -142,7 +142,7 @@ describe('WrRadarChartHarness', () => {
     // A series' wedges are one closed outline, and every one is filled — the missing
     // value is a missing wedge, so it has no dot.
     expect(await chart.getPolygons()).toEqual([
-      { color: 'var(--wr-color-primary)', dash: '', closed: true },
+      { color: 'var(--wr-chart-1)', dash: '', closed: true },
       { color: '#123456', dash: '7 4', closed: true },
     ]);
     expect(await chart.getAreaCount()).toBe(2);

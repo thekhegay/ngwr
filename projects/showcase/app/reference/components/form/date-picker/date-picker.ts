@@ -323,6 +323,13 @@ export class MyComponent {
       default: 'null',
     },
     {
+      name: 'autoFocus',
+      description:
+        'Move focus into the popup when a pointer press on the trigger button opens it. The keyboard always moves in.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
       name: 'panelClass',
       description: 'Extra classes for the popup’s overlay pane, as a string or an array.',
       type: 'WrClassInput',

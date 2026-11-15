@@ -11,4 +11,8 @@ import type { WrDialogConfirmOptions } from '../types';
 export type WrDialogConfirmData = Pick<
   WrDialogConfirmOptions,
   'title' | 'message' | 'confirmLabel' | 'cancelLabel' | 'confirmColor' | 'intent'
-> & { readonly alert?: boolean };
+> & {
+  readonly alert?: boolean;
+  /** Whether the safe button carries `cdkFocusInitial`: only under `autoFocus: 'first-tabbable'`. */
+  readonly focusInitial?: boolean;
+};

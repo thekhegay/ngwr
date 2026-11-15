@@ -37,7 +37,11 @@ export class WrGaugeHarness extends ComponentHarness {
 
   private readonly surface = this.locatorFor('.wr-gauge__surface');
 
-  /** The role the dial announces — `meter`, which is what a gauge is. */
+  /**
+   * The role the dial announces — `meter`, which is what a gauge is. Under `loading` or
+   * `error` it is a `group`: there is no reading to announce, so the value attributes are
+   * gone and the methods that read them say so.
+   */
   async getRole(): Promise<string | null> {
     return (await this.surface()).getAttribute('role');
   }

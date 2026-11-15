@@ -157,6 +157,21 @@ export default class MigrationPageComponent {
       after:
         'An `autoplay` `<wr-carousel>` draws a pause / play button. A letter typed on a select with no search field, a dropdown, a context menu or a tree jumps to the next row that starts with it.',
     },
+    {
+      before: '16.5',
+      after:
+        "Dialogs and drawers no longer focus their first control on open: the panel takes focus, with no ring. `confirm()` and `alert()` no longer focus their button. Set `autoFocus: 'first-tabbable'` to keep it.",
+    },
+    {
+      before: '16.5',
+      after:
+        "Nothing else focuses a control on open either. `[wrPopconfirm]`, `WrTour`, `<wr-lightbox>` and a window focus their panel, with no ring; `[wrPopover]` and `[wrColorPickerTrigger]` leave focus on the trigger, and Tab from it walks into the panel; a pointer press on the calendar button of `<wr-date-picker>` and `<wr-date-range-picker>` leaves focus on the button. Set `autoFocus` (`'first-tabbable'`, or `true` on the date pickers) to keep the old focus; on a tour it is the second argument of `start()`. On the three directives the input is prefixed: `wrPopconfirmAutoFocus`, `wrPopoverAutoFocus`, `wrColorPickerTriggerAutoFocus`.",
+    },
+    {
+      before: '16.5',
+      after:
+        'Menus no longer focus an item on open. `[wrDropdown]`, `<wr-cascader>` and `<wr-tree openOn="overlay">` leave focus on the trigger, and `[wrContextMenu]` on the element that had it. ArrowDown or ArrowUp then moves into the panel, and so does Tab on a cascader or a tree. To keep the old focus, add `wrDropdownAutoFocus` or `wrContextMenuAutoFocus` to the trigger, or `autoFocus` to the cascader or the tree. The command palette, the editor link panel and a date picker opened from the keyboard still focus on open.',
+    },
   ];
 
   /** What `migration-v15` does, before the tables say it per row. */

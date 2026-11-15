@@ -31,12 +31,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOverlayOrder, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
-import type { WrDrawerPosition } from './types';
+import type { WrDrawerAutoFocus, WrDrawerPosition } from './types';
 
 /**
  * Side panel that slides in from an edge of the viewport. Two-way binds
@@ -144,6 +144,15 @@ export class WrDrawer {
    * @default 'above'
    */
   readonly toasts = input<'above' | 'below'>('above');
+
+  /**
+   * Where focus goes when the drawer opens: `'dialog'` focuses the panel itself
+   * with no ring so the first Tab reaches the first control, `'first-tabbable'`
+   * focuses the first tabbable element, `false` moves nothing. An element
+   * marked `cdkFocusInitial` wins in every mode. Read when the drawer opens.
+   * @default 'dialog'
+   */
+  readonly autoFocus = input<WrDrawerAutoFocus>('dialog');
 
   protected readonly resolvedCloseLabel = useI18nText(this.closeLabel, 'drawer.close', 'Close drawer');
 
@@ -334,7 +343,7 @@ export class WrDrawer {
       // moves focus in — `cdkFocusInitial` honoured the same way — and then
       // lets Tab carry on out into the page.
       this.focusTrap = modal ? this.focusTrapFactory.create(host) : this.plainFocusTrapFactory.create(host, true);
-      void this.focusTrap.focusInitialElementWhenReady();
+      wrFocusOverlay(host, this.focusTrap, this.autoFocus(), this.injector);
     }
 
     if (this.closeOnBackdropClick()) {

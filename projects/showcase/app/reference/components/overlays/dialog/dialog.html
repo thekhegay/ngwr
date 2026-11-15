@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dialog"
-  updated="16.1.0"
+  updated="16.5.0"
   description="Open any component as a modal dialog and await its result."
   [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
   [labels]="['Service', 'Directives', 'CDK Dialog']"
@@ -183,9 +183,40 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Focus"
-    description="Focus moves to `cdkFocusInitial`, else to the first tabbable element, and returns to the trigger on close."
+    title="Initial focus"
+    description="`autoFocus` decides where focus goes on open. The default is `'dialog'`: the panel itself, with no ring, so the first Tab reaches the first control. Focus never stays behind the backdrop."
   >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">autoFocus</th>
+            <th scope="col">Focus on open</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>'dialog'</code> (default)</th>
+            <td>The panel itself, no ring</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>'first-tabbable'</code></th>
+            <td>The first tabbable element, ring included</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>false</code></th>
+            <td>Stays where it was</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A <code>cdkFocusInitial</code> in your own content wins in every mode. Set it per dialog in the open options, or
+      for the app in <code>withDialog()</code>. The trap and the return of focus to the trigger on close stay as they
+      are. <code>confirm()</code> and <code>alert()</code> put focus on their button, or on Cancel for a
+      <code>danger</code> question, only under <code>'first-tabbable'</code>.
+    </p>
+    <ngwr-doc-code [code]="snippets.autoFocus" language="typescript" />
     <ngwr-doc-code [code]="snippets.focus" language="angular-html" />
   </ngwr-doc-section>
 

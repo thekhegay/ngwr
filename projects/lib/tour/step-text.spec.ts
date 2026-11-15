@@ -99,8 +99,44 @@ describe('WrTour step text', () => {
     expect(popup().getAttribute('aria-describedby')).not.toBe(first);
   });
 
-  it('opens each step with focus on the button that walks the tour', async () => {
+  it('opens each step with focus on the card itself, and no button lit', async () => {
     tour.start(STEPS);
+    await settle();
+
+    expect(document.activeElement).toBe(popup());
+    expect(popup().getAttribute('tabindex')).toBe('-1');
+    expect(popup().querySelector('[cdkFocusInitial]')).toBeNull();
+
+    tour.next();
+    await settle();
+
+    expect(document.activeElement).toBe(popup());
+  });
+
+  it('leaves focus where it was under autoFocus: false, and keeps it in the tour once inside', async () => {
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    try {
+      opener.focus();
+      tour.start(STEPS, { autoFocus: false });
+      await settle();
+      expect(document.activeElement).toBe(opener);
+
+      const next = popup().querySelector<HTMLElement>('.wr-tour-popup__action--next')!;
+      next.focus();
+      next.click();
+      await settle();
+      expect(document.activeElement).toBe(popup());
+
+      tour.stop();
+      expect(document.activeElement).toBe(opener);
+    } finally {
+      opener.remove();
+    }
+  });
+
+  it('opens each step on the button that walks the tour under autoFocus: "first-tabbable"', async () => {
+    tour.start(STEPS, { autoFocus: 'first-tabbable' });
     await settle();
 
     const next = popup().querySelector<HTMLElement>('.wr-tour-popup__action--next')!;

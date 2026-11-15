@@ -4,7 +4,7 @@
 // Styles for the entry points this component's own markup renders. With `dataTable`, the
 // figures render as a `<wr-chart-table>` beside the stages, which its own sheet clips out
 // of sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/funnel-chart');
 
 .wr-funnel-chart {
@@ -16,36 +16,47 @@
   --wr-funnel-chart-column-gap: var(--wr-space-md);
   --wr-funnel-chart-label-max-width: 12rem;
   --wr-funnel-chart-track-min-width: 40%;
-  --wr-funnel-chart-label-font-size: var(--wr-text-sm);
-  --wr-funnel-chart-label-line-height: var(--wr-text-sm-leading);
-  --wr-funnel-chart-label-color: var(--wr-color-on-surface);
-  --wr-funnel-chart-value-font-size: var(--wr-text-sm);
-  --wr-funnel-chart-value-line-height: var(--wr-text-sm-leading);
+  // The stage names are the chart's category labels, in the size and the muted ink every
+  // chart on the theme writes its axis in; they were a step larger and in full ink.
+  --wr-funnel-chart-label-font-size: var(--wr-chart-label-size);
+  --wr-funnel-chart-label-line-height: var(--wr-text-xs-leading);
+  --wr-funnel-chart-label-color: var(--wr-chart-label);
+  // The values keep the full ink: they are the reading, not the frame.
+  --wr-funnel-chart-value-font-size: var(--wr-chart-label-size);
+  --wr-funnel-chart-value-line-height: var(--wr-text-xs-leading);
   --wr-funnel-chart-value-font-weight: var(--wr-font-weight-medium);
   --wr-funnel-chart-value-color: var(--wr-color-on-surface);
   // The conversions: under each value, and between the bars.
-  --wr-funnel-chart-conversion-font-size: var(--wr-text-xs);
+  --wr-funnel-chart-conversion-font-size: var(--wr-chart-label-size);
   --wr-funnel-chart-conversion-line-height: var(--wr-text-xs-leading);
-  --wr-funnel-chart-conversion-color: var(--wr-color-on-surface-muted);
+  --wr-funnel-chart-conversion-color: var(--wr-chart-label);
   // A bar is as tall as a value with its conversion under it, so every bar is the same
   // height whether its stage prints one line beside it or two; and as tall as its row if
   // that is taller, so the band above and below always meets its edge.
   --wr-funnel-chart-bar-height: calc(
     var(--wr-funnel-chart-value-line-height) + var(--wr-funnel-chart-conversion-line-height)
   );
-  --wr-funnel-chart-bar-radius: var(--wr-border-radius-sm);
+  --wr-funnel-chart-bar-radius: var(--wr-chart-bar-radius);
+  // A bar moving to a new value, and a stage dimming under the pointer.
+  --wr-funnel-chart-duration: var(--wr-chart-duration);
+  --wr-funnel-chart-ease: var(--wr-chart-ease);
   // The gap between two bars, which the band fills and the share of the stage above sits on.
   --wr-funnel-chart-gap-height: 1.5rem;
-  // The band is a faint wash of the two stages' colours: it carries no value of its own,
-  // only the narrowing the two bars' widths already state.
-  --wr-funnel-chart-band-opacity: 0.2;
-  // The share between the bars, on a wash of the surface: the band runs under it.
-  --wr-funnel-chart-gap-label-bg: color-mix(in srgb, var(--wr-color-surface) 85%, transparent);
-  --wr-funnel-chart-gap-label-padding-x: var(--wr-space-xs);
-  --wr-funnel-chart-gap-label-radius: var(--wr-border-radius-sm);
-  // The row the open tooltip is about, washed from edge to edge with the label and the
-  // figures inset from the wash.
-  --wr-funnel-chart-active-bg: var(--wr-color-hover);
+  // The band carries no value of its own, only the narrowing the two bars' widths already
+  // state, so it is the theme's track: one quiet solid in both schemes. It was a 20% wash
+  // of the two stages' colours. Those still arrive on the band as
+  // `--wr-funnel-chart-band-from` and `-to`, for an app that wants a gradient here.
+  --wr-funnel-chart-band-bg: var(--wr-chart-track);
+  --wr-funnel-chart-band-opacity: 1;
+  // The share between the bars, on a chip of the surface: the band runs under it.
+  --wr-funnel-chart-gap-label-bg: var(--wr-chart-separator);
+  --wr-funnel-chart-gap-label-padding-x: var(--wr-space-sm);
+  --wr-funnel-chart-gap-label-radius: var(--wr-border-radius-pill);
+  // The row the open tooltip is about, banded from edge to edge with the label and the
+  // figures inset from the band.
+  --wr-funnel-chart-active-bg: var(--wr-chart-band);
+  // The least the chart is tall while it has no stage to draw: empty, loading, an error.
+  --wr-funnel-chart-idle-height: 8rem;
   --wr-funnel-chart-stage-radius: var(--wr-border-radius-sm);
   --wr-funnel-chart-stage-padding-x: var(--wr-space-xs);
 
@@ -75,6 +86,12 @@
       minmax(var(--wr-funnel-chart-track-min-width), 1fr)
       max-content;
     column-gap: var(--wr-funnel-chart-column-gap);
+    // What the state message is laid over.
+    position: relative;
+
+    &--idle {
+      min-height: var(--wr-funnel-chart-idle-height);
+    }
   }
 
   &__stage,
@@ -121,18 +138,31 @@
     min-width: 0;
   }
 
-  // The component writes the width, a percentage of the track: the largest stage, or
-  // `max`, is the full track. Zero and below are written as `0%`, and the floor keeps a
-  // hairline there, so a stage of zero still shows where it is and has an anchor for the
-  // tooltip; a missing stage renders no bar at all.
+  // As wide as the track, and scaled to its share of it (`--wr-funnel-chart-bar-scale`, 0
+  // to 1, which the component writes): the largest stage, or `max`, is the full track. A
+  // new value moves a transform, which lays nothing out; it used to move `width`, and
+  // every frame of that laid the row out again. The corners are divided by the scale along
+  // the bar, so they are the same round at any length. A stage of zero or below is a
+  // hairline (`--hairline`), so it still shows where it is and has an anchor for the
+  // tooltip, and the floor on the scale keeps a sliver of a value from vanishing; a
+  // missing stage renders no bar at all.
   &__bar {
-    min-width: 1px;
-    border-radius: var(--wr-funnel-chart-bar-radius);
-    transition: width var(--wr-duration-slow) var(--wr-ease-out);
+    flex: none;
+    width: 100%;
+    transform: scaleX(max(var(--wr-funnel-chart-bar-scale, 1), 0.004));
+    border-radius: calc(var(--wr-funnel-chart-bar-radius) / max(var(--wr-funnel-chart-bar-scale, 1), 0.004)) /
+      var(--wr-funnel-chart-bar-radius);
+    transition: transform var(--wr-funnel-chart-duration) var(--wr-funnel-chart-ease);
     // The bar is an inline `background`, which forced colors resets to `Canvas`: every bar
     // would vanish into the page and leave its figures floating. The SVG charts keep their
     // fills there, so the HTML marks do too.
     forced-color-adjust: none;
+
+    &--hairline {
+      width: 1px;
+      transform: none;
+      border-radius: 0;
+    }
   }
 
   // Each figure shrunk to its text against the bar's side of the column, so its own
@@ -185,13 +215,11 @@
   // below, so a stage with a colour of its own carries it into its band.
   &__band {
     align-self: stretch;
-    background: linear-gradient(
-      var(--wr-funnel-chart-band-from, currentColor),
-      var(--wr-funnel-chart-band-to, currentColor)
-    );
+    background: var(--wr-funnel-chart-band-bg);
     opacity: var(--wr-funnel-chart-band-opacity);
-    transition: clip-path var(--wr-duration-slow) var(--wr-ease-out);
-    // Painted in the stages' colours, which forced colors would reset with the bars'.
+    // No transition: the shape is a `clip-path`, and the chart moves transforms and
+    // opacity only. The band takes its new shape at once while the bars catch up.
+    // Kept under forced colors, which would reset it with the bars'.
     forced-color-adjust: none;
   }
 
@@ -220,12 +248,12 @@
   }
 }
 
-// A bar that grows or shrinks to its new value is motion nothing asked for twice: the new
-// width is what matters, and it is drawn at once.
-@media (prefers-reduced-motion: reduce) {
-  .wr-funnel-chart__bar,
-  .wr-funnel-chart__band {
-    transition: none;
+// A bar entering the page grows from the funnel's axis, where the browser can start a
+// transition from a style of its own (`@starting-style`); elsewhere it is drawn at its
+// value. Under reduced motion the theme's duration is 0s, and it is drawn at once.
+@starting-style {
+  .wr-funnel-chart__bar:not(.wr-funnel-chart__bar--hairline) {
+    transform: scaleX(0);
   }
 }
 

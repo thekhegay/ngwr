@@ -63,9 +63,9 @@ function splitSelectors(list: string): string[] {
 
 /**
  * The stylesheet's rules with `&` resolved. The file is one `.wr-line-chart` block
- * nesting its rules one level deep, followed by `@media` blocks of plain rules written
- * with their whole selectors (the forced-colors overrides), and that is the only shape
- * this reads: anything it cannot place — a second nesting level, an at-rule or include
+ * nesting its rules one level deep, followed by plain rules written with their whole
+ * selectors (the tooltip chip's, which is drawn outside the chart) and `@media` blocks of
+ * such rules (the forced-colors overrides), and that is the only shape this reads: anything it cannot place — a second nesting level, an at-rule or include
  * inside the block, any other rule outside it — THROWS, because a rule it skipped is a
  * rule whose reach goes unchecked.
  */
@@ -109,8 +109,8 @@ function rules(): Rule[] {
 }
 
 /**
- * The rules of the `@media` blocks after the `.wr-line-chart` block, each written with its
- * whole selector. Anything else there — a bare rule, a nested block, another at-rule —
+ * The rules after the `.wr-line-chart` block, bare or in a `@media` block, each written
+ * with its whole selector. Anything else there — a nested block, another at-rule —
  * throws, for the reason {@link rules} gives.
  */
 function mediaRules(rest: string): Rule[] {
@@ -118,7 +118,19 @@ function mediaRules(rest: string): Rule[] {
   let code = rest.trim();
   while (code) {
     const media = /^@media[^{]*\{/.exec(code);
-    if (!media) throw new Error(`a rule after the \`.wr-line-chart\` block goes unread: ${code.slice(0, 60)}`);
+    if (!media) {
+      // A bare rule: one selector list and one flat body.
+      const open = code.indexOf('{');
+      const close = code.indexOf('}');
+      const selector = code.slice(0, Math.max(open, 0)).trim();
+      const body = code.slice(open + 1, close);
+      if (open < 0 || close < open || selector.startsWith('@') || selector.includes('&') || body.includes('{')) {
+        throw new Error(`a rule after the \`.wr-line-chart\` block goes unread: ${code.slice(0, 60)}`);
+      }
+      for (const part of splitSelectors(selector)) found.push({ selector: part, body });
+      code = code.slice(close + 1).trim();
+      continue;
+    }
     let i = media[0].length;
     for (; code[i] !== '}'; i++) {
       if (i >= code.length) throw new Error('an unclosed `@media` block after the `.wr-line-chart` block');
@@ -184,10 +196,11 @@ describe('wr-line-chart: which rules size each drawing', () => {
 
   afterEach(() => fixture.destroy());
 
-  it('sizes every swatch, in the legend and in the tooltip, by the swatch rule alone', () => {
+  it('sizes every swatch of the legend by the swatch rule alone', () => {
     const swatches = [...root().querySelectorAll('.wr-line-chart__swatch')];
-    // Two legend `<svg>`s and two tooltip `<span>`s: an empty list would pass the loop.
-    expect(swatches.map(el => el.tagName.toLowerCase())).toEqual(['svg', 'svg', 'span', 'span']);
+    // Two legend `<svg>`s: an empty list would pass the loop. The tooltip's swatches are
+    // the shared chip's own now, in the overlay.
+    expect(swatches.map(el => el.tagName.toLowerCase())).toEqual(['svg', 'svg']);
     for (const swatch of swatches) expect(sizedBy(swatch), swatch.outerHTML).toEqual(['.wr-line-chart__swatch']);
   });
 

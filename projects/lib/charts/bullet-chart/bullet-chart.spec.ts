@@ -355,8 +355,13 @@ describe('WrBulletChart', () => {
  * is stood in for: an observer the spec fires by hand, and tick labels 7px a character.
  */
 describe('WrBulletChart on a narrow drawing', () => {
-  type Callback = (entries: { contentRect: { width: number } }[]) => void;
-  let observed: { callback: Callback; disconnected: boolean } | null = null;
+  interface Entry {
+    target: Element;
+    contentRect: { width: number; height: number };
+  }
+  type Callback = (entries: Entry[]) => void;
+  /** The observer the charts share, with what it watches. */
+  let observed: { callback: Callback; targets: Set<Element> } | null = null;
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
   const ticks = (): string[] =>
@@ -364,7 +369,8 @@ describe('WrBulletChart on a narrow drawing', () => {
       tick.textContent.trim()
     );
   const layOut = async (width: number): Promise<void> => {
-    observed!.callback([{ contentRect: { width } }]);
+    const track = (fixture.nativeElement as HTMLElement).querySelector('.wr-bullet-chart__track')!;
+    observed!.callback([{ target: track, contentRect: { width, height: 24 } }]);
     await fixture.whenStable();
   };
 
@@ -373,16 +379,20 @@ describe('WrBulletChart on a narrow drawing', () => {
     vi.stubGlobal(
       'ResizeObserver',
       class {
-        private readonly record: { callback: Callback; disconnected: boolean };
+        private readonly record: { callback: Callback; targets: Set<Element> };
         constructor(callback: Callback) {
-          this.record = { callback, disconnected: false };
+          this.record = { callback, targets: new Set() };
           observed = this.record;
         }
-        observe(): void {
+        observe(target: Element): void {
           // The callback is driven by hand below.
+          this.record.targets.add(target);
+        }
+        unobserve(target: Element): void {
+          this.record.targets.delete(target);
         }
         disconnect(): void {
-          this.record.disconnected = true;
+          this.record.targets.clear();
         }
       }
     );
@@ -418,7 +428,7 @@ describe('WrBulletChart on a narrow drawing', () => {
     expect(ticks()).toEqual(['0', '100', '200', '300']);
 
     fixture.destroy();
-    expect(observed!.disconnected).toBe(true);
+    expect(observed!.targets.size).toBe(0);
   });
 
   it('measures labels that first appear after the drawing was measured', async () => {
@@ -574,7 +584,7 @@ describe('WrBulletChart tooltip', () => {
     chip()?.querySelector(`.wr-chart-tooltip__${name}`)?.textContent.trim() ?? null;
 
   const hover = (): void => {
-    drawing().dispatchEvent(new MouseEvent('mouseenter'));
+    drawing().dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -697,7 +707,7 @@ describe('WrBulletChart tooltip anchor', () => {
   });
 
   it("points at the bar's end a quarter of the way from the left", () => {
-    drawing().dispatchEvent(new MouseEvent('mouseenter'));
+    drawing().dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
 
     expect(pointedAt()).toBeCloseTo(150, 3);
@@ -707,7 +717,7 @@ describe('WrBulletChart tooltip anchor', () => {
     // The anchor reads the track's computed direction, which jsdom resolves from `dir`.
     fixture.componentInstance.dir.set('rtl');
     fixture.detectChanges();
-    drawing().dispatchEvent(new MouseEvent('mouseenter'));
+    drawing().dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
 
     expect(pointedAt()).toBeCloseTo(250, 3);

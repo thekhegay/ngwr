@@ -66,12 +66,14 @@ const REFUSAL_COPY: (Provider | EnvironmentProviders)[] = [
       [clearable]="clearable()"
       [disabled]="disabled()"
       [readonly]="readonly()"
+      [autoFocus]="autoFocus()"
       (touch)="touched.set(touched() + 1)"
     />
   `,
 })
 class Host {
   readonly picked = signal<Date | null>(new Date(2025, 0, 15, 10, 30));
+  readonly autoFocus = signal(false);
   readonly mode = signal<'date' | 'time' | 'datetime'>('date');
   readonly format = signal<string | null>('dd.MM.yyyy');
   readonly min = signal<Date | undefined>(undefined);
@@ -746,7 +748,43 @@ describe('WrDatePicker', () => {
       return event;
     };
 
-    it('moves focus to the roving day cell when opened from the trigger button', async () => {
+    /** A press: `detail` 1, where Enter or Space on the button (and `.click()`) report 0. */
+    const press = (): void => {
+      trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+      fixture.detectChanges();
+    };
+
+    it('leaves focus on the trigger button when a pointer press opens the panel', async () => {
+      trigger().focus();
+      press();
+      await fixture.whenStable();
+
+      expect(calendar()).not.toBeNull();
+      expect(document.activeElement).toBe(trigger());
+    });
+
+    it('moves into the panel a press opened on ArrowDown from the trigger button', async () => {
+      trigger().focus();
+      press();
+      await fixture.whenStable();
+      const event = new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true });
+      trigger().dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
+      expect(document.activeElement).toBe(ring());
+    });
+
+    it('moves focus into the panel on a pointer press under autoFocus', async () => {
+      fixture.componentInstance.autoFocus.set(true);
+      fixture.detectChanges();
+      trigger().focus();
+      press();
+      await fixture.whenStable();
+
+      expect(document.activeElement).toBe(ring());
+    });
+
+    it('moves focus to the roving day cell when Enter or Space on the trigger button opens it', async () => {
       trigger().focus();
       open();
       await fixture.whenStable();

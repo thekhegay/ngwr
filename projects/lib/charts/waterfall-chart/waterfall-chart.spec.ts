@@ -33,6 +33,7 @@ const PDI = '\u2069';
       [ariaLabel]="ariaLabel()"
       [showValues]="showValues()"
       [showGrid]="showGrid()"
+      [showAxis]="showAxis()"
       [showConnectors]="showConnectors()"
       [dataTable]="dataTable()"
       [valueFormat]="valueFormat()"
@@ -48,6 +49,7 @@ class Host {
   readonly ariaLabel = signal<string | null>(null);
   readonly showValues = signal(true);
   readonly showGrid = signal(true);
+  readonly showAxis = signal(true);
   readonly showConnectors = signal(true);
   readonly dataTable = signal(false);
   readonly valueFormat = signal<((value: number, context: WrWaterfallValueContext) => string) | null>(null);
@@ -80,7 +82,10 @@ describe('WrWaterfallChart', () => {
       step.style.getPropertyValue('--wr-waterfall-chart-hi'),
     ]);
   const totals = (): [number, number][] =>
-    steps().map(step => [Number(step.dataset['start']), Number(step.dataset['end'])]);
+    steps().map(step => {
+      const [start, end] = (step.dataset['step'] ?? '').split(' ').map(Number);
+      return [start, end];
+    });
   const kinds = (): string[] =>
     steps().map(step => {
       const kind = [...step.classList].find(c => /--(increase|decrease|flat|total)$/.test(c)) ?? '';
@@ -419,9 +424,13 @@ describe('WrWaterfallChart', () => {
     expect(names()[1]).toBe('Sales: +300, running total 700');
   });
 
-  it('draws the gridlines and ticks with `showGrid`, and the zero line either way', () => {
+  it('draws the gridlines with `showGrid` and the ticks with `showAxis`, and the zero line either way', () => {
     set(h => h.showGrid.set(false));
     expect(all('.wr-waterfall-chart__grid-line')).toHaveLength(0);
+    // The scale is its own input now: the ticks stay until `showAxis` is off.
+    expect(all('.wr-waterfall-chart__tick')).toHaveLength(5);
+
+    set(h => h.showAxis.set(false));
     expect(all('.wr-waterfall-chart__tick')).toHaveLength(0);
     expect(root().querySelector('.wr-waterfall-chart__y-axis')).toBeNull();
     expect(all('.wr-waterfall-chart__baseline')).toHaveLength(1);
@@ -545,7 +554,7 @@ describe('WrWaterfallChart tooltip', () => {
         .join(' ')
     );
   const hover = (index: number): void => {
-    steps()[index].dispatchEvent(new MouseEvent('mouseenter'));
+    steps()[index].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 
@@ -601,16 +610,16 @@ describe('WrWaterfallChart tooltip', () => {
   });
 
   it('points at the top edge of the hovered BAR, not at its full-height column', () => {
-    const bar = steps()[1].querySelector('.wr-waterfall-chart__bar')!;
+    // Worked out from the column's box and the ends the chart wrote, 50% and 87.5%: the
+    // bar is moved by a transform inside its clip, so its own box is not where it shows.
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-      if (this === bar) return new DOMRect(400, 300, 60, 90);
       if (this.classList.contains('wr-waterfall-chart__step')) return new DOMRect(400, 100, 60, 400);
       return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 120, 60) : new DOMRect();
     });
     hover(1);
 
     const style = document.querySelector<HTMLElement>('.wr-tooltip-overlay')!.parentElement!.style;
-    expect(768 - Number.parseFloat(style.bottom)).toBeCloseTo(300, 3);
+    expect(768 - Number.parseFloat(style.bottom)).toBeCloseTo(150, 3);
     expect(Number.parseFloat(style.left) + Number.parseFloat(style.width) / 2).toBeCloseTo(430, 3);
   });
 
@@ -638,9 +647,7 @@ describe('WrWaterfallChart stylesheet', () => {
   const css = compileSass(`@use 'charts/waterfall-chart/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
   const rule = (selector: string): string =>
     new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
-  const inRow = 'min(var(--wr-waterfall-chart-gap), 25% / var(--wr-waterfall-chart-steps, 1))';
-  const inStep =
-    'min(var(--wr-waterfall-chart-gap), 100% * var(--wr-waterfall-chart-steps, 1) / (3 * var(--wr-waterfall-chart-steps, 1) + 1))';
+  const gap = 'min(var(--wr-waterfall-chart-gap), 50%)';
 
   it('prints a figure whole or not at all: a wrapping line one figure tall, led by a zero-width item', () => {
     const value = rule('.wr-waterfall-chart__value');
@@ -649,7 +656,7 @@ describe('WrWaterfallChart stylesheet', () => {
     expect(value).toMatch(/overflow: hidden/);
     expect(value).toMatch(/block-size: var\(--wr-waterfall-chart-value-line-height\)/);
     // A quarter of the gap of padding either side, so two neighbours' figures stand apart.
-    expect(value).toContain(`padding-inline: calc(${inStep} / 4)`);
+    expect(value).toContain(`padding-inline: calc(${gap} / 4)`);
     const before = rule('.wr-waterfall-chart__value::before');
     expect(before).toMatch(/flex: 0 0 0/);
     expect(before).toMatch(/block-size: 100%/);
@@ -662,29 +669,32 @@ describe('WrWaterfallChart stylesheet', () => {
     expect(figure).toMatch(/unicode-bidi: plaintext/);
   });
 
-  it('holds every reader of the gap to a quarter of one step, in the box each one resolves against', () => {
+  it('holds every reader of the gap to half a band, each against the step it sits in', () => {
     // A fixed 8px gap squeezed the bars of a 150-step chart to nothing and pushed the page
-    // sideways. The track and the labels resolve a percentage against the row, the
-    // connector and the figure against a step; the two lengths are the same.
-    expect(rule('.wr-waterfall-chart__track')).toContain(`gap: ${inRow}`);
-    expect(rule('.wr-waterfall-chart__labels')).toContain(`gap: ${inRow}`);
-    expect(rule('.wr-waterfall-chart__connector')).toContain(`inline-size: ${inStep}`);
-    expect(rule('.wr-waterfall-chart__value')).toContain(`inset-inline: calc(${inStep} / -2)`);
+    // sideways. A step is a whole band now, with no gap between two, and the gap is a
+    // share of it by default: the bar, the connector and the figure all read the one
+    // length against the step's own width.
+    expect(rule('.wr-waterfall-chart')).toMatch(/--wr-waterfall-chart-gap: var\(--wr-chart-gap\)/);
+    expect(rule('.wr-waterfall-chart__track')).not.toMatch(/gap:/);
+    expect(rule('.wr-waterfall-chart__labels')).not.toMatch(/gap:/);
+    expect(rule('.wr-waterfall-chart__clip')).toContain(`inset-inline: calc(${gap} / 2)`);
+    expect(rule('.wr-waterfall-chart__connector')).toContain(`inline-size: ${gap}`);
+    expect(rule('.wr-waterfall-chart__connector')).toContain(`inset-inline-start: calc(100% - ${gap} / 2)`);
     expect(css).not.toMatch(/(?:gap|inline-size|inset-inline): var\(--wr-waterfall-chart-gap\)/);
   });
 
-  it('works out the step-relative cap to the same length as the row-relative one', () => {
-    // A step is an nth of the row less its share of the gaps: s = (W − (n − 1)g) / n.
+  it('leaves a bar at least half its band, whatever length the gap hook is given', () => {
     for (const [width, n, hook] of [
       [1000, 150, 8],
       [343, 40, 8],
       [1000, 12, 8],
       [300, 3, 8],
     ]) {
-      const gap = Math.min(hook, (0.25 * width) / n);
-      const step = (width - (n - 1) * gap) / n;
-      expect(Math.min(hook, (step * n) / (3 * n + 1))).toBeCloseTo(gap, 9);
-      expect(step).toBeGreaterThan(0);
+      const band = width / n;
+      const bar = band - Math.min(hook, band / 2);
+      expect(bar).toBeGreaterThanOrEqual(band / 2);
+      // A connector crosses exactly what two neighbouring bars leave between them.
+      expect(band - bar).toBeCloseTo(Math.min(hook, band / 2), 9);
     }
   });
 });

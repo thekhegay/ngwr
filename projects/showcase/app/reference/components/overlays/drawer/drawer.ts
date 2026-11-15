@@ -93,6 +93,9 @@ export class ChatComponent {
     this.ref.close('sent');
   }
 }`,
+    autoFocus: `this.drawers.open(FiltersComponent, { autoFocus: 'first-tabbable' });
+
+// <wr-drawer [(open)]="open" autoFocus="first-tabbable">…</wr-drawer>`,
     focus: `<wr-drawer [(open)]="open" position="right">
   <h2 wrDrawerTitle>Filters</h2>
   <div wrDrawerContent>
@@ -138,6 +141,13 @@ export class ChatComponent {
       description: "`'below'` keeps the global toast stack under the drawer while it is open.",
       type: "'above' | 'below'",
       default: "'above'",
+    },
+    {
+      name: 'autoFocus',
+      description:
+        "Where focus goes on open: the panel (`'dialog'`), the first tabbable element or nothing (`false`). `cdkFocusInitial` always wins.",
+      type: "'first-tabbable' | 'dialog' | false",
+      default: "'dialog'",
     },
   ];
 
@@ -211,6 +221,13 @@ export class ChatComponent {
       description: "`'below'` keeps the global toast stack under the drawer while it is open.",
       type: "'above' | 'below'",
       default: "'above'",
+    },
+    {
+      name: 'autoFocus',
+      description:
+        "Where focus goes on open: the panel (`'dialog'`), the first tabbable element or nothing (`false`). `cdkFocusInitial` always wins.",
+      type: "'first-tabbable' | 'dialog' | false",
+      default: "'dialog'",
     },
   ];
 

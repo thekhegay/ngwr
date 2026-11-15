@@ -128,7 +128,7 @@ export const INSTALL = {
       { path: "ngwr/charts/candlestick-chart", symbols: ["WrCandlestickChart"], declarables: ["WrCandlestickChart"], styled: true },
   ],
   "charts/chart-legend": [
-      { path: "ngwr/charts/chart-legend", symbols: ["WrChartLegend"], declarables: ["WrChartLegend"], styled: true },
+      { path: "ngwr/charts/chart-legend", symbols: ["WrChartLegend", "WrChartScale"], declarables: ["WrChartLegend", "WrChartScale"], styled: true },
   ],
   "charts/donut-chart": [
       { path: "ngwr/charts/donut-chart", symbols: ["WrDonutChart"], declarables: ["WrDonutChart"], styled: true },

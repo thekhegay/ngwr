@@ -1,14 +1,17 @@
 import { FocusMonitor, type FocusOrigin } from '@angular/cdk/a11y';
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Location } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, type Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { compileSass } from '../spec-sass';
+
 import { WrDrawerManager } from './drawer-manager';
 import type { WrDrawerRef } from './drawer-ref';
+import type { WrDrawerOptions } from './types';
 
 @Component({ template: '<p>panel body</p>' })
 class Panel {}
@@ -197,7 +200,11 @@ describe('WrDrawerManager without a backdrop', () => {
 
   const openPanel = async (hasBackdrop = false): Promise<WrDrawerRef<ButtonPanel>> => {
     opener.focus();
-    const ref = TestBed.inject(WrDrawerManager).open(ButtonPanel, { hasBackdrop, closable: false });
+    const ref = TestBed.inject(WrDrawerManager).open(ButtonPanel, {
+      hasBackdrop,
+      closable: false,
+      autoFocus: 'first-tabbable',
+    });
     TestBed.tick();
     await Promise.resolve();
     return ref;
@@ -364,5 +371,83 @@ describe('WrDrawerManager follows a direction change while a drawer is open', ()
     flip('rtl');
 
     expect(wrappers().map(w => w.getAttribute('dir'))).toEqual(['rtl']);
+  });
+});
+
+@Component({ template: '<input class="plain" /><input class="wanted" cdkFocusInitial />' })
+class FieldPanel {}
+
+describe('WrDrawerManager autoFocus', () => {
+  let opener: HTMLButtonElement;
+
+  const panel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-drawer__panel')!;
+  const settle = async (): Promise<void> => {
+    TestBed.tick();
+    await Promise.resolve();
+    TestBed.tick();
+    await new Promise(resolve => setTimeout(resolve));
+  };
+  const openWith = async (
+    options: WrDrawerOptions = {},
+    component: Type<unknown> = ButtonPanel
+  ): Promise<WrDrawerRef<unknown>> => {
+    opener.focus();
+    const ref = TestBed.inject(WrDrawerManager).open(component, { closable: false, ...options });
+    await settle();
+    return ref;
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+    TestBed.resetTestingModule();
+    opener = document.body.appendChild(document.createElement('button'));
+  });
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+    opener.remove();
+    vi.restoreAllMocks();
+  });
+
+  it('focuses the panel by default', async () => {
+    await openWith();
+    expect(document.activeElement).toBe(panel());
+    expect(panel().getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('focuses the first tabbable element with "first-tabbable"', async () => {
+    await openWith({ autoFocus: 'first-tabbable' });
+    expect(document.activeElement).toBe(document.querySelector('.inside'));
+  });
+
+  it('leaves focus where it was with false', async () => {
+    await openWith({ autoFocus: false });
+    expect(document.activeElement).toBe(opener);
+  });
+
+  for (const mode of ['first-tabbable', 'dialog', false] as const) {
+    for (const hasBackdrop of [true, false]) {
+      it(`lets cdkFocusInitial win and returns focus on close, ${String(mode)}, backdrop ${hasBackdrop}`, async () => {
+        const ref = await openWith({ autoFocus: mode, hasBackdrop }, FieldPanel);
+        expect(document.activeElement).toBe(document.querySelector('.wanted'));
+        ref.close();
+        await settle();
+        expect(document.activeElement).toBe(opener);
+      });
+    }
+
+    it(`keeps a modal drawer's Tab inside, ${String(mode)}`, async () => {
+      await openWith({ autoFocus: mode });
+      const anchors = document.querySelectorAll<HTMLElement>('.cdk-focus-trap-anchor');
+      anchors[anchors.length - 1].focus();
+      expect(document.activeElement).toBe(document.querySelector('.inside'));
+    });
+  }
+
+  it('draws no ring on the panel', () => {
+    const css = compileSass("@use 'drawer/styles';");
+    expect(css).toMatch(/\.wr-drawer-overlay:focus\s*\{[^}]*outline:\s*none/);
   });
 });

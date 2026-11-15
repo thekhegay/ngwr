@@ -1,3 +1,21 @@
+@let shown = state();
+@let key = legend();
+@let keyed = legendShown() && !shown;
+
+@if (keyed && legendPosition() === 'top') {
+  <!-- The scale key, before the grid or after it so it is in the DOM where it is on
+       screen. Hidden, as an axis' ticks are on every chart: the grid's name is what is
+       announced, and the counts are in the data table. -->
+  <wr-chart-scale
+    class="wr-calendar-heatmap__legend"
+    aria-hidden="true"
+    position="top"
+    [steps]="key.steps"
+    [minLabel]="key.min"
+    [maxLabel]="key.max"
+  />
+}
+
 <div
   #grid
   class="wr-calendar-heatmap__grid"
@@ -15,17 +33,21 @@
     </div>
   }
 
-  <div #days class="wr-calendar-heatmap__cells" (mousemove)="onCellsPointer($event)" (mouseleave)="tip.leave($event)">
+  <!-- The pointer is heard here by listeners the component adds itself, and the reading
+       day's ring is set by hand: nothing in this template follows the pointer, so a move
+       across the year checks no square. A square's paint is its level's, a step of the
+       sequential scale, or the track for a day of nothing. -->
+  <div #days class="wr-calendar-heatmap__cells">
     @for (cell of cells(); track cell.iso) {
       <span
         class="wr-calendar-heatmap__cell"
-        [style.background]="colorFor(cell.intensity)"
-        [style.opacity]="opacityFor(cell.intensity)"
+        [style.background]="cell.paint"
         [style.grid-column]="cell.week + 1"
         [style.grid-row]="cell.day + 1"
         [attr.title]="titles()?.[$index] ?? null"
         [attr.data-date]="cell.iso"
         [attr.data-value]="cell.value"
+        [attr.data-level]="cell.level"
         aria-hidden="true"
       ></span>
     }
@@ -39,6 +61,23 @@
     </div>
   }
 </div>
+
+@if (shown) {
+  <!-- Under the grid, in the scale key's place, and never inside the grid's `img`, which
+       makes everything it holds presentational: the message is a live region. -->
+  <div class="wr-calendar-heatmap__status">
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  </div>
+} @else if (keyed && legendPosition() === 'bottom') {
+  <wr-chart-scale
+    class="wr-calendar-heatmap__legend"
+    aria-hidden="true"
+    position="bottom"
+    [steps]="key.steps"
+    [minLabel]="key.min"
+    [maxLabel]="key.max"
+  />
+}
 
 @if (dataTable()) {
   <!-- The figures for a screen reader, beside the grid's `img` and never inside it: `img`

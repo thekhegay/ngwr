@@ -21,6 +21,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import type { WrOverlayAutoFocus } from 'ngwr/overlay';
 import { WrStorage } from 'ngwr/storage';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -65,8 +66,8 @@ export class WrWindowContainer<C> {
   componentType!: ComponentType<C>;
   /** Custom injector with `WR_WINDOW_REF` / `WR_WINDOW_DATA` populated. */
   childInjector!: Injector;
-  /** Set by the manager: move focus into the window once it has rendered. */
-  autoFocus = true;
+  /** Set by the manager: where focus goes once the window has rendered. */
+  autoFocus: WrOverlayAutoFocus = 'dialog';
 
   private readonly hostInjector = inject(Injector);
   private readonly manager = inject(WrWindowManager);
@@ -107,6 +108,7 @@ export class WrWindowContainer<C> {
     //    and a window coming back from the taskbar is still `display: none`
     //    until its class updates.
     const w = this.wrWindow();
+    w.initialFocus = this.autoFocus || 'dialog';
     const model = this.ref._model;
     this.ref._focusWindow = mode =>
       afterNextRender(

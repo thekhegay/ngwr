@@ -37,15 +37,16 @@
       {{ backLabel() }}
     </button>
   }
-  <!-- Focus opens on the button that walks the tour, not on Skip, the first in the
-       row: the focus trap reads `cdkFocusInitial`, as the confirm dialog has it. -->
+  <!-- Under `autoFocus: 'first-tabbable'` focus opens on the button that walks the
+       tour, not on Skip, the first in the row: the focus trap reads
+       `cdkFocusInitial`, as the confirm dialog has it. -->
   <button
     wr-btn
     type="button"
     size="sm"
     color="primary"
     class="wr-tour-popup__action wr-tour-popup__action--next"
-    [attr.cdkFocusInitial]="''"
+    [attr.cdkFocusInitial]="tour.focusNext() ? '' : null"
     (click)="tour.next()"
   >
     {{ isLast() ? doneLabel() : nextLabel() }}

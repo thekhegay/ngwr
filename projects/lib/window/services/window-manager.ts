@@ -372,7 +372,8 @@ export class WrWindowManager implements WrWindowRefHost {
     // A window `restoreLayout()` re-opens stays out of focus's way unless its
     // opener says otherwise: a workspace of five windows coming back must not
     // pull focus through each of them and leave it in whichever came last.
-    container.autoFocus = config.autoFocus ?? !pending;
+    const autoFocus = config.autoFocus ?? (pending ? false : 'dialog');
+    container.autoFocus = autoFocus === true ? 'dialog' : autoFocus;
     ref._returnFocus = opener;
 
     // No role on the pane: `<wr-window>` inside it is the named `role="dialog"`,

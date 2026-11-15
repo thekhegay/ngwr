@@ -151,9 +151,10 @@ export class WrCascaderOptionHarness extends ComponentHarness {
    * handler).
    *
    * Sent to THIS option, wherever the caret is. A keyboard user reaches it with
-   * the arrows (and type-ahead) from the panel's one tab stop — opening the panel
-   * moves focus onto the selected path's leaf, else the first enabled root — and
-   * Tab leaves the panel rather than walking it. Call {@link focus} first when a
+   * the arrows (and type-ahead) from the panel's one tab stop — ArrowDown or Tab
+   * on the trigger of an open panel moves focus onto the selected path's leaf,
+   * else the first enabled root; opening alone moves nothing unless `autoFocus`
+   * is set — and Tab leaves the panel rather than walking it. Call {@link focus} first when a
    * spec wants the caret where a reader's would be.
    */
   async selectByKeyboard(): Promise<void> {

@@ -1,17 +1,28 @@
 <ngwr-doc-page
   title="Waterfall Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="How a figure gets from one value to another, one change at a time."
   [keywords]="['waterfall-chart', 'waterfall', 'bridge-chart', 'wr-waterfall-chart']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="A change floats from the running total. A total is a bar from zero. Up, down and total each have their own colour, sign and direction."
+    description="A change floats from the running total. A total is a bar from zero. Up and down keep their status colours, a total takes the first palette colour. Each bar is rounded on the end it runs to, and a connector carries the running total to the next."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-waterfall-chart style="width: 100%" ariaLabel="Profit bridge" [steps]="bridge" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Value labels"
+    description="`showValues` prints each figure past the end of its bar: a change with its sign, a total without. Off by default, since the scale, the tooltip and each step's name carry the figures. A figure too wide for its column is left out, never cut."
+  >
+    <ngwr-doc-code [code]="snippets.values" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-waterfall-chart style="width: 100%" ariaLabel="Profit bridge" showValues [steps]="bridge" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -32,13 +43,13 @@
   >
     <ngwr-doc-code [code]="snippets.negative" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-waterfall-chart style="width: 100%" ariaLabel="Cash flow" [steps]="cash" />
+      <wr-waterfall-chart style="width: 100%" ariaLabel="Cash flow" showValues [steps]="cash" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Colours"
-    description="`increaseColor`, `decreaseColor` and `totalColor` take any CSS colour. Success, danger and primary by default."
+    description="`increaseColor`, `decreaseColor` and `totalColor` take any CSS colour. Success, danger and `--wr-chart-1` by default."
   >
     <ngwr-doc-code [code]="snippets.colors" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -53,28 +64,90 @@
 
   <ngwr-doc-section
     title="Number format"
-    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it, and is told where each figure goes: `'label'` past a bar, `'tick'` on the axis, `'value'` in the tooltip, the names and the data table. So the drawing can go compact and the rest stay exact. Every figure arrives as its magnitude, and the chart writes the sign. A figure too wide for its column is left out, never cut."
+    description="Numbers follow `LOCALE_ID`. `valueFormat` replaces it, and is told where each figure goes: `'label'` past a bar, `'tick'` on the axis, `'value'` in the tooltip, the names and the data table. So the drawing can go compact and the rest stay exact. Every figure arrives as its magnitude, and the chart writes the sign."
   >
     <ngwr-doc-code [code]="snippets.format" language="angular-html" />
     <ngwr-doc-code [code]="snippets.formatTs" language="angular-ts" />
     <ngwr-doc-snippet code="">
-      <wr-waterfall-chart style="width: 100%" ariaLabel="Profit bridge" [steps]="bridge" [valueFormat]="format" />
+      <wr-waterfall-chart
+        style="width: 100%"
+        ariaLabel="Profit bridge"
+        showValues
+        [steps]="bridge"
+        [valueFormat]="format"
+      />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Quieter"
-    description="`showValues`, `showGrid` and `showConnectors` each turn one layer off. Keep the figures or the connectors: with both off, only colour tells up from down. The names, the tooltip and the data table keep every figure."
+    title="Grid, axis and connectors"
+    description="`showGrid` draws the gridlines and `showAxis` the scale beside them; the zero line stays either way. `showConnectors` draws the line between two bars. Keep the figures or the connectors: with both off, only colour and the rounded end tell up from down."
   >
-    <ngwr-doc-code [code]="snippets.quiet" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-waterfall-chart
-        style="width: 100%"
-        ariaLabel="Profit bridge"
-        [steps]="bridge"
-        [showValues]="false"
-        [showGrid]="false"
-      />
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showGrid]="false"</code>
+          </p>
+          <wr-waterfall-chart ariaLabel="Profit bridge" [steps]="bridge" [showGrid]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showAxis]="false"</code>
+          </p>
+          <wr-waterfall-chart ariaLabel="Profit bridge" [steps]="bridge" [showAxis]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Both off, values printed</p>
+          <wr-waterfall-chart
+            ariaLabel="Profit bridge"
+            showValues
+            [steps]="bridge"
+            [showGrid]="false"
+            [showAxis]="false"
+          />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showConnectors]="false"</code>
+          </p>
+          <wr-waterfall-chart ariaLabel="Profit bridge" showValues [steps]="bridge" [showConnectors]="false" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no step the chart keeps its frame and says so. `loading` and `error` put their message in place of the bars. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-waterfall-chart ariaLabel="Profit bridge" [steps]="[]" [height]="140" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-waterfall-chart ariaLabel="Profit bridge" loading [steps]="bridge" [height]="140" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-waterfall-chart
+            ariaLabel="Profit bridge"
+            error
+            errorLabel="The bridge is unavailable"
+            [steps]="bridge"
+            [height]="140"
+          />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -109,13 +182,14 @@
           <tr>
             <th scope="row">Up, down, total</th>
             <td>
-              Told apart by direction, by a <code>+</code> or <code>−</code> sign and by a heavier total label, not only
-              colour. Turning off both <code>showValues</code> and <code>showConnectors</code> leaves only colour.
+              Told apart by direction, by the connector a change starts from, by a <code>+</code> or <code>−</code> sign
+              with <code>showValues</code> and by a heavier total label, not only colour. With
+              <code>showValues</code> off, as it is by default, keep <code>showConnectors</code> on.
             </td>
           </tr>
           <tr>
             <th scope="row">Zero change</th>
-            <td>A neutral hairline, printed <code>0</code>. Not an increase.</td>
+            <td>A neutral hairline, named and printed <code>0</code>. Not an increase.</td>
           </tr>
           <tr>
             <th scope="row">Tooltip</th>

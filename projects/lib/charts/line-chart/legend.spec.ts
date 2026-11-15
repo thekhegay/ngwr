@@ -54,7 +54,7 @@ describe('WrLineChart legend', () => {
   const lines = (): SVGPathElement[] => [...root().querySelectorAll<SVGPathElement>('.wr-line-chart__line')];
   const ticks = (): string[] => [...root().querySelectorAll('.wr-line-chart__tick')].map(t => t.textContent.trim());
   const tooltipRows = (): string[] =>
-    [...root().querySelectorAll('.wr-line-chart__tooltip-name')].map(el => el.textContent.trim());
+    [...document.querySelectorAll('.wr-chart-tooltip__row-label')].map(el => el.textContent.trim());
   const drawing = (): SVGSVGElement => root().querySelector<SVGSVGElement>('.wr-line-chart__svg')!;
   const render = (): void => fixture.detectChanges();
 
@@ -137,9 +137,9 @@ describe('WrLineChart legend', () => {
     expect(rows()[1].classList).toContain('wr-chart-legend__item--hidden');
     expect(lines()).toHaveLength(2);
     expect(lines().map(line => line.getAttribute('stroke'))).toEqual([
-      'var(--wr-color-primary)',
+      'var(--wr-chart-1)',
       // The third series keeps its own colour and dash: they belong to its position.
-      'var(--wr-color-warning)',
+      'var(--wr-chart-3)',
     ]);
     expect(lines()[1].getAttribute('stroke-dasharray')).toBe('2 3');
     // Refitted to the series still shown: Visits peaks at 30.
@@ -214,7 +214,7 @@ describe('WrLineChart legend', () => {
     expect(ticks()).toEqual(['1', '0.75', '0.5', '0.25', '0']);
 
     hoverAt(300);
-    expect(root().querySelector('.wr-line-chart__tooltip')).toBeNull();
+    expect(document.querySelector('.wr-chart-tooltip')).toBeNull();
     expect(root().querySelector('.wr-line-chart__crosshair')).toBeNull();
   });
 

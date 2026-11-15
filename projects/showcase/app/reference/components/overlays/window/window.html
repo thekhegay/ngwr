@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Window"
-  updated="15.1.0"
+  updated="16.5.0"
   description="Draggable, resizable windows that you open from code with `WrWindowManager`."
   [keywords]="['window', 'floating', 'panel', 'wr-window', 'taskbar', 'snap']"
   [labels]="['Service', 'a11y']"
@@ -217,9 +217,10 @@
   >
     <ngwr-doc-code [code]="snippets.focus" language="angular-ts" />
     <p>
-      Opening focuses <code>cdkFocusInitial</code>, else the first control in the body, else the window. Switching back
-      to a window lands on the control it had last. Windows that <code>restoreLayout()</code> reopens keep focus where
-      it is unless the opener passes <code>autoFocus: true</code>.
+      Opening focuses <code>cdkFocusInitial</code>, else the window itself, with no ring. Pass
+      <code>autoFocus: 'first-tabbable'</code> to open on the first control in the body. Switching back to a window
+      lands on the control it had last. Windows that <code>restoreLayout()</code> reopens keep focus where it is unless
+      the opener passes an <code>autoFocus</code> mode.
     </p>
   </ngwr-doc-section>
 

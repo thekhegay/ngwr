@@ -4,19 +4,50 @@
 // Styles for the entry points this component's own markup renders. With `dataTable`, the
 // figures render as a `<wr-chart-table>` beside the grid, which its own sheet clips out of
 // sight.
-@use '../../core/styles' as core-styles; // WrChartTable
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
+@use '../../chart-legend/styles' as chart-legend-styles; // WrChartScale
 @include theme.loaded('charts/calendar-heatmap');
 
 .wr-calendar-heatmap {
   --wr-calendar-heatmap-font-family: var(--wr-font-family-base);
   --wr-calendar-heatmap-grid-gap: var(--wr-space-sm);
-  --wr-calendar-heatmap-weekday-font-size: var(--wr-text-xs);
+  --wr-calendar-heatmap-weekday-font-size: var(--wr-chart-label-size);
   --wr-calendar-heatmap-weekday-line-height: var(--wr-leading-none);
-  --wr-calendar-heatmap-month-font-size: var(--wr-text-xs);
+  --wr-calendar-heatmap-month-font-size: var(--wr-chart-label-size);
   // The weekday and month names, muted as an axis' labels are on every chart.
-  --wr-calendar-heatmap-label-color: var(--wr-color-on-surface-muted);
+  --wr-calendar-heatmap-label-color: var(--wr-chart-label);
+  // What a colour of the chart's own is stepped toward.
+  --wr-calendar-heatmap-surface: var(--wr-color-surface);
+  // The five levels of a day of something: the chart theme's sequential scale, the first
+  // palette colour stepped toward the surface, so the scale turns over with the scheme and
+  // an app that retints the theme retints the calendar. They were four steps of opacity
+  // over one colour.
+  --wr-calendar-heatmap-step-1: var(--wr-chart-seq-1);
+  --wr-calendar-heatmap-step-2: var(--wr-chart-seq-2);
+  --wr-calendar-heatmap-step-3: var(--wr-chart-seq-3);
+  --wr-calendar-heatmap-step-4: var(--wr-chart-seq-4);
+  --wr-calendar-heatmap-step-5: var(--wr-chart-seq-5);
+  // A day of nothing: the track every chart paints an unfilled scale with.
+  --wr-calendar-heatmap-empty: var(--wr-chart-track);
+  // The chart theme's radius, small enough for a square a dozen pixels wide.
+  --wr-calendar-heatmap-cell-radius: var(--wr-chart-bar-radius);
+  // A faint line inside every square's edge, in the text colour: the lowest level is a
+  // tint of the surface (1.3:1 against it in light, 1.2:1 in dark), and the edge is what
+  // keeps it readable as a day of something. On the higher levels it disappears into the
+  // paint.
+  --wr-calendar-heatmap-cell-edge: color-mix(in srgb, var(--wr-color-on-surface) 14%, transparent);
+  // The day the tooltip reads, and the one under the pointer, ringed just outside its
+  // edge: the ring the heatmap draws round its reading cell. It was a square grown by 40%.
+  --wr-calendar-heatmap-active-ring: var(--wr-color-on-surface);
+  --wr-calendar-heatmap-active-ring-width: 2px;
+  // The scale key under the grid, and the message that takes its place.
+  --wr-calendar-heatmap-legend-space: var(--wr-space-sm);
 
-  display: inline-block;
+  // One column as wide as the year, which the grid, the scale key and the state message
+  // share: the key is then placed, and held, against the year's own width rather than
+  // the scroller's.
+  display: inline-grid;
+  grid-template-columns: max-content;
   // The containing block of the out-of-flow `dataTable` copy, as on every chart that
   // renders one: in a scroller it would otherwise keep its place in the scrolled content.
   position: relative;
@@ -37,6 +68,32 @@
   overflow-y: hidden;
   font-family: var(--wr-calendar-heatmap-font-family);
   color: var(--wr-calendar-heatmap-label-color);
+
+  // A colour of the chart's own (`color`): the same five steps, from that colour toward
+  // the surface, in the shares the chart theme steps its own scale by.
+  &--tinted {
+    --wr-calendar-heatmap-step-1: color-mix(
+      in srgb,
+      var(--wr-calendar-heatmap-scale-color) 20%,
+      var(--wr-calendar-heatmap-surface)
+    );
+    --wr-calendar-heatmap-step-2: color-mix(
+      in srgb,
+      var(--wr-calendar-heatmap-scale-color) 40%,
+      var(--wr-calendar-heatmap-surface)
+    );
+    --wr-calendar-heatmap-step-3: color-mix(
+      in srgb,
+      var(--wr-calendar-heatmap-scale-color) 60%,
+      var(--wr-calendar-heatmap-surface)
+    );
+    --wr-calendar-heatmap-step-4: color-mix(
+      in srgb,
+      var(--wr-calendar-heatmap-scale-color) 80%,
+      var(--wr-calendar-heatmap-surface)
+    );
+    --wr-calendar-heatmap-step-5: var(--wr-calendar-heatmap-scale-color);
+  }
 
   // The host is a tab stop while it scrolls (see the component), so the keyboard can move
   // it. Outset: an element's own `overflow` does not clip its outline.
@@ -93,33 +150,67 @@
   &__cells {
     grid-area: cells;
     grid-template-rows: repeat(7, var(--wr-calendar-heatmap-cell-size));
-    // The bottom row sits on the host's own edge, and the host now clips its
-    // block axis (see above) — so the 40% a hovered cell grows by, half of it
-    // below the row, had nowhere to go. Reserve that half. Scaled from the cell
-    // size rather than written as a length, because the size is an input.
-    padding-block-end: calc(var(--wr-calendar-heatmap-cell-size) * 0.2);
+    // The bottom row sits on the host's own edge, and the host clips its block axis (see
+    // above), so the ring round a day of that row, drawn outside the square, had nowhere
+    // to go. Reserve it: the ring's width and the pixel it stands off by.
+    padding-block-end: calc(var(--wr-calendar-heatmap-active-ring-width) + 1px);
   }
 
   &__cell {
     width: var(--wr-calendar-heatmap-cell-size);
     height: var(--wr-calendar-heatmap-cell-size);
-    // 2px — intentional micro-radius for the tiny (~11px) cells; the control /
-    // border-radius tokens (5px+) would read as near-circles at this size.
-    border-radius: 2px;
-    transition: transform var(--wr-transition-base);
+    border-radius: var(--wr-calendar-heatmap-cell-radius);
+    box-shadow: inset 0 0 0 1px var(--wr-calendar-heatmap-cell-edge);
     // An inline `background`, which forced colors resets to `Canvas`: the whole
     // year vanished and left the month and weekday labels. The SVG charts keep
     // their fills there, so the squares do too.
     forced-color-adjust: none;
 
-    &:hover {
-      transform: scale(1.4);
+    // The day under the pointer, and the one the tooltip reads while the pointer is on its
+    // way to the chip (`--active`, set by hand on that one square): ringed at once, with
+    // no transition, so a pointer crossing the year tweens nothing.
+    &:hover,
+    &--active {
+      outline: var(--wr-calendar-heatmap-active-ring-width) solid var(--wr-calendar-heatmap-active-ring);
+      outline-offset: 1px;
     }
+  }
 
-    // The hovered square still grows, so the pointer's place stays marked; it just lands
-    // there at once rather than tweening on every square the pointer crosses.
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
+  // The scale key and the state message sit in the scroller with the grid, which is as
+  // wide as the year: held to the scroller's inline end, where the newest weeks are, they
+  // stay in sight wherever the year is scrolled to.
+  &__legend,
+  &__status {
+    justify-self: end;
+    position: sticky;
+    inset-inline-end: 0;
+  }
+
+  &__legend {
+    --wr-chart-legend-space: var(--wr-calendar-heatmap-legend-space);
+    --wr-chart-scale-step-width: var(--wr-calendar-heatmap-cell-size, 0.75rem);
+    --wr-chart-scale-step-height: var(--wr-calendar-heatmap-cell-size, 0.75rem);
+    --wr-chart-scale-step-radius: var(--wr-calendar-heatmap-cell-radius);
+    --wr-chart-scale-step-edge: var(--wr-calendar-heatmap-cell-edge);
+    --wr-chart-scale-color: var(--wr-calendar-heatmap-label-color);
+  }
+
+  &__status {
+    margin-block-start: var(--wr-calendar-heatmap-legend-space);
+
+    // In flow here, where the shared rule lays the message over a positioned plot.
+    > .wr-chart-state {
+      position: static;
+      padding: 0;
     }
+  }
+}
+
+// The squares keep their colours under forced colors, so the ring drawn in a theme colour
+// would keep a colour the forced palette no longer has.
+@media (forced-colors: active) {
+  .wr-calendar-heatmap__cell:hover,
+  .wr-calendar-heatmap__cell--active {
+    outline-color: Highlight;
   }
 }

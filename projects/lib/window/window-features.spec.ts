@@ -131,7 +131,7 @@ describe('WrWindow features', () => {
     });
 
     it('does not press the focused button with the Enter that ends the mode', () => {
-      open();
+      open({ autoFocus: 'first-tabbable' });
       expect(document.activeElement?.className).toBe('inner');
       key(document.activeElement!, { key: 'F7', altKey: true });
       key(document.activeElement!, { key: 'ArrowLeft' });

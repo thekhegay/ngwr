@@ -11,6 +11,14 @@ import type { WrClassInput } from 'ngwr/utils';
 export type WrDialogRole = 'dialog' | 'alertdialog';
 
 /**
+ * What a dialog does with focus when it opens: `'first-tabbable'` focuses the
+ * first tabbable element, `'dialog'` focuses the panel itself (no ring, so the
+ * first Tab reaches the first control), `false` moves nothing. An element with
+ * `cdkFocusInitial` wins in every mode.
+ */
+export type WrDialogAutoFocus = 'first-tabbable' | 'dialog' | false;
+
+/**
  * Options accepted by `WrDialog.open()`.
  */
 export interface WrDialogOptions<D = unknown> {
@@ -75,4 +83,15 @@ export interface WrDialogOptions<D = unknown> {
    * @default 'above'
    */
   readonly toasts?: 'above' | 'below';
+  /**
+   * Where focus goes when the dialog opens. `'dialog'` focuses the panel itself,
+   * with no ring, so the first Tab goes to the first control. `'first-tabbable'`
+   * focuses the first tabbable element, which lights the focus ring on a button
+   * when the user pressed nothing. `false` leaves focus where it was. The default is `'dialog'`: a modal that moves no focus strands keyboard
+   * users, and `'first-tabbable'` is the explicit opt-in. An
+   * element marked `cdkFocusInitial` wins in every mode. The focus trap and the
+   * return of focus to the opener on close do not change.
+   * @default 'dialog', or what `withDialog()` sets
+   */
+  readonly autoFocus?: WrDialogAutoFocus;
 }

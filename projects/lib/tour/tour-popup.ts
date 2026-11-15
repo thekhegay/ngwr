@@ -31,6 +31,8 @@ export interface WrTourController {
    * would put a Back button on the very first card.
    */
   readonly isFirst: () => boolean;
+  /** Whether the card opens with focus on Next: the tour's `autoFocus` is `'first-tabbable'`. */
+  readonly focusNext: () => boolean;
   next(): void;
   prev(): void;
   stop(): void;

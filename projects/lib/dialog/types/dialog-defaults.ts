@@ -8,4 +8,4 @@
 import type { WrDialogOptions } from './dialog-options';
 
 /** App-wide dialog defaults, passed to `provideWr(withDialog(...))`. */
-export type WrDialogDefaults = Pick<WrDialogOptions, 'tabTitle'>;
+export type WrDialogDefaults = Pick<WrDialogOptions, 'tabTitle' | 'autoFocus'>;

@@ -161,7 +161,7 @@ describe('WrDonutChart pie', () => {
   });
 
   it('opens the tooltip on a slice', () => {
-    slices()[1].dispatchEvent(new MouseEvent('mouseenter'));
+    slices()[1].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     render();
 
     expect(chip()?.querySelector('.wr-chart-tooltip__label')?.textContent.trim()).toBe('Search');
@@ -189,7 +189,7 @@ describe('WrDonutChart sliver hover target', () => {
   /** The slice each target opens the tooltip for, read off the chip it opens. */
   const owners = (): string[] =>
     hits().map(hit => {
-      hit.dispatchEvent(new MouseEvent('mouseenter'));
+      hit.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
       render();
       return chip()?.querySelector('.wr-chart-tooltip__label')?.textContent.trim() ?? '';
     });

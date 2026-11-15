@@ -1,17 +1,67 @@
 <ngwr-doc-page
   title="Meter Group"
-  updated="15.1.0"
+  updated="16.5.0"
   description="One bar split into labelled parts, with a legend."
   [keywords]="['meter', 'progress', 'wr-meter-group']"
   [labels]="['Display']"
 >
   <ngwr-doc-section
     title="Disk usage"
-    description="Each segment takes its share of the sum, or of `max` when set. What the segments leave of `max` is empty track."
+    description="Each segment takes its share of the sum, or of `max` when set, in the next colour of the chart palette. A 1px line parts two segments. What the segments leave of `max` is empty track. Hover a segment or a legend row to dim the others."
   >
     <ngwr-doc-code [code]="snippet" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-meter-group style="width: 100%" [segments]="quota" [max]="100" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Legend position"
+    description='`legendPosition` puts the legend at `bottom` (default), `top`, `start` or `end`, or leaves it out with `none`. `showLegend="auto"` drops it for a single segment.'
+  >
+    <ngwr-doc-code [code]="legendSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="top"</code>
+          </p>
+          <wr-meter-group [segments]="diskUsage" legendPosition="top" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="end"</code>
+          </p>
+          <wr-meter-group [segments]="diskUsage" legendPosition="end" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no segment the bar is an empty track and the message sits under it. `loading` and `error` empty the bar and put their message there. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="statesSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-meter-group [segments]="[]" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-meter-group [segments]="diskUsage" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-meter-group [segments]="diskUsage" error errorLabel="Usage is unavailable" />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -60,6 +110,13 @@
             <td>
               With <code>toggleableLegend</code>, a <code>&lt;button aria-pressed&gt;</code>. Pressed means shown.
               <kbd>Tab</kbd> moves between rows, <kbd>Space</kbd> or <kbd>Enter</kbd> toggles.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
             </td>
           </tr>
           <tr>

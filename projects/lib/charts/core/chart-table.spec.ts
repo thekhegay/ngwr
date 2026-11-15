@@ -246,13 +246,13 @@ describe('WrChartTable stylesheet', () => {
 
   it('never hides it in a way that takes it from a reader as well', () => {
     expect(rule).not.toBe('');
-    expect(css).not.toMatch(/display:\s*none|visibility:\s*hidden|content-visibility/);
+    expect(rule).not.toMatch(/display:\s*none|visibility:\s*hidden|content-visibility/);
   });
 
-  it('emits nothing but its own rule, and no token layer', () => {
-    // Every chart that renders the table loads this sheet; a theme load here would
-    // add a second copy of the token layer to nothing.
-    expect(css).not.toMatch(/:root/);
-    expect(css.match(/\{/g)).toHaveLength(1);
+  it('emits one rule for the table, beside the chart theme the sheet now carries', () => {
+    // The sheet was the table's rule and nothing else. It is the chart theme too now:
+    // the `--wr-chart-*` tokens, on the roles of the theme it loads to resolve them.
+    expect(css.match(/(?:^|\n)\.wr-chart-table\s*\{/g)).toHaveLength(1);
+    expect(css).toMatch(/--wr-chart-grid: var\(--wr-border-base\)/);
   });
 });

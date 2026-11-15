@@ -75,9 +75,9 @@ describe('WrTreemapChartHarness', () => {
   it('reads every tile: its text, its kind, its colour and where it was drawn', async () => {
     const tiles = await chart.getTiles();
     expect(tiles.map(({ label, value, group, color }) => ({ label, value, group, color }))).toEqual([
-      { label: 'Bread', value: '60', group: false, color: 'var(--wr-color-success)' },
-      { label: 'Fruit', value: '40', group: true, color: 'var(--wr-color-primary)' },
-      { label: 'Apples', value: '30', group: false, color: 'var(--wr-color-primary)' },
+      { label: 'Bread', value: '60', group: false, color: 'var(--wr-chart-2)' },
+      { label: 'Fruit', value: '40', group: true, color: 'var(--wr-chart-1)' },
+      { label: 'Apples', value: '30', group: false, color: 'var(--wr-chart-1)' },
       { label: 'Pears', value: '10', group: false, color: '#123456' },
     ]);
     // Bread is 60% of the whole, in the inline-start top corner.

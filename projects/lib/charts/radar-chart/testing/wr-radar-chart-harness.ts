@@ -107,7 +107,11 @@ export class WrRadarChartHarness extends ComponentHarness {
     return Promise.all(labels.map(label => label.text()));
   }
 
-  /** The ring values beside the first axis, from the outer ring in. `[]` with `showGrid` off. */
+  /**
+   * The ring values printed between two spokes, from the outer ring in: one closer than a
+   * line to the last is left out, though its ring is drawn. `[]` with `showGrid` off, and
+   * while the chart is empty, loading or failed.
+   */
   async getRingLabels(): Promise<string[]> {
     const labels = await this.locatorForAll('.wr-radar-chart__ring-label')();
     return Promise.all(labels.map(label => label.text()));
@@ -161,12 +165,21 @@ export class WrRadarChartHarness extends ComponentHarness {
     return (await this.locatorForAll('.wr-radar-chart__area')()).length;
   }
 
-  /** How many value dots were drawn across every series (`showDots`). A missing value has none. */
+  /**
+   * How many value dots were drawn across every series (`showDots`). A missing value has
+   * none. A series' dots are ONE path, a subpath each, so this counts the subpaths rather
+   * than the `.wr-radar-chart__dot` elements, which are one per series.
+   */
   async getDotCount(): Promise<number> {
-    return (await this.locatorForAll('.wr-radar-chart__dot')()).length;
+    const series = await this.locatorForAll('.wr-radar-chart__dot')();
+    const paths = await Promise.all(series.map(path => path.getAttribute('d')));
+    return paths.reduce((count, d) => count + (d?.match(/M/g)?.length ?? 0), 0);
   }
 
-  /** Whether the legend is rendered (`showLegend`, and at least one series). */
+  /**
+   * Whether the legend is rendered: `showLegend` is not off, `legendPosition` is not
+   * `none`, and there are two series or more - or one, with `showLegend` set.
+   */
   async hasLegend(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-radar-chart__legend')()) !== null;
   }

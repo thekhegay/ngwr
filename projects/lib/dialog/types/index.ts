@@ -1,4 +1,4 @@
-export type { WrDialogOptions, WrDialogRole } from './dialog-options';
+export type { WrDialogAutoFocus, WrDialogOptions, WrDialogRole } from './dialog-options';
 export type {
   WrDialogAlertOptions,
   WrDialogConfirmOptions,

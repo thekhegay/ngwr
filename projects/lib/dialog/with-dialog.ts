@@ -11,9 +11,9 @@ import { WR_DIALOG_DEFAULTS } from './tokens';
 import type { WrDialogDefaults } from './types';
 
 /**
- * App-wide dialog defaults, as a feature of `provideWr()`: today `tabTitle`,
- * so every dialog names the browser tab while it is open. The same option on
- * `open()` or `confirm()` still wins.
+ * App-wide dialog defaults, as a feature of `provideWr()`: `tabTitle`, so
+ * every dialog names the browser tab while it is open, and `autoFocus`, where
+ * focus goes on open. The same option on `open()` or `confirm()` still wins.
  *
  * Bootstrap only: `WrDialog` is root-provided and reads it once, from the root
  * injector, so in a route's `providers` it changes nothing.
@@ -24,7 +24,7 @@ import type { WrDialogDefaults } from './types';
  * import { withDialog } from 'ngwr/dialog';
  *
  * bootstrapApplication(App, {
- *   providers: [provideWr(withDialog({ tabTitle: true }))],
+ *   providers: [provideWr(withDialog({ tabTitle: true, autoFocus: 'first-tabbable' }))],
  * });
  * ```
  */

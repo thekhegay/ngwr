@@ -3,7 +3,7 @@
   description="A guided tour that highlights one element at a time and explains it."
   [keywords]="['tour', 'onboarding', 'walkthrough', 'spotlight', 'wr-tour']"
   [labels]="['Service']"
-  updated="16.4.0"
+  updated="16.5.0"
 >
   <ngwr-doc-section
     title="Run a tour"
@@ -38,7 +38,11 @@
         Each step is a modal <code>dialog</code> named by its title and the progress line, and described by its text, so
         a screen reader reads all three when the step opens.
       </li>
-      <li>Focus opens on the Next button, or Done on the last step, and is trapped in the card.</li>
+      <li>
+        Focus opens on the card itself, with no ring, and is trapped in it. Pass
+        <code>&#123; autoFocus: 'first-tabbable' &#125;</code> as the second argument of <code>start()</code> to open on
+        Next, or <code>false</code> to leave focus where it is.
+      </li>
       <li>Escape ends the tour, and focus returns to where it was.</li>
     </ul>
   </ngwr-doc-section>

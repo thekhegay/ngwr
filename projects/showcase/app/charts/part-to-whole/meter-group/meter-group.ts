@@ -27,23 +27,30 @@ import { API } from '#core/generated/api';
 export default class MeterGroupPageComponent {
   protected readonly quota = [
     { label: 'Used', value: 60 },
-    { label: 'Reserved', value: 25, color: 'var(--wr-color-warning)' },
+    { label: 'Reserved', value: 25 },
   ];
 
   protected readonly diskUsage = [
     { label: 'System', value: 32 },
     { label: 'Apps', value: 88 },
     { label: 'Documents', value: 24 },
-    { label: 'Free', value: 112, color: 'var(--wr-color-on-surface-muted)' },
+    { label: 'Free', value: 112, color: 'var(--wr-chart-8)' },
   ];
 
   protected readonly snippet = `<wr-meter-group
   [segments]="[
     { label: 'Used', value: 60 },
-    { label: 'Reserved', value: 25, color: 'var(--wr-color-warning)' }
+    { label: 'Reserved', value: 25 }
   ]"
   [max]="100"
 />`;
+
+  protected readonly legendSnippet = `<wr-meter-group [segments]="diskUsage" legendPosition="top" />
+<wr-meter-group [segments]="diskUsage" legendPosition="end" />`;
+
+  protected readonly statesSnippet = `<wr-meter-group [segments]="[]" />
+<wr-meter-group [segments]="diskUsage" loading />
+<wr-meter-group [segments]="diskUsage" error errorLabel="Usage is unavailable" />`;
 
   protected readonly tooltipSnippet = `<wr-meter-group [segments]="segments" [tooltip]="false" />`;
 
@@ -55,7 +62,7 @@ export default class MeterGroupPageComponent {
   { label: 'System', value: 32 },
   { label: 'Apps', value: 88 },
   { label: 'Documents', value: 24 },
-  { label: 'Free', value: 112, color: 'var(--wr-color-on-surface-muted)' },
+  { label: 'Free', value: 112, color: 'var(--wr-chart-8)' },
 ];
 hidden = signal<readonly number[]>([]);`;
 

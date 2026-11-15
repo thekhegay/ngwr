@@ -11,6 +11,46 @@ import type { WrBoxplotStats } from '../types';
 const FENCE = 1.5;
 
 /**
+ * How many outliers a group DRAWS on each side of its box at the most. Past it the dots
+ * are a sample; the summary, the tooltip's count and the data table keep them all.
+ */
+const DRAWN_PER_SIDE = 100;
+
+/** The first index of ascending `sorted` whose value is at least `bound`, or its length. */
+function firstAtLeast(sorted: Float64Array, bound: number): number {
+  let from = 0;
+  let to = sorted.length;
+  while (from < to) {
+    const middle = (from + to) >>> 1; // eslint-disable-line no-bitwise -- halving an index
+    if (sorted[middle] < bound) from = middle + 1;
+    else to = middle;
+  }
+  return from;
+}
+
+/** The first index of ascending `sorted` whose value is past `bound`, or its length. */
+function firstPast(sorted: Float64Array, bound: number): number {
+  let from = 0;
+  let to = sorted.length;
+  while (from < to) {
+    const middle = (from + to) >>> 1; // eslint-disable-line no-bitwise -- halving an index
+    if (sorted[middle] <= bound) from = middle + 1;
+    else to = middle;
+  }
+  return from;
+}
+
+/** `limit` of ascending `run` from `start` up to `end`, evenly spread, both ends among them. */
+function sample(run: readonly number[], start: number, end: number, limit: number, into: number[]): void {
+  const count = end - start;
+  if (count <= limit) {
+    for (let i = start; i < end; i++) into.push(run[i]);
+    return;
+  }
+  for (let k = 0; k < limit; k++) into.push(run[start + Math.round((k * (count - 1)) / (limit - 1))]);
+}
+
+/**
  * The `p` quantile of `sorted`, which is ascending and not empty, by LINEAR
  * INTERPOLATION between the two closest ranks — Hyndman and Fan's type 7, the default
  * of R's `quantile()` and NumPy's `quantile()` and what Excel's `QUARTILE.INC` computes.
@@ -22,11 +62,34 @@ const FENCE = 1.5;
  *
  * @internal
  */
-export function quantile(sorted: readonly number[], p: number): number {
+export function quantile(sorted: ArrayLike<number>, p: number): number {
   const position = (sorted.length - 1) * p;
   const below = Math.floor(position);
   const above = Math.ceil(position);
   return sorted[below] + (position - below) * (sorted[above] - sorted[below]);
+}
+
+/**
+ * The finite numbers of `values`, ascending, in a typed array of their own: the array
+ * given is never reordered.
+ *
+ * A `Float64Array` sorts numerically with no comparator, in native code over unboxed
+ * doubles: a hundred thousand values sort in about a quarter of the time
+ * `number[].sort((a, b) => a - b)` takes, which calls back into script for every
+ * comparison.
+ *
+ * @internal
+ */
+export function sortedFinite(values: ArrayLike<number>): Float64Array {
+  const kept = new Float64Array(values.length);
+  let count = 0;
+  // An `ArrayLike` has an index and a length and no iterator.
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
+  for (let i = 0; i < values.length; i++) {
+    const value = values[i];
+    if (Number.isFinite(value)) kept[count++] = value;
+  }
+  return kept.subarray(0, count).sort();
 }
 
 /**
@@ -41,25 +104,55 @@ export function quantile(sorted: readonly number[], p: number): number {
  * quartile is held at the quartile, as matplotlib holds it, and the whisker has no
  * length.
  *
+ * One typed sort ({@link sortedFinite}) and two binary searches: the values inside the
+ * fences are one run of the sorted array and the outliers the two runs either side of
+ * it, so nothing is filtered a second and a third time.
+ *
  * @internal
  */
-export function boxplotStats(values: readonly number[]): Required<WrBoxplotStats> | null {
-  const sorted = values.filter(value => Number.isFinite(value)).sort((a, b) => a - b);
+export function boxplotStats(values: ArrayLike<number>): Required<WrBoxplotStats> | null {
+  const sorted = sortedFinite(values);
   if (sorted.length === 0) return null;
 
   const q1 = quantile(sorted, 0.25);
   const median = quantile(sorted, 0.5);
   const q3 = quantile(sorted, 0.75);
   const reach = FENCE * (q3 - q1);
-  const low = q1 - reach;
-  const high = q3 + reach;
 
-  const inside = sorted.filter(value => value >= low && value <= high);
-  // Never empty — the first value at or above the first quartile lies within the fences
-  // for any count — so the fallbacks are there for the type checker alone.
-  const min = Math.min(q1, inside[0] ?? q1);
-  const max = Math.max(q3, inside.at(-1) ?? q3);
-  const outliers = sorted.filter(value => value < low || value > high);
+  // The run inside the fences is never empty — the first value at or above the first
+  // quartile lies within them for any count.
+  const from = firstAtLeast(sorted, q1 - reach);
+  const to = firstPast(sorted, q3 + reach);
+  const min = Math.min(q1, sorted[from]);
+  const max = Math.max(q3, sorted[to - 1]);
+
+  const outliers = new Array<number>(from + sorted.length - to);
+  for (let i = 0; i < from; i++) outliers[i] = sorted[i];
+  for (let i = to; i < sorted.length; i++) outliers[from + i - to] = sorted[i];
 
   return { min, q1, median, q3, max, outliers };
+}
+
+/**
+ * The outliers a group DRAWS, of its ascending `outliers`: every one up to a hundred on
+ * each side of `median`, and past that a hundred of that side, evenly spread by rank,
+ * with the farthest one and the one nearest the box always among them. The same input
+ * draws the same dots.
+ *
+ * A dot is an element. A group of a million readings with a long tail has tens of
+ * thousands of outliers, nearly all on the same few pixels: drawn one each they were
+ * tens of thousands of elements for a line a hundred would draw. The extremes are kept
+ * because they are what the axis is fitted to and what a reader looks for.
+ *
+ * @internal
+ */
+export function drawnOutliers(outliers: readonly number[], median: number, limit = DRAWN_PER_SIDE): readonly number[] {
+  if (outliers.length <= limit) return outliers;
+  let above = 0;
+  while (above < outliers.length && outliers[above] < median) above++;
+  if (above <= limit && outliers.length - above <= limit) return outliers;
+  const drawn: number[] = [];
+  sample(outliers, 0, above, limit, drawn);
+  sample(outliers, above, outliers.length, limit, drawn);
+  return drawn;
 }

@@ -17,8 +17,8 @@ import type {
   WrBarChartTableRow,
 } from './types';
 
-/** The `flex-grow: <share>` the component writes onto a bar, out of its inline `style`. */
-const BAR_SHARE = /(?:^|;)\s*flex-grow\s*:\s*([\d.]+)/;
+/** The `--wr-bar-chart-size: <share>` the component writes onto a bar, out of its inline `style`. */
+const BAR_SHARE = /(?:^|;)\s*--wr-bar-chart-size\s*:\s*([\d.]+)/;
 
 /** One `--wr-bar-chart-<name>: <value>` the component writes inline, out of a `style` attribute. */
 const inlineProperty = (style: string | null, name: string): string | null =>
@@ -37,20 +37,24 @@ class CategoryHarness extends ComponentHarness {
   async read(): Promise<WrBarChartSeriesBar[]> {
     const category = await (await this.host()).getAttribute('aria-label');
     const bars = await this.locatorForAll('.wr-bar-chart__series-bar')();
-    const edges = await this.locatorForAll('.wr-bar-chart__series-bar .wr-bar-chart__edge rect')();
-    return Promise.all(
-      bars.map(async (bar, index) => {
+    const read = await Promise.all(
+      bars.map(async bar => {
         const style = await bar.getAttribute('style');
         return {
-          category,
-          name: await bar.getAttribute('aria-label'),
-          startPercent: CategoryHarness.share(style, 'start'),
-          sizePercent: CategoryHarness.share(style, 'size'),
-          color: inlineProperty(style, 'color'),
-          dash: (await edges[index]?.getAttribute('stroke-dasharray')) ?? '',
+          series: Number(await bar.getAttribute('data-wr-series')),
+          bar: {
+            category,
+            name: await bar.getAttribute('aria-label'),
+            startPercent: CategoryHarness.share(style, 'start'),
+            sizePercent: CategoryHarness.share(style, 'size'),
+            color: inlineProperty(style, 'color'),
+            dash: (await bar.getAttribute('data-dash')) ?? '',
+          },
         };
       })
     );
+    // A pile is drawn a side of zero at a time, so the bars are put back in series order.
+    return read.sort((a, b) => a.series - b.series).map(({ bar }) => bar);
   }
 
   /** One of the two shares every series bar is written, or a throw where the component wrote none. */
@@ -77,15 +81,17 @@ class LineHarness extends ComponentHarness {
 
   async read(horizontal: boolean): Promise<WrBarChartHarnessLine> {
     const label = await (await this.host()).getAttribute('aria-label');
-    const segments = await this.locatorForAll('.wr-bar-chart__line-segment')();
+    // The whole line is one path, which carries how many straight runs it holds; a line
+    // of lone points draws none.
+    const path = await this.locatorForOptional('.wr-bar-chart__line-segment')();
     const points = await this.locatorForAll('.wr-bar-chart__point')();
     const markers = await this.locatorForAll('.wr-bar-chart__point > path')();
     return {
       label,
       color: (await markers[0]?.getAttribute('fill')) ?? null,
-      dash: segments.length === 0 ? null : ((await segments[0].getAttribute('stroke-dasharray')) ?? ''),
+      dash: path ? ((await path.getAttribute('stroke-dasharray')) ?? '') : null,
       marker: (await points[0]?.getAttribute('data-marker')) ?? null,
-      segmentCount: segments.length,
+      segmentCount: path ? Number(await path.getAttribute('data-segments')) : 0,
       points: await Promise.all(
         points.map(async point => {
           // Standing up the value axis runs up the box, so it is read from the bottom;
@@ -132,10 +138,13 @@ class TableRowHarness extends ComponentHarness {
  * Test harness for `<wr-bar-chart>`.
  *
  * **The bars are read as PERCENTAGES, not as pixels.** Each bar's share of the value
- * axis — of the chart's maximum, while zero is the axis minimum — is written inline, as
- * its `flex-grow` from 0 to 1 and reported here times 100, which is the one number that
+ * axis - of the axis maximum, while zero is the axis minimum - is written inline, as
+ * `--wr-bar-chart-size` from 0 to 1, and reported here times 100, which is the one number that
  * survives a test with no layout — and it is also the component's whole job, since
- * the maximum is either given or derived from the data. That share is read off the
+ * the maximum is either given or derived from the data. With the grid or the scale shown
+ * (`showGrid`, `showAxis`, both on by default) the axis is snapped to round numbers, so
+ * the tallest bar reads its value over the axis' top rather than 100; with both off the
+ * axis is the data's own extent. That share is read off the
  * `style` ATTRIBUTE rather than through `getCssValue()`, and the difference is not
  * cosmetic: `getCssValue()` is `getComputedStyle()`, which answered a used height
  * in pixels in a real browser and the declared value in jsdom, with no error to say
@@ -163,8 +172,8 @@ class TableRowHarness extends ComponentHarness {
  * **What it cannot read** is where anything lands: jsdom lays nothing out, so there is no
  * method for a bar's pixels, for whether a name was ellipsised, or for which side of the
  * plot the gutter sits on under RTL. {@link getOrientation} reads the orientation the
- * component declared. The tooltip opens on a category's `mouseenter`, which a spec can
- * dispatch, but what it SAYS is in the data table, which {@link getTableRows} reads.
+ * component declared. The tooltip opens on a `mouseover` inside a category, which a spec
+ * can dispatch, but what it SAYS is in the data table, which {@link getTableRows} reads.
  *
  * @example
  * ```ts
@@ -245,17 +254,13 @@ export class WrBarChartHarness extends ComponentHarness {
    * Where zero is along the value axis, as a percentage of the axis from its minimum: the
    * line every bar starts at, read off the share the component wrote on the track. 0 until
    * a value — a `series` bar, a line, or a `data` bar beside `lines` — goes below zero.
-   *
-   * Throws for a chart drawn from `data` standing up without `lines`, which draws no track:
-   * its bars always stand on the bottom of the plot, and answering 0 there would read the
-   * same for a chart that failed to write the share it does write everywhere else.
    */
   async getZeroPercent(): Promise<number> {
     const track = await this.locatorForOptional('.wr-bar-chart__track')();
     if (!track) {
       throw new Error(
-        'WrBarChartHarness.getZeroPercent(): the chart draws no track — it is drawn from `data` standing up ' +
-          'without `lines`, where every bar stands on the bottom of the plot.'
+        'WrBarChartHarness.getZeroPercent(): the chart draws no track. The component draws one in every ' +
+          'layout, so its absence is the bug.'
       );
     }
     const style = await track.getAttribute('style');
@@ -342,7 +347,7 @@ export class WrBarChartHarness extends ComponentHarness {
   /**
    * The values printed at the bars, in the order drawn: above each `data` column, or past
    * the end of each series bar — a pile's total for each sign under `stacked`. `[]` with
-   * `showValues` off. The hidden copies the plot keeps its room from are not read.
+   * `showValues` off, which is the default. The hidden copies the plot keeps its room from are not read.
    */
   async getValues(): Promise<string[]> {
     const values = await this.locatorForAll(
@@ -369,7 +374,7 @@ export class WrBarChartHarness extends ComponentHarness {
     return Promise.all(lines.map(line => line.read(horizontal)));
   }
 
-  /** Whether the legend is rendered (`series` or `lines`, and `showLegend`). */
+  /** Whether the legend is rendered: `series` or `lines`, `showLegend`, and a `legendPosition` other than `none`. */
   async hasLegend(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-bar-chart__legend')()) !== null;
   }

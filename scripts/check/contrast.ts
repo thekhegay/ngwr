@@ -54,6 +54,7 @@
 
 import { exit } from 'node:process';
 
+import type { NodeResult, UnlabelledFrameSelector } from 'axe-core';
 import type { Page } from 'playwright';
 
 import { narrow, parseFlags, pickOne } from '../lib/args';
@@ -131,6 +132,56 @@ const NODES: RecordOptions = {
 
 type Baseline = Record<string, { readonly routes: number; readonly note: string }>;
 
+/**
+ * The `color-contrast` nodes whose measured background is painted where the text is.
+ *
+ * axe stacks a text on every element whose box covers it, and an `overflow: clip`
+ * ancestor does not cut that box: a chart bar drawn as large as its side and moved into
+ * place by a transform inside a clipping box reads as lying under the axis names below
+ * it, where no browser paints it. So each node is held to a hit test of its own: dropped
+ * only when a background axe blended is clipped away at the centre of the text while the
+ * text itself is not, so a text scrolled out of its own box is still judged.
+ */
+async function paintedNodes(page: Page, nodes: readonly NodeResult[]): Promise<NodeResult[]> {
+  const single = (target: UnlabelledFrameSelector): string | null =>
+    target.length === 1 && typeof target[0] === 'string' ? target[0] : null;
+  // No named function inside: esbuild's keep-names adds a `__name` call the page lacks.
+  const keep = await page.evaluate(
+    list =>
+      list.map(({ target, backgrounds }) => {
+        const text = target === null ? null : document.querySelector(target);
+        if (!text) return true;
+        const box = text.getBoundingClientRect();
+        const x = box.left + box.width / 2;
+        const y = box.top + box.height / 2;
+        // Whether each element is painted at the text's centre: its box cut by every
+        // ancestor that clips. The text first, then the backgrounds axe blended.
+        const painted = [text, ...backgrounds.map(selector => document.querySelector(selector))].map(el => {
+          if (!el) return true;
+          let { left, top, right, bottom } = el.getBoundingClientRect();
+          for (let clip = el.parentElement; clip; clip = clip.parentElement) {
+            const style = getComputedStyle(clip);
+            const rect = clip.getBoundingClientRect();
+            if (style.overflowX !== 'visible') [left, right] = [Math.max(left, rect.left), Math.min(right, rect.right)];
+            if (style.overflowY !== 'visible') [top, bottom] = [Math.max(top, rect.top), Math.min(bottom, rect.bottom)];
+          }
+          return x >= left && x <= right && y >= top && y <= bottom;
+        });
+        return !painted[0] || painted.every(Boolean);
+      }),
+    nodes.map(node => ({
+      target: single(node.target),
+      backgrounds: node.any.flatMap(check =>
+        (check.relatedNodes ?? []).flatMap(related => {
+          const selector = single(related.target);
+          return selector === null ? [] : [selector];
+        })
+      ),
+    }))
+  );
+  return nodes.filter((_, index) => keep[index]);
+}
+
 async function audit(
   page: Page,
   origin: string,
@@ -156,7 +207,9 @@ async function audit(
   });
 
   for (const violation of results.violations) {
-    recordViolation(into, `${violation.id} (${theme}, ${mode})`, violation, route, NODES);
+    const nodes = violation.id === 'color-contrast' ? await paintedNodes(page, violation.nodes) : violation.nodes;
+    if (nodes.length === 0) continue;
+    recordViolation(into, `${violation.id} (${theme}, ${mode})`, { ...violation, nodes }, route, NODES);
   }
 
   // The placeholder pass, after the painted one on purpose: it repaints fields,

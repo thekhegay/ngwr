@@ -40,42 +40,72 @@ class TableRowHarness extends ComponentHarness {
   }
 }
 
-/** One marker: the nested `<svg>` the component placed, and the shape inside it. */
+/** What the points of one group share: their series, its shape and its colour. */
+interface Shared {
+  readonly series: number;
+  readonly marker: string;
+  readonly color: string | null;
+}
+
+/**
+ * A stretch of one series' points, in drawing order: the group the component draws them
+ * in, which carries their series, their shape and their colour.
+ */
+class SeriesRunHarness extends ComponentHarness {
+  static hostSelector = '.wr-scatter-chart__series';
+
+  async read(): Promise<WrScatterChartHarnessPoint[]> {
+    const group = await this.host();
+    const marker = await group.getAttribute('data-marker');
+    if (!marker) {
+      throw new Error('WrScatterChartHarness.getPoints(): a series carries no data-marker, which names its shape.');
+    }
+    const shared: Shared = {
+      series: await numberAttribute(group, 'data-wr-series'),
+      marker,
+      color: await group.getAttribute('fill'),
+    };
+    const points = await this.locatorForAll(PointHarness)();
+    return Promise.all(points.map(point => point.read(shared)));
+  }
+}
+
+/** One marker: the nested `<svg>` the component placed. */
 class PointHarness extends ComponentHarness {
   static hostSelector = '.wr-scatter-chart__point';
 
-  private readonly shape = this.locatorForOptional('.wr-scatter-chart__marker');
-
-  async read(): Promise<WrScatterChartHarnessPoint> {
+  async read(shared: Shared): Promise<WrScatterChartHarnessPoint> {
     const point = await this.host();
-    const sizeRaw = await point.getAttribute('data-size');
-    const marker = await point.getAttribute('data-marker');
-    if (!marker) {
-      throw new Error('WrScatterChartHarness.getPoints(): a marker carries no data-marker, which names its shape.');
+    // The point's x, y and radius, and its size when it has one.
+    const raw = await point.getAttribute('data-point');
+    const values = (raw ?? '').split(' ').map(Number.parseFloat);
+    if ((values.length !== 3 && values.length !== 4) || !values.every(Number.isFinite)) {
+      throw new Error(
+        `WrScatterChartHarness.getPoints(): a marker carries data-point="${raw ?? ''}", which the component writes ` +
+          'as its x, y and radius, and its size when it has one, every one a finite number.'
+      );
     }
-    const shape = await this.shape();
+    const [x, y, radius, size] = values;
     return {
-      series: await numberAttribute(point, 'data-series'),
-      x: await numberAttribute(point, 'data-x'),
-      y: await numberAttribute(point, 'data-y'),
-      size: sizeRaw === null ? null : await numberAttribute(point, 'data-size'),
-      marker,
-      color: shape ? await shape.getAttribute('fill') : null,
-      radius: await numberAttribute(point, 'data-radius'),
+      ...shared,
+      x,
+      y,
+      size: size ?? null,
+      radius,
       left: await numberAttribute(point, 'x'),
       top: await numberAttribute(point, 'y'),
     };
   }
 }
 
-/** A finite number off one attribute, or a sentence saying which one the marker lacks. */
+/** A finite number off one attribute, or a sentence saying which one the element lacks. */
 async function numberAttribute(element: TestElement, name: string): Promise<number> {
   const raw = await element.getAttribute(name);
   const value = raw === null ? Number.NaN : Number.parseFloat(raw);
   if (!Number.isFinite(value)) {
     throw new Error(
-      `WrScatterChartHarness.getPoints(): a marker carries ${name}="${raw ?? ''}", which the component writes as a ` +
-        'finite number on every point it draws.'
+      `WrScatterChartHarness.getPoints(): an element carries ${name}="${raw ?? ''}", which the component writes as a ` +
+        'finite number on every point and every series it draws.'
     );
   }
   return value;
@@ -87,11 +117,15 @@ async function numberAttribute(element: TestElement, name: string): Promise<numb
  * **Points are read off what the component WROTE, never off a layout.** jsdom lays
  * nothing out, so a measured position would read 0 for a working chart and a broken one
  * alike. Every marker is a nested `<svg>` the component places by percentage, and it
- * carries the point's values and shape in `data-*` attributes beside that placement —
- * so {@link getPoints} answers both questions a spec has: which point is this, and where
- * did the chart put it. A point at the right value and the wrong percentage is exactly
- * the defect worth catching. The marker's path `d` is not read: its numbers are a
- * rendering detail of each shape.
+ * carries the point's values in `data-point` beside that placement, inside a group that
+ * carries its series, its shape and its colour — so {@link getPoints} answers both
+ * questions a spec has: which point is this, and where did the chart put it. A point at
+ * the right value and the wrong percentage is exactly the defect worth catching. The
+ * marker's path `d` is not read: its numbers are a rendering detail of each shape.
+ *
+ * Past two thousand points shown the chart draws ONE path per series rather than an
+ * element per point: {@link getPointCount} still counts them, {@link getPoints} has no
+ * element to read and answers `[]`, and the data table carries the values.
  *
  * **There is deliberately no hover method.** The tooltip opens on the point nearest the
  * pointer, measured against the drawing's box, which jsdom reports as 0×0 — so every
@@ -133,7 +167,7 @@ export class WrScatterChartHarness extends ComponentHarness {
     return (await this.locatorFor('.wr-scatter-chart__plot')()).getAttribute('aria-label');
   }
 
-  /** Whether the legend is rendered (`showLegend`, and at least one series). */
+  /** Whether the legend is rendered: `showLegend`, `legendPosition`, and under `'auto'` two series or more. */
   async hasLegend(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-scatter-chart__legend')()) !== null;
   }
@@ -148,15 +182,15 @@ export class WrScatterChartHarness extends ComponentHarness {
    * The legend, as a {@link WrChartLegendHarness}: each row's marker and hidden state
    * and, with `toggleableLegend`, the toggles that show and hide a series.
    *
-   * Throws when the chart draws no legend (`showLegend` off, or no series) rather than
+   * Throws when the chart draws no legend (`showLegend` off, a single series, or none) rather than
    * answering with an empty one: {@link hasLegend} is the question for that.
    */
   async getLegendHarness(): Promise<WrChartLegendHarness> {
     const legend = await this.locatorForOptional(WrChartLegendHarness)();
     if (!legend) {
       throw new Error(
-        'WrScatterChartHarness.getLegendHarness(): the chart draws no legend — `showLegend` is off or there are no ' +
-          'series. Ask hasLegend() first.'
+        'WrScatterChartHarness.getLegendHarness(): the chart draws no legend — `showLegend` is off, or it is `auto` ' +
+          'with a single series or none. Ask hasLegend() first.'
       );
     }
     return legend;
@@ -167,7 +201,11 @@ export class WrScatterChartHarness extends ComponentHarness {
    * finite. A hidden series draws none, and keeps its legend row.
    */
   async getPointCount(): Promise<number> {
-    return (await this.locatorForAll('.wr-scatter-chart__point')()).length;
+    const single = (await this.locatorForAll('.wr-scatter-chart__point')()).length;
+    // Past two thousand points every series is one path, which says how many it holds.
+    const paths = await this.locatorForAll('.wr-scatter-chart__points')();
+    const held = await Promise.all(paths.map(path => numberAttribute(path, 'data-count')));
+    return held.reduce((sum, count) => sum + count, single);
   }
 
   /**
@@ -175,11 +213,12 @@ export class WrScatterChartHarness extends ComponentHarness {
    * its marker and the percentages the component placed its centre at.
    *
    * Throws on a marker missing any of what the component writes on every one, rather than
-   * answering with a `NaN` a spec could compare against.
+   * answering with a `NaN` a spec could compare against. `[]` once the chart draws a path
+   * per series (past two thousand points shown), which has no element per point.
    */
   async getPoints(): Promise<WrScatterChartHarnessPoint[]> {
-    const points = await this.locatorForAll(PointHarness)();
-    return Promise.all(points.map(point => point.read()));
+    const runs = await this.locatorForAll(SeriesRunHarness)();
+    return (await Promise.all(runs.map(run => run.read()))).flat();
   }
 
   /** Whether the gridlines are drawn (`showGrid`). */
@@ -187,13 +226,27 @@ export class WrScatterChartHarness extends ComponentHarness {
     return (await this.locatorForOptional('.wr-scatter-chart__grid-line')()) !== null;
   }
 
-  /** The x-axis tick labels, left to right; `[]` with `showGrid` off. */
+  /** Whether the axes' scales are printed beside and under the plot (`showAxis`). */
+  async hasAxis(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-scatter-chart__y-axis')()) !== null;
+  }
+
+  /**
+   * The message the chart shows in place of its points: "No data" with nothing to draw,
+   * or the loading or error message. `null` while it draws its points.
+   */
+  async getStateLabel(): Promise<string | null> {
+    const state = await this.locatorForOptional('.wr-chart-state')();
+    return state ? (await state.text()).trim() : null;
+  }
+
+  /** The x-axis tick labels, left to right; `[]` with `showAxis` off. */
   async getXTicks(): Promise<string[]> {
     const ticks = await this.locatorForAll('.wr-scatter-chart__x-tick')();
     return Promise.all(ticks.map(tick => tick.text()));
   }
 
-  /** The y-axis tick labels, top to bottom; `[]` with `showGrid` off. */
+  /** The y-axis tick labels, top to bottom; `[]` with `showAxis` off. */
   async getYTicks(): Promise<string[]> {
     const ticks = await this.locatorForAll('.wr-scatter-chart__y-tick')();
     return Promise.all(ticks.map(tick => tick.text()));

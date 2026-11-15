@@ -68,8 +68,10 @@ export class WrDonutChartHarness extends ComponentHarness {
   }
 
   /**
-   * How many wedges were drawn. A hidden slice draws none. The invisible hover target a
-   * sliver gets over the ring (`.wr-donut-chart__hit`) is not a wedge and is not counted.
+   * How many wedges were drawn. A hidden slice draws none, and nor does a chart that is
+   * empty, loading or failed. The invisible hover target a sliver gets over the ring
+   * (`.wr-donut-chart__hit`) and the track an empty ring keeps (`.wr-donut-chart__track`)
+   * are not wedges and are not counted.
    */
   async getSliceCount(): Promise<number> {
     return (await this.locatorForAll('.wr-donut-chart__slice')()).length;
@@ -86,7 +88,10 @@ export class WrDonutChartHarness extends ComponentHarness {
     return (await this.host()).hasClass('wr-donut-chart--pie');
   }
 
-  /** Whether the legend is rendered (`showLegend`, and at least one slice). */
+  /**
+   * Whether the legend is rendered: `showLegend` is not off, `legendPosition` is not
+   * `none`, and there are two segments or more - or one, with `showLegend` set.
+   */
   async hasLegend(): Promise<boolean> {
     return (await this.locatorForOptional('.wr-donut-chart__legend')()) !== null;
   }
@@ -96,8 +101,9 @@ export class WrDonutChartHarness extends ComponentHarness {
    * and, with `toggleableLegend`, the toggles that show and hide a slice. Not the same
    * thing as {@link getLegend}, which reads the rows' text and stays as it was.
    *
-   * Throws when the chart draws no legend (`showLegend` off, or no segments) rather
-   * than answering with an empty one: {@link hasLegend} is the question for that.
+   * Throws when the chart draws no legend (`showLegend` off, `legendPosition="none"`, no
+   * segments, or a single one under `showLegend="auto"`) rather than answering with an
+   * empty one: {@link hasLegend} is the question for that.
    */
   async getLegendHarness(): Promise<WrChartLegendHarness> {
     const legend = await this.locatorForOptional(WrChartLegendHarness)();

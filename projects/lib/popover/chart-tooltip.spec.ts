@@ -36,7 +36,7 @@ class Host {
     { label: 'Mon', value: 12 },
     { label: 'Tue', value: 18 },
   ]);
-  readonly enabled = signal(true);
+  readonly enabled = signal<boolean | 'hoverable'>(true);
   readonly anchored = signal(true);
   /** The second section opens below its anchor, the way a donut's lower half does. */
   readonly lowerSecond = signal(false);
@@ -53,6 +53,8 @@ class Host {
   readonly firstValue = signal<string | null>(null);
   /** The first section's paint. */
   readonly firstColor = signal<string | undefined>('rgb(1, 2, 3)');
+  /** A class of the chart's own on the first section's chip. */
+  readonly firstClass = signal<string | undefined>(undefined);
   /**
    * How far the page has scrolled since the box was taken. A plain field, not a signal:
    * a scroll changes a box anchor's numbers without telling any signal, so only the
@@ -74,6 +76,7 @@ class Host {
         value: index === 0 ? (this.firstValue() ?? String(row.value)) : String(row.value),
         color: index === 0 ? this.firstColor() : 'rgb(1, 2, 3)',
         rows: index === 0 ? this.firstRows() : undefined,
+        className: index === 0 ? this.firstClass() : undefined,
       },
       anchor: box
         ? { x: box.x, y: box.y - this.scrolled, width: 0, height: 20 }
@@ -265,6 +268,21 @@ describe('useChartTooltip', () => {
 
     expect(chip()!.querySelector('.wr-chart-tooltip__head')).toBeNull();
     expect(chip()!.firstElementChild!.className).toBe('wr-chart-tooltip__row');
+  });
+
+  it("takes the chart's own class beside its own, and drops it on a section that names none", () => {
+    fixture.componentInstance.firstClass.set('wr-demo-chart__tooltip');
+    settle();
+    enter(sections()[0]);
+
+    expect([...chip()!.classList]).toEqual(
+      expect.arrayContaining(['wr-tooltip', 'wr-chart-tooltip', 'wr-demo-chart__tooltip'])
+    );
+
+    leave(sections()[0]);
+    enter(sections()[1]);
+    expect(chip()!.classList).not.toContain('wr-demo-chart__tooltip');
+    expect(chip()!.classList).toContain('wr-chart-tooltip');
   });
 
   it('goes back to one line when the next section has no rows', () => {
@@ -505,6 +523,7 @@ describe('useChartTooltip', () => {
    * as wide as the chip, is the way onto it.
    */
   const bridge = (): void => {
+    fixture.componentInstance.enabled.set('hoverable');
     layout(new DOMRect(50, 250, 100, 30));
     fixture.componentInstance.box.set({ x: 100, y: 300 });
     settle();
@@ -581,6 +600,8 @@ describe('useChartTooltip', () => {
   });
 
   it('stays up while the pointer is on the chip itself (WCAG 1.4.13, hoverable)', () => {
+    fixture.componentInstance.enabled.set('hoverable');
+    settle();
     enter(sections()[0]);
     const pane = panes()[0];
 
@@ -597,6 +618,26 @@ describe('useChartTooltip', () => {
     expect(panes()).toHaveLength(1);
 
     pane.dispatchEvent(new MouseEvent('mouseleave'));
+    tick(110);
+    expect(panes()).toHaveLength(0);
+  });
+
+  it('lets the pointer through by default: the next section answers at once and the chip holds nothing', () => {
+    layout(new DOMRect(50, 250, 100, 30));
+    fixture.componentInstance.box.set({ x: 100, y: 300 });
+    settle();
+    enter(sections()[0]);
+    const pane = panes()[0];
+    expect(pane.style.pointerEvents).toBe('none');
+
+    // From inside the strip toward the chip, where a hoverable chip would hold the switch.
+    pointer(100, 292);
+    enter(sections()[1]);
+    expect(text('label')).toBe('Tue');
+
+    // Nothing on the chip keeps it: off the chart it closes after the usual grace.
+    pane.dispatchEvent(new MouseEvent('mouseenter'));
+    leave(sections()[1], pane);
     tick(110);
     expect(panes()).toHaveLength(0);
   });
@@ -775,4 +816,30 @@ describe('chart tooltip swatch under forced colors', () => {
       expect(swatch, cls).toMatch(/forced-color-adjust:\s*none/);
     }
   });
+
+  it(
+    "mutes a row's name by the chip's own colour, and sets its value a step larger",
+    { timeout: COMPILE_TIMEOUT },
+    () => {
+      // Under a heading the numbers are what the eye should land on. The name is muted as a
+      // share of the chip's text rather than by the muted role, so an inverted chip follows.
+      const css = compileSass(`@use 'popover/styles';`);
+      const rule = (cls: string): string => new RegExp(`\\.${cls}\\s*\\{([^}]*)\\}`).exec(css)?.[1] ?? '';
+
+      expect(rule('wr-chart-tooltip__row-label')).toMatch(
+        /--wr-chart-tooltip-row-label-color: color-mix\(in srgb, currentColor 72%, transparent\)/
+      );
+      expect(rule('wr-chart-tooltip__row-label')).toMatch(/color: var\(--wr-chart-tooltip-row-label-color\)/);
+      expect(rule('wr-chart-tooltip__row-value')).toMatch(
+        /--wr-chart-tooltip-row-value-font-size: var\(--wr-text-sm\)/
+      );
+      expect(rule('wr-chart-tooltip__row-value')).toMatch(/font-size: var\(--wr-chart-tooltip-row-value-font-size\)/);
+      expect(rule('wr-chart-tooltip__row-value')).toMatch(/font-variant-numeric: tabular-nums/);
+      expect(rule('wr-chart-tooltip__head')).toMatch(/font-weight: var\(--wr-chart-tooltip-head-font-weight\)/);
+      for (const cls of ['wr-chart-tooltip__swatch', 'wr-chart-tooltip__row-swatch']) {
+        expect(rule(cls)).toMatch(/width: 0\.5rem/);
+        expect(rule(cls)).toMatch(/border-radius: 50%/);
+      }
+    }
+  );
 });

@@ -28,9 +28,10 @@
   transform-origin: top left;
 }
 
-// A click popover focuses its pane on open, as `tabindex="-1"`: a programmatic
-// target Tab never reaches, so it reports no state and draws no ring. The UA's
-// square `auto` outline otherwise boxed the rounded panel and its arrow.
+// A click popover's pane is `tabindex="-1"` and takes focus under
+// `autoFocus="dialog"`: a programmatic target Tab never reaches, so it reports
+// no state and draws no ring. The UA's square `auto` outline otherwise boxed
+// the rounded panel and its arrow.
 .wr-popover-overlay:focus {
   outline: none;
 }
@@ -46,7 +47,8 @@
 // hint at 400% zoom has to be able to reach the text — and an inert pane makes
 // the `mouseenter` that keeps it open impossible to fire. It does mean the chip
 // now intercepts what is under it, which is the area it draws on and no more;
-// the one part of that worth avoiding is the arrow, opted back out below.
+// the one part of that worth avoiding is the arrow, opted back out below. A chart's
+// chip is the exception, by default: see `useChartTooltip()`.
 
 .wr-tooltip {
   // Follows the theme instead of inverting against it: on a dark canvas the
@@ -101,14 +103,16 @@
 }
 
 // The chip a chart's hover tooltip renders into (`useChartTooltip()`, used by
-// every chart but `wr-line-chart`, which draws its own). It carries `.wr-tooltip`
+// every chart). It carries `.wr-tooltip`
 // as well, so everything above is its look and the arrow below is its arrow; this
 // only lays out the inside.
 //
-// The label is told from the value by WEIGHT, not by a muted colour. The chip's
-// colours are the two `--wr-tooltip-*` hooks, and the documented way to invert
-// them makes the chip dark — a muted grey picked against the light surface would
-// be the one thing that did not follow.
+// On one line the label is told from the value by WEIGHT. Under a heading, each row's
+// name is muted and its value a step larger, so the numbers are what the eye lands on.
+// The muted name is a share of the chip's own colour rather than the muted role: the
+// chip's colours are the two `--wr-tooltip-*` hooks, and the documented way to invert
+// them makes the chip dark - a grey picked against the light surface would be the one
+// thing that did not follow.
 .wr-chart-tooltip {
   --wr-chart-tooltip-gap: var(--wr-space-sm);
   --wr-chart-tooltip-row-gap: var(--wr-space-xs);
@@ -145,10 +149,10 @@
     }
   }
 
-  // Several values about one section — every series at a radar's axis, a scatter
-  // point's x, y and size: the heading on the first line, a row per value under it.
-  // A column whose lines all take the chip's width, so each row's value lands on the
-  // inline end and the numbers line up, as they do in `wr-line-chart`'s own tooltip.
+  // Several values about one section — every series at a radar's axis or a line
+  // chart's x, a scatter point's x, y and size: the heading on the first line, a row
+  // per value under it. A column whose lines all take the chip's width, so each row's
+  // value lands on the inline end and the numbers line up.
   &--rows {
     flex-direction: column;
     align-items: stretch;
@@ -188,15 +192,22 @@
   // Takes the room the value leaves, and wraps inside it once the chip reaches the
   // tooltip's `max-width`, rather than pushing the value out of the chip.
   &__row-label {
+    // 72% of the chip's text over its background: 7.06:1 on the light surface and 8.47:1
+    // on the dark one with the default hooks, and it follows an inverted chip.
+    --wr-chart-tooltip-row-label-color: color-mix(in srgb, currentColor 72%, transparent);
+
     flex: 1 1 auto;
     min-width: 0;
     overflow-wrap: anywhere;
+    color: var(--wr-chart-tooltip-row-label-color);
   }
 
   &__row-value {
     --wr-chart-tooltip-row-value-font-weight: var(--wr-font-weight-semibold);
+    --wr-chart-tooltip-row-value-font-size: var(--wr-text-sm);
 
     flex: none;
+    font-size: var(--wr-chart-tooltip-row-value-font-size);
     font-weight: var(--wr-chart-tooltip-row-value-font-weight);
     font-variant-numeric: tabular-nums;
     // As the lone value above: the sign stays before the digits on an RTL page.

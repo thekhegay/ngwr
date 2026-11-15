@@ -42,8 +42,11 @@ describe('WrContextMenu typeahead', () => {
   const focused = (): string => (document.activeElement?.textContent ?? '').trim();
   const picked = (): string | null => fixture.componentInstance.picked();
 
+  /** Open the menu and walk in with ArrowDown, so focus is on its first item. */
   const rightClick = (): void => {
     target().dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
     fixture.detectChanges();
   };
   /** Type on whatever holds focus, as a keyboard does. */

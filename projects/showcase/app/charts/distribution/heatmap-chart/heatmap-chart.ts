@@ -73,6 +73,11 @@ export default class HeatmapChartPageComponent {
   protected readonly percent = (value: number): string => `${value}%`;
 
   protected readonly snippets = {
+    legend: `<wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" legendPosition="top" />
+<wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" legendPosition="end" />`,
+    states: `<wr-heatmap-chart [data]="[]" />
+<wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" loading />
+<wr-heatmap-chart [rows]="stores" [columns]="days" [data]="sales" error errorLabel="Sales are unavailable" />`,
     basic: `<wr-heatmap-chart
   [rows]="['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']"
   [columns]="['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00']"
@@ -124,7 +129,7 @@ export default class HeatmapChartPageComponent {
   [rows]="stores"
   [columns]="days"
   [data]="sales"
-  color="var(--wr-color-success)"
+  color="var(--wr-chart-2)"
   ariaLabel="Sales by store and day"
   noDataLabel="Closed"
   showValues

@@ -1,4 +1,25 @@
 @let hovered = hover();
+@let shown = state();
+
+<!-- The legend, drawn before the drawing or after it so it is in the DOM where it is on
+     screen: a toggleable legend's rows are tab stops, and their order follows it. Every
+     row keys its series by the series' own dash, as the outline is drawn. Rows are
+     tracked by position, so two series that share a label are two rows. -->
+<ng-template #legend>
+  <ul
+    wr-chart-legend
+    class="wr-radar-chart__legend"
+    [items]="legendItems()"
+    [position]="legendPosition()"
+    [toggleable]="toggleableLegend()"
+    [(hiddenSeries)]="hiddenSeries"
+  ></ul>
+</ng-template>
+
+@if (legendShown() && legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
+}
+
 <!-- The drawing, with the axis names in a gutter round it. The surface is as wide as the
      drawing; the gutter is its padding, and both label layers cover the drawing exactly,
      so a percentage of either is a percentage of the drawing. -->
@@ -31,41 +52,57 @@
       }
     }
 
-    <!-- Every fill under every outline, so the outlines and their dashes stay on top
-         wherever two series overlap. An open outline is never filled: filling it would
-         close it across a value the series does not have. A polar-area outline is the
-         silhouette of the series' wedges, which always closes, so it always fills. -->
-    @if (showArea()) {
-      @for (s of shapes(); track s.index) {
-        @if (s.closed) {
-          <path class="wr-radar-chart__area" [attr.d]="s.d" [attr.fill]="s.color" stroke="none" />
+    <!-- No series under a state: its message stands on the web the chart keeps.
+         `data-wr-series` on every mark of a series is its legend row, which the hover
+         dims by. -->
+    @if (!shown) {
+      <!-- Every fill under every outline, so the outlines and their dashes stay on top
+           wherever two series overlap. An open outline is never filled: filling it would
+           close it across a value the series does not have. A polar-area outline is the
+           silhouette of the series' wedges, which always closes, so it always fills. The
+           `fill` attribute is the series' colour, which forced colors keeps; the
+           stylesheet paints the tint from the same colour, handed over as a property. -->
+      @if (showArea()) {
+        @for (s of shapes(); track s.index) {
+          @if (s.closed) {
+            <path
+              class="wr-radar-chart__area"
+              [attr.d]="s.d"
+              [attr.fill]="s.color"
+              [attr.data-wr-series]="s.index"
+              [style.--wr-radar-chart-series-color]="s.color"
+              stroke="none"
+            />
+          }
         }
       }
-    }
-    <!-- By position, not by label: two series may share one. -->
-    @for (s of shapes(); track s.index) {
-      <path
-        class="wr-radar-chart__line"
-        [attr.d]="s.d"
-        fill="none"
-        [attr.stroke]="s.color"
-        [attr.stroke-dasharray]="s.dash || null"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        vector-effect="non-scaling-stroke"
-      />
-    }
-    @if (showDots()) {
+      <!-- By position, not by label: two series may share one. -->
       @for (s of shapes(); track s.index) {
-        @for (point of s.points; track $index) {
-          <!-- A missing value gets no dot. A dot is a zero-length line with a round cap and
-               a non-scaling stroke, so it stays a circle of the same pixels at any size. -->
-          @if (point) {
+        <path
+          class="wr-radar-chart__line"
+          [attr.d]="s.d"
+          fill="none"
+          [attr.stroke]="s.color"
+          [attr.stroke-dasharray]="s.dash || null"
+          [attr.data-wr-series]="s.index"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          vector-effect="non-scaling-stroke"
+        />
+      }
+      @if (showDots()) {
+        @for (s of shapes(); track s.index) {
+          <!-- Every dot of the series in one path, a subpath each, so a series costs one
+               element rather than one per axis. A missing value gets no dot. A dot is a
+               zero-length line with a round cap and a non-scaling stroke, so it stays a
+               circle of the same pixels at any size. -->
+          @if (s.dots) {
             <path
               class="wr-radar-chart__dot"
-              [attr.d]="dotPath(point)"
+              [attr.d]="s.dots"
               fill="none"
               [attr.stroke]="s.color"
+              [attr.data-wr-series]="s.index"
               stroke-linecap="round"
               vector-effect="non-scaling-stroke"
             />
@@ -83,14 +120,14 @@
         [attr.y2]="hovered.end.y"
         vector-effect="non-scaling-stroke"
       />
-      <!-- A ring of the series' colour round a surface-coloured centre, drawn the way a dot
-           is and for the same reason. -->
+      <!-- A larger dot of the series' colour inside a ring of the surface, which parts it
+           from the outlines it sits on: the ring first, the dot over it, each drawn the
+           way a dot is and for the same reason. The ring's colour is the stylesheet's. -->
       @for (p of hovered.points; track p.index) {
         <path
           class="wr-radar-chart__hover-dot"
           [attr.d]="p.d"
           fill="none"
-          [attr.stroke]="p.color"
           stroke-linecap="round"
           vector-effect="non-scaling-stroke"
         />
@@ -98,6 +135,7 @@
           class="wr-radar-chart__hover-dot-center"
           [attr.d]="p.d"
           fill="none"
+          [attr.stroke]="p.color"
           stroke-linecap="round"
           vector-effect="non-scaling-stroke"
         />
@@ -105,12 +143,19 @@
     }
   </svg>
 
-  @if (showGrid() && ringLabels().length > 0) {
+  @if (showGrid() && !shown && ringLabels().length > 0) {
     <!-- Hidden, as an axis' ticks are on every chart: the drawing's name is what is
-         announced, and the figures are in the data table. -->
+         announced, and the figures are in the data table. Each sits on its ring, between
+         two spokes. Not under a state, whose message is centred over the same web. -->
     <div class="wr-radar-chart__ring-labels" aria-hidden="true">
       @for (ring of ringLabels(); track $index) {
-        <span class="wr-radar-chart__ring-label" [style.--wr-radar-chart-y]="ring.y">{{ ring.text }}</span>
+        <span
+          #ringLabel
+          class="wr-radar-chart__ring-label"
+          [style.--wr-radar-chart-x]="ring.x"
+          [style.--wr-radar-chart-y]="ring.y"
+          >{{ ring.text }}</span
+        >
       }
     </div>
   }
@@ -131,23 +176,20 @@
       }
     </div>
   }
+
+  @if (shown) {
+    <!-- Empty, loading or failed: the message, over the web and the axis names the chart keeps. -->
+    <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+  }
 </div>
 
-@if (dataTable()) {
+@if (dataTable() && !shown) {
   <!-- The figures for a screen reader, beside the drawing's `img` and never inside it:
        `img` makes everything it holds presentational. Clipped to nothing by its own
        stylesheet, so it takes no room and draws nothing. -->
   <wr-chart-table [data]="tableData()" />
 }
 
-@if (showLegend() && legendItems().length > 0) {
-  <!-- Every row keys its series by the series' own dash, as the outline is drawn. Rows are
-       tracked by position, so two series that share a label are two rows. -->
-  <ul
-    wr-chart-legend
-    class="wr-radar-chart__legend"
-    [items]="legendItems()"
-    [toggleable]="toggleableLegend()"
-    [(hiddenSeries)]="hiddenSeries"
-  ></ul>
+@if (legendShown() && !legendFirst()) {
+  <ng-container [ngTemplateOutlet]="legend" />
 }

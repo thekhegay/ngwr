@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Cascader"
-  updated="16.3.0"
+  updated="16.5.0"
   description="Pick a path through nested options, one column per level."
   [keywords]="['cascader', 'wr-cascader', 'multi-level', 'select']"
   [labels]="['Component']"
@@ -32,7 +32,7 @@
 
   <ngwr-doc-section
     title="Keyboard"
-    description="The panel has one tab stop: the arrows move inside it, and Tab leaves it."
+    description="Opening leaves focus on the trigger, and ArrowDown or Tab there moves into the panel. Bind `[autoFocus]` to `true` to focus the selected option on open. The panel has one tab stop: the arrows move inside it, and Tab leaves it."
   >
     <div class="ngwr-table ngwr-keys">
       <table>
@@ -45,7 +45,14 @@
         <tbody>
           <tr>
             <th scope="row"><wr-kbd size="sm">ArrowDown</wr-kbd> <wr-kbd size="sm">ArrowUp</wr-kbd></th>
-            <td>On the trigger, opens the panel. In a column, moves to the next or previous option.</td>
+            <td>
+              On the trigger, opens the panel; once it is open, moves focus to the selected option, else the first. In a
+              column, moves to the next or previous option.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Tab</wr-kbd></th>
+            <td>On the trigger of an open panel, moves into it. In the panel, closes it and moves on.</td>
           </tr>
           <tr>
             <th scope="row"><wr-kbd size="sm">Home</wr-kbd> <wr-kbd size="sm">End</wr-kbd></th>
@@ -61,7 +68,10 @@
           </tr>
           <tr>
             <th scope="row">A letter</th>
-            <td>Moves to the next option in the column that starts with what you typed.</td>
+            <td>
+              Moves to the next option in the column that starts with what you typed. Works from the trigger of an open
+              panel too.
+            </td>
           </tr>
           <tr>
             <th scope="row"><wr-kbd size="sm">Enter</wr-kbd> <wr-kbd size="sm">Space</wr-kbd></th>

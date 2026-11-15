@@ -685,7 +685,7 @@ describe('WrDialog.confirm', () => {
 
   /** The answer, which every test settles before reading the DOM. */
   const confirm = (options: Partial<WrDialogConfirmOptions> = {}): Promise<boolean> =>
-    fixture.componentInstance.dialog.confirm({ title: 'Delete item?', ...options });
+    fixture.componentInstance.dialog.confirm({ title: 'Delete item?', autoFocus: 'first-tabbable', ...options });
 
   beforeEach(() => {
     vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
@@ -923,7 +923,7 @@ describe('WrDialog.alert', () => {
   };
 
   const alert = (options: Partial<WrDialogAlertOptions> = {}): Promise<void> =>
-    fixture.componentInstance.dialog.alert({ title: 'Range too large', ...options });
+    fixture.componentInstance.dialog.alert({ title: 'Range too large', autoFocus: 'first-tabbable', ...options });
 
   beforeEach(() => {
     vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
@@ -1153,7 +1153,11 @@ describe('WrDialog intent', () => {
   });
 
   it('starts a danger question on the cancel button', async () => {
-    void fixture.componentInstance.dialog.confirm({ title: 'Delete?', intent: 'danger' });
+    void fixture.componentInstance.dialog.confirm({
+      title: 'Delete?',
+      intent: 'danger',
+      autoFocus: 'first-tabbable',
+    });
     await settle();
     await fixture.whenStable();
 
@@ -1506,5 +1510,164 @@ describe('WrDialog tabTitle', () => {
     await settle();
 
     expect(document.title).toBe('Lamps - App');
+  });
+});
+
+@Component({
+  template: `
+    <input class="plain" />
+    <input class="wanted" cdkFocusInitial />
+  `,
+})
+class FieldDialog {}
+
+describe('WrDialog autoFocus', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+
+  const opener = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.opener')!;
+  const panel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-dialog-panel')!;
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    TestBed.tick();
+    await fixture.whenStable();
+  };
+
+  const setup = (...features: WrFeature[]): WrDialog => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(...features)] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    opener().focus();
+    return fixture.componentInstance.dialog;
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([
+      new DOMRect(0, 0, 120, 32),
+    ] as unknown as DOMRectList);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    fixture.destroy();
+    TestBed.resetTestingModule();
+  });
+
+  it('focuses the panel by default, so nothing is lit until the user presses Tab', async () => {
+    const dialogs = setup();
+    dialogs.open(Confirm);
+    await settle();
+    expect(document.activeElement).toBe(panel());
+  });
+
+  it('focuses the first tabbable element with "first-tabbable"', async () => {
+    const dialogs = setup();
+    dialogs.open(Confirm, { autoFocus: 'first-tabbable' });
+    await settle();
+    expect(document.activeElement).toBe(panel().querySelector('button'));
+  });
+
+  it('focuses the panel itself with "dialog", which stays out of the tab order', async () => {
+    const dialogs = setup();
+    dialogs.open(Confirm, { autoFocus: 'dialog' });
+    await settle();
+    expect(document.activeElement).toBe(panel());
+    expect(panel().getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('leaves focus where it was with false', async () => {
+    const dialogs = setup();
+    dialogs.open(Confirm, { autoFocus: false });
+    await settle();
+    expect(document.activeElement).toBe(opener());
+  });
+
+  it('takes the app default from withDialog, and a per-dialog value wins', async () => {
+    const dialogs = setup(withDialog({ autoFocus: 'first-tabbable' }));
+    dialogs.open(Confirm);
+    await settle();
+    expect(document.activeElement).toBe(panel().querySelector('button'));
+
+    dialogs.open(Confirm, { autoFocus: 'dialog' });
+    await settle();
+    const panels = document.querySelectorAll<HTMLElement>('.wr-dialog-panel');
+    expect(document.activeElement).toBe(panels[1]);
+  });
+
+  for (const mode of ['first-tabbable', 'dialog', false] as const) {
+    it(`lets cdkFocusInitial win with ${String(mode)}`, async () => {
+      const dialogs = setup();
+      dialogs.open(FieldDialog, { autoFocus: mode });
+      await settle();
+      expect(document.activeElement).toBe(panel().querySelector('.wanted'));
+    });
+
+    it(`returns focus to the opener on close with ${String(mode)}`, async () => {
+      const dialogs = setup();
+      const ref = dialogs.open(Confirm, { autoFocus: mode });
+      await settle();
+      ref.close();
+      await settle();
+      expect(document.activeElement).toBe(opener());
+    });
+
+    it(`keeps Tab inside once focus enters, with ${String(mode)}`, async () => {
+      const dialogs = setup();
+      dialogs.open(Confirm, { autoFocus: mode });
+      await settle();
+      const anchors = document.querySelectorAll<HTMLElement>('.cdk-focus-trap-anchor');
+      anchors[anchors.length - 1].focus();
+      expect(document.activeElement).toBe(panel().querySelector('button'));
+    });
+  }
+
+  it('puts confirm and alert on their own button only under "first-tabbable"', async () => {
+    const dialogs = setup();
+    const cancel = (): Element | null => document.querySelector('.wr-dialog-confirm__action--cancel');
+    const confirmBtn = (): Element | null => document.querySelector('.wr-dialog-confirm__action--confirm');
+    const ok = (): Element | null => document.querySelector('.wr-dialog-confirm__action--ok');
+    const close = async (el: Element | null): Promise<void> => {
+      (el as HTMLElement).click();
+      await settle();
+    };
+
+    void dialogs.confirm({ title: 'Delete?', confirmColor: 'danger' });
+    await settle();
+    expect(document.activeElement).toBe(panel());
+    expect(document.querySelector('[cdkFocusInitial]')).toBeNull();
+    await close(cancel());
+
+    void dialogs.confirm({ title: 'Delete?', confirmColor: 'danger', autoFocus: 'first-tabbable' });
+    await settle();
+    expect(document.activeElement).toBe(cancel());
+    await close(cancel());
+
+    void dialogs.confirm({ title: 'Sure?', autoFocus: 'first-tabbable' });
+    await settle();
+    expect(document.activeElement).toBe(confirmBtn());
+    await close(cancel());
+
+    void dialogs.alert({ title: 'Heads up' });
+    await settle();
+    expect(document.activeElement).toBe(panel());
+    await close(ok());
+
+    void dialogs.alert({ title: 'Heads up', autoFocus: 'first-tabbable' });
+    await settle();
+    expect(document.activeElement).toBe(ok());
+  });
+
+  it('moves no focus for confirm() with false, and takes withDialog for it', async () => {
+    const dialogs = setup(withDialog({ autoFocus: false }));
+    void dialogs.confirm({ title: 'Sure?' });
+    await settle();
+    expect(document.activeElement).toBe(opener());
+  });
+
+  it('draws no ring on the panel', () => {
+    const css = compileSass("@use 'dialog/styles';");
+    expect(css).toMatch(/\.wr-dialog-panel:focus\s*\{\s*outline:\s*none/);
   });
 });

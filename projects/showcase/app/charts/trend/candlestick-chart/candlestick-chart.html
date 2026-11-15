@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="Candlestick Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="Prices over time (OHLC): a candle per period, its wick from the low to the high and its body from the open to the close."
   [keywords]="['candlestick-chart', 'candlestick', 'ohlc', 'stock-chart', 'wr-candlestick-chart']"
   [labels]="['Component']"
@@ -18,27 +19,118 @@
 
   <ngwr-doc-section
     title="Up and down"
-    description="A rising candle is hollow, a falling one filled, so the fill tells them apart without colour. `increaseColor` and `decreaseColor` swap the colours for a market that draws rises in red. The fill stays."
+    description="A rise is drawn in the success colour and a fall in the danger colour, both solid. `hollow` draws a rising body as an outline, so the fill tells them apart without colour. `increaseColor` and `decreaseColor` swap the colours for a market that draws rises in red."
   >
     <ngwr-doc-code [code]="snippets.colors" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <wr-candlestick-chart
-        style="width: 100%"
-        ariaLabel="ACME, daily, rises in red"
-        increaseColor="var(--wr-color-danger)"
-        decreaseColor="var(--wr-color-success)"
-        [data]="month"
-      />
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Solid (default)</p>
+          <wr-candlestick-chart ariaLabel="ACME, daily, solid" [data]="month" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>hollow</code>
+          </p>
+          <wr-candlestick-chart ariaLabel="ACME, daily, hollow rises" hollow [data]="month" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Rises in red</p>
+          <wr-candlestick-chart
+            ariaLabel="ACME, daily, rises in red"
+            increaseColor="var(--wr-color-danger)"
+            decreaseColor="var(--wr-color-success)"
+            [data]="month"
+          />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Grid and axis"
+    description="Gridlines cross the plot at every tick of the price axis, with the scale beside it. `showGrid` and `showAxis` turn each off. The period labels stay."
+  >
+    <ngwr-doc-code [code]="snippets.grid" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showGrid]="false"</code>
+          </p>
+          <wr-candlestick-chart ariaLabel="ACME, daily, no grid" [data]="month" [showGrid]="false" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[showAxis]="false"</code>
+          </p>
+          <wr-candlestick-chart ariaLabel="ACME, daily, no scale" [data]="month" [showAxis]="false" />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Many candles"
-    description="Bodies narrow with the room they have. Under 4px a rising body is dotted rather than hollow. The labels thin out to what fits."
+    description="Bodies narrow with the room they have, and the labels thin out to what fits. With `hollow`, a rising body under 4px is dotted."
   >
     <ngwr-doc-code [code]="snippets.many" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-candlestick-chart style="width: 100%" ariaLabel="ACME, 2026" [data]="year" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Decimation"
+    description="Past two periods a pixel the chart merges them: each candle then stands for a run of periods, with the open of the first, the close of the last, the highest high and the lowest low. The tooltip and the data table keep every period. `decimate` off draws a candle per period."
+  >
+    <ngwr-doc-code [code]="snippets.decimate" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">5,000 periods, merged (default)</p>
+          <wr-candlestick-chart ariaLabel="ACME, twenty years, merged" [data]="decades" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>[decimate]="false"</code>
+          </p>
+          <wr-candlestick-chart ariaLabel="ACME, twenty years, every day" [data]="decades" [decimate]="false" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no data the chart keeps its frame and says so. `loading` and `error` put their message in place of the candles. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-candlestick-chart ariaLabel="ACME, no data" [data]="[]" [height]="140" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-candlestick-chart ariaLabel="ACME, loading" [data]="month" [height]="140" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-candlestick-chart
+            ariaLabel="ACME, failed"
+            [data]="month"
+            [height]="140"
+            error
+            errorLabel="Prices are unavailable"
+          />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -89,8 +181,8 @@
           <tr>
             <th scope="row">Up and down</th>
             <td>
-              Told apart by fill as well as colour: hollow or dotted up, filled down. Every body is drawn tall enough to
-              show its fill, even when the price barely moved.
+              Told apart by colour on the drawing, and by the open and the close in the tooltip and the data table.
+              <code>hollow</code> adds the fill: an outline or dots up, solid down.
             </td>
           </tr>
           <tr>
@@ -105,11 +197,6 @@
       </table>
     </div>
   </ngwr-doc-section>
-
-  <ngwr-doc-section
-    title="Very many candles"
-    description="Past one candle per pixel the candles overlap. Aggregate the periods first: weeks instead of days."
-  />
 
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />

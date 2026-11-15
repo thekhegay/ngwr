@@ -37,6 +37,8 @@ import type { WrChartTooltipDatum } from '../types';
   host: {
     class: 'wr-tooltip wr-chart-tooltip',
     '[class.wr-chart-tooltip--rows]': 'rows().length > 0',
+    // The chart's own class for its chip, beside the static ones above.
+    '[class]': 'datum().className',
   },
   imports: [NgTemplateOutlet],
 })

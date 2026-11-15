@@ -1,13 +1,14 @@
 <ngwr-doc-page
   title="Treemap Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="A hierarchy as nested rectangles, each with an area in proportion to its value."
   [keywords]="['treemap-chart', 'treemap', 'hierarchy', 'wr-treemap-chart']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="Each top-level node takes the next palette colour, and everything inside it shares it. A group without a value is the sum of its children."
+    description="Each top-level node takes the next colour of the chart palette, and everything inside it shares it. Tiles are solid, parted by a 1px line. A group without a value is the sum of its children. Hover a tile to dim the other groups."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
@@ -29,13 +30,69 @@
 
   <ngwr-doc-section
     title="Labels"
-    description="Names go inside the tiles with room for them, a group's in a strip along its top. A long name is cut with an ellipsis, and a tile too small writes nothing. `showValues` and `showLabels` turn the text off."
+    description="Names go inside the tiles with room for them, a group's in a strip along its top. A name is cut with an ellipsis only where about nine letters of it stay; a smaller tile writes nothing, and the tooltip names it. `showValues` and `showLabels` turn the text off."
   >
     <ngwr-doc-code [code]="snippets.labels" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: grid; gap: 2rem; width: 100%">
         <wr-treemap-chart ariaLabel="Repository by lines of code" [data]="repo" [height]="320" />
         <wr-treemap-chart ariaLabel="Repository by lines of code" [data]="repo" [showValues]="false" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Legend"
+    description="`showLegend` keys the top-level nodes, each with its value: useful when small tiles carry no name. `legendPosition` puts it at `bottom` (default), `top`, `start` or `end`. Hover a row to dim the other groups."
+  >
+    <ngwr-doc-code [code]="snippets.legend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>showLegend</code>
+          </p>
+          <wr-treemap-chart ariaLabel="Budget by department" [data]="budget" [height]="220" showLegend />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="end"</code>
+          </p>
+          <wr-treemap-chart
+            ariaLabel="Budget by department"
+            [data]="budget"
+            [height]="220"
+            showLegend
+            legendPosition="end"
+          />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no area to draw the chart keeps its box and says so. `loading` and `error` put their message in place of the tiles. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-treemap-chart [data]="[]" [height]="140" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-treemap-chart [data]="budget" [height]="140" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-treemap-chart [data]="budget" [height]="140" error errorLabel="Budget is unavailable" />
+        </div>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
@@ -109,13 +166,14 @@
           </tr>
           <tr>
             <th scope="row">Tile edges</th>
-            <td>
-              A faint gap in the surface colour. Under <code>prefers-contrast: more</code> it is a line at 3:1 or more.
-            </td>
+            <td>A 1px line in the surface colour, which every palette colour holds 3:1 against.</td>
           </tr>
           <tr>
             <th scope="row">Names</th>
-            <td>Cut with an ellipsis where a tile is narrow. The tooltip and the table carry the whole path.</td>
+            <td>
+              Black or white, picked per tile. Left out where a tile would cut one to a few letters. The tooltip and the
+              table carry the whole path.
+            </td>
           </tr>
           <tr>
             <th scope="row">Values</th>
@@ -123,7 +181,14 @@
           </tr>
           <tr>
             <th scope="row">Forced colours</th>
-            <td>The tints give way to the system palette; every tile keeps an outline in the text colour.</td>
+            <td>The fills give way to the system palette; every tile keeps an outline in the text colour.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Keyboard</th>

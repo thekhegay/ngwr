@@ -83,6 +83,9 @@ export default class FunnelChartPageComponent {
   protected readonly percent = (ratio: number): string => this.percents.format(ratio);
 
   protected readonly snippets = {
+    states: `<wr-funnel-chart [stages]="[]" />
+<wr-funnel-chart [stages]="stages" loading />
+<wr-funnel-chart [stages]="stages" error errorLabel="Funnel is unavailable" />`,
     basic: `<wr-funnel-chart
   ariaLabel="Sign-up funnel"
   [stages]="[

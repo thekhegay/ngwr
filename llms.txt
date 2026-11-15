@@ -413,8 +413,10 @@ https://ngwr.dev/reference/utils/wr-typeahead
   your own loop, with `[wrDragHandle]` — all in ngwr/sortable-list).
 - **Charts** — `wr-line-chart` (`showArea` makes it an area chart and
   `stacked` stacks the series, both for a stacked area), `wr-bar-chart`
-  (grouped or `stacked` `series`, `orientation` `'horizontal'`, and `lines`
-  drawn over the bars for a combo chart),
+  (grouped or `stacked` `series`, `orientation` `'horizontal'`, `lines`
+  drawn over the bars for a combo chart, a grid and a value axis by default
+  with `showGrid` / `showAxis` / `showValues`, `legendPosition`, and
+  `loading` / `error` states),
   `wr-donut-chart` (`pie` fills it to the centre), `wr-scatter-chart` (numeric
   x and y, a `size` per point for bubbles), `wr-radar-chart` (`variant`
   `'polar-area'` draws wedges), `wr-heatmap-chart`, `wr-funnel-chart`,
@@ -422,7 +424,9 @@ https://ngwr.dev/reference/utils/wr-typeahead
   `wr-boxplot-chart`, `wr-candlestick-chart`, `wr-sparkline`, `wr-gauge`,
   `wr-calendar-heatmap`, `wr-meter-group`, each its
   own entry point at `ngwr/charts/<name>` (`ngwr/charts/bar-chart`), documented
-  under https://ngwr.dev/charts/, themed through the `--wr-*` tokens and each
+  under https://ngwr.dev/charts/, themed through the `--wr-*` tokens - and the
+  shared chart theme, `--wr-chart-*` (grid, axis, labels, an eight-colour
+  palette `--wr-chart-1` to `--wr-chart-8`), listed on the bar chart page - and each
   with a hover tooltip. `ul[wr-chart-legend]` (ngwr/charts/chart-legend) is the
   legend the bar, line, donut, meter-group, scatter and radar charts draw, and
   a key of its own beside several charts; `toggleableLegend` on those charts

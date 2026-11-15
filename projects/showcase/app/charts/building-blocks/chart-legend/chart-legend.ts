@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-import { WrChartLegend, type WrChartLegendItem } from 'ngwr/charts/chart-legend';
+import { WrChartLegend, type WrChartLegendItem, WrChartScale } from 'ngwr/charts/chart-legend';
 import { WrSparkline } from 'ngwr/charts/sparkline';
 
 import {
@@ -24,6 +24,7 @@ interface Metric {
   templateUrl: './chart-legend.html',
   imports: [
     WrChartLegend,
+    WrChartScale,
     WrSparkline,
     DocPageComponent,
     DocSectionComponent,
@@ -34,24 +35,24 @@ interface Metric {
 })
 export default class ChartLegendPageComponent {
   protected readonly sources: readonly WrChartLegendItem[] = [
-    { label: 'Direct', color: 'var(--wr-color-primary)', value: '4,812' },
-    { label: 'Search', color: 'var(--wr-color-success)', value: '3,206' },
-    { label: 'Social', color: 'var(--wr-color-warning)', value: '1,157' },
-    { label: 'Referral', color: 'var(--wr-color-danger)', value: '644' },
+    { label: 'Direct', color: 'var(--wr-chart-1)', value: '4,812' },
+    { label: 'Search', color: 'var(--wr-chart-2)', value: '3,206' },
+    { label: 'Social', color: 'var(--wr-chart-3)', value: '1,157' },
+    { label: 'Referral', color: 'var(--wr-chart-4)', value: '644' },
   ];
 
   protected readonly keys: readonly WrChartLegendItem[] = [
-    { label: 'Solid line', color: 'var(--wr-color-primary)', dash: '' },
-    { label: 'Dashed line', color: 'var(--wr-color-success)', dash: '7 4' },
-    { label: 'Square', color: 'var(--wr-color-warning)', marker: 'square' },
-    { label: 'Triangle', color: 'var(--wr-color-danger)', marker: 'triangle' },
+    { label: 'Solid line', color: 'var(--wr-chart-1)', dash: '' },
+    { label: 'Dashed line', color: 'var(--wr-chart-2)', dash: '7 4' },
+    { label: 'Square', color: 'var(--wr-chart-3)', marker: 'square' },
+    { label: 'Triangle', color: 'var(--wr-chart-4)', marker: 'triangle' },
     { label: 'Line with points', color: 'var(--wr-color-on-surface-muted)', dash: '2 3', marker: 'diamond' },
   ];
 
   protected readonly metrics: readonly Metric[] = [
-    { label: 'Visits', color: 'var(--wr-color-primary)', data: [12, 18, 9, 22, 30, 27, 35] },
-    { label: 'Signups', color: 'var(--wr-color-success)', data: [3, 5, 4, 8, 11, 9, 14] },
-    { label: 'Errors', color: 'var(--wr-color-danger)', data: [6, 4, 7, 3, 2, 4, 1] },
+    { label: 'Visits', color: 'var(--wr-chart-1)', data: [12, 18, 9, 22, 30, 27, 35] },
+    { label: 'Signups', color: 'var(--wr-chart-2)', data: [3, 5, 4, 8, 11, 9, 14] },
+    { label: 'Errors', color: 'var(--wr-chart-4)', data: [6, 4, 7, 3, 2, 4, 1] },
   ];
 
   protected readonly hidden = signal<readonly number[]>([]);
@@ -60,19 +61,40 @@ export default class ChartLegendPageComponent {
     this.metrics.map(({ label, color }) => ({ label, color, dash: '' }))
   );
 
+  /** The five steps of the chart theme's sequential scale, lowest first. */
+  protected readonly scaleSteps: readonly string[] = [
+    'var(--wr-chart-seq-1)',
+    'var(--wr-chart-seq-2)',
+    'var(--wr-chart-seq-3)',
+    'var(--wr-chart-seq-4)',
+    'var(--wr-chart-seq-5)',
+  ];
+
   protected readonly snippets = {
+    scale: `<wr-chart-scale
+  aria-hidden="true"
+  minLabel="0"
+  maxLabel="120"
+  [steps]="[
+    'var(--wr-chart-seq-1)',
+    'var(--wr-chart-seq-2)',
+    'var(--wr-chart-seq-3)',
+    'var(--wr-chart-seq-4)',
+    'var(--wr-chart-seq-5)'
+  ]"
+/>`,
     basic: `<ul
   wr-chart-legend
   [items]="[
-    { label: 'Direct', color: 'var(--wr-color-primary)', value: '4,812' },
-    { label: 'Search', color: 'var(--wr-color-success)', value: '3,206' }
+    { label: 'Direct', color: 'var(--wr-chart-1)', value: '4,812' },
+    { label: 'Search', color: 'var(--wr-chart-2)', value: '3,206' }
   ]"
 ></ul>`,
     keys: `<ul
   wr-chart-legend
   [items]="[
-    { label: 'Dashed line', color: 'var(--wr-color-success)', dash: '7 4' },
-    { label: 'Triangle', color: 'var(--wr-color-danger)', marker: 'triangle' },
+    { label: 'Dashed line', color: 'var(--wr-chart-2)', dash: '7 4' },
+    { label: 'Triangle', color: 'var(--wr-chart-4)', marker: 'triangle' },
     { label: 'Line with points', color: 'var(--wr-color-on-surface-muted)', dash: '2 3', marker: 'diamond' }
   ]"
 ></ul>`,
@@ -84,6 +106,8 @@ export default class ChartLegendPageComponent {
   }
 }`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
+    position: `<ul wr-chart-legend [items]="sources"></ul>
+<ul wr-chart-legend position="end" [items]="sources"></ul>`,
   };
 
   protected readonly typeSnippet = `interface WrChartLegendItem {
@@ -95,6 +119,8 @@ export default class ChartLegendPageComponent {
 }
 
 type WrChartMarker = 'circle' | 'square' | 'triangle' | 'diamond' | 'cross' | 'triangle-down';
+
+type WrChartLegendPosition = 'top' | 'bottom' | 'start' | 'end' | 'none';
 
 interface WrChartLegendToggle {
   index: number;
@@ -139,6 +165,11 @@ interface WrChartLegendToggle {
       default: 'undefined',
       sub: true,
     },
+    {
+      name: 'WrChartLegendPosition',
+      description: 'Where a legend sits beside its chart.',
+      type: "'top' | 'bottom' | 'start' | 'end' | 'none'",
+    },
     { name: 'WrChartLegendToggle', description: 'What `(toggled)` emits.', type: 'interface' },
     { name: 'index', description: "The row's position in `items`.", type: 'number', required: true, sub: true },
     {
@@ -152,4 +183,6 @@ interface WrChartLegendToggle {
   ];
 
   protected readonly api = API.WrChartLegend;
+
+  protected readonly scaleApi = API.WrChartScale;
 }

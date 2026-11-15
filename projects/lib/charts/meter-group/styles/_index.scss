@@ -4,6 +4,7 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/meter-group'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
+@use '../../core/styles' as core-styles; // WrChartState
 @include theme.loaded('charts/meter-group');
 
 .wr-meter-group {
@@ -11,20 +12,40 @@
   --wr-meter-group-font-family: var(--wr-font-family-base);
   --wr-meter-group-color: var(--wr-color-on-surface);
   --wr-meter-group-bar-height: 0.625rem;
-  --wr-meter-group-bar-radius: var(--wr-border-radius-pill);
-  // The part of the scale nothing fills, and the gap laid between two slices in it.
-  --wr-meter-group-track-bg: var(--wr-color-fill-strong);
-  --wr-meter-group-slice-gap: calc(var(--wr-space-xs) / 2);
+  // The chart theme's radius, the track every unfilled scale is painted with, and the line
+  // between two fills that touch. They were a pill, a role of this meter's own and a 2px
+  // gap in the track's colour.
+  --wr-meter-group-bar-radius: var(--wr-chart-bar-radius);
+  --wr-meter-group-track-bg: var(--wr-chart-track);
+  --wr-meter-group-slice-gap: 1px;
+  --wr-meter-group-separator: var(--wr-chart-separator);
   --wr-meter-group-legend-value-color: var(--wr-color-on-surface-muted);
+  // A band moving to a new value.
+  --wr-meter-group-duration: var(--wr-chart-duration);
+  --wr-meter-group-ease: var(--wr-chart-ease);
+  // The line the state message is written on, in the legend's place.
+  --wr-meter-group-status-height: var(--wr-text-sm-leading);
+  // Which way a band slides: 1 from the left, -1 from the right. A transform is physical,
+  // so the stylesheet turns it over under RTL.
+  --wr-meter-group-dir: 1;
 
   display: flex;
   flex-direction: column;
-  gap: var(--wr-meter-group-gap);
   font-family: var(--wr-meter-group-font-family);
   color: var(--wr-meter-group-color);
 
+  &:dir(rtl) {
+    --wr-meter-group-dir: -1;
+  }
+
+  // Beside the bar, the legend is a column and the bar takes the rest, centred on it.
+  &.wr-chart--legend-side {
+    flex-direction: row;
+    align-items: center;
+  }
+
   &__bar {
-    display: flex;
+    position: relative;
     width: 100%;
     height: var(--wr-meter-group-bar-height);
     border-radius: var(--wr-meter-group-bar-radius);
@@ -38,35 +59,50 @@
     }
   }
 
+  // As wide as the bar, and slid back so that it ENDS at its share of it
+  // (`--wr-meter-group-slice-end`, 0 to 1 from the bar's start, which the component
+  // writes): the bands are piled first on top, so each shows from where the one before it
+  // ends. A new value, or a legend row toggled, moves a transform, which lays nothing
+  // out; it used to move `width`, and every frame of that laid the bar out again.
   &__slice {
-    display: block;
-    height: 100%;
-    transition: width var(--wr-transition-base);
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    transform: translateX(calc((var(--wr-meter-group-slice-end, 1) - 1) * 100% * var(--wr-meter-group-dir)));
+    transition: transform var(--wr-meter-group-duration) var(--wr-meter-group-ease);
     // An inline `background`, which forced colors resets to `Canvas` — the bar
     // vanished and left only the legend. The SVG charts keep their fills there.
     forced-color-adjust: none;
-    // The gap between two slices is an outline in the track's colour, half of it laid
-    // over each side of the boundary. It was a margin, added ON TOP of widths that are
-    // already shares of the bar: a 50/100 meter of five slices filled 55% of it, and a
-    // zero slice still added its margin, leaving a double gap. An outline takes no room,
-    // so every boundary sits at its exact share; it is painted after every slice, so it
-    // covers the next one rather than hiding under it, as a spread shadow would; and a
-    // zero slice's outline is the one gap where its two neighbours meet.
-    outline: var(--wr-meter-group-slice-gap) solid var(--wr-meter-group-track-bg);
+    // The shared hover-dim fades a mark by its opacity, and a band lies over the start of
+    // the next: faded, it would show that one through. A band stays whole and takes a
+    // veil of the surface instead (`::after`, below), which reads the same.
+    opacity: 1;
+    // The line between two bands: the end edge of each, in the surface, inside its own
+    // box so every boundary sits at its exact share. A band of nothing ends where the one
+    // before it does, and its line lies under that one's. The last band draws none: past
+    // it is the track or the end of the bar.
+    border-inline-end: var(--wr-meter-group-slice-gap) solid var(--wr-meter-group-separator);
 
-    // The width follows a toggled legend row as well as new data, so every press would
-    // tween the whole bar. Under reduced motion it lands at once.
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
+    &:last-of-type {
+      border-inline-end: 0;
     }
+  }
+
+  // Where the message of an empty, loading or failed meter is written.
+  &__status {
+    position: relative;
+    min-height: var(--wr-meter-group-status-height);
+    margin-block-start: var(--wr-meter-group-gap);
   }
 
   &__legend {
     --wr-meter-group-legend-gap-y: var(--wr-space-sm);
     --wr-meter-group-legend-gap-x: var(--wr-space-lg);
 
+    // The room between the bar and the legend, on whichever side the legend sits.
+    --wr-chart-legend-space: var(--wr-meter-group-gap);
+
     list-style: none;
-    margin: 0;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
@@ -87,9 +123,10 @@
     color: var(--wr-meter-group-color);
   }
 
+  // The 8px dot every chart's legend keys a row with.
   &__swatch {
-    width: 0.625rem;
-    height: 0.625rem;
+    width: var(--wr-chart-legend-dot-size);
+    height: var(--wr-chart-legend-dot-size);
     border-radius: 50%;
     flex: 0 0 auto;
     // The key to the slices' colours, so it keeps them where the slices do.
@@ -105,5 +142,30 @@
   &__legend-value {
     color: var(--wr-meter-group-legend-value-color);
     font-variant-numeric: tabular-nums;
+  }
+}
+
+// Hover: every band but the one under the pointer, or under a hovered legend row, takes a
+// veil of the surface at the theme's dim. Only while the meter is dimmed.
+.wr-chart--dim .wr-meter-group__slice:not(.wr-chart-mark--on)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--wr-meter-group-separator);
+  opacity: calc(1 - var(--wr-chart-dim));
+  pointer-events: none;
+  transition: opacity var(--wr-chart-duration-short) var(--wr-chart-ease);
+
+  @starting-style {
+    opacity: 0;
+  }
+}
+
+// A band entering the page slides in from the bar's start, where the browser can start a
+// transition from a style of its own (`@starting-style`); elsewhere it is drawn at its
+// share. Under reduced motion the theme's duration is 0s, and it is drawn at once.
+@starting-style {
+  .wr-meter-group__slice {
+    transform: translateX(calc(-100% * var(--wr-meter-group-dir)));
   }
 }

@@ -258,6 +258,13 @@ export const wrKo: WrI18nCatalog = {
     channelLightness: 'L%',
     channelAlpha: 'A%',
   },
+  // What a chart shows in place of its marks: no data, a request in flight, a failed
+  // load. One set for every chart; each has a `*Label` input over it.
+  chart: {
+    empty: '데이터 없음',
+    loading: '불러오는 중…',
+    error: '불러오지 못했습니다',
+  },
   barChart: {
     label: '막대 차트',
     total: '합계',

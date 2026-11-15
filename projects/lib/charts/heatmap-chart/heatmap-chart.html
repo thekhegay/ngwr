@@ -1,11 +1,40 @@
-@let active = tip.active();
 @let key = legend();
 @let thin = thinning();
+@let shown = state();
+
+<!-- The scale key, drawn before the matrix or after it so it is in the DOM where it is on
+     screen. Hidden, as an axis' ticks are on every chart: the matrix's name is what is
+     announced, and the figures are in the data table. The shared key every chart with a
+     colour scale draws, under the classes this chart drew its own with. -->
+<ng-template #scaleKey>
+  <wr-chart-scale
+    class="wr-heatmap-chart__legend"
+    aria-hidden="true"
+    block="wr-heatmap-chart"
+    [steps]="key?.steps ?? []"
+    [minLabel]="key?.min ?? null"
+    [maxLabel]="key?.max ?? null"
+    [position]="legendPosition()"
+  >
+    @if (hasEmpty()) {
+      <span class="wr-heatmap-chart__legend-empty">
+        <span class="wr-heatmap-chart__swatch wr-heatmap-chart__swatch--empty"></span>
+        <span class="wr-heatmap-chart__legend-label">{{ resolvedNoDataLabel() }}</span>
+      </span>
+    }
+  </wr-chart-scale>
+</ng-template>
+
+@if (legendShown() && legendFirst()) {
+  <ng-container [ngTemplateOutlet]="scaleKey" />
+}
+
 <!-- One grid: the row names in a column at inline start, the column names in a row above,
      and the cells beside and below them. The names and the cells share its tracks through
      `subgrid`, so a name lines up with its cells at any width. -->
 <div
   class="wr-heatmap-chart__matrix"
+  [class.wr-heatmap-chart__matrix--idle]="!!shown"
   [style.--wr-heatmap-chart-rows]="shape().rowCount || 1"
   [style.--wr-heatmap-chart-columns]="shape().columnCount || 1"
 >
@@ -34,22 +63,18 @@
     }
   </div>
 
-  <div
-    #grid
-    class="wr-heatmap-chart__cells"
-    role="img"
-    [attr.aria-label]="resolvedAriaLabel()"
-    (mousemove)="onPointerMove($event)"
-    (mouseleave)="tip.leave($event)"
-  >
-    @for (cell of cells(); track $index) {
-      <!-- A level's paint is the stylesheet's, from the level written here; an empty cell has
-           no level and is hatched instead. -->
+  <!-- The pointer is heard here by listeners the component adds itself, and the reading
+       cell's ring is set by hand: nothing in this template follows the pointer, so a move
+       across the matrix checks no cell. -->
+  <div #grid class="wr-heatmap-chart__cells" role="img" [attr.aria-label]="resolvedAriaLabel()">
+    @for (cell of shown ? [] : cells(); track $index) {
+      <!-- A level's paint is written here, a step of the sequential scale, with its place on
+           the scale beside it; an empty cell has neither and is hatched instead. -->
       <span
         class="wr-heatmap-chart__cell"
         [class.wr-heatmap-chart__cell--empty]="cell.value === null"
-        [class.wr-heatmap-chart__cell--active]="active === $index"
         [style.--wr-heatmap-chart-level]="cell.level"
+        [style.--wr-heatmap-chart-fill]="cell.paint"
         [attr.data-row]="cell.row"
         [attr.data-column]="cell.column"
         [attr.data-value]="cell.value"
@@ -60,31 +85,17 @@
       </span>
     }
   </div>
+  @if (shown) {
+    <!-- Beside the cells' `img`, never inside it: `img` makes everything it holds
+         presentational, and the message is a live region. Laid over the cells' own area. -->
+    <div class="wr-heatmap-chart__status">
+      <wr-chart-state [kind]="shown.kind" [label]="shown.label" />
+    </div>
+  }
 </div>
 
-@if (showLegend() && (key || hasEmpty())) {
-  <!-- Hidden, as an axis' ticks are on every chart: the matrix's name is what is announced,
-       and the figures are in the data table. -->
-  <div class="wr-heatmap-chart__legend" aria-hidden="true">
-    @if (key) {
-      <span class="wr-heatmap-chart__legend-label">{{ key.min }}</span>
-      <span class="wr-heatmap-chart__scale">
-        @for (level of key.levels; track $index) {
-          <span class="wr-heatmap-chart__swatch" [style.--wr-heatmap-chart-level]="level"></span>
-        }
-      </span>
-      <!-- A scale with no span is one level, keyed by one figure. -->
-      @if (key.max !== null) {
-        <span class="wr-heatmap-chart__legend-label">{{ key.max }}</span>
-      }
-    }
-    @if (hasEmpty()) {
-      <span class="wr-heatmap-chart__legend-empty">
-        <span class="wr-heatmap-chart__swatch wr-heatmap-chart__swatch--empty"></span>
-        <span class="wr-heatmap-chart__legend-label">{{ resolvedNoDataLabel() }}</span>
-      </span>
-    }
-  </div>
+@if (legendShown() && !legendFirst()) {
+  <ng-container [ngTemplateOutlet]="scaleKey" />
 }
 
 @if (dataTable()) {

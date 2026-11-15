@@ -160,11 +160,10 @@ describe('WrHeatmapChart', () => {
     );
     expect(levels()).toEqual(['0', '0', '0', '0', null, '0', '0', '0', '0']);
     expect(text('.wr-heatmap-chart__legend > .wr-heatmap-chart__legend-label')).toEqual(['0']);
+    // One level, the lowest step of the sequential scale.
     expect(
-      all<HTMLElement>('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch').map(swatch =>
-        swatch.style.getPropertyValue('--wr-heatmap-chart-level')
-      )
-    ).toEqual(['0']);
+      all<HTMLElement>('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch').map(swatch => swatch.style.background)
+    ).toEqual(['var(--wr-heatmap-chart-step-1)']);
 
     // Bounds given equal are the same scale, whatever the data says.
     set(h => {
@@ -290,11 +289,16 @@ describe('WrHeatmapChart', () => {
     const legend = root().querySelector('.wr-heatmap-chart__legend')!;
     expect(legend.getAttribute('aria-hidden')).toBe('true');
     expect(text('.wr-heatmap-chart__legend > .wr-heatmap-chart__legend-label')).toEqual(['0', '100']);
+    // Five levels are the five steps of the sequential scale, each swatch in its own paint.
     expect(
-      all<HTMLElement>('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch').map(swatch =>
-        swatch.style.getPropertyValue('--wr-heatmap-chart-level')
-      )
-    ).toEqual(['0', '0.25', '0.5', '0.75', '1']);
+      all<HTMLElement>('.wr-heatmap-chart__scale .wr-heatmap-chart__swatch').map(swatch => swatch.style.background)
+    ).toEqual([
+      'var(--wr-heatmap-chart-step-1)',
+      'var(--wr-heatmap-chart-step-2)',
+      'var(--wr-heatmap-chart-step-3)',
+      'var(--wr-heatmap-chart-step-4)',
+      'var(--wr-heatmap-chart-step-5)',
+    ]);
 
     set(h => {
       h.min.set(-5);
@@ -596,19 +600,25 @@ describe('WrHeatmapChart column names', () => {
   });
 
   it('measures the names again when the chart is resized, and stops observing when destroyed', async () => {
-    let report: ((entries: { contentRect: { width: number } }[]) => void) | null = null;
-    let disconnected = false;
+    let report: ((entries: { target: Element; contentRect: { width: number; height: number } }[]) => void) | null =
+      null;
+    /** What the observer the charts share is watching: the strip, until the chart is destroyed. */
+    const observing = new Set<Element>();
     vi.stubGlobal(
       'ResizeObserver',
       class {
         constructor(callback: typeof report) {
           report = callback;
         }
-        observe(): void {
+        observe(target: Element): void {
           // The strip is the one thing observed; the spec reports its width by hand.
+          observing.add(target);
+        }
+        unobserve(target: Element): void {
+          observing.delete(target);
         }
         disconnect(): void {
-          disconnected = true;
+          observing.clear();
         }
       }
     );
@@ -618,13 +628,13 @@ describe('WrHeatmapChart column names', () => {
 
     // Narrower now: the same names no longer fit their columns.
     nameWidth = 30;
-    report!([{ contentRect: { width: 138 } }]);
+    report!([{ target: [...observing][0], contentRect: { width: 138, height: 16 } }]);
     fixture.detectChanges();
     await fixture.whenStable();
     expect(drawn()).toEqual(['00:00', '02:00', '04:00']);
 
     fixture.destroy();
-    expect(disconnected).toBe(true);
+    expect(observing.size).toBe(0);
   });
 
   it('draws every name where there is nothing to measure: no layout, or one column', async () => {
@@ -671,18 +681,18 @@ describe('WrHeatmapChart stylesheet', () => {
 
   it('picks black or white for a value by the luminance of its own cell, with nothing in between', () => {
     expect(rule('.wr-heatmap-chart__value')).toMatch(
-      /color: color\(from color-mix\(in oklab, .*\) xyz-d65 calc\(0\.9505 \* clamp\(0, \(0\.17913 - y\) \* infinity, 1\)\) clamp\(0, \(0\.17913 - y\) \* infinity, 1\) calc\(1\.0891 \* clamp\(0, \(0\.17913 - y\) \* infinity, 1\)\)\)/
+      /color: color\(from var\(--wr-heatmap-chart-fill, var\(--wr-heatmap-chart-step-5\)\) xyz-d65 calc\(0\.9505 \* clamp\(0, \(0\.17913 - y\) \* infinity, 1\)\) clamp\(0, \(0\.17913 - y\) \* infinity, 1\) calc\(1\.0891 \* clamp\(0, \(0\.17913 - y\) \* infinity, 1\)\)\)/
     );
     // √(1.05 × 0.05) − 0.05: the luminance both candidates score the same against.
     expect(Math.sqrt(1.05 * 0.05) - 0.05).toBeCloseTo(0.17913, 5);
   });
 
-  it('mixes every level in OKLab from the colour toward the surface, the lowest keeping a share of it', () => {
+  it('paints every level with the paint the component writes on its cell, a step of the sequential scale', () => {
+    expect(rule('.wr-heatmap-chart__cell')).toMatch(
+      /background: var\(--wr-heatmap-chart-fill, var\(--wr-heatmap-chart-step-5\)\)/
+    );
+    // The levels are the chart: forced colors would paint them as the page.
     for (const selector of ['.wr-heatmap-chart__cell', '.wr-heatmap-chart__swatch']) {
-      expect(rule(selector)).toMatch(
-        /background: color-mix\(in oklab, var\(--wr-heatmap-chart-scale-color, var\(--wr-color-primary\)\) calc\(var\(--wr-heatmap-chart-min-share\) \+ \(100% - var\(--wr-heatmap-chart-min-share\)\) \* var\(--wr-heatmap-chart-level, 1\)\), var\(--wr-heatmap-chart-surface\)\)/
-      );
-      // The levels are the chart: forced colors would paint them as the page.
       expect(rule(selector)).toMatch(/forced-color-adjust: none/);
     }
   });

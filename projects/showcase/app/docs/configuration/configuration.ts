@@ -43,7 +43,7 @@ export default class ConfigurationPage {
     {
       feature: 'withDialog()',
       entry: 'ngwr/dialog',
-      sets: 'Dialog defaults: tabTitle names the browser tab after the open dialog',
+      sets: 'Dialog defaults: tabTitle names the browser tab after the open dialog, autoFocus picks where focus lands on open',
     },
     {
       feature: 'withRenderOnNavigation()',

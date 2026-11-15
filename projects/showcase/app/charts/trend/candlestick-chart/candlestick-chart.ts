@@ -67,6 +67,9 @@ export default class CandlestickChartPageComponent {
   /** A trading year: 250 days in one chart. */
   protected readonly year = tradingDays(250, 80, 7654321);
 
+  /** Twenty trading years: far more periods than any drawing has pixels. */
+  protected readonly decades = tradingDays(5000, 60, 2468135);
+
   private readonly usdFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
   protected readonly format = (value: number): string => this.usdFormat.format(value);
@@ -78,11 +81,20 @@ export default class CandlestickChartPageComponent {
   { label: 'Jan 5', open: 122.3, high: 123.0, low: 118.6, close: 119.2 },
   // …
 ];`,
-    colors: `<wr-candlestick-chart
+    colors: `<wr-candlestick-chart [data]="days" />
+<wr-candlestick-chart [data]="days" hollow />
+<wr-candlestick-chart
   [data]="days"
   increaseColor="var(--wr-color-danger)"
   decreaseColor="var(--wr-color-success)"
 />`,
+    grid: `<wr-candlestick-chart [data]="days" [showGrid]="false" />
+<wr-candlestick-chart [data]="days" [showAxis]="false" />`,
+    decimate: `<wr-candlestick-chart [data]="decades" />
+<wr-candlestick-chart [data]="decades" [decimate]="false" />`,
+    states: `<wr-candlestick-chart [data]="[]" />
+<wr-candlestick-chart [data]="days" loading />
+<wr-candlestick-chart [data]="days" error errorLabel="Prices are unavailable" />`,
     many: `<wr-candlestick-chart ariaLabel="ACME, 2026" [data]="year" />`,
     format: `<wr-candlestick-chart [data]="days" [valueFormat]="format" />`,
     formatTs: `const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });

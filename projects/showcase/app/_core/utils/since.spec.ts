@@ -176,11 +176,11 @@ describe('the major the marks are judged against', () => {
   it('steps every mark of the live map back once the next major is declared', () => {
     const ahead = markVersion('15.2.0', ['15.0.0', '16.0.0']);
 
-    // The editor was updated in 15.0, the bar chart in 15.1.
+    // The editor was updated in 15.0, the MCP server page in 15.1.
     expect(linkMark('/reference/components/editor', '15.2.0')).toBe('updated');
-    expect(linkMark('/charts/bar-chart', '15.2.0')).toBe('updated');
+    expect(linkMark('/docs/mcp-server', '15.2.0')).toBe('updated');
     expect(linkMark('/reference/components/editor', ahead)).toBeNull();
-    expect(linkMark('/charts/bar-chart', ahead)).toBeNull();
+    expect(linkMark('/docs/mcp-server', ahead)).toBeNull();
   });
 });
 

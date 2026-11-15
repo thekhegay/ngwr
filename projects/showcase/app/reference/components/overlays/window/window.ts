@@ -342,7 +342,10 @@ manager.restoreLayout('default', (id, snap) => {
 manager.clearLayout('default');`,
 
     focus: `// Opened in the background: focus stays where it is.
-manager.open(LogComponent, { title: 'Build log', autoFocus: false });`,
+manager.open(LogComponent, { title: 'Build log', autoFocus: false });
+
+// Open on the first control in the body.
+manager.open(RenameComponent, { title: 'Rename', autoFocus: 'first-tabbable' });`,
 
     refInside: `const ref = inject<WrWindowRef<MyComponent, MyResult>>(WR_WINDOW_REF);
 const data = inject<MyData>(WR_WINDOW_DATA);
@@ -490,9 +493,10 @@ ref.close(savedDocId);`,
     {
       name: 'autoFocus',
       sub: true,
-      description: 'Move focus into the window on open. Windows `restoreLayout()` reopens default to `false`.',
-      type: 'boolean',
-      default: 'true',
+      description:
+        "Where focus goes on open: the window itself, the first control in the body, or nowhere. `true` is `'dialog'`. Windows `restoreLayout()` reopens default to `false`.",
+      type: "'first-tabbable' | 'dialog' | boolean",
+      default: "'dialog'",
     },
     {
       name: 'taskbar',

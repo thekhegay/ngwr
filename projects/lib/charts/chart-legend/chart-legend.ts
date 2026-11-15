@@ -15,7 +15,33 @@ import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrChartLegendPart } from './internal/chart-legend-part';
 import { WR_CHART_LEGEND_BLOCK } from './tokens';
-import type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './types';
+import type { WrChartLegendItem, WrChartLegendPosition, WrChartLegendToggle, WrChartMarker } from './types';
+
+/** The radius of a marker drawn as the whole key, in the swatch's own units: a 12-unit box. */
+const MARKER_RADIUS = 5;
+
+/** The radius of a marker drawn on the middle of a line key, whose box is 16 by 2. */
+const LINE_MARKER_RADIUS = 3.5;
+
+/** Which of the three keys a row draws. */
+type Key = 'line' | 'marker' | 'dot';
+
+/**
+ * One row as the template draws it: everything it binds, worked out once per change of
+ * `items`. The template reads nothing off the item itself.
+ */
+interface Row {
+  readonly label: string;
+  readonly color: string;
+  readonly key: Key;
+  /** The dash of a line key, `null` for a solid line or another key. */
+  readonly dash: string | null;
+  readonly marker: WrChartMarker | null;
+  /** The marker's path at the size its key draws it, `null` with no marker. */
+  readonly path: string | null;
+  /** The value printed after the label, `null` for none. */
+  readonly value: string | null;
+}
 
 /**
  * A chart's key: one row per series, each a swatch, a name and an optional value.
@@ -29,6 +55,16 @@ import type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './ty
  * in the series' `dash`, or the series' `marker`. A dot is a span painted with an
  * inline background, a line or a marker is an SVG, and every key is `aria-hidden`:
  * the row's text is its name.
+ *
+ * **`position` says where the legend sits beside its chart**: `top`, `bottom`, `start`
+ * or `end`, or `none` to draw nothing. Above and below it is a wrapping row; at inline
+ * start or end it is a column. A chart that draws its own legend forwards its
+ * `legendPosition` here and places the list; a legend that stands alone is placed by
+ * the app, and `position` only picks the row or the column.
+ *
+ * **Hovering a row dims the rest of its chart.** Every row carries `data-wr-series`
+ * with its position, the attribute a chart puts on that series' marks, so the chart's
+ * hover fades every other series while the pointer is on a row.
  *
  * **Toggling is opt-in.** With `toggleable`, every row is a
  * `<button type="button" aria-pressed>` that shows and hides its series: pressed
@@ -71,6 +107,11 @@ import type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './ty
     // list semantics in Safari, and with them the list's `aria-label`.
     role: 'list',
     '[class.wr-chart-legend--toggleable]': 'toggleable()',
+    '[class.wr-chart-legend--top]': "position() === 'top'",
+    '[class.wr-chart-legend--bottom]': "position() === 'bottom'",
+    '[class.wr-chart-legend--start]': "position() === 'start'",
+    '[class.wr-chart-legend--end]': "position() === 'end'",
+    '[class.wr-chart-legend--none]': "position() === 'none'",
     '[attr.aria-label]': 'label()',
   },
   imports: [NgTemplateOutlet, WrChartLegendPart],
@@ -82,6 +123,14 @@ export class WrChartLegend {
 
   /** One row per series, in the chart's order. */
   readonly items = input<readonly WrChartLegendItem[]>([]);
+
+  /**
+   * Where the legend sits beside its chart. `top` and `bottom` lay the rows out in a
+   * wrapping line, `start` and `end` in a column, and `none` draws nothing - the
+   * list stays in the DOM, hidden, so `hiddenSeries` keeps working from outside.
+   * @default 'bottom'
+   */
+  readonly position = input<WrChartLegendPosition>('bottom');
 
   /**
    * Make each row a toggle button that shows and hides its series, through
@@ -133,15 +182,40 @@ export class WrChartLegend {
     return this.hidden().has(index);
   }
 
-  /** The host chart's own class for one part of a row, or nothing outside a chart. */
-  protected part(name: 'legend-item' | 'swatch' | 'legend-label' | 'legend-value'): string {
-    return this.block ? `${this.block}__${name}` : '';
-  }
+  /**
+   * The host chart's own class for each part of a row, or nothing outside a chart. Fixed
+   * for the legend's life, so they are written once: asked for in the template, each was
+   * built again for every part of every row on every pass over the chart, which a chart
+   * makes whenever its own view is checked.
+   */
+  protected readonly parts = {
+    item: this.block ? `${this.block}__legend-item` : '',
+    swatch: this.block ? `${this.block}__swatch` : '',
+    label: this.block ? `${this.block}__legend-label` : '',
+    value: this.block ? `${this.block}__legend-value` : '',
+  };
 
-  /** A marker's path, as large as a circle of radius `r` in the swatch's own units. */
-  protected markerPath(shape: WrChartMarker, r: number): string {
-    return wrChartMarkerPath(shape, r);
-  }
+  /**
+   * The rows as drawn, one per item: which key each draws and its marker's path, built
+   * when `items` changes rather than on every pass. A path is a string of a dozen
+   * numbers, and fifty series built fifty of them for every hover of their chart.
+   */
+  protected readonly rows = computed<readonly Row[]>(() =>
+    this.items().map(item => {
+      const marker = item.marker ?? null;
+      const key: Key = item.dash !== undefined ? 'line' : marker ? 'marker' : 'dot';
+      return {
+        label: item.label,
+        color: item.color,
+        key,
+        // `''` is a solid line: no dash to write.
+        dash: item.dash === undefined || item.dash === '' ? null : item.dash,
+        marker,
+        path: marker ? wrChartMarkerPath(marker, key === 'line' ? LINE_MARKER_RADIUS : MARKER_RADIUS) : null,
+        value: item.value ?? null,
+      };
+    })
+  );
 
   /** Shows or hides the series at `index`, then says so. */
   protected toggle(index: number): void {
@@ -152,4 +226,4 @@ export class WrChartLegend {
   }
 }
 
-export type { WrChartLegendItem, WrChartLegendToggle, WrChartMarker } from './types';
+export type { WrChartLegendItem, WrChartLegendPosition, WrChartLegendToggle, WrChartMarker } from './types';

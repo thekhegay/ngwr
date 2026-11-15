@@ -321,6 +321,16 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   readonly overscan = input(6, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 6)) });
 
   /**
+   * `openOn="overlay"` only: focus the cursor row when the panel opens (the
+   * list itself in a virtual tree). Off, focus stays on the trigger:
+   * ArrowDown, ArrowUp or Tab there move into the panel, and a letter jumps to
+   * the row it starts.
+   *
+   * @default false
+   */
+  readonly autoFocus = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * Extra CSS classes for the overlay pane, when `openOn` puts the tree in one.
    *
    * The pane is appended to the overlay container, not to this component, so
@@ -1066,15 +1076,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // A letter moves to the next visible row that starts with it. It opens
     // nothing, a status row has no label of its own to match, and a disabled
     // node is a stop here as it is for the arrows.
-    if (this.typeahead.type(event)) {
-      event.preventDefault();
-      const match = this.typeahead.find(
-        flat.map(row => ({ label: row.node.label, disabled: row.status !== null })),
-        i
-      );
-      if (match >= 0) this.focusIndex(match);
-      return;
-    }
+    if (this.typeTo(event, i)) return;
 
     // The cursor move is identical in both render shapes — `focusIndex()` owns
     // the roving-tabindex / `aria-activedescendant` split — so mirroring here
@@ -1211,10 +1213,24 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * The same key and the same split `wr-select` uses, so the two read alike:
    * in MULTI mode Backspace drops the last chip — chip removal is its own
    * control, not gated on `clearable()` — and in SINGLE mode it clears, gated on
-   * `clearable()`, because that input IS the clear control. Only while closed:
-   * an open panel owns the keyboard.
+   * `clearable()`, because that input IS the clear control. Only while closed.
+   *
+   * While the panel is open the trigger is the way into it, since opening
+   * leaves focus here unless `autoFocus` asks: the arrows and Tab move to the
+   * cursor row, and a letter to the row it starts. The pane sits at the end of
+   * `<body>`, where the browser's own Tab would not find it.
    */
   protected onTriggerKey(event: KeyboardEvent): void {
+    if (this.isOpen()) {
+      if (this.disabled() || event.defaultPrevented) return;
+      if (this.typeTo(event, -1)) return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Tab') return;
+      if (this.flat().length === 0) return;
+      event.preventDefault();
+      this.focusPanel();
+      return;
+    }
     // The APG combobox keys, and the ones `wr-select` and `wr-cascader` open on:
     // ArrowDown / ArrowUp, with or without Alt. Enter and Space already open it
     // through the native button click.
@@ -1239,6 +1255,23 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     if (!this.clearable()) return;
     event.preventDefault();
     this.clearSelection(event);
+  }
+
+  /**
+   * Type-ahead: move the cursor to the next visible row after `from` that
+   * starts with the letters typed so far.
+   *
+   * @returns whether the key was a type-ahead key.
+   */
+  private typeTo(event: KeyboardEvent, from: number): boolean {
+    if (!this.typeahead.type(event)) return false;
+    event.preventDefault();
+    const match = this.typeahead.find(
+      this.flat().map(row => ({ label: row.node.label, disabled: row.status !== null })),
+      from
+    );
+    if (match >= 0) this.focusIndex(match);
+    return true;
   }
 
   protected removeChip(id: TId, event: Event): void {
@@ -1792,33 +1825,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
     this.overlayRef.attach(new TemplatePortal(tpl, this.vcr));
 
-    // The panel owns the keyboard from here, in BOTH render shapes. `onKeydown`
-    // lives on the `<ul>` inside the portal, and the trigger's own handler
-    // (`onTriggerKey`) acts only while CLOSED, so leaving focus on the trigger —
-    // which is what the non-virtual shape used to do — made an overlay tree
-    // mouse-only: arrows, Home/End and
-    // Enter all did nothing, and the rows were reachable only by tabbing through
-    // the rest of the page, since the pane is appended to `<body>`. Virtual mode
-    // focuses the LIST (managed focus via `aria-activedescendant`); the
-    // non-virtual shape focuses the roving row, which carries the tab stop.
+    // Opening moves no focus unless `autoFocus` asks. `onKeydown` lives on the
+    // `<ul>` inside the portal and the pane is appended to `<body>`, so the
+    // trigger's own keys are the way in: see `onTriggerKey`.
     //
     // `afterNextRender`, NOT `queueMicrotask`: under zoneless CD the scheduler
     // runs change detection in a macrotask, so a microtask queued here fires
     // first and focuses whatever the panel held before this open — the same trap
     // that once left `wr-calendar`'s ring and real focus on different days.
-    afterNextRender(
-      () => {
-        if (this.virtualized()) {
-          this.listElement?.focus();
-          return;
-        }
-        const row = this.overlayRef?.overlayElement.querySelector<HTMLElement>(
-          `[data-tree-index="${this.cursorIndex()}"]`
-        );
-        row?.focus();
-      },
-      { injector: this.injector }
-    );
+    if (this.autoFocus()) afterNextRender(() => this.focusPanel(), { injector: this.injector });
 
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
@@ -1838,6 +1853,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
           return;
         }
         if (event.key === 'Tab') {
+          // Already answered: Tab on the trigger walked into the panel.
+          if (event.defaultPrevented) return;
           // Tab closes the panel and moves on from the TRIGGER, as `wr-dropdown`
           // does. Left alone, the browser's Tab ran from the row, and the pane
           // sits at the end of `<body>`: focus left the document and the panel
@@ -1856,6 +1873,19 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       });
 
     this.opened.emit();
+  }
+
+  /**
+   * Move focus into the open panel. Virtual mode focuses the LIST (managed
+   * focus via `aria-activedescendant`); the non-virtual shape focuses the
+   * roving row, which carries the tab stop.
+   */
+  private focusPanel(): void {
+    if (this.virtualized()) {
+      this.listElement?.focus();
+      return;
+    }
+    this.overlayRef?.overlayElement.querySelector<HTMLElement>(`[data-tree-index="${this.cursorIndex()}"]`)?.focus();
   }
 
   /** `notify: false` is the destroy path: an output cannot emit from a destroyed view. */

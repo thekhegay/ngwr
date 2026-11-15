@@ -23,6 +23,13 @@ function clampAxis(offset: number, origin: number, extent: number, room: number)
   return Math.min(max, Math.max(min, offset));
 }
 
+function scrollAxis(offset: number, origin: number, extent: number, start: number, end: number, by: number): number {
+  const from = origin + offset;
+  if (by > 0 && from < start) return offset + Math.min(by, start - from);
+  if (by < 0 && from + extent > end) return offset + Math.max(by, end - from - extent);
+  return offset;
+}
+
 /** Where the drawing is: an offset in pixels from its natural place, and a scale. */
 export interface GraphTransform {
   readonly x: number;
@@ -74,6 +81,29 @@ export function clampPan(at: GraphTransform, frame: GraphFrame, width: number, h
     k: at.k,
     x: clampAxis(at.x, frame.originX, width * at.k, frame.width),
     y: clampAxis(at.y, frame.originY, height * at.k, frame.height),
+  };
+}
+
+/**
+ * The transform moved by (`dx`, `dy`) as a scroll container would move it: only
+ * while more of the drawing lies hidden past the edge it is moving away from, and
+ * no further than that edge's padding. An axis with nothing left to show keeps
+ * its offset, which is how the caller knows the scroll belongs to the page.
+ */
+export function scrollPan(
+  at: GraphTransform,
+  frame: GraphFrame,
+  insets: GraphInsets,
+  width: number,
+  height: number,
+  dx: number,
+  dy: number
+): GraphTransform {
+  if (frame.width <= 0 || frame.height <= 0) return at;
+  return {
+    k: at.k,
+    x: scrollAxis(at.x, frame.originX, width * at.k, insets.left, frame.width - insets.right, dx),
+    y: scrollAxis(at.y, frame.originY, height * at.k, insets.top, frame.height - insets.bottom, dy),
   };
 }
 

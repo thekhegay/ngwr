@@ -25,6 +25,8 @@ const STEPS: readonly WrWaterfallStep[] = [
       [steps]="steps()"
       [showValues]="showValues()"
       [showGrid]="showGrid()"
+      [showAxis]="showAxis()"
+      [loading]="loading()"
       [showConnectors]="showConnectors()"
       [dataTable]="dataTable()"
     />
@@ -35,6 +37,8 @@ class Host {
   readonly steps = signal<readonly WrWaterfallStep[]>(STEPS);
   readonly showValues = signal(true);
   readonly showGrid = signal(true);
+  readonly showAxis = signal(true);
+  readonly loading = signal(false);
   readonly showConnectors = signal(true);
   readonly dataTable = signal(false);
 }
@@ -151,7 +155,7 @@ describe('WrWaterfallChartHarness', () => {
     expect((await chart.getSteps()).every(step => !step.connected)).toBe(true);
   });
 
-  it('reads the ticks and the zero line, and no ticks with `showGrid` off', async () => {
+  it('reads the ticks and the zero line, and no ticks with `showAxis` off', async () => {
     expect(await chart.hasGrid()).toBe(true);
     expect(await chart.getYTicks()).toEqual(['800', '600', '400', '200', '0']);
     expect(await chart.getZeroPercent()).toBe(0);
@@ -166,7 +170,19 @@ describe('WrWaterfallChartHarness', () => {
 
     set(h => h.showGrid.set(false));
     expect(await chart.hasGrid()).toBe(false);
+    expect(await chart.hasAxis()).toBe(true);
+    expect(await chart.getYTicks()).toEqual(['200', '100', '0', `${MINUS}100`, `${MINUS}200`]);
+
+    set(h => h.showAxis.set(false));
+    expect(await chart.hasAxis()).toBe(false);
     expect(await chart.getYTicks()).toEqual([]);
+  });
+
+  it('reads the message the chart shows in place of its bars', async () => {
+    expect(await chart.getStateLabel()).toBeNull();
+    set(h => h.loading.set(true));
+    expect(await chart.getStateLabel()).toBe('Loading…');
+    expect(await chart.getStepCount()).toBe(0);
   });
 
   it('reads the plot height off the style the component wrote', async () => {

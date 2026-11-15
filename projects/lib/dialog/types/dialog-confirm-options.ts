@@ -19,6 +19,7 @@ export type WrDialogMessageOptions = Pick<
   | 'closeOnEscape'
   | 'closeOnNavigation'
   | 'tabTitle'
+  | 'autoFocus'
   | 'toasts'
 >;
 

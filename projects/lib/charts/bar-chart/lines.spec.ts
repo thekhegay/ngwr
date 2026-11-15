@@ -35,6 +35,9 @@ const DATA: readonly WrBarChartDatum[] = [
       [max]="max()"
       [toggleableLegend]="toggleable()"
       [dataTable]="dataTable()"
+      [showGrid]="false"
+      [showAxis]="false"
+      showValues
       [(hiddenSeries)]="hiddenSeries"
       [(hiddenLines)]="hiddenLines"
     />
@@ -58,6 +61,9 @@ class Host {
  * Every position of a line is a percentage of the line's own box, written as an SVG
  * attribute, and every bar's is a share of the value axis written inline — both of which
  * jsdom reports verbatim, so the two can be held against each other without layout.
+ *
+ * The host turns the grid and the scale off, which leaves the axis fitted to the bars and
+ * the lines; what the snapped axis does is in `theme.spec.ts`.
  */
 describe('WrBarChart lines', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -70,8 +76,9 @@ describe('WrBarChart lines', () => {
   ];
   const lines = (): SVGSVGElement[] => all<SVGSVGElement>('.wr-bar-chart__line');
   const points = (from: ParentNode = root()): SVGSVGElement[] => all<SVGSVGElement>('.wr-bar-chart__point', from);
-  const segments = (from: ParentNode = root()): SVGLineElement[] =>
-    all<SVGLineElement>('.wr-bar-chart__line-segment', from);
+  /** A line's path: one for the whole line, and none for a line of lone points. */
+  const segments = (from: ParentNode = root()): SVGPathElement[] =>
+    all<SVGPathElement>('.wr-bar-chart__line-segment', from);
   /** A point's place in its line's box, as the two percentages written on it. */
   const xy = (point: Element): [number, number] => [
     Number.parseFloat(point.getAttribute('x')!),
@@ -124,10 +131,11 @@ describe('WrBarChart lines', () => {
         [100, 50],
       ]);
       expect(lines()[0].style.getPropertyValue('--wr-bar-chart-count')).toBe('3');
-      expect(segments().map(s => [s.getAttribute('x1'), s.getAttribute('y1'), s.getAttribute('x2')])).toEqual([
-        ['0%', '50%', '50%'],
-        ['50%', '50%', '100%'],
+      // One path through all three, in the 0 to 100 box stretched over the line's own.
+      expect(segments().map(s => [s.getAttribute('d'), s.getAttribute('data-segments')])).toEqual([
+        ['M0 50L50 50L100 50', '2'],
       ]);
+      expect(segments()[0].getAttribute('vector-effect')).toBe('non-scaling-stroke');
     });
 
     it('fits the value axis to the bars and the lines together', () => {
@@ -184,7 +192,6 @@ describe('WrBarChart lines', () => {
       const [target, rate] = lines();
       expect(segments(target).map(s => [s.getAttribute('stroke'), s.getAttribute('stroke-dasharray')])).toEqual([
         [wrChartColor(2), null],
-        [wrChartColor(2), null],
       ]);
       expect(segments(rate)[0].getAttribute('stroke')).toBe('#123456');
       expect(segments(rate)[0].getAttribute('stroke-dasharray')).toBe(wrChartDash(1));
@@ -204,7 +211,14 @@ describe('WrBarChart lines', () => {
       expect(segments()).toEqual([]);
 
       set(h => h.lines.set([{ label: 'Target', data: [15, 20, null] }]));
-      expect(segments()).toHaveLength(1);
+      expect(segments().map(s => s.getAttribute('data-segments'))).toEqual(['1']);
+
+      // A break starts a new run inside the same path.
+      set(h => h.categories.set(['Q1', 'Q2', 'Q3', 'Q4', 'Q5']));
+      set(h => h.lines.set([{ label: 'Target', data: [15, 15, null, 15, 15] }]));
+      expect(segments().map(s => [s.getAttribute('d'), s.getAttribute('data-segments')])).toEqual([
+        ['M0 50L25 50M75 50L100 50', '2'],
+      ]);
     });
 
     it('draws nothing past the last category: the categories belong to the bars', () => {
@@ -255,7 +269,7 @@ describe('WrBarChart lines', () => {
 
     const columns = (): HTMLElement[] => all('.wr-bar-chart__column');
     const share = (column: HTMLElement): number =>
-      Number.parseFloat(column.querySelector<HTMLElement>('.wr-bar-chart__bar')!.style.flexGrow);
+      Number.parseFloat(prop(column.querySelector<HTMLElement>('.wr-bar-chart__bar')!, 'size'));
 
     it('moves the columns into the track the lines are drawn over', () => {
       expect(chart().classList).toContain('wr-bar-chart--combo');
@@ -307,6 +321,9 @@ describe('WrBarChart lines', () => {
     describe('below zero', () => {
       const value = (column: HTMLElement): HTMLElement => column.querySelector<HTMLElement>('.wr-bar-chart__value')!;
       const bar = (column: HTMLElement): HTMLElement => column.querySelector<HTMLElement>('.wr-bar-chart__bar')!;
+      /** Whether the column's bar is drawn on the side below zero. */
+      const below = (column: HTMLElement): boolean =>
+        bar(column).parentElement!.classList.contains('wr-bar-chart__side--down');
       const room = (end: 'max' | 'min'): string[] =>
         all(`.wr-bar-chart__room--${end} .wr-bar-chart__value`).map(v => v.textContent.trim());
 
@@ -327,8 +344,8 @@ describe('WrBarChart lines', () => {
         const track = root().querySelector<HTMLElement>('.wr-bar-chart__track')!;
         expect(prop(track, 'zero')).toBe('0.375');
         expect(columns().map(share)).toEqual([0.3125, 0.625, 0.25]);
-        expect(columns().map(c => prop(c, 'start'))).toEqual(['0.0625', '0.375', '0.375']);
-        expect(columns().map(c => bar(c).classList.contains('wr-bar-chart__bar--below'))).toEqual([true, false, false]);
+        expect(columns().map(c => prop(bar(c), 'start'))).toEqual(['0.0625', '0.375', '0.375']);
+        expect(columns().map(c => below(c))).toEqual([true, false, false]);
         const pointShare = 1 - xy(points()[0])[1] / 100;
         expect(pointShare).toBeGreaterThan(0.0625);
         expect(pointShare).toBeLessThan(0.375);
@@ -351,7 +368,7 @@ describe('WrBarChart lines', () => {
 
         // From -10 to 20 now: the line's -12 has left the axis, the bar's -10 has not.
         expect(prop(root().querySelector<HTMLElement>('.wr-bar-chart__track')!, 'zero')).toBe('0.3333');
-        expect(bar(columns()[0]).classList).toContain('wr-bar-chart__bar--below');
+        expect(below(columns()[0])).toBe(true);
       });
 
       it('leaves a chart without lines drawing a negative value as an empty bar on zero', () => {
@@ -359,8 +376,8 @@ describe('WrBarChart lines', () => {
 
         expect(chart().classList).not.toContain('wr-bar-chart--combo');
         expect(columns().map(share)).toEqual([0, 1, 0.4]);
-        expect(columns().map(c => c.style.getPropertyValue('--wr-bar-chart-start'))).toEqual(['', '', '']);
-        expect(all('.wr-bar-chart__bar--below, .wr-bar-chart__value--below')).toEqual([]);
+        expect(columns().map(c => prop(bar(c), 'start'))).toEqual(['0', '0', '0']);
+        expect(all('.wr-bar-chart__side--down, .wr-bar-chart__value--below')).toEqual([]);
       });
     });
 
@@ -573,7 +590,7 @@ describe('WrBarChart lines tooltip', () => {
       row.querySelector('.wr-chart-tooltip__row-value')!.textContent.trim(),
     ]);
   const hover = (el: Element): void => {
-    el.dispatchEvent(new MouseEvent('mouseenter'));
+    el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 

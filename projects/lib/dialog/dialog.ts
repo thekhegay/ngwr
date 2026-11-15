@@ -24,14 +24,14 @@ import {
 
 import { WrI18n } from 'ngwr/i18n';
 import { WrMeta } from 'ngwr/meta';
-import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
 import { wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
 import type { WrDialogConfirmData } from './confirm/dialog-confirm-data';
 import { WrDialogRef } from './dialog-ref';
 import { WR_DIALOG_DATA, WR_DIALOG_DEFAULTS, WR_DIALOG_REF } from './tokens';
-import type { WrDialogAlertOptions, WrDialogConfirmOptions, WrDialogOptions } from './types';
+import type { WrDialogAlertOptions, WrDialogAutoFocus, WrDialogConfirmOptions, WrDialogOptions } from './types';
 
 const DEFAULT_PANEL_CLASS = 'wr-dialog-panel';
 const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
@@ -185,7 +185,7 @@ export class WrDialog {
       // Trap focus inside the dialog and move initial focus in.
       const trap = this.focusTrapFactory.create(host);
       dialogRef.focusTrap = trap;
-      void trap.focusInitialElementWhenReady();
+      wrFocusOverlay(host, trap, this.autoFocusOf(options), this.parentInjector);
     }
 
     return dialogRef;
@@ -201,8 +201,9 @@ export class WrDialog {
    * The dialog is `role="alertdialog"`, named by `title` and described by
    * `message`, with no corner dismiss: the two buttons are the answers. Labels
    * fall back to the `common.ok` and `common.cancel` catalog keys. With
-   * `confirmColor: 'danger'` initial focus is on the cancel button; otherwise it
-   * is on the confirm button. Focus returns to the opener on close, as it does
+   * `autoFocus: 'first-tabbable'` and `confirmColor: 'danger'` initial focus is on
+   * the cancel button, and on the confirm button otherwise; by default the panel
+   * takes it. Focus returns to the opener on close, as it does
    * for `open()`.
    *
    * `intent` puts an icon before the title, and `danger` or `warning` color the
@@ -237,7 +238,7 @@ export class WrDialog {
    *
    * The dialog is `confirm()`'s with one button: `role="alertdialog"` for every
    * intent, named by `title` and described by `message`, with no corner
-   * dismiss. The button takes the initial focus and its label falls back to the
+   * dismiss. Under `autoFocus: 'first-tabbable'` the button takes the initial focus; its label falls back to the
    * `common.ok` catalog key. `intent` puts an icon before the title.
    *
    * On the server it resolves at once and opens nothing.
@@ -258,12 +259,17 @@ export class WrDialog {
     await this.ask(rest, { title, message, confirmLabel: okLabel, intent, alert: true });
   }
 
+  private autoFocusOf(options: WrDialogOptions): WrDialogAutoFocus {
+    return options.autoFocus ?? this.defaults.autoFocus ?? 'dialog';
+  }
+
   private ask(options: WrDialogOptions, data: WrDialogConfirmData): Promise<boolean | undefined> {
+    const focusInitial = this.autoFocusOf(options) === 'first-tabbable';
     const ref = this.open<WrDialogConfirm, boolean, WrDialogConfirmData>(WrDialogConfirm, {
       ...options,
       role: 'alertdialog',
       closable: false,
-      data,
+      data: { ...data, focusInitial },
     });
     // The root injector going away takes the overlay container with it and
     // completes nothing, which would leave this promise pending for good.

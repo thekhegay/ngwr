@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  updated="16.3.0"
+  updated="16.5.0"
   description="A text field with a popup for picking a date, a time, both, or a week, month, quarter or year."
   [keywords]="['date', 'time', 'datetime', 'month', 'quarter', 'year', 'week', 'period', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -381,7 +381,9 @@
         </thead>
         <tbody>
           <tr>
-            <th scope="row"><wr-kbd size="sm">Alt + ArrowDown</wr-kbd> or the trigger button</th>
+            <th scope="row">
+              <wr-kbd size="sm">Alt + ArrowDown</wr-kbd>, or <wr-kbd size="sm">Enter</wr-kbd> on the trigger button
+            </th>
             <td>Opens the popup and moves focus into it.</td>
           </tr>
           <tr>
@@ -407,6 +409,10 @@
         </tbody>
       </table>
     </div>
+    <p>
+      A pointer press on the trigger button opens the popup and leaves focus on the button; <code>autoFocus</code> moves
+      it into the popup, on both pickers.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

@@ -46,6 +46,9 @@ export default class BulletChartPageComponent {
   protected readonly format = (value: number): string => this.usd.format(value * 1000);
 
   protected readonly snippets = {
+    states: `<wr-bullet-chart label="Revenue" [value]="null" />
+<wr-bullet-chart label="Revenue" [value]="270" [target]="250" loading />
+<wr-bullet-chart label="Revenue" [value]="270" [target]="250" error errorLabel="Revenue is unavailable" />`,
     basic: `<wr-bullet-chart
   label="Revenue"
   subLabel="USD, thousands"

@@ -22,7 +22,16 @@ const DATA: readonly WrBarChartDatum[] = [
 
 @Component({
   imports: [WrBarChart],
-  template: '<wr-bar-chart [data]="data()" [showValues]="showValues()" [height]="height()" [max]="max()" />',
+  template: `
+    <wr-bar-chart
+      [data]="data()"
+      [showValues]="showValues()"
+      [height]="height()"
+      [max]="max()"
+      [showGrid]="false"
+      [showAxis]="false"
+    />
+  `,
 })
 class Host {
   readonly data = signal<readonly WrBarChartDatum[]>(DATA);
@@ -54,7 +63,9 @@ describe('WrBarChartHarness on a data chart with `stacked`', () => {
 
 /**
  * Heights are read as PERCENTAGES of the chart's maximum — the one number that
- * survives a test with no layout, and the component's actual job.
+ * survives a test with no layout, and the component's actual job. The hosts here turn
+ * the grid and the scale off, so the axis is the data's own extent and the tallest bar
+ * reads 100; with either on, the axis is snapped to round numbers first.
  */
 describe('WrBarChartHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
@@ -109,7 +120,7 @@ describe('WrBarChartHarness', () => {
     // resolves it to used pixels in a real browser — so the same call answered `[50, 100, 25]`
     // here and `[100, 200, 50]` under a browser runner, with nothing to say which you got.
 
-    // An empty bar still DECLARES `height: 0%`, so 0 is a reading rather than an absence —
+    // An empty bar still DECLARES a share of 0, so 0 is a reading rather than an absence -
     // which is what lets the missing case throw instead of reporting a plausible nothing.
     fixture.componentInstance.data.set([
       { label: 'Mon', value: 0 },
@@ -147,8 +158,13 @@ describe('WrBarChartHarness', () => {
     expect(await loader.getHarnessOrNull(WrBarChartHarness.with({ barLabel: 'Sun' }))).toBeNull();
   });
 
-  it('refuses to read a zero line from a chart that draws no track', async () => {
-    await expect((await chart()).getZeroPercent()).rejects.toThrow(/draws no track/);
+  it('reads zero on the axis minimum for a chart of positive data, which draws a track like any other', async () => {
+    expect(await (await chart()).getZeroPercent()).toBe(0);
+
+    // Without the track the read has nothing to report, and says so rather than answering 0.
+    const harness = await chart();
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-bar-chart__track')!.remove();
+    await expect(harness.getZeroPercent()).rejects.toThrow(/draws no track/);
   });
 });
 
@@ -168,6 +184,9 @@ const SERIES: readonly WrBarSeries[] = [
       [orientation]="orientation()"
       [dataTable]="dataTable()"
       [showLegend]="showLegend()"
+      [showGrid]="false"
+      [showAxis]="false"
+      showValues
       toggleableLegend
       [(hiddenSeries)]="hidden"
     />
@@ -301,6 +320,8 @@ describe('WrBarChartHarness with series', () => {
       [lines]="lines()"
       [orientation]="orientation()"
       [dataTable]="dataTable()"
+      [showGrid]="false"
+      [showAxis]="false"
       [(hiddenLines)]="hiddenLines"
     />
   `,

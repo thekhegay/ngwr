@@ -43,6 +43,31 @@ function lastDigit(step: number): number {
   return -21;
 }
 
+/** Every formatter the charts have asked for, by locale and options. */
+const FORMATTERS = new Map<string, Intl.NumberFormat>();
+
+/**
+ * The `Intl.NumberFormat` for `locale` and `options`, built once for the page and shared
+ * by every chart on it.
+ *
+ * Building one costs about a tenth of a millisecond, and the charts built them freely:
+ * three per chart instance, and one per tick on every pass over an axis, so a table of a
+ * hundred sparklines paid for three hundred identical formatters. A formatter holds no
+ * state, so one per distinct key serves them all. The key is the locale and the options
+ * in the order given; the charts ask with a handful of shapes, so the map stays small.
+ *
+ * @internal
+ */
+export function wrChartNumberFormat(locale: string, options?: Intl.NumberFormatOptions): Intl.NumberFormat {
+  const key = options ? `${locale}|${JSON.stringify(options)}` : locale;
+  let format = FORMATTERS.get(key);
+  if (!format) {
+    format = new Intl.NumberFormat(locale, options);
+    FORMATTERS.set(key, format);
+  }
+  return format;
+}
+
 /**
  * The number writers of one chart: its axis ticks, the labels it prints in tight
  * spaces, and the figures of its tooltip and its accessible names — every one
@@ -83,10 +108,10 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
   valueFormat: Signal<((value: number, ...args: A) => string) | null | undefined>,
   locale: string = inject(LOCALE_ID)
 ): WrChartNumbers<A> {
-  const numbers = new Intl.NumberFormat(locale);
+  const numbers = wrChartNumberFormat(locale);
   /** Below one, by significant digits, which keep 0.0004 from rounding to `0`. */
-  const smallNumbers = new Intl.NumberFormat(locale, { maximumSignificantDigits: 3 });
-  const compactNumbers = new Intl.NumberFormat(locale, { notation: 'compact' });
+  const smallNumbers = wrChartNumberFormat(locale, { maximumSignificantDigits: 3 });
+  const compactNumbers = wrChartNumberFormat(locale, { notation: 'compact' });
 
   const value = (v: number, ...args: A): string => {
     const custom = valueFormat();
@@ -111,12 +136,12 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
     // `fractionDigits` stops at printed a 2.5e-7 step as `0.000013` twice, and called
     // a step below 1e-9 whole. A step with no last digit (a third) keeps those six.
     const digits = last <= -21 ? fractionDigits(step) : wrClamp(-last, 0, 20);
-    const full = new Intl.NumberFormat(locale, { maximumFractionDigits: digits });
+    const full = wrChartNumberFormat(locale, { maximumFractionDigits: digits });
     const plain = values.map(v => full.format(v));
     const compact = values.map(v =>
       v === 0
         ? full.format(0)
-        : new Intl.NumberFormat(locale, {
+        : wrChartNumberFormat(locale, {
             notation: 'compact',
             maximumSignificantDigits: wrClamp(magnitude(v) - last + 1, 1, 21),
           }).format(v)
@@ -125,19 +150,11 @@ export function useChartNumbers<A extends readonly unknown[] = []>(
     return longest(compact) <= longest(plain) ? compact : plain;
   };
 
-  /** One formatter per precision asked for, since a chart asks with the same one on every pass. */
-  const exactNumbers = new Map<number, Intl.NumberFormat>();
-
   const exact = (v: number, fractionDigits: number, ...args: A): string => {
     const custom = valueFormat();
     if (custom) return custom(v, ...args);
     const digits = Number.isFinite(fractionDigits) ? wrClamp(Math.round(fractionDigits), 0, 20) : 3;
-    let writer = exactNumbers.get(digits);
-    if (!writer) {
-      writer = new Intl.NumberFormat(locale, { maximumFractionDigits: digits });
-      exactNumbers.set(digits, writer);
-    }
-    return writer.format(v);
+    return wrChartNumberFormat(locale, { maximumFractionDigits: digits }).format(v);
   };
 
   return { value, label, ticks, exact };

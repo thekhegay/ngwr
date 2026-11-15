@@ -22,11 +22,11 @@ import {
   signal,
 } from '@angular/core';
 
-import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
+import { WR_OVERLAY, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
 import { wrToClassList } from 'ngwr/utils';
 
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
-import type { WrTourPlacement, WrTourStep } from './types';
+import type { WrTourOptions, WrTourPlacement, WrTourStep } from './types';
 
 /** Fallback order per preferred side — the opposite side first, then the sides. */
 const FALLBACKS: Record<WrTourPlacement, readonly WrTourPlacement[]> = {
@@ -94,6 +94,9 @@ export class WrTour {
   private detachKeydown: (() => void) | null = null;
   private detachReposition: (() => void) | null = null;
   private restoreFocus: HTMLElement | null = null;
+  private autoFocus: WrOverlayAutoFocus = 'dialog';
+  /** `focusNext` for the card, see {@link WrTourController}. */
+  readonly focusNext = (): boolean => this.autoFocus === 'first-tabbable';
   private stopWatchingUrl: (() => void) | null = null;
 
   /** Whether a tour is running. */
@@ -152,10 +155,11 @@ export class WrTour {
    * tour is a client-side affordance and there is nothing to spotlight on the
    * server.
    */
-  start(steps: readonly WrTourStep[]): void {
+  start(steps: readonly WrTourStep[], options: WrTourOptions = {}): void {
     if (!this.isBrowser || steps.length === 0) return;
     this.stop();
     this.steps.set(steps);
+    this.autoFocus = options.autoFocus ?? 'dialog';
     this.restoreFocus = this.document.activeElement as HTMLElement | null;
     // A tour belongs to the page it was started on, the way `WrDialog` and
     // `WrDrawerManager` tie a modal to its URL. Nothing ended it on navigation,
@@ -218,11 +222,15 @@ export class WrTour {
       return;
     }
 
+    // Focus inside the card that is about to go stays in the tour: the next card
+    // takes it, whatever `autoFocus` says about a card opening.
+    const active = this.document.activeElement;
+    const hadFocus = !!active && !!this.overlayRef?.overlayElement.contains(active);
     this.teardownStep();
     this.cursor.set(i);
     this.noStepAfter.set(!this.anyResolvableAfter(i));
     this.noStepBefore.set(!this.anyResolvableBefore(i));
-    this.openStep(steps[i]);
+    this.openStep(steps[i], hadFocus);
   }
 
   /** Whether the tour has a step past `index` that can actually be shown. */
@@ -248,7 +256,7 @@ export class WrTour {
     return this.document.querySelector<HTMLElement>(step.target);
   }
 
-  private openStep(step: WrTourStep): void {
+  private openStep(step: WrTourStep, hadFocus: boolean): void {
     const target = this.resolve(step);
     if (!target) return;
 
@@ -304,8 +312,17 @@ export class WrTour {
     // Kept on the instance, not in a local: a trap registers with CDK's
     // `FocusTrapManager` and installs a capture-phase document focus listener, so an
     // undestroyed one leaks per STEP and every tour left a stack of them behind.
-    this.focusTrap = this.focusTrapFactory.create(ref.location.nativeElement as HTMLElement);
-    void this.focusTrap.focusInitialElementWhenReady();
+    const card = ref.location.nativeElement as HTMLElement;
+    this.focusTrap = this.focusTrapFactory.create(card);
+    // Onto Next only when asked. Otherwise the card itself takes focus, so the
+    // keyboard is in the tour and no button is lit; under `false` only when the
+    // card before it held focus, which would otherwise fall to `<body>`.
+    wrFocusOverlay(
+      card,
+      this.focusTrap,
+      this.autoFocus === false && hadFocus ? 'dialog' : this.autoFocus,
+      this.injector
+    );
 
     const onKey = (event: KeyboardEvent): void => {
       // The listener is on the document, so a step shown over a dialog would see the

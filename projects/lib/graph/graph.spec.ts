@@ -123,7 +123,7 @@ const commands = (path: SVGPathElement): { command: string; numbers: number[] }[
 
 /**
  * The places a path passes through: the `M` point, the end of every `C` and the
- * `L` that finishes on the node. A `C`'s first four numbers are control points.
+ * `L` that finishes at the arrowhead's base. A `C`'s first four numbers are control points.
  */
 const points = (path: SVGPathElement): { x: number; y: number }[] =>
   commands(path).map(({ command, numbers }) => {
@@ -181,7 +181,7 @@ describe('WrGraph', () => {
     for (const path of edgePaths(root())) expect(points(path).length).toBeGreaterThanOrEqual(2);
   });
 
-  it('draws each link as curves that end on a straight lead-in under the arrowhead', () => {
+  it('draws each link as curves that end on a straight lead-in before the arrowhead', () => {
     const marker = root().querySelector('marker')!;
     // A fixed user-space arrow, so the edge width can change without the arrow
     // growing past its lead-in or shrinking to a speck.
@@ -209,6 +209,29 @@ describe('WrGraph', () => {
     }
   });
 
+  it('stops each line at the base of its arrowhead, whose tip is on the node', () => {
+    const marker = root().querySelector('marker')!;
+    // The marker hangs from its base: the triangle runs from x 0 to its tip at 10
+    // of 10, which `markerWidth` makes 6 pixels, all of them past the line's end.
+    expect(marker.getAttribute('refX')).toBe('0');
+    expect(marker.getAttribute('viewBox')).toBe('0 0 10 10');
+    expect(marker.querySelector('polygon')!.getAttribute('points')).toBe('0,1 10,5 0,9');
+    const size = Number(marker.getAttribute('markerWidth'));
+
+    expect(edgePaths(root())).toHaveLength(EDGES.length);
+    for (const path of edgePaths(root())) {
+      const [beforeLast, last] = points(path).slice(-2);
+      const target = itemNamed(root(), NODES.find(node => node.id === path.dataset['to'])!.label);
+      const { x, y } = position(target);
+      // The line runs down its lead-in and ends one arrowhead above the node's top
+      // border, so the tip, one arrowhead further on, lands exactly on it.
+      expect(last.y).toBeGreaterThan(beforeLast.y);
+      expect(last.y).toBe(y - size);
+      expect(last.x).toBeGreaterThan(x);
+      expect(last.x).toBeLessThan(x + parseFloat(target.style.width));
+    }
+  });
+
   it('draws a self-loop out to the side and back level, its arrow pointing at the node', () => {
     fixture.componentInstance.edges.set([...EDGES, { from: 'ember', to: 'ember' }]);
     fixture.detectChanges();
@@ -228,8 +251,9 @@ describe('WrGraph', () => {
       },
     ] = commands(loop);
 
-    // It leaves and returns on one vertical line, the start above the end.
-    expect(endX).toBe(startX);
+    // The line ends at the arrowhead's base, and the tip one arrowhead further in
+    // is back on the vertical line it left from, the start above the end.
+    expect(endX - 6).toBe(startX);
     expect(startY).toBeLessThan(endY);
     // The apex is one column further out than both ends, and each control point is
     // level with the end it belongs to, so the loop leaves and arrives horizontally.
@@ -245,7 +269,7 @@ describe('WrGraph', () => {
     // Both ends sit beside the node's right border, within its height.
     const ember = itemNamed(root(), 'Ember');
     const { x, y } = position(ember);
-    expect(endX).toBeGreaterThan(x + parseFloat(ember.style.width));
+    expect(endX - 6).toBeGreaterThan(x + parseFloat(ember.style.width));
     for (const at of [startY, endY]) {
       expect(at).toBeGreaterThan(y);
       expect(at).toBeLessThan(y + parseFloat(ember.style.height));

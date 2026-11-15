@@ -59,9 +59,17 @@ describe('WrFunnelChart', () => {
   const all = <T extends Element = HTMLElement>(selector: string): T[] => [...root().querySelectorAll<T>(selector)];
   const text = (selector: string): string[] => all(selector).map(el => el.textContent.trim());
   const stages = (): HTMLElement[] => all('.wr-funnel-chart__stage');
-  /** Each stage's bar width as written, `null` where the stage draws no bar. */
+  /**
+   * Each stage's bar length as written, a percentage of the track, `null` where the stage
+   * draws no bar. The component writes it as a share from 0 to 1 that the bar is scaled to.
+   */
   const widths = (): (string | null)[] =>
-    stages().map(stage => stage.querySelector<HTMLElement>('.wr-funnel-chart__bar')?.style.width ?? null);
+    stages().map(stage => {
+      const scale = stage
+        .querySelector<HTMLElement>('.wr-funnel-chart__bar')
+        ?.style.getPropertyValue('--wr-funnel-chart-bar-scale');
+      return scale === undefined ? null : `${Math.round(Number(scale) * 1e5) / 1e3}%`;
+    });
   const names = (): (string | null)[] => stages().map(stage => stage.getAttribute('aria-label'));
   const bands = (): string[] => all('.wr-funnel-chart__band').map(band => band.style.clipPath);
   /** The share printed in each gap between two stages, `null` where none is. */
@@ -115,7 +123,7 @@ describe('WrFunnelChart', () => {
     ]);
     // A band carries the two stages' paints: the chart's colour, then the stage's own.
     const last = all('.wr-funnel-chart__band')[2];
-    expect(last.style.getPropertyValue('--wr-funnel-chart-band-from')).toBe('var(--wr-color-primary)');
+    expect(last.style.getPropertyValue('--wr-funnel-chart-band-from')).toBe('var(--wr-chart-1)');
     expect(last.style.getPropertyValue('--wr-funnel-chart-band-to')).toBe('#123456');
   });
 
@@ -132,7 +140,7 @@ describe('WrFunnelChart', () => {
 
   it('paints a stage in the chart colour unless it has its own', () => {
     const bars = all('.wr-funnel-chart__bar');
-    expect(bars[0].style.background).toBe('var(--wr-color-primary)');
+    expect(bars[0].style.background).toBe('var(--wr-chart-1)');
     expect(bars[3].style.background).toBe('rgb(18, 52, 86)');
   });
 
@@ -433,7 +441,7 @@ describe('WrFunnelChart tooltip', () => {
         .join(' ')
     );
   const hover = (index: number): void => {
-    stages()[index].dispatchEvent(new MouseEvent('mouseenter'));
+    stages()[index].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
     fixture.detectChanges();
   };
 

@@ -2,7 +2,7 @@
   First in the DOM, so it is the first tab stop of the carousel: the way to stop
   the slides comes before the slides. Named for what a press does next.
 -->
-@if (autoplay() && count() > 1) {
+@if (autoplay() && pauseButton() && count() > 1) {
   <button
     type="button"
     class="wr-carousel__toggle"

@@ -139,11 +139,18 @@ export class WrCarousel implements WrCarouselContext {
   readonly showDots = input(true, { transform: coerceBooleanProperty });
 
   /**
-   * Auto-advance slides, with a pause / play button. Held while the pointer or
-   * keyboard focus is inside the carousel and during a swipe. While the reader
-   * prefers reduced motion it does not start until they press play. @default false
+   * Auto-advance slides. Held while the pointer or keyboard focus is inside the
+   * carousel and during a swipe. While the reader prefers reduced motion it does
+   * not start until they press play. Turn on `pauseButton` to let readers stop
+   * it. @default false
    */
   readonly autoplay = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Draw a pause / play button while `autoplay` is on. WCAG 2.2.2 asks for a way
+   * to pause moving content, so turn it on with autoplay. @default false
+   */
+  readonly pauseButton = input(false, { transform: coerceBooleanProperty });
 
   /** Autoplay interval (ms). @default 4000 */
   readonly intervalMs = input(4000, {

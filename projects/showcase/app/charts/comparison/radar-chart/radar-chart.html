@@ -1,13 +1,14 @@
 <ngwr-doc-page
   title="Radar Chart"
   since="15.1.0"
+  updated="16.5.0"
   description="Several series compared across the same axes, as polygons on a polar grid or as polar-area wedges."
   [keywords]="['radar-chart', 'spider-chart', 'web-chart', 'polar-area', 'rose-chart', 'wr-radar-chart']"
   [labels]="['Component']"
 >
   <ngwr-doc-section
     title="Basic"
-    description="One value per axis per series. The first axis points up and the rest follow clockwise."
+    description="One value per axis per series. The first axis points up and the rest follow clockwise. The ring values sit between two spokes. Hovering an outline, a dot or a legend row dims the other series."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
@@ -62,6 +63,62 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Legend"
+    description="`legendPosition` puts the legend at `bottom` (default), `top`, `start` or `end`, or leaves it out with `none`. A single series has no legend unless `showLegend` asks for one."
+  >
+    <ngwr-doc-code [code]="snippets.legend" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>legendPosition="top"</code>
+          </p>
+          <wr-radar-chart [axes]="axes" [series]="teams" [max]="100" [size]="200" legendPosition="top" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">A single series</p>
+          <wr-radar-chart [axes]="axes" [series]="single" [max]="100" [size]="200" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Empty, loading and error"
+    description="With no data the chart keeps its web and its axis names and says so. `loading` and `error` put their message in place of the series. Each message has a `*Label` input over the `chart.*` catalog keys."
+  >
+    <ngwr-doc-code [code]="snippets.states" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">No data</p>
+          <wr-radar-chart [axes]="axes" [series]="[]" [size]="180" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>loading</code>
+          </p>
+          <wr-radar-chart [axes]="axes" [series]="models" [max]="100" [size]="180" showLegend="false" loading />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">
+            <code>error</code>
+          </p>
+          <wr-radar-chart
+            [axes]="axes"
+            [series]="models"
+            [max]="100"
+            [size]="180"
+            showLegend="false"
+            error
+            errorLabel="Unavailable"
+          />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Data table"
     description="`dataTable` adds a table only screen readers reach: a row per axis, a column per series shown. Nothing changes on screen."
   >
@@ -94,6 +151,13 @@
           <tr>
             <th scope="row">Series</th>
             <td>Each has its own dash as well as its colour, so outlines differ without hue.</td>
+          </tr>
+          <tr>
+            <th scope="row">States</th>
+            <td>
+              The empty and loading messages are a <code>role="status"</code>; a failed load is a
+              <code>role="alert"</code>.
+            </td>
           </tr>
           <tr>
             <th scope="row">Axis names</th>

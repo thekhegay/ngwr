@@ -213,7 +213,8 @@ it('sets a time and steps it', async () => {
 
   expect(await bars.getLabels()).toEqual(['Mon', 'Tue', 'Wed']);
   expect(await bars.getAccessibleNames()).toEqual(['Mon: 12', 'Tue: 24', 'Wed: 6']);
-  expect((await bars.getBars()).map(b => b.heightPercent)).toEqual([50, 100, 25]);
+  // The axis is snapped to round numbers: 12, 24 and 6 on a scale from 0 to 30.
+  expect((await bars.getBars()).map(b => b.heightPercent)).toEqual([40, 80, 20]);
 
   const donut = await loader.getHarness(WrDonutChartHarness);
   expect(await donut.getLegend()).toEqual([{ label: 'Direct', value: '30' }]);

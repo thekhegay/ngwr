@@ -358,6 +358,10 @@
   }
 }
 
-// The overlay pane `[wrColorPickerTrigger]` opens needs no rule: the inner
-// `.wr-color-picker` brings its own border and shadow, and a `z-index` on a
-// pane does nothing — see the note in `ngwr/date-picker`.
+// The overlay pane `[wrColorPickerTrigger]` opens needs no box of its own: the
+// inner `.wr-color-picker` brings its own border and shadow, and a `z-index` on
+// a pane does nothing — see the note in `ngwr/date-picker`. It takes focus under
+// `autoFocus="dialog"`, as `tabindex="-1"`: a container is not a control to ring.
+.wr-color-picker-overlay:focus {
+  outline: none;
+}

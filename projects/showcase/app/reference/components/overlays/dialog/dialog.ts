@@ -72,6 +72,11 @@ export class MyComponent {
 
 // Or subscribe:
 ref.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(ok => { … });`,
+    autoFocus: `// One dialog
+this.dialog.open(RenameDialog, { autoFocus: 'first-tabbable' });
+
+// The whole app
+provideWr(withDialog({ autoFocus: 'first-tabbable' }));`,
     focus: `<!-- cdkFocusInitial needs no import. -->
 <h2 wrDialogTitle>Rename project</h2>
 <div wrDialogContent>
@@ -104,7 +109,7 @@ if (ok) this.store.remove(item);`,
   title: 'Delete this layer?',
   message: 'Its 12 markers go with it.',
   confirmLabel: 'Delete',
-  intent: 'danger', // also confirmColor: 'danger', so focus starts on cancel
+  intent: 'danger', // also confirmColor: 'danger', so with autoFocus: 'first-tabbable' focus starts on cancel
 });`,
     tabTitle: `// One dialog.
 this.dialog.open(EditLampComponent, { tabTitle: true });
@@ -155,7 +160,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     {
       name: 'WrDialogConfirmOptions',
       description:
-        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle` and `toasts` from `WrDialogOptions`.',
+        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle`, `autoFocus` and `toasts` from `WrDialogOptions`.',
       type: 'interface',
       default: '-',
     },
@@ -183,7 +188,8 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     },
     {
       name: 'confirmColor',
-      description: 'Color of the confirm button. `danger` also puts initial focus on cancel.',
+      description:
+        'Color of the confirm button. `danger` also puts initial focus on cancel under `autoFocus: "first-tabbable"`.',
       type: 'WrColor',
       default: "'primary', or the `intent` when that is `danger` or `warning`",
       sub: true,
@@ -202,7 +208,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     {
       name: 'WrDialogAlertOptions',
       description:
-        'Argument of `alert()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle` and `toasts` from `WrDialogOptions`.',
+        'Argument of `alert()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle`, `autoFocus` and `toasts` from `WrDialogOptions`.',
       type: 'interface',
       default: '-',
     },

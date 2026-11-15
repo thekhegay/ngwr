@@ -69,6 +69,43 @@ because it is guidance rather than a plan.
   move", and so did the output's own JSDoc — both wrong since the emit has
   always sat in the drag's cleanup. A consumer persisting the position wants
   the landing rather than the path, which is what it does.
+- Dialogs and drawers focus their PANEL on open (`autoFocus: 'dialog'`, since
+  16.5), not the first control: a ring on a button nobody pressed is noise, and
+  `false` is not the default because a modal that moves no focus strands
+  keyboard and screen-reader users behind the backdrop. The panel is
+  `tabindex="-1"` with `outline: none` on `:focus`. The library's own
+  `cdkFocusInitial` (confirm, alert) follows the option and is only emitted
+  under `'first-tabbable'`; the consumer's own always wins.
+- Components do not move focus on open unless asked; keyboard navigation
+  inside composites does (since 16.5). An overlay that is a dialog (a
+  popconfirm, a tour card, the lightbox viewer, a window) focuses its PANEL,
+  through the same `wrFocusOverlay` and `autoFocus` modes as the dialog. A
+  non-modal panel (`[wrPopover]`, `[wrColorPickerTrigger]`) moves nothing by
+  default and Tab on the trigger walks into it, which is what keeps WCAG F85
+  answered with the pane at the end of `<body>`; the date pickers move in for
+  the keyboard (Enter on the calendar button, `Alt+ArrowDown`) and not for a
+  pointer press. Menus follow the same rule: `[wrDropdown]`, `wr-cascader` and
+  an overlay `wr-tree` leave focus on the trigger, and `[wrContextMenu]` on
+  whatever had it. ArrowDown / ArrowUp on the trigger walk in (anywhere on the
+  page for a context menu, through the CDK keyboard dispatcher, which listens
+  only while an overlay is open), a letter typed there goes to the panel's
+  typeahead, and Tab walks into the cascader and the tree, whose panels hold a
+  tab stop; a menu has none, so Tab closes it. `autoFocus` restores the focus on
+  open. On a DIRECTIVE the input is prefixed (`wrDropdownAutoFocus`,
+  `wrContextMenuAutoFocus`, `wrPopoverAutoFocus`, `wrPopconfirmAutoFocus`,
+  `wrColorPickerTriggerAutoFocus`): it sits on the consumer's own element,
+  where a static `autoFocus` also lands as the native `autofocus` and the
+  browser focuses the trigger at page load. A component with its own,
+  unfocusable host keeps the bare name. Roving arrows, Home / End, typeahead, a submenu opened by
+  its arrow, the editor of an inline edit and the hand-back of focus on close
+  are the user's own moves and stay.
+- Three overlays still take focus on open, each because the open IS a request
+  to type or to walk. The command palette focuses its search field: it has no
+  trigger to stay on and the query is the whole interface. The editor's link
+  panel (Mod-K) focuses its URL field: the caret was in the document, and
+  leaving it there would type the address into the text. A date picker opened
+  from the keyboard focuses the grid date: Enter on the calendar button asked
+  for the grid, and the field itself stays the place to type a date.
 - `wr-sortable-list` in a group: `move` fires ONCE, on the list the item
   arrived in, and never on the one it left, which reports through
   `itemsChange` alone; a keyboard move writes `[(items)]` on both lists at
@@ -198,10 +235,25 @@ because it is guidance rather than a plan.
   prerender. Destroying the app aborts the run. While a newer run is pending
   the graph draws the OLD nodes and edges, not the new inputs: a result travels
   with the graph it was computed for, so the picture on screen is always whole.
-- `wr-graph` with `zoomable` leaves a plain wheel to the page: only `Ctrl` or
-  `⌘` with the wheel (a trackpad pinch arrives that way) zooms, unless
-  `wheelZoom` is set. A graph that swallowed the wheel would trap a page
-  scrolling past it. `zoomable` is off by default, because it replaces the
+- `wr-graph` with `zoomable` treats a plain wheel, which is also a trackpad's
+  two-finger scroll, as a scroll container does: the drawing pans while it has
+  more to show in that direction, up to the viewport's padding, and the event
+  is taken; once it has none the event is not prevented and the page scrolls
+  on. A drawing that fits never takes the wheel, so a page scrolling past a
+  graph is not trapped. The larger of the two deltas decides, so the sideways
+  drift of a vertical swipe over a wide graph does not hold the page. `Shift`
+  with the wheel pans sideways. A wheel event that is not cancelable is left
+  alone: the browser is already scrolling the page with that gesture. A drag
+  reaches further than the wheel, until 48 pixels of the drawing are left in
+  view, and the wheel only brings such a view back. Only `Ctrl` or `⌘` with
+  the wheel zooms (a trackpad pinch arrives that way in Chromium and Firefox),
+  unless `wheelZoom` is set, and then a plain wheel zooms and never pans.
+  Safari sends a trackpad pinch as `gesturestart` / `gesturechange` /
+  `gestureend` instead: the graph zooms by the gesture's `scale` from where it
+  started, around its point, and prevents all three so the page does not zoom.
+  While touch pointers are down those events are prevented and otherwise
+  ignored, because the same pinch already zooms through the pointers.
+  `zoomable` is off by default, because it replaces the
   viewport's scrolling and takes touch drags from the page. A fit never goes
   above 100%. Once the view was moved by hand, by a gesture, a key, a button or
   a write to `zoom`, a new layout result is no longer fitted, an asynchronous
