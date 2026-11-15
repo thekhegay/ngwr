@@ -1,5 +1,61 @@
 # Changelog
 
+## [16.5.0](https://github.com/thekhegay/ngwr/compare/v16.4.0...v16.5.0) (2026-11-15)
+
+### Features
+
+* **bar-chart:** grid, axis and value labels as inputs on the shared theme ([95f508e](https://github.com/thekhegay/ngwr/commit/95f508e45e7cd0cf41f80407f7f5cfc9251869a1))
+* **boxplot-chart:** the shared chart theme, a typed sort and capped outliers ([b56c9d5](https://github.com/thekhegay/ngwr/commit/b56c9d5d21c7fd792af0f64ff3c14b53f9fb1457))
+* **bullet-chart:** bands on the sequential scale, transforms and states ([636e1c4](https://github.com/thekhegay/ngwr/commit/636e1c437c8eb363c8efd4ccadaf7f0ba68ffa2d))
+* **calendar-heatmap:** sequential scale, scale key, roomier days and states ([db82ee0](https://github.com/thekhegay/ngwr/commit/db82ee07c236a0579e037c6bce0a5a5d0ba1ec4e))
+* **candlestick-chart:** the shared chart theme, solid bodies and decimation ([45a2b62](https://github.com/thekhegay/ngwr/commit/45a2b6234b5bfba94301f1b6caf39803b9885e57))
+* **chart-legend:** a scale key for the charts with a colour scale ([2132a5d](https://github.com/thekhegay/ngwr/commit/2132a5d248fa97ebdcfbe2cb643d1d89bef72a85))
+* **charts:** a shared chart theme, palette and helpers in charts/core ([e9fea9e](https://github.com/thekhegay/ngwr/commit/e9fea9e4144898cddd4707840df87951188b5249))
+* **charts:** legend position and a quieter tooltip row ([1cd3b2c](https://github.com/thekhegay/ngwr/commit/1cd3b2ce58512d33596e0e816b81168e461628b9))
+* **charts:** tooltip lets the pointer through, hoverable on request ([310ca68](https://github.com/thekhegay/ngwr/commit/310ca68d4d7e104976b00891524399adbd6bdcf6))
+* **dialog:** an auto focus option for dialogs and drawers ([4570b8b](https://github.com/thekhegay/ngwr/commit/4570b8b01affa2c77bdd1209b36bdb81d042fd66))
+* **donut-chart:** gapless slices, the value centred on the ring ([01335c7](https://github.com/thekhegay/ngwr/commit/01335c72176331013dbfd7ff24f1afaa3507e95b))
+* **donut-chart:** the shared chart theme, 1px separators and legend position ([193b971](https://github.com/thekhegay/ngwr/commit/193b971391e0bda689144195681417a07ad62c7b))
+* **funnel-chart:** chart theme, transform bars and states ([c7dbac6](https://github.com/thekhegay/ngwr/commit/c7dbac65869026f42889efbb74a7d04a4bb210a9))
+* **gauge:** a stroke in pixels on the shared chart theme ([7f798b9](https://github.com/thekhegay/ngwr/commit/7f798b9e8e3a9000f9f66b4029192fa532569942))
+* **heatmap-chart:** sequential scale, shared scale key and imperative hover ([5412620](https://github.com/thekhegay/ngwr/commit/5412620c4dd1b4515e14e80962c2c07f05616f69))
+* **line-chart:** the shared chart theme, its tooltip and decimation ([def22f6](https://github.com/thekhegay/ngwr/commit/def22f6dcadc9e036d12feb0f9a3763ef8a07b7b))
+* **meter-group:** chart palette, separators, legend position and states ([f564e09](https://github.com/thekhegay/ngwr/commit/f564e09a6d4c745de870e8208809dfeaff87c054))
+* **radar-chart:** the shared chart theme, ring values off the spokes ([e5b4756](https://github.com/thekhegay/ngwr/commit/e5b47569f4a94822b1a3ebb436d138c0929561be))
+* **scatter-chart:** the shared chart theme and one hit test per event ([3413e6c](https://github.com/thekhegay/ngwr/commit/3413e6cb8c4b66b8af48de858bbebcff4112d640))
+* **treemap-chart:** solid fills, separators and small-tile labels ([abfc097](https://github.com/thekhegay/ngwr/commit/abfc09700cee0255130a1e2dd21bb36ebec62b63))
+* **waterfall-chart:** the shared chart theme and bars moved by a transform ([58524a4](https://github.com/thekhegay/ngwr/commit/58524a4d64a9c39b56fe927bcff60a55d5d91ecb))
+
+### Bug Fixes
+
+* **carousel:** the pause button is opt-in ([3e6b175](https://github.com/thekhegay/ngwr/commit/3e6b175a3110e82dc157522d59ef8e08a3031057))
+* **cascader:** opening leaves focus on the trigger unless asked ([4bc239c](https://github.com/thekhegay/ngwr/commit/4bc239ce4e4d353d8c73272150ab52f3b4cab456))
+* **charts:** bars cover the zero line, hover holds across gaps, state plate ([ead3281](https://github.com/thekhegay/ngwr/commit/ead3281472711b408c2e370057bbcb0de86d6c91))
+* **charts:** one black-or-white pick in charts core, so heatmap and treemap load together ([d6cfffb](https://github.com/thekhegay/ngwr/commit/d6cfffb6eae64fedbafa87f6479176646b397ac1))
+* **charts:** state message on the surface over a track, bullet target clipped to its track ([48525d4](https://github.com/thekhegay/ngwr/commit/48525d4545e20d67fff6e180c072edecaa5c849d))
+* **color-picker:** no focus move on open unless asked ([6f11128](https://github.com/thekhegay/ngwr/commit/6f1112846d971c54cbce11b25a880c904e702241))
+* **context-menu:** opening leaves focus where it was unless asked ([cf746fd](https://github.com/thekhegay/ngwr/commit/cf746fd66e760a169b0c0800a10cb96a2d9b2995))
+* **copy-value:** keep only the last character with the button in wrap mode ([0009cae](https://github.com/thekhegay/ngwr/commit/0009cae64104840b87e8d5cbd4e8da77dc2b789f))
+* **copy-value:** ngwr tooltip on the button and the button inline after the last word in wrap mode ([1c169bd](https://github.com/thekhegay/ngwr/commit/1c169bdbe240f5cfbb6c753981f347684f701087))
+* **date-picker:** a pointer press on the calendar button leaves focus on it ([7336ae9](https://github.com/thekhegay/ngwr/commit/7336ae91eff824b63dd7e4d70bcac587cc39e08a))
+* **date-stamp:** time is never larger than the date ([b5713ca](https://github.com/thekhegay/ngwr/commit/b5713cabd96789d1babe73df429e056ca3ae756b))
+* **dropdown:** opening leaves focus on the trigger unless asked ([6516ffe](https://github.com/thekhegay/ngwr/commit/6516ffe78904da1cf8ed9812dc543b3cae679272))
+* **graph:** the edge line stops at the arrowhead ([9879536](https://github.com/thekhegay/ngwr/commit/98795369ddcea98031f612e7e09151a78203affe))
+* **graph:** two-finger scroll pans and safari pinch zooms ([a91e20e](https://github.com/thekhegay/ngwr/commit/a91e20ec096690226b446badab9a356cdc6334d6))
+* **lightbox:** focus the viewer on open, not the close button ([cf82840](https://github.com/thekhegay/ngwr/commit/cf82840168a86db706c5e24dbbc58374a9613ede))
+* **popconfirm:** no focus move onto a button on open unless asked ([2bffb2e](https://github.com/thekhegay/ngwr/commit/2bffb2e7182c37786652ed847a6555e430114b5a))
+* **popover:** no focus move on open unless asked ([e10a5d9](https://github.com/thekhegay/ngwr/commit/e10a5d98fbd5699dbb0b82827cf93ff27154bbde))
+* prefix the auto focus inputs of directives so no autofocus attribute lands on the host ([17f1e8a](https://github.com/thekhegay/ngwr/commit/17f1e8a7cd70533de04cfda867db5b96844de5b7))
+* **sparkline:** end dot inside the box, on the chart palette ([1e55c44](https://github.com/thekhegay/ngwr/commit/1e55c44c227a0a248963340953550eebb41573ec))
+* **tour:** focus the card on open, not the next button ([bb34c75](https://github.com/thekhegay/ngwr/commit/bb34c75497a817cd8968c7a429e7b9594a316dd3))
+* **tree:** opening the overlay leaves focus on the trigger unless asked ([730f1e1](https://github.com/thekhegay/ngwr/commit/730f1e1266ac5c528b638f2fa88a3b0ef4761317))
+* **window:** focus the window on open, not its first control ([f9fac53](https://github.com/thekhegay/ngwr/commit/f9fac538764fddcde11928eabc242d72e235be8f))
+
+### Performance Improvements
+
+* **chart-legend:** precomputed rows ([03a3de7](https://github.com/thekhegay/ngwr/commit/03a3de72b51c03fb0b250b70d46ac0fc76796e7a))
+* **charts:** hover dim clears the marks it lit without a scan ([640c49f](https://github.com/thekhegay/ngwr/commit/640c49fbbf2764478ae0902659b9c3948c561c71))
+
 ## [16.4.0](https://github.com/thekhegay/ngwr/compare/v16.3.0...v16.4.0) (2026-11-14)
 
 ### Features
