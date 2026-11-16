@@ -282,6 +282,15 @@ describe('WrMeta', () => {
   });
 
   describe('description', () => {
+    it('keeps the default when a later layer passes undefined for it', () => {
+      const meta = setup({ description: 'Default copy.', og: { title: 'Default og' } });
+      meta.push({ title: 'Pricing', description: undefined, og: { title: undefined } });
+
+      expect(content(named('description'))).toBe('Default copy.');
+      expect(content('meta[property="og:title"]')).toBe('Default og');
+      expect(content('meta[property="og:description"]')).toBe('Default copy.');
+    });
+
     it('writes one description tag into the head', () => {
       setup().set({ description: 'Plans for every team.' });
 
