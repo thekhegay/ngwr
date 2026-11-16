@@ -44,7 +44,7 @@ export class WrI18nHttpLoader implements WrI18nLoader {
 
   load(locale: string, scope: string | null): Observable<WrI18nCatalog> {
     const template = scope === null ? (this.config.rootPath ?? this.config.path) : this.config.path;
-    const url = template.replace('{locale}', locale).replace('{scope}', scope ?? '');
+    const url = template.replaceAll('{locale}', locale).replaceAll('{scope}', scope ?? '');
     return this.http.get<WrI18nCatalog>(url);
   }
 }
