@@ -386,6 +386,14 @@ export class WrCarousel implements WrCarouselContext {
     if (this.swipeAxis === 'x') this.dragX.set(dx);
   }
 
+  /** The browser took the touch over (a scroll, a system gesture): drop the drag, never navigate. */
+  protected onSwipeCancel(): void {
+    if (!this.dragging()) return;
+    this.dragging.set(false);
+    this.swipeAxis = null;
+    this.dragX.set(0);
+  }
+
   protected onSwipeEnd(event: TouchEvent, viewport: HTMLElement): void {
     if (!this.dragging()) return;
     this.dragging.set(false);
