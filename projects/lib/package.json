@@ -50,7 +50,7 @@
     "rxjs": "^7.8.2",
     "prosemirror-commands": "^1.7.2",
     "prosemirror-history": "^1.5.1",
-    "prosemirror-inputrules": "^1.5.1",
+    "prosemirror-inputrules": "^1.6.0",
     "prosemirror-keymap": "^1.2.3",
     "prosemirror-model": "^1.25.13",
     "prosemirror-schema-list": "^1.6.0",
