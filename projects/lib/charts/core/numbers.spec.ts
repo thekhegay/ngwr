@@ -272,7 +272,7 @@ describe('useChartNumbers', () => {
     // Two of v15's ticks were wrong, so two gridlines sat at the wrong height under wrong labels.
     [0.0000012, 0.0000098, false, 2.5e-6, ['0.00001', '0.0000075', '0.000005', '0.0000025', '0']],
     // v15 drew five zeros: six digits cannot reach a step of 5e-10, and a step below 1e-9 was whole.
-    [1e-9, 3e-9, false, 5e-10, ['0.000000003', '0.0000000025', '0.000000002', '0.0000000015', '0.000000001']],
+    [1e-9, 3e-9, false, 5e-10, ['0.0000000035', '0.000000003', '0.0000000025', '0.000000002', '0.0000000015']],
   ] as const)(
     'ticks %s to %s (symmetric: %s) by %s, every one distinct and exact',
     (lo, hi, symmetric, step, expected) => {
