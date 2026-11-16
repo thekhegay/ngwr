@@ -11,7 +11,11 @@ import { WrListItem } from './list-item';
   template: `
     <wr-list [ariaLabel]="ariaLabel()">
       <wr-list-item>Plain row</wr-list-item>
-      <wr-list-item interactive [disabled]="disabled()" (click)="picks.set(picks() + 1)">Interactive row</wr-list-item>
+      <wr-list-item interactive [disabled]="disabled()" (click)="picks.set(picks() + 1)">
+        Interactive row
+        <button type="button" class="inner-btn" (click)="inner.set(inner() + 1); $event.stopPropagation()">Go</button>
+        <input class="inner-input" />
+      </wr-list-item>
     </wr-list>
   `,
 })
@@ -19,6 +23,7 @@ class Host {
   readonly ariaLabel = signal('Recent files');
   readonly disabled = signal(false);
   readonly picks = signal(0);
+  readonly inner = signal(0);
 }
 
 /**
@@ -81,6 +86,19 @@ describe('WrList', () => {
 
   it('swallows Space so the page does not scroll under the user', () => {
     expect(press(interactive(), ' ').defaultPrevented).toBe(true);
+  });
+
+  it('leaves Enter and Space on a control inside the row to the control', () => {
+    const button = interactive().querySelector<HTMLElement>('.inner-btn')!;
+    const input = interactive().querySelector<HTMLElement>('.inner-input')!;
+
+    expect(press(button, 'Enter').defaultPrevented).toBe(false);
+    expect(press(input, ' ').defaultPrevented).toBe(false);
+    expect(picks()).toBe(0);
+
+    button.click();
+    expect(fixture.componentInstance.inner()).toBe(1);
+    expect(picks()).toBe(0);
   });
 
   it('does not activate a plain row', () => {
