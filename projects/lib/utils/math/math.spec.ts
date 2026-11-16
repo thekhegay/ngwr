@@ -7,7 +7,14 @@ describe('wrRound', () => {
   it('rounds to whole numbers by default', () => {
     expect(wrRound(2.4)).toBe(2);
     expect(wrRound(2.5)).toBe(3);
-    expect(wrRound(-2.5)).toBe(-2);
+  });
+
+  it('rounds halves away from zero for negative numbers', () => {
+    expect(wrRound(-2.5)).toBe(-3);
+    expect(wrRound(-2.4)).toBe(-2);
+    expect(wrRound(-0.125, 2)).toBe(-0.13);
+    expect(wrRound(-1.005, 2)).toBe(-1.01);
+    expect(wrRound(-0.1)).toBe(0);
   });
 
   it('rounds to a number of decimals', () => {
