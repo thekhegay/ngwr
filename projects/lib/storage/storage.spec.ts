@@ -1,4 +1,4 @@
-import { EnvironmentInjector, PLATFORM_ID, createEnvironmentInjector } from '@angular/core';
+import { EnvironmentInjector, PLATFORM_ID, computed, createEnvironmentInjector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
@@ -114,6 +114,23 @@ describe('WrStorage', () => {
         expect(store.get('cart', 'gone')).toBe('gone');
         // Lazily removed, not merely hidden — otherwise the entry outlives its
         // own TTL in storage and counts against quota forever.
+        expect(store.has('cart')).toBe(false);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('reads an expired key inside a computed while a watcher exists, without throwing', () => {
+      const store = setup();
+      vi.useFakeTimers();
+      try {
+        const watched = store.watch('cart', 'gone');
+        store.set('cart', ['x'], { ttl: 1000 });
+        vi.advanceTimersByTime(1001);
+
+        const read = computed(() => store.get('cart', 'gone'));
+        expect(read()).toBe('gone');
+        expect(watched()).toBe('gone');
         expect(store.has('cart')).toBe(false);
       } finally {
         vi.useRealTimers();
