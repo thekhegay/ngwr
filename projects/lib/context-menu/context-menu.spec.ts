@@ -175,6 +175,27 @@ describe('WrContextMenu', () => {
     expect(pane.style.pointerEvents).toBe('none');
   });
 
+  it('keeps the new menu open when an outside click reaches the pane still fading out', async () => {
+    // Past the 200 ms guard, so the old pane's watcher is armed.
+    rightClick();
+    vi.advanceTimersByTime(250);
+    press(menus()[0], 'Escape');
+    rightClick();
+    expect(document.querySelectorAll('.wr-context-menu-overlay')).toHaveLength(2);
+
+    // Inside the new menu's own guard window, so it ignores the click; only the
+    // old pane's watcher would act on it.
+    for (const type of ['pointerdown', 'click']) {
+      document.body.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, detail: 1 }));
+    }
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    const fresh = [...document.querySelectorAll<HTMLElement>('.wr-context-menu-overlay')].at(-1)!;
+    expect(fresh.style.pointerEvents).toBe('');
+    expect(target().hasAttribute('aria-controls')).toBe(true);
+  });
+
   it('takes its still-closing panes with it when the directive is destroyed', () => {
     rightClick();
     press(menus()[0], 'Escape');
