@@ -419,3 +419,54 @@ describe('[wrColorPickerTrigger] follows a direction flip while its panel is ope
     expect(overlayHost().getAttribute('dir')).toBe('ltr');
   });
 });
+
+@Component({
+  imports: [WrColorPickerTrigger],
+  template: ` <button type="button" wrColorPickerTrigger [disabled]="disabled()" [(value)]="brand">Brand</button> `,
+})
+class SyncHost {
+  readonly brand = signal('#ff0000');
+  readonly disabled = signal(false);
+}
+
+describe('[wrColorPickerTrigger] while its panel is open', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SyncHost>>;
+
+  const trigger = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('[wrColorPickerTrigger]')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-color-picker');
+  const hexField = (): HTMLInputElement =>
+    document.querySelector<HTMLInputElement>('.wr-color-picker__inputs--hex input')!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(SyncHost);
+    fixture.detectChanges();
+    trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('shows a value written from outside', async () => {
+    expect(hexField().value.toLowerCase()).toContain('ff0000');
+
+    fixture.componentInstance.brand.set('#00ff00');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    TestBed.tick();
+
+    expect(hexField().value.toLowerCase()).toContain('00ff00');
+  });
+
+  it('closes when the trigger becomes disabled', async () => {
+    expect(panel()).not.toBeNull();
+
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    TestBed.tick();
+
+    expect(panel()).toBeNull();
+  });
+});
