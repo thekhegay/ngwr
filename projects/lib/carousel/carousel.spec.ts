@@ -271,6 +271,20 @@ describe('WrCarousel', () => {
       expect(active()).toBe(0);
     });
 
+    it('drops a cancelled touch without changing the slide', () => {
+      mount('browser', 'ltr');
+      const el = viewport();
+      Object.defineProperty(el, 'offsetWidth', { value: 300, configurable: true });
+
+      el.dispatchEvent(touch('touchstart', 200));
+      el.dispatchEvent(touch('touchmove', 80));
+      el.dispatchEvent(touch('touchcancel'));
+      fixture.detectChanges();
+
+      expect(active()).toBe(0);
+      expect(track().style.transform).toBe('translateX(0%)');
+    });
+
     it('leaves the slide alone when the touch is a page scroll', () => {
       // 240px up with 90px of sideways drift is someone scrolling the page past
       // the carousel. The track used to follow the drift and, past 20% of the
