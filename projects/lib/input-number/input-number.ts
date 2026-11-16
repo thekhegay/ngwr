@@ -283,6 +283,8 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
 
+  private lastCommitted: unknown = undefined;
+
   /** Whether the input is focused. While true, the input handlers own `text`. */
   protected readonly focused = signal(false);
 
@@ -360,11 +362,14 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('input-number');
     // Keep the display `text` in sync with external writes to `value` (via
     // `[formField]` / `[(value)]`). While the user is editing, the input
-    // handlers own `text`, so skip re-formatting to avoid clobbering partial
+    // handlers own `text`, so skip re-formatting their own commits to avoid clobbering partial
     // input (e.g. mid-typed grouping or a value that is still being clamped).
     effect(() => {
       const v = this.value();
-      if (this.focused()) return;
+      // While focused only this component's own edits are left alone; a model
+      // that differs from the last one it committed was written from outside.
+      if (this.focused() && Object.is(v, this.lastCommitted)) return;
+      this.lastCommitted = v;
       if (v === null || Number.isNaN(v)) {
         this.text.set('');
         return;
@@ -447,6 +452,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
 
   /** The one write to `value`: what a mode holds is decided above, not here. */
   private commit(next: number | string | null): void {
+    this.lastCommitted = next;
     this.value.set(next as WrInputNumberValue<M>);
   }
 
