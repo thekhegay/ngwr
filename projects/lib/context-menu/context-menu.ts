@@ -477,10 +477,13 @@ export class WrContextMenu {
     //      auxclick, short enough that a deliberate second click is
     //      still respected).
     const openedAt = performance.now();
+    const openedRef = this.overlayRef;
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
+        // A pane still fading out must not close the menu that replaced it.
+        if (openedRef !== this.overlayRef) return;
         if (performance.now() - openedAt < 200) return;
         this.closeOverlay();
       });
