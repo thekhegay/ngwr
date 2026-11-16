@@ -15,11 +15,16 @@ import type { WrMetaConfig, WrMetaHandle } from './types';
 /** Deep-merge two `WrMetaConfig` layers — later wins for scalars + nested groups. */
 function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {
   return {
-    ...base,
-    ...top,
-    og: { ...base.og, ...top.og },
-    twitter: { ...base.twitter, ...top.twitter },
+    ...defined(base),
+    ...defined(top),
+    og: { ...defined(base.og), ...defined(top.og) },
+    twitter: { ...defined(base.twitter), ...defined(top.twitter) },
   };
+}
+
+/** The own entries of a layer that are not `undefined`, so an absent value cannot erase a lower one. */
+function defined<T extends object>(layer: T | undefined): Partial<T> {
+  return Object.fromEntries(Object.entries(layer ?? {}).filter(([, v]) => v !== undefined)) as Partial<T>;
 }
 
 /**
