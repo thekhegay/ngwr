@@ -156,6 +156,9 @@ export class WrI18n {
   /** In-flight load promises — dedupes parallel `t()` callers. @internal */
   private readonly inflight = new Map<string, Promise<WrI18nCatalog>>();
 
+  /** Keys whose last load failed: `t()` does not retry them, `use()` and `registerScope()` do. @internal */
+  private readonly failed = new Set<string>();
+
   /** Registered scopes — auto-loaded whenever the locale changes. @internal */
   private readonly scopes = new Set<string>();
 
@@ -188,6 +191,8 @@ export class WrI18n {
     const previous = this._locale();
     this._locale.set(locale);
     if (this.config.storageKey) this.storage.set(this.config.storageKey, locale);
+    void this.loadChain(locale, null);
+    for (const sc of this.scopes) void this.loadChain(locale, sc);
     if (isDevMode() && previous !== locale) this.warnOnLocaleIdDrift(locale);
   }
 
@@ -246,7 +251,7 @@ export class WrI18n {
 
     if (hit === null) {
       // Fire a background load so a future read can resolve it.
-      void this.loadChain(lc, scope ?? null);
+      void this.loadChain(lc, scope ?? null, true);
       return options?.fallback ?? this.config.missingHandler(key, lc);
     }
     return wrInterpolate(hit, params);
@@ -286,8 +291,8 @@ export class WrI18n {
    * bare-language one under it. Both go in the cache; `t()` reads them in that
    * order.
    */
-  private loadChain(locale: string, scope: string | null): Promise<unknown> {
-    return Promise.all(localeChain(locale).map(candidate => this.loadCatalog(candidate, scope)));
+  private loadChain(locale: string, scope: string | null, auto = false): Promise<unknown> {
+    return Promise.all(localeChain(locale).map(candidate => this.loadCatalog(candidate, scope, auto)));
   }
 
   /** One warning per service, not one per switch. @internal */
@@ -317,10 +322,11 @@ export class WrI18n {
     );
   }
 
-  private loadCatalog(locale: string, scope: string | null): Promise<WrI18nCatalog> {
+  private loadCatalog(locale: string, scope: string | null, auto = false): Promise<WrI18nCatalog> {
     const ck = cacheKey(locale, scope);
     const cached = this.catalogs.get(ck);
     if (cached) return Promise.resolve(cached);
+    if (auto && this.failed.has(ck)) return Promise.resolve({});
 
     const pending = this.inflight.get(ck);
     if (pending) return pending;
@@ -328,6 +334,7 @@ export class WrI18n {
     const stream: Observable<WrI18nCatalog> = this.loader.load(locale, scope);
     const promise = firstValueFrom(stream)
       .then(catalog => {
+        this.failed.delete(ck);
         this.catalogs.set(ck, catalog);
         this.revision.update(v => v + 1);
         return catalog;
@@ -335,8 +342,8 @@ export class WrI18n {
       .catch((err: unknown) => {
         // eslint-disable-next-line no-console -- intentional diagnostic for missing catalog
         console.warn(`[ngwr/i18n] failed to load (${locale}, ${scope ?? 'root'})`, err);
+        this.failed.add(ck);
         const empty: WrI18nCatalog = {};
-        this.catalogs.set(ck, empty);
         return empty;
       })
       .finally(() => {
