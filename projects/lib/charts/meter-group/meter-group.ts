@@ -261,9 +261,12 @@ export class WrMeterGroup {
     let end = 0;
     return shown.map((slice, at) => {
       const size = slice.percent / 100;
+      const start = end;
       end = Math.min(1, end + size);
       return {
         ...slice,
+        /** Where its visible part starts, as a share of the bar: the end of the band before it. */
+        start: wrChartRound(start, 5),
         /** Its share of the bar, 0 to 1. */
         size: wrChartRound(size, 5),
         /**
@@ -299,8 +302,8 @@ export class WrMeterGroup {
     const bar = this.barEl().nativeElement;
     const box = bar.getBoundingClientRect();
     const rtl = getComputedStyle(bar).direction === 'rtl';
-    const width = band.size * box.width;
-    const x = rtl ? box.right - band.end * box.width : box.left + band.end * box.width - width;
+    const width = (band.end - band.start) * box.width;
+    const x = rtl ? box.right - band.end * box.width : box.left + band.start * box.width;
     return {
       datum: { label: band.label, value: band.text, color: band.color },
       anchor: { x, y: box.top, width, height: box.height },
