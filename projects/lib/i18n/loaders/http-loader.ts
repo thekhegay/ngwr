@@ -8,7 +8,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 
-import { type Observable, catchError, of } from 'rxjs';
+import { type Observable } from 'rxjs';
 
 import { type WrI18nCatalog } from '../i18n-config';
 import { type WrI18nLoader } from '../i18n-loader';
@@ -34,9 +34,8 @@ export interface WrI18nHttpLoaderConfig {
 }
 
 /**
- * Loader that fetches catalogs via `HttpClient`. Failures resolve to `{}`
- * (logged once at the service layer) so a missing file never throws into
- * user code.
+ * Loader that fetches catalogs via `HttpClient`. A failure errors the stream;
+ * the service logs it, serves the key and retries on the next `use()`.
  */
 export class WrI18nHttpLoader implements WrI18nLoader {
   private readonly http = inject(HttpClient);
@@ -46,6 +45,6 @@ export class WrI18nHttpLoader implements WrI18nLoader {
   load(locale: string, scope: string | null): Observable<WrI18nCatalog> {
     const template = scope === null ? (this.config.rootPath ?? this.config.path) : this.config.path;
     const url = template.replace('{locale}', locale).replace('{scope}', scope ?? '');
-    return this.http.get<WrI18nCatalog>(url).pipe(catchError(() => of<WrI18nCatalog>({})));
+    return this.http.get<WrI18nCatalog>(url);
   }
 }

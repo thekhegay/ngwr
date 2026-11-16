@@ -4,6 +4,9 @@ import { dirname, join } from 'node:path';
 import { type EnvironmentProviders, LOCALE_ID, type Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import type { Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
+
 import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -124,6 +127,31 @@ describe('WrI18n', () => {
     await settle();
     expect(i18n.locale()).toBe('ru');
     expect(i18n.t('greeting', { name: 'Ада' })).toBe('Привет, Ада');
+  });
+
+  it('does not cache a failed load: the next use() retries it', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    let calls = 0;
+    const load = (locale: string): Observable<WrI18nCatalog> => {
+      calls++;
+      return calls === 1 ? throwError(() => new Error('offline')) : of({ greeting: `hi ${locale}` });
+    };
+    TestBed.configureTestingModule({
+      providers: [provideWrI18n({ defaultLocale: 'en', availableLocales: ['en', 'ru'], loader: { load } })],
+    });
+    const i18n = TestBed.inject(WrI18n);
+    await settle();
+    expect(i18n.t('greeting')).toBe('greeting');
+
+    // Reads alone never retry, so a failing loader cannot be hammered by a template.
+    i18n.t('greeting');
+    i18n.t('greeting');
+    await settle();
+    expect(calls).toBe(1);
+
+    i18n.use('en');
+    await settle();
+    expect(i18n.t('greeting')).toBe('hi en');
   });
 
   it('ignores a locale that is not on the whitelist', async () => {
