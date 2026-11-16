@@ -42,6 +42,7 @@ import type { WrInputSize } from '../types';
     '[attr.id]': 'resolvedId()',
     '[attr.aria-invalid]': 'ariaInvalid()',
     '[attr.aria-describedby]': 'describedBy()',
+    '[attr.aria-required]': 'ariaRequired()',
   },
 })
 export class WrInput {
@@ -86,6 +87,19 @@ export class WrInput {
   private readonly fieldAria = useFormFieldAria();
   protected readonly describedBy = this.fieldAria.describedBy;
   protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
+
+  /** The element's own `aria-required`, read once: a hand-written one wins over the field's. */
+  private readonly ownAriaRequired = this.host.nativeElement.getAttribute('aria-required');
+
+  /**
+   * Native `required` (including the one Signal Forms binds) already announces it,
+   * so the field's `required` only fills in when neither is there.
+   */
+  protected ariaRequired(): string | null {
+    if (this.ownAriaRequired !== null) return this.ownAriaRequired;
+    if ((this.host.nativeElement as HTMLInputElement).required) return null;
+    return this.fieldAria.ariaRequired();
+  }
 
   /**
    * Control size. @default 'md'

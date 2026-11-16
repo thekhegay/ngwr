@@ -807,7 +807,7 @@ export const API = {
   WrFormField: [
     { name: "label", description: "Label text shown above the control.", type: "string", default: "''" },
     { name: "hint", description: "Hint text shown below the control. Hidden when an error is visible.", type: "string", default: "''" },
-    { name: "required", description: "Show a `*` next to the label.", type: "boolean", default: "false" },
+    { name: "required", description: "Show a `*` next to the label and set `aria-required` on the projected control.", type: "boolean", default: "false" },
     { name: "optional", description: "Show an \"optional\" marker next to the label — the word comes from `optionalLabel`. Mutually exclusive with `required`.", type: "boolean", default: "false" },
     { name: "optionalLabel", description: "Word inside the optional marker's parentheses. Falls back to `form.optional`, then `'optional'`. The parentheses are the template's, so no locale has to repeat punctuation.", type: "string | null", default: "null" },
     { name: "controlId", description: "Force a specific id on the label's `for` attribute. Auto-generated otherwise, and adopted by the projected `wrInput` unless that element already carries an `id` of its own.", type: "string", default: "`wr-form-field-${++uid}`" },

@@ -232,6 +232,7 @@ export class WrCheckbox implements FormCheckboxControl {
   private readonly fieldAria = useFormFieldAria();
   protected readonly ariaInvalid = computed(() => (this.group ? null : this.fieldAria.ariaInvalid()));
   protected readonly describedBy = computed(() => (this.group ? null : this.fieldAria.describedBy()));
+  protected readonly ariaRequired = computed(() => (this.group ? null : this.fieldAria.ariaRequired()));
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
