@@ -499,6 +499,23 @@ describe('WrTable', () => {
       expect(cellTexts().map(c => c[0])).toEqual(['Row 1', 'Row 2', 'Row 3']);
     });
 
+    it('does not report stateChange when the pager clamps its page after the data shrinks', () => {
+      const table = fixture.debugElement.query(By.directive(WrTable)).componentInstance as WrTable;
+      const emitted: unknown[] = [];
+      table.stateChange.subscribe(state => emitted.push(state));
+      fixture.componentInstance.page.set(3);
+      fixture.detectChanges();
+
+      fixture.componentInstance.items.set(
+        Array.from({ length: 4 }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, role: 'user' }))
+      );
+      fixture.detectChanges();
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.page()).toBe(2);
+      expect(emitted).toEqual([]);
+    });
+
     it('falls back to the first page for a page below 1', () => {
       // The offset was clamped at the top only. `page = 0` gave `slice(-3, 0)`
       // — the empty-state row over a populated dataset — and `page = -1` gave

@@ -1001,6 +1001,11 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   protected onPagerPage(page: number): void {
+    // The pager clamps its own number after the data shrinks and reports it; that is not a reader action.
+    if (page === this.shownPage()) {
+      if (page !== this.page()) this.page.set(page);
+      return;
+    }
     this.page.set(page);
     this.readerChanges.update(n => n + 1);
   }
