@@ -80,6 +80,30 @@ describe('WrInputNumber', () => {
 
   afterEach(() => fixture.destroy());
 
+  it('shows a model written from outside while the field is focused', async () => {
+    field().dispatchEvent(new FocusEvent('focus'));
+    type('5');
+    expect(amount()).toBe(5);
+    expect(field().value).toBe('5');
+
+    fixture.componentInstance.amount.set(null);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(field().value).toBe('');
+
+    fixture.componentInstance.amount.set(7);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(field().value).toBe('7');
+  });
+
+  it('leaves its own partial text alone while focused', () => {
+    field().dispatchEvent(new FocusEvent('focus'));
+    type('1.');
+    fixture.detectChanges();
+    expect(field().value).toBe('1.');
+  });
+
   /**
    * Binary floats do not add.
    *
