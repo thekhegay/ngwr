@@ -13,6 +13,13 @@ describe('WrI18nHttpLoader', () => {
     return { loader, http: TestBed.inject(HttpTestingController) };
   };
 
+  it('replaces every placeholder, not just the first', () => {
+    const { loader, http } = setup('/i18n/{locale}/{scope}/{locale}.json');
+    loader.load('de', 'shop').subscribe();
+    http.expectOne('/i18n/de/shop/de.json').flush({});
+    http.verify();
+  });
+
   it('lets a failed request reach the caller', () => {
     const { loader, http } = setup('/i18n/{locale}.json');
     let failed = false;
