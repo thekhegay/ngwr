@@ -292,21 +292,11 @@ describe('WrAffix', () => {
     // scroller and what the browser uses for a page-level sticky.
     expect(observers[0].options?.root ?? null).toBeNull();
 
-    // jsdom lays nothing out, so the ancestor is recognised the way
-    // `scrollParent` recognises it: a computed `overflow` that scrolls, and a
-    // `scrollHeight` past its `clientHeight`. Both are stubbed here.
-    // Stubbed BEFORE the mount, because `scrollParent` reads them while the
-    // observer is being built.
-    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', { configurable: true, get: () => 500 });
-    Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, get: () => 100 });
-    try {
-      await mount(0, [], ScrollerHost);
-      const scroller = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.scroller')!;
-      expect(observers[observers.length - 1].options?.root).toBe(scroller);
-    } finally {
-      Reflect.deleteProperty(HTMLElement.prototype, 'scrollHeight');
-      Reflect.deleteProperty(HTMLElement.prototype, 'clientHeight');
-    }
+    // jsdom lays nothing out, so sizes are all zero: the ancestor is picked by
+    // its overflow style alone, which is also what a not yet filled box needs.
+    await mount(0, [], ScrollerHost);
+    const scroller = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.scroller')!;
+    expect(observers[observers.length - 1].options?.root).toBe(scroller);
   });
 
   it('moves the trigger line with the offset, not only the pinning line', async () => {
