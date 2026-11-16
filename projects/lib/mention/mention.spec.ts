@@ -151,6 +151,20 @@ describe('WrMention', () => {
       expect(document.getElementById(active!)).not.toBeNull();
     });
 
+    it('opens nothing on a read-only field, whatever the caret does', () => {
+      const el = field();
+      el.value = 'hi @bo';
+      el.readOnly = true;
+      el.setSelectionRange(6, 6);
+
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      el.dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowRight', bubbles: true }));
+      fixture.detectChanges();
+
+      expect(listbox()).toBeNull();
+      expect(el.value).toBe('hi @bo');
+    });
+
     it('honours a custom trigger set', () => {
       fixture.componentInstance.triggers.set(['#']);
       fixture.detectChanges();
