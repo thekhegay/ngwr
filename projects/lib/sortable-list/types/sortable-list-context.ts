@@ -52,6 +52,9 @@ export interface WrSortableListContext {
   /** Where a row sits among its siblings, which is its index into `items()`. */
   indexOf(item: { readonly host: ElementRef<HTMLElement> }): number;
 
+  /** Same as `indexOf`, cached per `items` array and row count; reads `items`. */
+  positionOf(item: { readonly host: ElementRef<HTMLElement> }): number;
+
   /** Key handling for a row — pick up, move, drop, cancel. */
   onRowKeydown(event: KeyboardEvent, index: number): void;
 
