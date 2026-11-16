@@ -46,7 +46,11 @@ export class WrScroll {
     const container = options.container ?? win;
 
     if (typeof target === 'object' && 'top' in target) {
-      this.scroll(container, { top: target.top - offset, left: target.left ?? 0, behavior });
+      this.scroll(container, {
+        top: target.top - offset,
+        ...(target.left === undefined ? {} : { left: target.left }),
+        behavior,
+      });
       return;
     }
 
@@ -56,12 +60,12 @@ export class WrScroll {
     const rect = el.getBoundingClientRect();
     if (container === win) {
       const top = rect.top + win.scrollY - offset;
-      this.scroll(container, { top, left: 0, behavior });
+      this.scroll(container, { top, behavior });
     } else {
       const ctx = container as Element;
       const ctxRect = ctx.getBoundingClientRect();
       const top = rect.top - ctxRect.top + ctx.scrollTop - offset;
-      this.scroll(container, { top, left: 0, behavior });
+      this.scroll(container, { top, behavior });
     }
   }
 
