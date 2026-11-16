@@ -130,19 +130,27 @@ export function wrChartAxis(min: number, max: number, options: WrChartAxisOption
   // A flat series has no span to divide, so give it one rather than a zero step.
   const span = hi - lo || Math.abs(hi) || 1;
   const step = niceStep(span / count);
-  let bottom = Math.floor(lo / step) * step;
-  let top = Math.ceil(hi / step) * step;
+  // A quotient a hair off a whole number (0.3 / 0.025 is 11.999999999999998) is that number.
+  const snap = (value: number): number => {
+    const q = value / step;
+    return Math.abs(q - Math.round(q)) <= 1e-9 * Math.max(1, Math.abs(q)) ? Math.round(q) : q;
+  };
+  const near = (a: number, b: number): boolean => Math.abs(a - b) <= step * 1e-9;
+  let bottomStep = Math.floor(snap(lo));
+  let topStep = Math.ceil(snap(hi));
   // The data's peak sitting exactly on the frame reads as clipped, so lift the
   // ceiling by one step when the snap did not already do it. Measured against the
   // DATA, so a zero that only `includeZero` put at the top is not lifted: nothing
   // sits on it. `symmetric` holds the bottom to the same rule.
-  if (top === dataHi) top += step;
-  if (options.symmetric && bottom === dataLo) bottom -= step;
+  if (near(topStep * step, dataHi)) topStep += 1;
+  if (options.symmetric && near(bottomStep * step, dataLo)) bottomStep -= 1;
+  const bottom = bottomStep * step;
+  const top = topStep * step;
 
   // Floating-point: 0.1 + 0.2 walks past an exact bound, so count in integers and
   // multiply, and stop on the count rather than on `value >= min`.
-  const gaps = Math.round((top - bottom) / step);
   const digits = tickDigits(step);
+  const gaps = Math.round((top - bottom) / step);
   const ticks: number[] = [];
   for (let i = 0; i <= gaps; i++) ticks.push(wrRound(top - i * step, digits));
   return { min: bottom, max: top, step, ticks };
