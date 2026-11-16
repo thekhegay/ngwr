@@ -208,6 +208,13 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
    */
   private readonly rows: { readonly host: ElementRef<HTMLElement> }[] = [];
 
+  /** Row positions for one `items` array and row count, so a change sorts once however many rows ask. */
+  private positions: {
+    readonly items: unknown;
+    readonly count: number;
+    readonly map: Map<unknown, number>;
+  } | null = null;
+
   /** Index of the row the keyboard is holding, or `null` when nothing is held. */
   readonly grabbedIndex = signal<number | null>(null);
 
@@ -331,6 +338,26 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
   indexOf(item: { readonly host: ElementRef<HTMLElement> }): number {
     this.sortRows();
     return this.rows.indexOf(item);
+  }
+
+  /**
+   * @internal The same answer as `indexOf`, served from a map that is rebuilt
+   * only when `items` or the number of rows changes. Reads `items`, so a
+   * `computed` that calls it follows every reorder.
+   */
+  positionOf(item: { readonly host: ElementRef<HTMLElement> }): number {
+    const items = this.items();
+    let cache = this.positions;
+    if (cache?.items !== items || cache.count !== this.rows.length) {
+      this.sortRows();
+      cache = {
+        items,
+        count: this.rows.length,
+        map: new Map(this.rows.map((row, index) => [row, index] as const)),
+      };
+      this.positions = cache;
+    }
+    return cache.map.get(item) ?? -1;
   }
 
   /**
