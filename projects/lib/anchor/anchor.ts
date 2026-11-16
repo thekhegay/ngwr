@@ -6,6 +6,7 @@
  */
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
+import { DOCUMENT } from '@angular/common';
 import {
   Component,
   DestroyRef,
@@ -96,6 +97,7 @@ export class WrAnchor {
 
   private readonly scroll = inject(WrScroll);
   private readonly platform = inject(WrPlatform);
+  private readonly doc = inject(DOCUMENT);
   private readonly zone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -158,7 +160,14 @@ export class WrAnchor {
     afterNextRender(() => measure());
   }
 
+  /** Carries the current path, so a `<base href>` cannot send copy link or a new tab to the site root. */
+  protected hrefFor(id: string): string {
+    const location = this.doc.location;
+    return `${location?.pathname ?? ''}${location?.search ?? ''}#${id}`;
+  }
+
   protected onClick(id: string, event: MouseEvent): void {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     const target = document.getElementById(id);
     if (target) {
