@@ -483,6 +483,22 @@ describe('WrTable', () => {
       expect(cellTexts().map(c => c[0])).toEqual(['Only']);
     });
 
+    it('writes a clamped page back to the model, also while the pager is hidden', () => {
+      fixture.componentInstance.page.set(3);
+      fixture.detectChanges();
+
+      fixture.componentInstance.items.set([{ id: 1, name: 'Only', role: 'user' }]);
+      fixture.detectChanges();
+      expect(fixture.componentInstance.page()).toBe(1);
+
+      fixture.componentInstance.items.set(
+        Array.from({ length: 7 }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, role: 'user' }))
+      );
+      fixture.detectChanges();
+      expect(fixture.componentInstance.page()).toBe(1);
+      expect(cellTexts().map(c => c[0])).toEqual(['Row 1', 'Row 2', 'Row 3']);
+    });
+
     it('falls back to the first page for a page below 1', () => {
       // The offset was clamped at the top only. `page = 0` gave `slice(-3, 0)`
       // — the empty-state row over a populated dataset — and `page = -1` gave
@@ -904,7 +920,7 @@ describe('WrTable loading overlay', () => {
     const el = overlay();
 
     expect(el?.getAttribute('role')).toBe('status');
-    expect(el?.getAttribute('aria-label')).toBe('Loading…');
+    expect(el?.textContent.trim()).toBe('Loading…');
   });
 
   it('marks the TABLE busy, not only the veil', () => {
@@ -982,9 +998,7 @@ describe('WrTable loading overlay', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const label = (fixture.nativeElement as HTMLElement)
-      .querySelector('.wr-table__loading')
-      ?.getAttribute('aria-label');
+    const label = (fixture.nativeElement as HTMLElement).querySelector('.wr-table__loading')?.textContent.trim();
     expect(/\p{Script=Cyrillic}/u.test(label ?? ''), `"${label ?? ''}" is still English`).toBe(true);
   });
 });
