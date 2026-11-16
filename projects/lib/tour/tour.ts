@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 
 import { WR_OVERLAY, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { wrToClassList } from 'ngwr/utils';
+import { wrRestoreFocus, wrToClassList } from 'ngwr/utils';
 
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
 import type { WrTourOptions, WrTourPlacement, WrTourStep } from './types';
@@ -199,7 +199,7 @@ export class WrTour {
     // `active`, `index`, `total` and `step` all reported idle.
     this.noStepAfter.set(false);
     this.noStepBefore.set(true);
-    this.restoreFocus?.focus?.();
+    if (this.restoreFocus && typeof this.restoreFocus.focus === 'function') wrRestoreFocus(this.restoreFocus);
     this.restoreFocus = null;
   }
 

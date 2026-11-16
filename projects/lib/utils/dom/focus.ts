@@ -7,6 +7,8 @@
 
 import type { FocusMonitor } from '@angular/cdk/a11y';
 
+let lastRestored: WeakRef<HTMLElement> | null = null;
+
 const FOCUSABLE_SELECTOR = [
   'a[href]',
   'area[href]',
@@ -86,6 +88,16 @@ export function wrTrapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
 }
 
 /**
+ * Record `el` as the element a closing transient overlay (a menu, a popconfirm)
+ * gives focus back to, for an overlay it opened that closes later. Called by
+ * `wrRestoreFocus` itself, and by an overlay that closed without restoring
+ * because focus had already moved on.
+ */
+export function wrNoteFocusReturn(el: HTMLElement): void {
+  lastRestored = new WeakRef(el);
+}
+
+/**
  * Hand focus back to `el` after something closed, as a PROGRAMMATIC focus.
  *
  * A plain `el.focus()` after Escape reads to the CDK `FocusMonitor` as keyboard
@@ -93,8 +105,21 @@ export function wrTrapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
  * origin (a tooltip on the trigger) then treats the restore as the user tabbing
  * there. `focusVia(el, 'program')` reports the truth. Without a monitor it is a
  * plain `focus()`.
+ *
+ * An `el` that left the document (a menu item or a confirm button that opened a
+ * dialog and was torn down first) is replaced by the element the previous
+ * restore handed focus to: the trigger of the transient overlay that held `el`.
  */
 export function wrRestoreFocus(el: HTMLElement, monitor?: FocusMonitor | null): void {
-  if (monitor) monitor.focusVia(el, 'program');
-  else el.focus();
+  const fallback = lastRestored?.deref();
+  const target = !el.isConnected && fallback?.isConnected ? fallback : el;
+  wrNoteFocusReturn(target);
+  const focus = (): void => (monitor ? monitor.focusVia(target, 'program') : target.focus());
+  focus();
+  // A region with no tabindex (a menu's trigger `<div>`) refuses focus: lend it
+  // `tabindex="-1"` until it blurs, so the consumer's DOM stays as they wrote it.
+  if (target.ownerDocument.activeElement === target || target.hasAttribute('tabindex')) return;
+  target.setAttribute('tabindex', '-1');
+  focus();
+  target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
 }
