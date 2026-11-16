@@ -69,7 +69,7 @@ export class WrListItem {
   });
 
   protected onActivate(event: Event): void {
-    if (!this.interactive() || this.disabled()) return;
+    if (event.target !== event.currentTarget || !this.interactive() || this.disabled()) return;
     event.preventDefault();
     (event.currentTarget as HTMLElement).click();
   }
