@@ -103,7 +103,7 @@
     "jsdom": "^31.0.0",
     "lucide": "^1.72.0",
     "ngtrue": "^0.3.0",
-    "playwright": "^1.65.0",
+    "playwright": "^1.65.1",
     "prettier": "^3.10.1",
     "prosemirror-commands": "^1.7.2",
     "prosemirror-history": "^1.5.1",
