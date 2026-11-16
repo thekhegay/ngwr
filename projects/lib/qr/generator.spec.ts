@@ -205,4 +205,32 @@ describe('drawQrCode', () => {
 
     vi.unstubAllGlobals();
   });
+
+  it('ignores an icon that finishes loading after a newer draw', () => {
+    const images: { onload: (() => void) | null }[] = [];
+    class Probe {
+      crossOrigin = '';
+      onload: (() => void) | null = null;
+      constructor() {
+        images.push(this);
+      }
+      set src(_value: string) {
+        // never fetches
+      }
+    }
+    vi.stubGlobal('Image', Probe);
+
+    const { canvas, calls } = stub();
+    drawQrCode(canvas, options({ iconUrl: '/a.png' }));
+    drawQrCode(canvas, options({ value: 'https://ngwr.dev/next', iconUrl: '/b.png' }));
+    const before = calls.length;
+
+    images[0].onload?.();
+    expect(calls).toHaveLength(before);
+
+    images[1].onload?.();
+    expect(calls.some(call => call.op === 'drawImage')).toBe(true);
+
+    vi.unstubAllGlobals();
+  });
 });
