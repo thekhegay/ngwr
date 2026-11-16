@@ -11,6 +11,7 @@
     [disabled]="effectiveDisabled()"
     [attr.aria-readonly]="effectiveReadonly() || null"
     [attr.aria-invalid]="ariaInvalid()"
+    [attr.aria-required]="ariaRequired()"
     [attr.aria-describedby]="describedBy()"
     (click)="onInputClick($event)"
     (change)="onInputChange($event)"

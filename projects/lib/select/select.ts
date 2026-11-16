@@ -302,6 +302,7 @@ export class WrSelect<T = unknown> implements FormValueControl<T | readonly T[] 
   private readonly fieldAria = useFormFieldAria();
   protected readonly describedBy = this.fieldAria.describedBy;
   protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
+  protected readonly ariaRequired = this.fieldAria.ariaRequired;
 
   /**
    * Disable the select. Bound automatically from the field's disabled state

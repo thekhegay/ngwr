@@ -65,6 +65,13 @@ export interface WrFormFieldContext {
    * field without it simply describes nothing but its errors.
    */
   readonly hintId?: Signal<string | null>;
+
+  /**
+   * Whether the field is marked `required`. Read through `useFormFieldAria()` as
+   * `aria-required`. Optional so an app that provides its own `WR_FORM_FIELD`
+   * keeps compiling.
+   */
+  readonly required?: Signal<boolean>;
 }
 
 /** Present only inside a `<wr-form-field>`; inject with `{ optional: true }`. */

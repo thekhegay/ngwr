@@ -67,6 +67,7 @@ import type { WrRadioGroupContext } from './types';
     // not inside a field, which is most of them.
     '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.aria-invalid]': 'fieldAria.ariaInvalid()',
+    '[attr.aria-required]': 'fieldAria.ariaRequired()',
     '[attr.aria-describedby]': 'fieldAria.describedBy()',
   },
   providers: [

@@ -10,6 +10,7 @@
     [disabled]="disabled()"
     [attr.aria-readonly]="readonly() || null"
     [attr.aria-invalid]="fieldAria.ariaInvalid()"
+    [attr.aria-required]="fieldAria.ariaRequired()"
     [attr.aria-describedby]="fieldAria.describedBy()"
     (click)="onInputClick($event)"
     (change)="onInputChange($event)"
