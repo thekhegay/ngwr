@@ -955,23 +955,28 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return this.rows()?.length ?? 0;
   });
 
+  /**
+   * The page the table shows. Clamped at BOTH ends, because `page` is a model the
+   * host owns (a `model()` takes no transform) and the data can shrink under it,
+   * which used to leave an empty slice with no way back except paging by hand.
+   * Below 1 the offset goes negative and `Array.slice` reads a negative start
+   * from the END; `|| 1` folds `0` and `NaN` in.
+   */
+  protected readonly shownPage = computed<number>(() => {
+    const page = Math.max(1, this.page() || 1);
+    const size = this.currentPageSize();
+    const items = this.rows();
+    if (!items || size <= 0 || this.total() !== null) return page;
+    return Math.min(page, Math.max(1, Math.ceil(items.length / size)));
+  });
+
   /** Items visible on the current page (client mode slices; server mode passes through). */
   protected readonly visibleItems = computed<readonly Record<string, unknown>[] | null | undefined>(() => {
     const items = this.rows();
     if (!items) return items;
     const size = this.currentPageSize();
     if (size <= 0 || this.total() !== null) return items;
-    // Clamped at BOTH ends, because `page` is a model the host owns (a `model()`
-    // takes no transform) and the data can shrink under it — a filter or a delete
-    // used to leave the table showing an empty slice with no way back except
-    // paging by hand. The pager clamps its own number downwards only, and it is
-    // not even rendered once the data drops below one page. Below 1 the offset
-    // goes negative, and `Array.slice` reads a negative start from the END: page
-    // 0 emptied the table and page -1 rendered a window counted from the back,
-    // with the pager highlighting nothing. `|| 1` folds `0` and `NaN` in.
-    const lastPage = Math.max(1, Math.ceil(items.length / size));
-    const page = Math.min(Math.max(1, this.page() || 1), lastPage);
-    const start = (page - 1) * size;
+    const start = (this.shownPage() - 1) * size;
     return items.slice(start, start + size);
   });
 
@@ -1283,6 +1288,14 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         );
       });
     }
+
+    // Write a clamped page back so `[(page)]` and the pager agree with the rows. An empty
+    // dataset is left alone: a host may set the page before its rows arrive.
+    effect(() => {
+      const shown = this.shownPage();
+      if (shown === this.page() || !this.rows()?.length) return;
+      untracked(() => this.page.set(shown));
+    });
 
     // One `stateChange` per pass, however many parts one action wrote.
     effect(() => {
