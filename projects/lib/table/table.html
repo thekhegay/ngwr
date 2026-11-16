@@ -1,11 +1,14 @@
 @switch (loadingForm()) {
   @case ('overlay') {
-    <div class="wr-table__loading" role="status" [attr.aria-label]="resolvedLoadingLabel()">
+    <div class="wr-table__loading" role="status">
+      <span class="wr-table__sr-only">{{ resolvedLoadingLabel() }}</span>
       <wr-spinner size="lg" />
     </div>
   }
   @case ('bar') {
-    <div class="wr-table__loading-bar" role="status" [attr.aria-label]="resolvedLoadingLabel()"></div>
+    <div class="wr-table__loading-bar" role="status">
+      <span class="wr-table__sr-only">{{ resolvedLoadingLabel() }}</span>
+    </div>
   }
 }
 
