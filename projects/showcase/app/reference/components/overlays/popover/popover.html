@@ -65,6 +65,20 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Icon-only buttons"
+    description="On a button or link with no accessible name, the tooltip string becomes the name: it is set as `aria-label`, and the host is not described by the same text. Since v16.6."
+  >
+    <ngwr-doc-snippet [code]="snippets.iconOnly">
+      <wr-btn icon="pencil" wrPopover="Edit" mode="tooltip" />
+      <wr-btn icon="trash" color="danger" outlined wrPopover="Delete" mode="tooltip" />
+    </ngwr-doc-snippet>
+    <p>
+      Your own <code>aria-label</code>, <code>aria-labelledby</code> or <code>title</code> wins. A host with text, or
+      one that is not a button or a link, is described through <code>aria-describedby</code> as before.
+    </p>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Tooltip — custom delays">
     <ngwr-doc-snippet [code]="snippets.tooltipDelays">
       <wr-btn wrPopover="Slow to appear" mode="tooltip" [showDelay]="500" [hideDelay]="100">Hover</wr-btn>

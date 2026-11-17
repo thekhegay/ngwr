@@ -18,6 +18,7 @@ import {
   Injector,
   ViewContainerRef,
   afterNextRender,
+  afterRenderEffect,
   computed,
   effect,
   inject,
@@ -51,6 +52,24 @@ import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
 import { VIEWPORT_MARGIN } from './internal/viewport-margin';
 import { type WrPopoverPosition, wrPopoverPositions } from './types';
+
+/** Roles a tooltip may name: both take their name from content, so an empty one has none. */
+const NAMEABLE = 'button, a[href], [role="button"], [role="link"]';
+
+/** Whether anything inside `el` gives it an accessible name. */
+function hasNamingContent(el: Element): boolean {
+  for (const node of Array.from(el.childNodes)) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (node.textContent?.trim()) return true;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const child = node as Element;
+      if (child.getAttribute('aria-hidden') === 'true') continue;
+      if (child.matches('[aria-label], [aria-labelledby], [title], img[alt]:not([alt=""])')) return true;
+      if (hasNamingContent(child)) return true;
+    }
+  }
+  return false;
+}
 
 /**
  * Keys the USER moves focus with: Tab through the page, the arrows / Home /
@@ -86,7 +105,9 @@ const NAVIGATION_KEYS = new Set<string>([
  *   a `.focus()` call, which is what a dialog or drawer does when it hands
  *   focus back. Dismissed when focus leaves / on pointer-leave / Escape. Uses
  *   `aria-describedby` instead of `aria-haspopup` and is rendered into a small
- *   dark text panel.
+ *   dark text panel. On a button or link with no accessible name, such as an
+ *   icon-only `wr-btn`, the string becomes the name instead: the host gets it
+ *   as `aria-label` and is not described by the same text.
  *
  * Built on CDK Overlay so it auto-flips, closes on outside-click and Escape. A
  * click popover also closes when Tab leaves it, by way of the trigger, so focus
@@ -104,6 +125,9 @@ const NAVIGATION_KEYS = new Set<string>([
  * <button wr-btn [wrPopover]="'Save changes'" mode="tooltip" position="top">
  *   Save
  * </button>
+ *
+ * <!-- Icon-only: one string is the accessible name and the tooltip -->
+ * <button wr-btn icon="pencil" [wrPopover]="'Edit'" mode="tooltip"></button>
  * ```
  *
  * @see https://ngwr.dev/reference/components/popover
@@ -124,7 +148,7 @@ let popoverUid = 0;
     '[attr.aria-haspopup]': 'isTooltip() || disabled() ? null : "dialog"',
     '[attr.aria-expanded]': 'isTooltip() || disabled() ? null : isOpen()',
     '[attr.aria-controls]': '!isTooltip() && isOpen() ? panelId : null',
-    '[attr.aria-describedby]': 'isTooltip() && isOpen() ? panelId : null',
+    '[attr.aria-describedby]': 'isTooltip() && isOpen() && !namesHost() ? panelId : null',
     '(click)': 'onClick($event)',
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave($event)',
@@ -151,7 +175,11 @@ export class WrPopover {
    * - `'popover'` (default) — template content, click trigger, dialog
    *   semantics.
    * - `'tooltip'` — text content, hover / keyboard-focus trigger,
-   *   `role="tooltip"`, `aria-describedby` on the host.
+   *   `role="tooltip"`, `aria-describedby` on the host. A button or link host
+   *   with no accessible name (no text, `aria-label`, `aria-labelledby` or
+   *   `title`) is named by the text instead, through `aria-label`, and gets no
+   *   `aria-describedby`. Your own `aria-label` always wins; when it equals the
+   *   text, the host is not described by it a second time.
    */
   readonly mode = input<'popover' | 'tooltip'>('popover');
 
@@ -283,6 +311,10 @@ export class WrPopover {
   private openedByKeyboard = false;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
   private hideTimer: ReturnType<typeof setTimeout> | null = null;
+  /** The `aria-label` this directive wrote on a host that had no name. */
+  private writtenName: string | null = null;
+  /** Whether the tooltip text is the host's accessible name, so it must not describe it too. */
+  protected readonly namesHost = signal(false);
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popover');
@@ -366,6 +398,9 @@ export class WrPopover {
         if (!this.destroyRef.destroyed) this.scheduleHide();
       });
     });
+    // After render: whether the host has a name depends on its projected content
+    // and on attributes other directives bind.
+    afterRenderEffect(() => this.syncName());
     afterNextRender(() => {
       this.focusMonitor
         .monitor(this.host)
@@ -530,6 +565,39 @@ export class WrPopover {
     return key === null || NAVIGATION_KEYS.has(key);
   }
 
+  /**
+   * Names a button or link that has no accessible name with the tooltip text,
+   * and records whether that text is the host's name either way.
+   *
+   * A tooltip that only describes leaves an icon-only control unnamed, and one
+   * that repeats the name is read twice. An `aria-label` this did not write is
+   * the consumer's and is never replaced.
+   */
+  private syncName(): void {
+    const el = this.host.nativeElement;
+    const content = this.content();
+    const text = this.isTooltip() && !this.origin() && typeof content === 'string' ? content.trim() : '';
+    const current = el.getAttribute('aria-label');
+    const mine = this.writtenName !== null && current === this.writtenName;
+
+    const unnamed =
+      (current === null || mine) &&
+      el.matches(NAMEABLE) &&
+      !el.hasAttribute('aria-labelledby') &&
+      !el.hasAttribute('title') &&
+      !hasNamingContent(el);
+
+    if (text && unnamed) {
+      if (current !== text) el.setAttribute('aria-label', text);
+      this.writtenName = text;
+      this.namesHost.set(true);
+      return;
+    }
+    if (mine) el.removeAttribute('aria-label');
+    this.writtenName = null;
+    this.namesHost.set(!!text && !mine && current?.trim() === text);
+  }
+
   // Tooltip timers
 
   private scheduleShow(): void {
@@ -567,6 +635,8 @@ export class WrPopover {
 
     const tooltip = this.isTooltip();
     const position = this.resolvedPosition();
+    // The host's own name may have changed since the last render pass.
+    if (tooltip) untracked(() => this.syncName());
 
     const paneClass = tooltip ? 'wr-tooltip-overlay' : 'wr-popover-overlay';
 

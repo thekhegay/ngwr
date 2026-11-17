@@ -195,6 +195,14 @@ because it is guidance rather than a plan.
   directive here: the host may carry its own `[wrPopover]`. `ngwr/directives`
   has no stylesheet, so the tooltip needs `@use 'ngwr/popover'`. The duration is
   `WR_COPIED_DURATION` from `ngwr/clipboard`, shared with `<wr-copy-value>`.
+- A `mode="tooltip"` `[wrPopover]` NAMES a button or link that has no
+  accessible name (an icon-only `wr-btn`): it writes its string as `aria-label`
+  after render and sets no `aria-describedby`, because the same text as name
+  and description is read twice. An `aria-label`, `aria-labelledby` or `title`
+  of the consumer's wins; an `aria-label` equal to the string drops the
+  description too. Any other host is described as before. `ngwr/button` has no
+  `label` input for this on purpose: it would make every button import the
+  overlay.
 - Escape does NOT depend on focus being inside an overlay:
   `overlayRef.keydownEvents()` is fed by CDK's `OverlayKeyboardDispatcher`,
   which keeps one document listener and routes to the topmost overlay.
