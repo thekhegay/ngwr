@@ -110,7 +110,23 @@
       Hide anything else with <code>class="wr-no-print"</code>, and show a block on paper only with
       <code>class="wr-print-only"</code>; both come with <code>ngwr/theme</code>.
     </p>
-    <ngwr-doc-code [code]="snippets.print" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Print this page"
+    description="The toolbar carries `.wr-no-print` and the line under the text carries `.wr-print-only`. Open the print preview to see the toolbar gone and the line there."
+  >
+    <ngwr-doc-snippet [code]="snippets.print">
+      <wr-card>
+        <wr-card-header>
+          <div class="wr-no-print">
+            <button wr-btn type="button" color="primary" (click)="print()">Print this page</button>
+          </div>
+        </wr-card-header>
+        <p>Q3 report. The toolbar above stays on screen only.</p>
+        <p class="wr-print-only">Printed from ngwr.dev</p>
+      </wr-card>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
