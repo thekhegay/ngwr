@@ -5,9 +5,11 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { Injector, PLATFORM_ID } from '@angular/core';
 
-import { wrGetFocusableElements, wrTrapFocus } from './focus';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { wrFocusFirstInvalid, wrGetFocusableElements, wrTrapFocus } from './focus';
 
 /**
  * jsdom lays nothing out: every `getClientRects()` is empty and every
@@ -139,5 +141,156 @@ describe('wrTrapFocus', () => {
     const root = render(`<p id="p">text</p>`);
 
     expect(wrTrapFocus(root, tab())).toBe(false);
+  });
+});
+
+/**
+ * The marks are written by hand here: what is under test is which element is
+ * picked and how it is scrolled. `form/focus-first-invalid.spec.ts` runs it
+ * against the marks a real Signal Forms `form()` draws.
+ */
+describe('wrFocusFirstInvalid', () => {
+  const scrolled: { el: Element; options: ScrollIntoViewOptions }[] = [];
+  const reduceMotion = (reduce: boolean): void => {
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: reduce && query.includes('reduce') }));
+  };
+  const field = (root: HTMLElement, id: string): HTMLElement => {
+    const el = root.querySelector<HTMLElement>(`#${id}`)!;
+    // jsdom has no `scrollIntoView` at all.
+    for (const node of [root, ...root.querySelectorAll<HTMLElement>('*')]) {
+      node.scrollIntoView = (options?: boolean | ScrollIntoViewOptions): void => {
+        scrolled.push({ el: node, options: options as ScrollIntoViewOptions });
+      };
+    }
+    return el;
+  };
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    scrolled.length = 0;
+    vi.unstubAllGlobals();
+  });
+
+  it('focuses the first control marked invalid and resolves to true', async () => {
+    const root = render(`
+      <input id="fine" />
+      <input id="bad" aria-invalid="true" />
+      <input id="worse" aria-invalid="true" />
+    `);
+    const bad = field(root, 'bad');
+
+    expect(await wrFocusFirstInvalid(root)).toBe(true);
+    expect(document.activeElement).toBe(bad);
+  });
+
+  it('resolves to false and moves nothing when no control is invalid', async () => {
+    const root = render(`<input id="fine" /><input id="also" aria-invalid="false" />`);
+    field(root, 'fine').focus();
+
+    expect(await wrFocusFirstInvalid(root)).toBe(false);
+    expect(document.activeElement?.id).toBe('fine');
+    expect(scrolled).toEqual([]);
+  });
+
+  it('goes into a group that carries the mark on its host', async () => {
+    const root = render(`
+      <div id="group" role="radiogroup" aria-invalid="true">
+        <input id="one" type="radio" name="g" />
+        <input id="two" type="radio" name="g" />
+      </div>
+    `);
+    field(root, 'one');
+
+    await wrFocusFirstInvalid(root);
+
+    expect(document.activeElement?.id).toBe('one');
+  });
+
+  it('reads an invalid wr-form-field whose control carries no mark', async () => {
+    const root = render(`
+      <div id="ok" class="wr-form-field"><input id="fine" /></div>
+      <div id="field" class="wr-form-field wr-form-field--invalid"><input id="bare" /></div>
+    `);
+    field(root, 'bare');
+
+    expect(await wrFocusFirstInvalid(root)).toBe(true);
+    expect(document.activeElement?.id).toBe('bare');
+  });
+
+  it('prefers the marked control to whatever comes first in its field', async () => {
+    const root = render(`
+      <div class="wr-form-field wr-form-field--invalid">
+        <button id="help" type="button">?</button>
+        <input id="control" aria-invalid="true" />
+      </div>
+    `);
+    field(root, 'control');
+
+    await wrFocusFirstInvalid(root);
+
+    expect(document.activeElement?.id).toBe('control');
+  });
+
+  it('skips an invalid control that is disabled or not rendered', async () => {
+    const root = render(`
+      <input id="off" aria-invalid="true" disabled />
+      <input id="gone" aria-invalid="true" />
+      <input id="bad" aria-invalid="true" />
+    `);
+    boxless(field(root, 'gone'));
+
+    await wrFocusFirstInvalid(root);
+
+    expect(document.activeElement?.id).toBe('bad');
+  });
+
+  it('scrolls the field to the centre, smoothly', async () => {
+    reduceMotion(false);
+    const root = render(`
+      <div id="field" class="wr-form-field wr-form-field--invalid">
+        <input id="bad" aria-invalid="true" />
+      </div>
+    `);
+    const bad = field(root, 'bad');
+    const focus = vi.spyOn(bad, 'focus');
+
+    await wrFocusFirstInvalid(root);
+
+    expect(scrolled.map(({ el, options }) => [el.id, options])).toEqual([
+      ['field', { block: 'center', behavior: 'smooth' }],
+    ]);
+    // One scroll, not the browser's jump followed by ours.
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it('scrolls at once under reduced motion, whatever the options ask', async () => {
+    reduceMotion(true);
+    const root = render(`<input id="bad" aria-invalid="true" />`);
+    field(root, 'bad');
+
+    await wrFocusFirstInvalid(root, { scroll: { block: 'start', behavior: 'smooth' } });
+
+    expect(scrolled.map(({ el, options }) => [el.id, options])).toEqual([
+      ['bad', { block: 'start', behavior: 'instant' }],
+    ]);
+  });
+
+  it('leaves the scroll to the browser with `scroll: false`', async () => {
+    const root = render(`<input id="bad" aria-invalid="true" />`);
+    const focus = vi.spyOn(field(root, 'bad'), 'focus');
+
+    await wrFocusFirstInvalid(root, { scroll: false });
+
+    expect(scrolled).toEqual([]);
+    expect(focus).toHaveBeenCalledWith({ preventScroll: false });
+  });
+
+  it('does nothing on the server', async () => {
+    const root = render(`<input id="bad" aria-invalid="true" />`);
+    field(root, 'bad');
+    const injector = Injector.create({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+
+    expect(await wrFocusFirstInvalid(root, { injector })).toBe(false);
+    expect(document.activeElement).toBe(document.body);
   });
 });

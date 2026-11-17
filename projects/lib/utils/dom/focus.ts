@@ -6,6 +6,7 @@
  */
 
 import type { FocusMonitor } from '@angular/cdk/a11y';
+import { type Injector, PLATFORM_ID, afterNextRender } from '@angular/core';
 
 let lastRestored: WeakRef<HTMLElement> | null = null;
 
@@ -42,6 +43,20 @@ const FOCUSABLE_SELECTOR = [
 function isRendered(el: HTMLElement): boolean {
   if (el.getClientRects().length === 0) return false;
   return el.ownerDocument.defaultView?.getComputedStyle(el).visibility !== 'hidden';
+}
+
+const INVALID_CONTROL = '[aria-invalid="true"]';
+const INVALID_SELECTOR = `${INVALID_CONTROL}, .wr-form-field--invalid`;
+
+function findFirstInvalid(root: HTMLElement): HTMLElement | undefined {
+  for (const mark of root.querySelectorAll<HTMLElement>(INVALID_SELECTOR)) {
+    // An invalid field whose control carries the mark itself is reached through
+    // the control, the next match, and not through whatever its label holds.
+    if (!mark.matches(INVALID_CONTROL) && mark.querySelector(INVALID_CONTROL)) continue;
+    const target = mark.matches(FOCUSABLE_SELECTOR) && isRendered(mark) ? mark : wrGetFocusableElements(mark)[0];
+    if (target) return target;
+  }
+  return undefined;
 }
 
 /**
@@ -122,4 +137,72 @@ export function wrRestoreFocus(el: HTMLElement, monitor?: FocusMonitor | null): 
   target.setAttribute('tabindex', '-1');
   focus();
   target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+}
+
+/** Options of {@link wrFocusFirstInvalid}. */
+export interface WrFocusFirstInvalidOptions {
+  /**
+   * Wait for the next render before looking. Pass it when the call follows
+   * `submit()` or `markAllAsTouched()` in the same handler: the marks are drawn
+   * by the render that comes after.
+   */
+  readonly injector?: Injector;
+  /**
+   * Passed to `scrollIntoView`, over `{ block: 'center', behavior: 'smooth' }`.
+   * `false` leaves the scroll to the browser's own focus behaviour.
+   */
+  readonly scroll?: ScrollIntoViewOptions | false;
+}
+
+/**
+ * Focus the first invalid control inside `root` and scroll its field into view,
+ * for a submit that was refused. Resolves to whether there was one.
+ *
+ * Invalid is what ngwr draws: an element with `aria-invalid="true"`, or a
+ * `<wr-form-field>` showing an error. A mark on a group (`wr-radio-group`,
+ * `wr-segmented`) leads to the first control inside it. Disabled and hidden
+ * controls are skipped.
+ *
+ * The marks exist only once the fields are touched and rendered, so the order
+ * is: `submit()` or `markAllAsTouched()`, then this call with an `injector`,
+ * which waits for the next render. Without one it looks at once.
+ *
+ * Scrolling is smooth unless the user asked for reduced motion. On the server
+ * it does nothing and resolves to `false`.
+ *
+ * @example
+ * ```ts
+ * private readonly injector = inject(Injector);
+ * private readonly formEl = viewChild.required<ElementRef<HTMLElement>>('formEl');
+ *
+ * protected async save(): Promise<void> {
+ *   const sent = await submit(this.form, async () => this.api.save(this.model()));
+ *   if (!sent) void wrFocusFirstInvalid(this.formEl().nativeElement, { injector: this.injector });
+ * }
+ * ```
+ */
+export function wrFocusFirstInvalid(root: HTMLElement, options: WrFocusFirstInvalidOptions = {}): Promise<boolean> {
+  const { injector, scroll } = options;
+  if (typeof document === 'undefined' || (injector && injector.get(PLATFORM_ID) !== 'browser')) {
+    return Promise.resolve(false);
+  }
+
+  const run = (): boolean => {
+    const target = findFirstInvalid(root);
+    if (!target) return false;
+    target.focus({ preventScroll: scroll !== false });
+    if (scroll !== false) {
+      const reduced = target.ownerDocument.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      (target.closest<HTMLElement>('.wr-form-field') ?? target).scrollIntoView?.({
+        block: 'center',
+        behavior: 'smooth',
+        ...scroll,
+        ...(reduced ? { behavior: 'instant' } : null),
+      });
+    }
+    return true;
+  };
+
+  if (!injector) return Promise.resolve(run());
+  return new Promise(resolve => afterNextRender(() => resolve(run()), { injector }));
 }

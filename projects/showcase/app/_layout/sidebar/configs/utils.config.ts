@@ -19,6 +19,7 @@ export const UTILS_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrBadgeLog),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrClamp),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrDebounce),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrFocusFirstInvalid),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrGetFocusableElements),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrGetRootFontSize),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrHasModifier),
