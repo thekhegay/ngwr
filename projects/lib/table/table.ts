@@ -145,6 +145,8 @@ interface CellColumn<T extends WrTableRow> {
   readonly width: number | null;
   /** The `width` a truncated column's cells are capped at. */
   readonly maxWidth: number | null;
+  /** Whether its template renders inside `.wr-table__actions`. */
+  readonly actions: boolean;
   /** Whether its cell names the row (see `labelColumnKey`). */
   readonly label: boolean;
   /** Whether its cell carries the tree indent and toggle. */
@@ -282,8 +284,12 @@ function isNgTemplateElement(tpl: TemplateRef<unknown>): boolean {
   return tag === undefined || tag === 'ng-template';
 }
 
-function cellClasses(base: 'wr-table__th' | 'wr-table__td', column: Pick<WrTableColumn, 'align' | 'class'>): string {
-  const own = column.align ? `${base} ${base}--align-${column.align}` : base;
+function cellClasses(
+  base: 'wr-table__th' | 'wr-table__td',
+  column: Pick<WrTableColumn, 'actions' | 'align' | 'class'>
+): string {
+  const aligned = column.align ? `${base} ${base}--align-${column.align}` : base;
+  const own = column.actions ? `${aligned} ${base}--actions` : aligned;
   return column.class ? wrToClassList(own, column.class).join(' ') : own;
 }
 
@@ -1593,6 +1599,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         end: pins.right.get(key) ?? null,
         width: resized.get(key) ?? column.width ?? null,
         maxWidth: truncates ? (column.width ?? null) : null,
+        actions: !!column.actions,
         label: key === labelKey,
         tree: key === treeKey,
         template: templates.get(key),
@@ -2885,7 +2892,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * titles, then one row per item in the current column order. A cell is what
    * the plain cell shows: the column's `empty` for a missing value, its
    * `format` over the value, else the raw value. A `[wrTableCell]` template is
-   * not run, so a column drawn by one exports its `format` or its data.
+   * not run, so a column drawn by one exports its `format` or its data. An
+   * `actions` column has no data and is left out.
    *
    * Covers the current `items`, so in server-side mode (`total` set) it
    * exports the current page, while client-side pagination exports every page.
@@ -2900,7 +2908,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   toCsv(options: WrTableCsvOptions = {}): string {
     const delimiter = options.delimiter ?? ',';
     const escapeFormulas = options.escapeFormulas ?? true;
-    const cols = this.displayColumns();
+    const cols = this.displayColumns().filter(col => !col.column.actions);
     const rows = options.selectedOnly ? this.selectedRows() : this.datasetRows();
     const text = (value: unknown): string => {
       if (value == null) return '';

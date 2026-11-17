@@ -316,6 +316,12 @@ export default class TablePageComponent {
     },
   ];
 
+  protected readonly rowActionColumns: WrTableColumns = {
+    name: { title: 'Name' },
+    note: { title: 'Note' },
+    actions: { title: '', headerHint: 'Actions', actions: true },
+  };
+
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
     name: { title: 'Name', pin: 'left', sortable: true },
@@ -568,6 +574,19 @@ protected readonly columns: WrTableColumns = {
   // Still one line behind an ellipsis.
   role: { title: 'Role on the team', width: 140, truncate: 'tooltip' },
   seats: { title: 'Seats', align: 'end', width: 80 },
+};`,
+    rowActions: `<wr-table [columns]="columns" [items]="rows">
+  <ng-template wrTableCell="actions" let-row="item">
+    <wr-btn icon="pencil" size="sm" outlined wrPopover="Edit" mode="tooltip" (click)="edit(row)" />
+    <wr-btn icon="trash" size="sm" color="danger" outlined wrPopover="Delete" mode="tooltip" (click)="remove(row)" />
+  </ng-template>
+</wr-table>
+
+protected readonly columns: WrTableColumns = {
+  name: { title: 'Name' },
+  note: { title: 'Note' },
+  // No title: the hint names the column.
+  actions: { title: '', headerHint: 'Actions', actions: true },
 };`,
     loadingModes: `<!-- 'auto': a spinner over an empty table, a bar over a filled one. -->
 <wr-table [columns]="columns" [items]="rows()" [loading]="refreshing()" />
@@ -1031,6 +1050,7 @@ interface WrTableColumn<T = object> {
   format?: (value: unknown, row: T) => string;
   empty?: string;
   truncate?: 'tooltip' | null;
+  actions?: boolean;
   class?: WrClassInput;
 }
 
@@ -1186,6 +1206,13 @@ type WrTableSummaryContext =
       description:
         "'tooltip' cuts the cells to one line and shows a cut cell's full text in a tooltip. `null` turns the table's `truncate` off for the column. Since v16.1.",
       type: "'tooltip' | null",
+      sub: true,
+    },
+    {
+      name: 'actions',
+      description:
+        'A column of row actions: its template renders in one row at the end of the cell, and the column shrinks to it. Since v16.6.',
+      type: 'boolean',
       sub: true,
     },
     {

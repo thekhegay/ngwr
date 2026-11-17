@@ -219,6 +219,33 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Row actions"
+    description="`actions: true` on a column lays its template's buttons in one row at the end of the cell, and shrinks the column to them."
+  >
+    <ngwr-doc-code [code]="snippets.rowActions" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="rowActionColumns" [items]="layoutRows">
+          <ng-template wrTableCell="actions">
+            <wr-btn icon="pencil" size="sm" outlined wrPopover="Edit" mode="tooltip" />
+            <wr-btn icon="trash" size="sm" color="danger" outlined wrPopover="Delete" mode="tooltip" />
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>An icon-only <code>wr-btn</code> is square. Name each one: a tooltip, or an <code>aria-label</code>.</li>
+      <li>
+        The template renders inside <code>.wr-table__actions</code>; <code>--wr-table-actions-gap</code> is the gap
+        between the buttons.
+      </li>
+      <li>Under <code>layout="fixed"</code> the column does not shrink: give it a <code>width</code>.</li>
+      <li><code>pin: 'right'</code> keeps the column in view while the table scrolls sideways.</li>
+      <li><code>toCsv()</code> leaves the column out.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Loading, empty — and error"
     description="`[loading]` shows a spinner and `emptyLabel` the empty text. There is no error input: show a `<wr-alert>` beside the table."
   >

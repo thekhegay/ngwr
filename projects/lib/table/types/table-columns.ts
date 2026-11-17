@@ -125,6 +125,14 @@ export interface WrTableColumn<T extends WrTableRow = WrTableRow> {
    */
   readonly truncate?: WrTableTruncate | null;
   /**
+   * A column of row actions. Its `[wrTableCell]` template renders inside
+   * `.wr-table__actions`, a single row with a gap at the end of the cell, for
+   * icon-only `wr-btn`s. The column shrinks to its buttons
+   * (`.wr-table__th--actions`, `.wr-table__td--actions`); under
+   * `layout="fixed"` give it a `width`. `toCsv()` leaves it out.
+   */
+  readonly actions?: boolean;
+  /**
    * Extra CSS classes for this column's header cell AND every body cell under
    * it - the one place to set a monospace face or any other treatment of your
    * own, since the `<th>` and `<td>` are ngwr's own elements and a cell
