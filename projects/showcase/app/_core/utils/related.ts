@@ -838,6 +838,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'guides/translations/interpolation',
     'guides/translations/scopes',
     'reference/pipes/wr-plural',
+    'reference/utils/wr-http-error-text',
   ],
   'reference/services/loading-bar': [
     'reference/components/progress',
@@ -906,6 +907,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/services/hotkey',
     'reference/utils/wr-keys',
     'reference/utils/wr-is-composing',
+  ],
+  'reference/utils/wr-http-error-text': [
+    'reference/components/toast',
+    'reference/components/alert',
+    'reference/utils/wr-action',
+    'guides/translations/usage',
   ],
   'reference/utils/wr-is-composing': [
     'guides/keyboard',

@@ -23,6 +23,7 @@ export const UTILS_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrGetFocusableElements),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrGetRootFontSize),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrHasModifier),
+    wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrHttpErrorText),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrIsComposing),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrIsDefined),
     wrLink(ROUTES.reference, ROUTES.reference.utils, ROUTES.reference.utils.wrIsNonEmptyArray),

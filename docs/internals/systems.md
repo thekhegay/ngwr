@@ -115,6 +115,14 @@ one component folder. Reach for them instead of hand-rolling:
   `navigator.language` or a literal `'en'`, so an app that sets `LOCALE_ID`
   correctly stops formatting dates in whatever language the visitor's browser
   happens to be. Reach for `navigator.language` only by writing it explicitly.
+  **`wrHttpErrorText(error, options)` lives here too** (16.6), with
+  `wrHttpStatus(error)`: a sentence for a failed request from the `httpError`
+  namespace, `httpError.<status>` first, then `4xx` / `5xx`, `network` for
+  status 0 and `unknown`. Both duck-type the error and import nothing from
+  `@angular/common/http`. It is called from a `catch`, so it takes an
+  `injector` option, as `wrFocusFirstInvalid` does, and reads `WrI18n` as
+  optional: its English floor repeats the `en` catalog, and `http-error.spec.ts`
+  holds the two equal.
 - **`ngwr/config` is gone (v15).** `provideWrConfig()`, `WR_CONFIG` and
   `useConfigValue()` are removed because ngwr does not ship app-wide default
   overrides: `size` and `rounded` take the concrete default written in their

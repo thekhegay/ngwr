@@ -27,3 +27,4 @@ export {
   type ProvideWrI18nOptions,
 } from './provide-wr-i18n';
 export { useI18nText, wrReadI18nText, useI18nFormatter } from './util';
+export { wrHttpStatus, wrHttpErrorText, type WrHttpErrorOverride, type WrHttpErrorTextOptions } from './http-error';
