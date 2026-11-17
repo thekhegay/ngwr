@@ -438,7 +438,7 @@ categoryId.setValue(2);`,
     {
       name: '(valueChange)',
       description: 'The `[(value)]` half. Bound automatically by `[formField]` / `[(ngModel)]`.',
-      type: 'T | readonly T[] | null',
+      type: 'V | readonly V[] | null',
       default: '—',
     },
     {
