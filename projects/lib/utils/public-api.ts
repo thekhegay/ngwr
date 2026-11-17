@@ -43,9 +43,11 @@ export {
   wrContentDispositionFileName,
   wrDownloadBlob,
   wrRestoreFocus,
+  wrNoteFocusReturn,
+  wrFocusFirstInvalid,
   wrWatchDragCancel,
 } from './dom';
-export type { WrWatchColorSchemeOptions, WrColorScheme } from './dom';
+export type { WrWatchColorSchemeOptions, WrColorScheme, WrFocusFirstInvalidOptions } from './dom';
 
 // ID
 export { wrRandomId } from './id';

@@ -26,6 +26,28 @@ describe('wrChartAxis', () => {
     expect(wrChartAxis(0, 0.7).ticks).toEqual([0.8, 0.6, 0.4, 0.2, 0]);
   });
 
+  it('lifts a peak that sits on the frame up to float noise', () => {
+    // 0.3 / 0.1 is 2.9999999999999996 and the ceiling lands on 0.30000000000000004.
+    expect(wrChartAxis(0.1, 0.3, { includeZero: true })).toEqual({
+      min: 0,
+      max: 0.4,
+      step: 0.1,
+      ticks: [0.4, 0.3, 0.2, 0.1, 0],
+    });
+    expect(wrChartAxis(0, 0.6).max).toBe(0.8);
+    expect(wrChartAxis(0.2, 0.3)).toEqual({
+      min: 0.2,
+      max: 0.325,
+      step: 0.025,
+      ticks: [0.325, 0.3, 0.275, 0.25, 0.225, 0.2],
+    });
+  });
+
+  it('does not overshoot by a step when the quotient is a hair above a whole number', () => {
+    expect(wrChartAxis(0, 0.3, { tickCount: 12 }).max).toBe(0.325);
+    expect(wrChartAxis(-0.3, 0.3, { symmetric: true }).min).toBeLessThan(-0.3);
+  });
+
   it('gives a flat range a span instead of dividing by zero', () => {
     const flat = wrChartAxis(5, 5);
     expect(flat.step).toBeGreaterThan(0);
@@ -110,7 +132,7 @@ describe('wrChartAxis', () => {
     // Two of these were wrong — 0.000008 and 0.000003 — so two gridlines sat at the wrong height.
     expect(wrChartAxis(0.0000012, 0.0000098).ticks).toEqual([0.00001, 0.0000075, 0.000005, 0.0000025, 0]);
     // And these were all zero.
-    expect(wrChartAxis(1e-9, 3e-9).ticks).toEqual([3e-9, 2.5e-9, 2e-9, 1.5e-9, 1e-9]);
+    expect(wrChartAxis(1e-9, 3e-9).ticks).toEqual([3.5e-9, 3e-9, 2.5e-9, 2e-9, 1.5e-9, 1e-9]);
     expect(wrChartAxis(1e-8, 5e-8).ticks).toEqual([6e-8, 5e-8, 4e-8, 3e-8, 2e-8, 1e-8]);
     // A flat value centred the same way: v15 read 0.000001 / 0.0000012 / 0.000001.
     expect(wrChartAxis(0.0000012, 0.0000012, { symmetric: true }).ticks).toEqual([0.0000014, 0.0000012, 0.000001]);

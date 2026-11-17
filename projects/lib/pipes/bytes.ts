@@ -119,5 +119,13 @@ export function wrFormatBytes(value: number | string | null | undefined, locale:
   // which rendered `0.5` as "512.0 undefined".
   const i = Math.min(Math.max(0, Math.floor(Math.log(n) / Math.log(1024))), UNITS.length - 1);
   // Whole bytes never show a fractional part.
-  return format(locale, n / 1024 ** i, i, i === 0 ? 0 : Math.max(0, decimals));
+  const digits = (unit: number): number => (unit === 0 ? 0 : Math.max(0, decimals));
+  let unit = i;
+  let scaled = n / 1024 ** unit;
+  // A value that rounds up to 1024 belongs to the next unit: "1,024.0 kB" is "1.0 MB".
+  while (unit < UNITS.length - 1 && Number(scaled.toFixed(Math.min(digits(unit), 100))) >= 1024) {
+    unit++;
+    scaled = n / 1024 ** unit;
+  }
+  return format(locale, scaled, unit, digits(unit));
 }

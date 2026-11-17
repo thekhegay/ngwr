@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1879 hook(s) across 115 page(s). A property is here only when the
+ * 1891 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -790,9 +790,11 @@ export const CSS_VARS = {
       { name: "--wr-breadcrumbs-current-color", default: "var(--wr-color-on-surface)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-current-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-current-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
+      { name: "--wr-breadcrumbs-current-max-width", default: "none", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-font-family", default: "var(--wr-font-family-base)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-font-size", default: "var(--wr-text-sm)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
+      { name: "--wr-breadcrumbs-item-max-width", default: "16rem", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-link-color", default: "var(--wr-color-primary-ink)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-link-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-link-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-breadcrumbs" },
@@ -1203,27 +1205,30 @@ export const CSS_VARS = {
     vars: [
       { name: "--wr-dialog-bg", default: "var(--wr-color-surface)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-border", default: "var(--wr-border-base)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-close-font-size", default: "var(--wr-text-base)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-close-padding", default: "var(--wr-space-xs)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-close-font-size", default: "var(--wr-text-base)", scope: ".wr-dialog-panel", overrides: 2 },
+      { name: "--wr-dialog-close-padding", default: "var(--wr-space-xs)", scope: ".wr-dialog-panel", overrides: 1 },
       { name: "--wr-dialog-close-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-content-font-size", default: "var(--wr-text-base)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-content-line-height", default: "var(--wr-text-base-leading)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-content-font-size", default: "var(--wr-text-base)", scope: ".wr-dialog-panel", overrides: 2 },
+      { name: "--wr-dialog-content-line-height", default: "var(--wr-text-base-leading)", scope: ".wr-dialog-panel", overrides: 2 },
       { name: "--wr-dialog-font-family", default: "var(--wr-font-family-base)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-footer-gap", default: "var(--wr-space-sm)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-footer-gap", default: "var(--wr-space-sm)", scope: ".wr-dialog-panel", overrides: 2 },
       { name: "--wr-dialog-intent-danger", default: "var(--wr-color-danger)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-intent-gap", default: "var(--wr-space-sm)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-intent-info", default: "var(--wr-color-info)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-intent-size", default: "1.25rem", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-intent-size", default: "1.25rem", scope: ".wr-dialog-panel", overrides: 2 },
       { name: "--wr-dialog-intent-success", default: "var(--wr-color-success)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-intent-warning", default: "var(--wr-color-warning)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-min-width", default: "18rem", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-padding-x", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-padding-y", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-padding-x", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel", overrides: 2 },
+      { name: "--wr-dialog-padding-y", default: "var(--wr-space-lg)", scope: ".wr-dialog-panel", overrides: 2 },
       { name: "--wr-dialog-radius", default: "var(--wr-border-radius-lg)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-shadow", default: "var(--wr-shadow-modal)", scope: ".wr-dialog-panel" },
-      { name: "--wr-dialog-title-font-size", default: "var(--wr-text-lg)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-title-font-size", default: "var(--wr-text-lg)", scope: ".wr-dialog-panel", overrides: 2 },
       { name: "--wr-dialog-title-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-title-line-height", default: "var(--wr-text-base-leading)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-width-lg", default: "56rem", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-width-md", default: "40rem", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-width-sm", default: "28rem", scope: ".wr-dialog-panel" },
     ],
   },
   "reference/components/divider": {
@@ -1427,6 +1432,7 @@ export const CSS_VARS = {
   "reference/components/form": {
     subpath: "ngwr/form",
     vars: [
+      { name: "--wr-form-columns", default: "1", scope: ".wr-form", host: true },
       { name: "--wr-form-error-font-size", default: "var(--wr-text-xs)", scope: ".wr-form-error" },
       { name: "--wr-form-error-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-form-error" },
       { name: "--wr-form-field-error-font-size", default: "var(--wr-text-sm)", scope: ".wr-form-field" },
@@ -1442,10 +1448,13 @@ export const CSS_VARS = {
       { name: "--wr-form-field-label-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-form-field" },
       { name: "--wr-form-field-optional-font-size", default: "var(--wr-text-sm)", scope: ".wr-form-field" },
       { name: "--wr-form-field-optional-font-weight", default: "var(--wr-font-weight-regular)", scope: ".wr-form-field" },
+      { name: "--wr-form-gap", default: "var(--wr-space-lg)", scope: ".wr-form" },
+      { name: "--wr-form-inline-align", default: "flex-end", scope: ".wr-form" },
       { name: "--wr-form-item-gap", default: "var(--wr-space-sm)", scope: ".wr-form-item" },
       { name: "--wr-form-item-label-font-size", default: "var(--wr-text-sm)", scope: ".wr-form-item" },
       { name: "--wr-form-item-label-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-form-item" },
       { name: "--wr-form-item-label-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-form-item" },
+      { name: "--wr-form-span", default: "1 / -1", scope: ".wr-form__span", host: true },
     ],
   },
   "reference/components/graph": {
@@ -1571,6 +1580,12 @@ export const CSS_VARS = {
       { name: "--wr-knob-text-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-knob__text" },
     ],
   },
+  "reference/components/layout": {
+    subpath: "ngwr/layout",
+    vars: [
+      { name: "--wr-layout-content-padding", default: "var(--wr-space-xl)", scope: ".wr-layout-content" },
+    ],
+  },
   "reference/components/lightbox": {
     subpath: "ngwr/lightbox",
     vars: [
@@ -1628,6 +1643,7 @@ export const CSS_VARS = {
     subpath: "ngwr/page-header",
     vars: [
       { name: "--wr-page-header-actions-gap", default: "var(--wr-space-sm)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-bleed", default: "var(--wr-layout-content-padding, 0px)", scope: ".wr-page-header" },
       { name: "--wr-page-header-border", default: "var(--wr-border-base)", scope: ".wr-page-header" },
       { name: "--wr-page-header-breadcrumbs-font-size", default: "var(--wr-text-sm)", scope: ".wr-page-header" },
       { name: "--wr-page-header-compact-gap", default: "var(--wr-space-md)", scope: ".wr-page-header" },
@@ -2046,6 +2062,7 @@ export const CSS_VARS = {
   "reference/components/table": {
     subpath: "ngwr/table",
     vars: [
+      { name: "--wr-table-actions-gap", default: "var(--wr-space-xs)", scope: ".wr-table" },
       { name: "--wr-table-bg", default: "var(--wr-color-surface)", scope: ".wr-table" },
       { name: "--wr-table-border", default: "var(--wr-border-base)", scope: ".wr-table" },
       { name: "--wr-table-card-cell-gap", default: "var(--wr-space-lg)", scope: ".wr-table" },

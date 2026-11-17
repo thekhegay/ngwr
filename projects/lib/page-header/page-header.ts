@@ -41,6 +41,16 @@ import { wrCheckStyles } from 'ngwr/utils';
  * header's height plus `--wr-page-header-sticky-top`, and focus, anchors and
  * `scrollIntoView()` all stop short of it.
  *
+ * The filters row is inside the header's own box, so under `sticky` it stays in
+ * view with the title: it is the place for a view switch or tabs as well.
+ *
+ * `bleed` carries the header over the padding of the box it tops, to the top and
+ * both side edges, and pads it by as much, so a sticky header's background and
+ * border run edge to edge. The amount is `--wr-page-header-bleed`, which reads
+ * `--wr-layout-content-padding`: inside `wr-layout-content` it follows the
+ * content's padding, and anywhere else it is zero until set. Make the header
+ * the first thing in that box.
+ *
  * A bare `<div>` wrapper in the actions or the filters slot, one with no `class`
  * and no `style`, is laid out as a wrapping row with the region's own gap, so
  * the controls inside it are spaced exactly like controls projected one by one.
@@ -51,7 +61,7 @@ import { wrCheckStyles } from 'ngwr/utils';
  *
  * @example
  * ```html
- * <wr-page-header title="Settings" subtitle="Manage your workspace" compact sticky>
+ * <wr-page-header title="Settings" subtitle="Manage your workspace" compact sticky bleed>
  *   <nav wrPageHeaderBreadcrumbs>…</nav>
  *   <div wrPageHeaderActions>
  *     <button wr-btn>Invite</button>
@@ -81,6 +91,7 @@ import { wrCheckStyles } from 'ngwr/utils';
     '[class.wr-page-header--responsive]': 'responsive()',
     '[class.wr-page-header--compact]': 'compact()',
     '[class.wr-page-header--sticky]': 'sticky()',
+    '[class.wr-page-header--bleed]': 'bleed()',
     '[attr.title]': 'null',
   },
 })
@@ -116,4 +127,12 @@ export class WrPageHeader {
    * @default false
    */
   readonly sticky = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Run over the padding of the box the header tops, to the top and both side
+   * edges, by `--wr-page-header-bleed` (the content padding inside
+   * `wr-layout-content`, zero elsewhere until set).
+   * @default false
+   */
+  readonly bleed = input(false, { transform: coerceBooleanProperty });
 }

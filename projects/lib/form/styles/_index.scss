@@ -1,6 +1,43 @@
 @use '../../theme/styles' as theme;
 @include theme.loaded('form');
 
+.wr-form {
+  --wr-form-gap: var(--wr-space-lg);
+  --wr-form-columns: 1;
+  --wr-form-inline-align: flex-end;
+
+  display: grid;
+  grid-template-columns: repeat(var(--wr-form-columns), minmax(0, 1fr));
+  gap: var(--wr-form-gap);
+
+  &--inline,
+  &:where([inline]:not([inline='false'])) {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: var(--wr-form-inline-align);
+  }
+
+  // `inline-size` containment drops the element to no width in a shrink-to-fit
+  // parent, so only the mode that queries its width takes it.
+  &--columns {
+    container: wr-form / inline-size;
+    width: 100%;
+  }
+
+  &__span {
+    --wr-form-span: 1 / -1;
+
+    grid-column: var(--wr-form-span);
+  }
+}
+
+// A container cannot restyle itself, so the fields give up their column instead.
+@container wr-form (max-width: 30rem) {
+  .wr-form--columns > * {
+    grid-column: 1 / -1;
+  }
+}
+
 .wr-form-item {
   --wr-form-item-gap: var(--wr-space-sm);
   --wr-form-item-label-font-size: var(--wr-text-sm);

@@ -18,6 +18,8 @@ export interface WrFormFieldAria {
   readonly describedBy: Signal<string | null>;
   /** `'true'` while the field has a validation error, `null` otherwise. */
   readonly ariaInvalid: Signal<'true' | null>;
+  /** `'true'` while the field is `required`, `null` otherwise. */
+  readonly ariaRequired: Signal<'true' | null>;
   /**
    * Id of the field's `<label>`, for a control `<label for>` cannot reach.
    *
@@ -73,6 +75,7 @@ export function useFormFieldAria(options?: { readonly skipSelf?: boolean }): WrF
     // compiling; one without it describes nothing but its errors, as before.
     describedBy: computed(() => field?.describedBy() ?? field?.hintId?.() ?? null),
     ariaInvalid: computed<'true' | null>(() => ((field?.errorKeys().length ?? 0) > 0 ? 'true' : null)),
+    ariaRequired: computed<'true' | null>(() => (field?.required?.() ? 'true' : null)),
     // `null` for a control that `<label for>` already reaches — pointing at the
     // same label twice would name it twice. Only the role-based controls read
     // this, and only because `for` cannot bind to a role.

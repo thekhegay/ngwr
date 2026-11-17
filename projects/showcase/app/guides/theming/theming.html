@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Theming"
-  updated="15.0.0"
+  updated="16.6.0"
   description="Load the theme, switch light and dark, and rebrand the palette."
   [keywords]="['theme', 'theming', 'dark mode', 'color-scheme', 'light-dark', 'palette', 'rebrand', 'css variables']"
   [labels]="['Core']"
@@ -80,6 +80,17 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Canvas"
+    description="A page background one step behind the surface, so cards and tables read as raised. Opt-in."
+  >
+    <ngwr-doc-code [code]="snippets.canvas" language="scss" />
+    <p>
+      Cards, tables and panels keep <code>--wr-color-surface</code>. The token is on the
+      <a class="ngwr-doc-link" routerLink="/guides/tokens/colors" fragment="canvas">Colors</a> page.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Per-component tokens"
     description="Each component has its own `--wr-<name>-*` hooks, listed on its page."
   >
@@ -92,6 +103,17 @@
   >
     <ngwr-doc-code [code]="snippets.classHooks" language="angular-html" />
     <ngwr-doc-code [code]="snippets.classHooksTs" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Print"
+    description="`.wr-no-print` hides an element on paper and `.wr-print-only` shows one there alone. Both come with the theme."
+  >
+    <ngwr-doc-code [code]="snippets.print" language="angular-html" />
+    <p>
+      App chrome hides itself: see <a class="ngwr-doc-link" routerLink="/reference/components/layout">Layout</a>, which
+      has a live print demo.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Gotchas">

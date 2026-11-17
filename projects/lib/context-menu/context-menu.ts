@@ -21,7 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { WR_LIVE_LOCALE, wrRandomId, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrRandomId, wrCheckStyles, wrNoteFocusReturn, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -477,10 +477,13 @@ export class WrContextMenu {
     //      auxclick, short enough that a deliberate second click is
     //      still respected).
     const openedAt = performance.now();
+    const openedRef = this.overlayRef;
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
+        // A pane still fading out must not close the menu that replaced it.
+        if (openedRef !== this.overlayRef) return;
         if (performance.now() - openedAt < 200) return;
         this.closeOverlay();
       });
@@ -572,6 +575,9 @@ export class WrContextMenu {
     // on the page (CDK's dispatcher routes it by stacking order, not by focus),
     // and a menu nobody was in must not steal the caret from a field they are.
     if (focusWasInside) this.handBackFocus(restoreTo);
+    // A dialog opened from an item has taken focus by now, so nothing was handed
+    // back: say where it would have gone, for the dialog's own close.
+    else wrNoteFocusReturn(restoreTo?.isConnected ? restoreTo : this.host.nativeElement);
   }
 
   /**
@@ -586,7 +592,7 @@ export class WrContextMenu {
    * adds no `tabindex` and every shape the docs ship is a plain `<div>`, so
    * `focus()` on it does nothing at all — the handback silently missed, leaving
    * the caret in the disposing pane and then on `<body>`, which is the outcome
-   * the call is there to prevent. Lending it `tabindex="-1"` for the call and
+   * the call is there to prevent. `wrRestoreFocus` does it: lending it `tabindex="-1"` for the call and
    * taking that back on blur keeps the consumer's DOM as they wrote it; a
    * permanent `tabindex="0"` would make every right-clickable region a tab stop,
    * which is their decision and not the library's.
@@ -595,14 +601,6 @@ export class WrContextMenu {
     const target =
       previous?.isConnected && !previous.closest('.wr-context-menu-overlay') ? previous : this.host.nativeElement;
     wrRestoreFocus(target, this.focusMonitor);
-    // Asking whether it took, rather than deciding up front whether it can: the
-    // focusability rules are wide (an `<a>` needs an href, a `<div>` needs a
-    // tabindex, `inert`/`disabled` opt out) and `document.activeElement` answers
-    // all of them at once.
-    if (document.activeElement === target) return;
-    target.setAttribute('tabindex', '-1');
-    wrRestoreFocus(target, this.focusMonitor);
-    target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
   }
 
   private cancelLeaveTimer(): void {

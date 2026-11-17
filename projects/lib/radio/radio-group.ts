@@ -23,16 +23,20 @@ import type { FormValueControl } from '@angular/forms/signals';
 import { useFormFieldAria } from 'ngwr/form';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
+import { WrRadio } from './radio';
 import { WR_RADIO_GROUP } from './tokens';
 import type { WrRadioGroupContext } from './types';
 
 /**
  * Hosts a group of `<wr-radio>` children as a single-value selection.
  *
- * A signal-forms native control: it implements `FormValueControl<unknown>`, so
+ * A signal-forms native control: it implements `FormValueControl`, so
  * `[formField]` binds to its `value` model — the currently selected radio's
  * `value`. `[(value)]` works standalone. Classic `[(ngModel)]` / reactive forms
  * keep working through Angular's bridge.
+ *
+ * `T` is an item of `[options]` and `V` is a radio's value: the return type of
+ * `[valueWith]`, or else the type of the value binding.
  *
  * @example
  * ```html
@@ -41,13 +45,17 @@ import type { WrRadioGroupContext } from './types';
  *   <wr-radio value="md">Medium</wr-radio>
  *   <wr-radio value="lg">Large</wr-radio>
  * </wr-radio-group>
+ *
+ * <!-- One radio per item, the id in the model -->
+ * <wr-radio-group [options]="plans" [displayWith]="planName" [valueWith]="planId" [(value)]="planId" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/radio
  */
 @Component({
   selector: 'wr-radio-group',
-  template: '<ng-content />',
+  templateUrl: './radio-group.html',
+  imports: [WrRadio],
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-radio-group',
@@ -67,6 +75,7 @@ import type { WrRadioGroupContext } from './types';
     // not inside a field, which is most of them.
     '[attr.aria-labelledby]': 'labelledBy()',
     '[attr.aria-invalid]': 'fieldAria.ariaInvalid()',
+    '[attr.aria-required]': 'fieldAria.ariaRequired()',
     '[attr.aria-describedby]': 'fieldAria.describedBy()',
   },
   providers: [
@@ -77,7 +86,7 @@ import type { WrRadioGroupContext } from './types';
     },
   ],
 })
-export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupContext {
+export class WrRadioGroup<T = unknown, V = T> implements FormValueControl<V | null>, WrRadioGroupContext {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('radio');
   }
@@ -87,6 +96,34 @@ export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupCont
    * on the same page don't collide. (Also the `FormUiControl.name` slot.)
    */
   readonly name = input<string>(wrRandomId('wr-radio-group'));
+
+  /**
+   * Option array. Each item is rendered as a `<wr-radio>` whose value is the
+   * item, or `[valueWith]` of it, and whose label comes from `[displayWith]`,
+   * before any projected `<wr-radio>` children.
+   *
+   * @example
+   * ```html
+   * <wr-radio-group [options]="plans" [displayWith]="planName" [valueWith]="planId" [(value)]="planId" />
+   * ```
+   */
+  readonly options = input<readonly T[]>([]);
+
+  /** Maps an `[options]` item to its label. @default String */
+  readonly displayWith = input<(item: T) => string>((item: T) => String(item));
+
+  /**
+   * Maps an `[options]` item to the value the model holds, so a list of objects
+   * can bind an id. Values are compared with `===`. Without it an item is its
+   * own value.
+   */
+  readonly valueWith = input<((item: T) => V) | null>(null);
+
+  /** An item's value: `valueWith` of it, or the item itself. */
+  protected valueOf(item: T): V {
+    const valueWith = this.valueWith();
+    return valueWith ? valueWith(item) : (item as unknown as V);
+  }
 
   /**
    * Disable the whole group. Bound automatically from the field's disabled
@@ -124,7 +161,7 @@ export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupCont
   protected readonly labelledBy = computed(() => this.ownLabelledBy ?? this.fieldAria.labelledBy());
 
   /** The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`. */
-  readonly value = model<unknown>(null);
+  readonly value = model<V | null>(null);
 
   /** Emitted on blur from any child so a bound field can mark itself touched. */
   readonly touch = output<void>();
@@ -156,7 +193,7 @@ export class WrRadioGroup implements FormValueControl<unknown>, WrRadioGroupCont
 
   select(value: unknown): void {
     if (this.isDisabled() || this.isReadonly()) return;
-    this.value.set(value);
+    this.value.set(value as V);
   }
 
   markTouched(): void {

@@ -47,7 +47,18 @@ describe('WrScroll', () => {
   it('scrolls the page to an absolute position', () => {
     scroll.to({ top: 400 });
 
-    expect(calls).toEqual([{ top: 400, left: 0, behavior: 'smooth' }]);
+    expect(calls).toEqual([{ top: 400, behavior: 'smooth' }]);
+  });
+
+  it('leaves the horizontal position alone unless a left is given', () => {
+    scroll.to({ top: 400 });
+    scroll.toTop();
+    scroll.to({ top: 10, left: 30 });
+    elementAt(100);
+    scroll.to('#target');
+
+    expect(calls.map(c => 'left' in c)).toEqual([false, false, true, false]);
+    expect(calls[2].left).toBe(30);
   });
 
   it('subtracts the offset, for a sticky header', () => {
@@ -137,7 +148,7 @@ describe('WrScroll', () => {
 
     // 250 (element) − 100 (container) + 40 (already scrolled) — the page's own
     // scroll position has nothing to do with it.
-    expect(containerCalls).toEqual([{ top: 190, left: 0, behavior: 'smooth' }]);
+    expect(containerCalls).toEqual([{ top: 190, behavior: 'smooth' }]);
     expect(calls).toEqual([]);
   });
 

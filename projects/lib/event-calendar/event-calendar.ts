@@ -241,7 +241,7 @@ export class WrEventCalendar {
   /** A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do. */
   readonly eventChange = output<WrCalendarEventChange>();
 
-  private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter).zoned();
   private readonly document = inject(DOCUMENT);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
@@ -869,7 +869,11 @@ export class WrEventCalendar {
 
     const windows = days.map(day => {
       const dayStart = this.startOfDay(day);
-      return { dayStart, windowStart: dayStart.getTime() + from * 60_000, windowEnd: dayStart.getTime() + to * 60_000 };
+      return {
+        dayStart,
+        windowStart: this.atMinutes(dayStart, from).getTime(),
+        windowEnd: this.atMinutes(dayStart, to).getTime(),
+      };
     });
     // The events come sorted by start and the windows run in order, so the first day an
     // event can touch only moves forward: one pass fills every day, in the events' order.
@@ -882,6 +886,7 @@ export class WrEventCalendar {
     }
 
     return windows.map(({ dayStart, windowStart, windowEnd }, d) => {
+      const nextDay = this.adapter.addDays(dayStart, 1).getTime();
       const onDay = perDay[d]
         .map(event => ({
           event,
@@ -899,9 +904,10 @@ export class WrEventCalendar {
 
       const flush = (): void => {
         for (const [index, item] of cluster.entries()) {
-          const minutes = Math.floor((item.from - dayStart.getTime()) / 60_000);
+          const minutes = this.wallMinutes(new Date(item.from));
           const slotStart = from + Math.floor((minutes - from) / slot) * slot;
-          const length = (item.to - item.from) / 60_000;
+          const end = item.to >= nextDay ? MINUTES_PER_DAY : this.wallMinutes(new Date(item.to));
+          const length = end - minutes;
 
           out.push({
             slotMinutes: slotStart,
@@ -953,8 +959,9 @@ export class WrEventCalendar {
       const start = this.startOfDay(date);
       return { start, end: this.adapter.addDays(start, 1), allDay: true };
     }
-    const start = new Date(this.startOfDay(date).getTime() + minutes * 60_000);
-    return { start, end: new Date(start.getTime() + Math.max(5, this.slotMinutes()) * 60_000), allDay: false };
+    const start = this.atMinutes(date, minutes);
+    const end = this.atMinutes(date, minutes + Math.max(5, this.slotMinutes()));
+    return { start, end, allDay: false };
   }
 
   /**
@@ -1014,7 +1021,22 @@ export class WrEventCalendar {
   }
 
   private shift(date: Date, days: number, minutes: number): Date {
-    return new Date(this.adapter.addDays(date, days).getTime() + minutes * 60_000);
+    const moved = this.adapter.addDays(date, days);
+    if (minutes === 0) return moved;
+    const placed = this.atMinutes(moved, this.wallMinutes(moved) + minutes);
+    return new Date(placed.getTime() + this.adapter.getSeconds(moved) * 1000 + (moved.getTime() % 1000));
+  }
+
+  /** Wall-clock minutes since midnight of the day `date` is on. */
+  private wallMinutes(date: Date): number {
+    return this.adapter.getHours(date) * 60 + this.adapter.getMinutes(date);
+  }
+
+  /** The wall-clock time `minutes` after midnight of `date`'s day; past 1440 it rolls into the next days. */
+  private atMinutes(date: Date, minutes: number): Date {
+    const day = this.adapter.addDays(this.startOfDay(date), Math.floor(minutes / MINUTES_PER_DAY));
+    const rest = ((minutes % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+    return this.adapter.setTime(day, Math.floor(rest / 60), rest % 60, 0);
   }
 
   private startOfDay(date: Date): Date {

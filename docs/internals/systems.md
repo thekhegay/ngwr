@@ -115,6 +115,14 @@ one component folder. Reach for them instead of hand-rolling:
   `navigator.language` or a literal `'en'`, so an app that sets `LOCALE_ID`
   correctly stops formatting dates in whatever language the visitor's browser
   happens to be. Reach for `navigator.language` only by writing it explicitly.
+  **`wrHttpErrorText(error, options)` lives here too** (16.6), with
+  `wrHttpStatus(error)`: a sentence for a failed request from the `httpError`
+  namespace, `httpError.<status>` first, then `4xx` / `5xx`, `network` for
+  status 0 and `unknown`. Both duck-type the error and import nothing from
+  `@angular/common/http`. It is called from a `catch`, so it takes an
+  `injector` option, as `wrFocusFirstInvalid` does, and reads `WrI18n` as
+  optional: its English floor repeats the `en` catalog, and `http-error.spec.ts`
+  holds the two equal.
 - **`ngwr/config` is gone (v15).** `provideWrConfig()`, `WR_CONFIG` and
   `useConfigValue()` are removed because ngwr does not ship app-wide default
   overrides: `size` and `rounded` take the concrete default written in their
@@ -184,7 +192,7 @@ one component folder. Reach for them instead of hand-rolling:
   string, and a signal read: `wrDate` is impure and compares it to keep its
   last result, and both pickers fold it into their echo guard. A custom
   adapter inherits `zoned()` returning itself, so it shows the browser's zone
-  until it overrides it. `wr-event-calendar` does not use `zoned()` yet.
+  until it overrides it. `wr-event-calendar` works on it for every day, row and click.
   `wrParseDate` is the entry point's one plain function: a backend
   value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
   refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only
@@ -247,7 +255,7 @@ one component folder. Reach for them instead of hand-rolling:
   own implementation for a string built in TypeScript — the locale is their
   second argument, except `wrFormatDate`, which takes the adapter the pipe
   injects), and
-  `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
+  `ngwr/validators` (`WrValidators`, and the Signal Forms rules `wrMatches` and `wrNotBlank`). A chart builds on `ngwr/charts/core` —
   the palette, dashes and markers, `useChartNumbers`, `wrChartAxis` and the
   visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,
   line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,
@@ -302,6 +310,12 @@ one component folder. Reach for them instead of hand-rolling:
   selection, expandable rows, summary rows, CSV export, grouping, **tree rows**
   (`childrenKey` makes `items` the roots and the table announces a `treegrid`)
   and a virtualized body are all opt-in inputs on the one component.
+  `layout="fixed"` is `.wr-table__table--layout-fixed`: fixed widths, wrapping
+  cells. `.wr-table__table--fixed` is the older class that also cuts every cell
+  to one line: a virtualized body always wears it, a resize or an edit hold
+  only over `layout="auto"`. `actions: true` on a column wraps its cell
+  template in `.wr-table__actions` and shrinks the column with `width: 1%`,
+  which a fixed layout would read literally, so there the rule steps back.
   `stickyHeader` gives any mode its own scroll area under a sticky header, the
   one a virtualized body already scrolls in (host class `wr-table--sticky-head`
   for both), sized by `viewportHeight`, where `'fill'` takes the parent's

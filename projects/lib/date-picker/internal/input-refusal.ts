@@ -245,6 +245,7 @@ export class WrDateInputField {
       adoptControlId: id => outer.adoptControlId(id),
       labelId: outer.labelId,
       hintId: outer.hintId,
+      required: outer.required,
       errorKeys: computed(() => {
         const keys = outer.errorKeys();
         const own = this.described();

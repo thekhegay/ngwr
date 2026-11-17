@@ -109,7 +109,7 @@ describe('WrTable loading modes', () => {
     expect(landed).toBe(cell);
     // The bar is a sibling of the scroll area, not an ancestor of any row.
     expect(bar()!.contains(cell)).toBe(false);
-    expect(bar()!.childElementCount).toBe(0);
+    expect([...bar()!.children].map(c => c.className)).toEqual(['wr-table__sr-only']);
   });
 
   it.each<WrTableLoadingMode>(['auto', 'overlay', 'bar'])('marks the table busy in %s mode', mode => {
@@ -121,14 +121,14 @@ describe('WrTable loading modes', () => {
     expect(host().getAttribute('aria-busy')).toBeNull();
   });
 
-  it('names both forms with the loading label', () => {
+  it('announces the loading label as text inside both forms', () => {
     drawn('overlay', ROWS);
     expect(overlay()!.getAttribute('role')).toBe('status');
-    expect(overlay()!.getAttribute('aria-label')).toBe('Refreshing');
+    expect(overlay()!.textContent).toContain('Refreshing');
 
     drawn('bar', ROWS);
     expect(bar()!.getAttribute('role')).toBe('status');
-    expect(bar()!.getAttribute('aria-label')).toBe('Refreshing');
+    expect(bar()!.textContent.trim()).toBe('Refreshing');
   });
 
   it('keeps the "no data" row out while a bar runs over an empty table', () => {

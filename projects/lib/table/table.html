@@ -1,11 +1,14 @@
 @switch (loadingForm()) {
   @case ('overlay') {
-    <div class="wr-table__loading" role="status" [attr.aria-label]="resolvedLoadingLabel()">
+    <div class="wr-table__loading" role="status">
+      <span class="wr-table__sr-only">{{ resolvedLoadingLabel() }}</span>
       <wr-spinner size="lg" />
     </div>
   }
   @case ('bar') {
-    <div class="wr-table__loading-bar" role="status" [attr.aria-label]="resolvedLoadingLabel()"></div>
+    <div class="wr-table__loading-bar" role="status">
+      <span class="wr-table__sr-only">{{ resolvedLoadingLabel() }}</span>
+    </div>
   }
 }
 
@@ -69,7 +72,8 @@
 >
   <table
     class="wr-table__table"
-    [class.wr-table__table--fixed]="fixedLayoutActive()"
+    [class.wr-table__table--fixed]="clippedLayout()"
+    [class.wr-table__table--layout-fixed]="layout() === 'fixed'"
     [style.--wr-table-row-h.px]="virtualized() ? effRowH() : null"
     [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
     [attr.role]="treeMode() ? 'treegrid' : editGrid() ? 'grid' : null"
@@ -413,7 +417,16 @@
                       [ngTemplateOutletContext]="cellEdit.context"
                     />
                   } @else if (col.template; as tpl) {
-                    <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="cellContext(entry.row, col)" />
+                    @if (col.actions) {
+                      <div class="wr-table__actions">
+                        <ng-container
+                          [ngTemplateOutlet]="tpl"
+                          [ngTemplateOutletContext]="cellContext(entry.row, col)"
+                        />
+                      </div>
+                    } @else {
+                      <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="cellContext(entry.row, col)" />
+                    }
                   } @else {
                     {{ cellText(entry.row, col.key, col.column) }}
                   }

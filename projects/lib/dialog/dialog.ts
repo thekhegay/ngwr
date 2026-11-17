@@ -22,6 +22,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { WR_BUTTON_SIZE } from 'ngwr/button';
 import { WrI18n } from 'ngwr/i18n';
 import { WrMeta } from 'ngwr/meta';
 import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
@@ -31,7 +32,13 @@ import { WrDialogConfirm } from './confirm/dialog-confirm';
 import type { WrDialogConfirmData } from './confirm/dialog-confirm-data';
 import { WrDialogRef } from './dialog-ref';
 import { WR_DIALOG_DATA, WR_DIALOG_DEFAULTS, WR_DIALOG_REF } from './tokens';
-import type { WrDialogAlertOptions, WrDialogAutoFocus, WrDialogConfirmOptions, WrDialogOptions } from './types';
+import type {
+  WrDialogAlertOptions,
+  WrDialogAutoFocus,
+  WrDialogConfirmOptions,
+  WrDialogOptions,
+  WrDialogSize,
+} from './types';
 
 const DEFAULT_PANEL_CLASS = 'wr-dialog-panel';
 const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
@@ -74,14 +81,29 @@ export class WrDialog {
   private readonly order = inject(WrOverlayOrder);
 
   open<C, R = unknown, D = unknown>(component: ComponentType<C>, options: WrDialogOptions<D> = {}): WrDialogRef<C, R> {
+    return this.mount(component, options, options.size ?? this.defaults.size);
+  }
+
+  private mount<C, R, D>(
+    component: ComponentType<C>,
+    options: WrDialogOptions<D>,
+    size: WrDialogSize | undefined
+  ): WrDialogRef<C, R> {
     const overlayRef: OverlayRef = this.overlay.create({
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
       scrollStrategy: this.scrollStrategies.block(),
       hasBackdrop: true,
       backdropClass: DEFAULT_BACKDROP_CLASS,
-      panelClass: wrToClassList(DEFAULT_PANEL_CLASS, options.panelClass),
+      panelClass: wrToClassList(
+        DEFAULT_PANEL_CLASS,
+        size ? `${DEFAULT_PANEL_CLASS}--${size}` : false,
+        options.panelClass
+      ),
       width: options.width,
+      minWidth: options.minWidth,
       maxWidth: options.maxWidth,
+      height: options.height,
+      maxHeight: options.maxHeight,
     });
 
     // The CDK captures the direction as a string at create and never looks
@@ -109,6 +131,7 @@ export class WrDialog {
         // Provided as its own token as well, so dialog content can reach for
         // the familiar `inject(WrDialogRef)` and close itself.
         { provide: WrDialogRef, useValue: dialogRef },
+        ...(size ? [{ provide: WR_BUTTON_SIZE, useValue: () => size }] : []),
       ],
     });
 
@@ -265,12 +288,12 @@ export class WrDialog {
 
   private ask(options: WrDialogOptions, data: WrDialogConfirmData): Promise<boolean | undefined> {
     const focusInitial = this.autoFocusOf(options) === 'first-tabbable';
-    const ref = this.open<WrDialogConfirm, boolean, WrDialogConfirmData>(WrDialogConfirm, {
-      ...options,
-      role: 'alertdialog',
-      closable: false,
-      data: { ...data, focusInitial },
-    });
+    // Through `mount`, so the app-wide `size` from `withDialog()` stays off a question.
+    const ref = this.mount<WrDialogConfirm, boolean, WrDialogConfirmData>(
+      WrDialogConfirm,
+      { ...options, role: 'alertdialog', closable: false, data: { ...data, focusInitial } },
+      options.size
+    );
     // The root injector going away takes the overlay container with it and
     // completes nothing, which would leave this promise pending for good.
     const unhook = this.destroyRef.onDestroy(() => ref.close());

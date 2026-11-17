@@ -163,6 +163,7 @@ describe('ng g ngwr:eject', () => {
         'public-api.ts',
         'styles/_index.scss',
         'tokens/button-group.token.ts',
+        'tokens/button-size.token.ts',
         'tokens/index.ts',
         'types/button-group-context.ts',
         'types/button-icon-position.ts',
@@ -170,7 +171,7 @@ describe('ng g ngwr:eject', () => {
         'types/button-size.ts',
         'types/index.ts',
       ]);
-      expect(info[0]).toBe(`✓ Copied ngwr/button@${MANIFEST.version} into src/app/ngwr/button (13 files).`);
+      expect(info[0]).toBe(`✓ Copied ngwr/button@${MANIFEST.version} into src/app/ngwr/button (14 files).`);
     });
 
     it('opens every file with where it came from and that ng update no longer reaches it', async () => {

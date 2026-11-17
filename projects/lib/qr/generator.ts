@@ -30,6 +30,9 @@ const ERROR_LEVEL_MAP: Record<WrQrErrorLevel, qrcodegen.QrCode.Ecc> = {
 
 const SCALE = 10;
 
+/** Latest draw per canvas: an icon that finishes loading after a newer draw must not paint. */
+const drawTokens = new WeakMap<HTMLCanvasElement, number>();
+
 function drawBackground(ctx: CanvasRenderingContext2D, width: number, height: number, bgColor: string): void {
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
@@ -82,7 +85,12 @@ function safeIconUrl(raw: string): string | null {
   return name === 'http' || name === 'https' ? url : null;
 }
 
-function overlayIcon(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, options: DrawOptionsInternal): void {
+function overlayIcon(
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  options: DrawOptionsInternal,
+  token: number
+): void {
   const src = safeIconUrl(options.iconUrl!);
   if (src === null) return;
 
@@ -95,6 +103,7 @@ function overlayIcon(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, o
   const coord = canvas.width / 2 - iconPx / 2;
 
   iconImg.onload = (): void => {
+    if (drawTokens.get(canvas) !== token) return;
     ctx.fillStyle = options.bgColor;
     ctx.fillRect(coord, coord, iconPx, iconPx);
     ctx.drawImage(iconImg, coord + 10, coord + 10, iconPx - 20, iconPx - 20);
@@ -136,6 +145,9 @@ function draw(canvas: HTMLCanvasElement, options: DrawOptionsInternal): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  const token = (drawTokens.get(canvas) ?? 0) + 1;
+  drawTokens.set(canvas, token);
+
   canvas.style.width = `${options.size}px`;
   canvas.style.height = `${options.size}px`;
 
@@ -162,7 +174,7 @@ function draw(canvas: HTMLCanvasElement, options: DrawOptionsInternal): void {
   drawModules(ctx, code, padding, options.color);
 
   if (options.iconUrl) {
-    overlayIcon(canvas, ctx, options);
+    overlayIcon(canvas, ctx, options, token);
   }
 }
 

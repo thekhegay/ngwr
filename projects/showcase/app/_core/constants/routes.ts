@@ -339,6 +339,8 @@ export const ROUTES = {
         title: 'wrGetFocusableElements',
       },
       wrTrapFocus: { path: 'wr-trap-focus', title: 'wrTrapFocus' },
+      wrFocusFirstInvalid: { path: 'wr-focus-first-invalid', title: 'wrFocusFirstInvalid' },
+      wrHttpErrorText: { path: 'wr-http-error-text', title: 'wrHttpErrorText' },
       wrAction: { path: 'wr-action', title: 'wrAction' },
       wrDecimal: { path: 'wr-decimal', title: 'wrDecimal' },
       wrDownloadBlob: { path: 'wr-download-blob', title: 'wrDownloadBlob' },

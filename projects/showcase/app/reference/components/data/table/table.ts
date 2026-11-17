@@ -1,9 +1,11 @@
 import { Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { Pencil, Trash2 } from 'lucide';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCopyValue } from 'ngwr/copy-value';
+import { provideWrIcons, wrLucideIcons } from 'ngwr/icon';
 import { WrInput } from 'ngwr/input';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrPopover } from 'ngwr/popover';
@@ -170,6 +172,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     DocCodeComponent,
     DocApiComponent,
   ],
+  providers: [provideWrIcons(wrLucideIcons({ pencil: Pencil, trash: Trash2 }))],
 })
 export default class TablePageComponent {
   protected readonly columns: WrTableColumns = {
@@ -248,7 +251,7 @@ export default class TablePageComponent {
   protected readonly actionColumns: WrTableColumns = {
     name: { title: 'Name' },
     email: { title: 'Email' },
-    actions: { title: '', width: 96 },
+    actions: { title: '', headerHint: 'Actions', actions: true },
   };
 
   protected removeRow(row: Record<string, unknown>): void {
@@ -293,6 +296,28 @@ export default class TablePageComponent {
     seats: { title: 'Seats', align: 'end', sortable: true, headerHint: 'Paid seats on the current plan' },
     alarm: { title: '', width: 56, sortable: true, headerHint: 'Needs attention' },
   };
+
+  protected readonly layoutColumns: WrTableColumns = {
+    name: { title: 'Name', width: 120 },
+    note: { title: 'Note' },
+    role: { title: 'Role on the team', width: 140, truncate: 'tooltip' },
+    seats: { title: 'Seats', align: 'end', width: 80 },
+  };
+  protected readonly layoutRows: readonly Record<string, unknown>[] = [
+    {
+      name: 'Roman',
+      note: 'Owns the release train and signs off every publish to npm',
+      role: 'Maintainer and release manager',
+      seats: 12,
+    },
+    { name: 'Alice', note: 'Design', role: 'Designer', seats: 3 },
+    {
+      name: 'Bob',
+      note: 'Answers the support queue on weekdays, escalates billing to finance',
+      role: 'Support engineer, first line',
+      seats: 5,
+    },
+  ];
 
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
@@ -497,17 +522,6 @@ const columns: WrTableColumns<Invoice> = {
     {{ row.customer }} owes {{ value ?? 'nothing' }}
   </ng-template>
 </wr-table>`,
-    rowActions: `const columns: WrTableColumns = {
-  name: { title: 'Name' },
-  email: { title: 'Email' },
-  actions: { title: '', width: 96 },
-};
-
-<wr-table [columns]="columns" [items]="rows">
-  <ng-template wrTableCell="actions" let-row="item">
-    <wr-btn size="sm" color="danger" outlined (click)="remove(row)">Delete</wr-btn>
-  </ng-template>
-</wr-table>`,
     states: `<wr-table [columns]="columns" [items]="rows()" [loading]="loading()" emptyLabel="No users yet" />
 
 <!-- An error goes beside the table. -->
@@ -536,6 +550,29 @@ const columns: WrTableColumns<Invoice> = {
   seats: { title: 'Seats', align: 'end', sortable: true, headerHint: 'Paid seats on the current plan' },
   // No title: the hint names the column and its sort button.
   alarm: { title: '', width: 56, sortable: true, headerHint: 'Needs attention' },
+};`,
+    layout: `<wr-table layout="fixed" [columns]="columns" [items]="rows" />
+
+protected readonly columns: WrTableColumns = {
+  name: { title: 'Name', width: 120 },
+  // No width: takes what is left, and wraps.
+  note: { title: 'Note' },
+  // Still one line behind an ellipsis.
+  role: { title: 'Role on the team', width: 140, truncate: 'tooltip' },
+  seats: { title: 'Seats', align: 'end', width: 80 },
+};`,
+    rowActions: `<wr-table [columns]="columns" [items]="rows">
+  <ng-template wrTableCell="actions" let-row="item">
+    <wr-btn icon="pencil" size="sm" outlined wrPopover="Edit" mode="tooltip" (click)="edit(row)" />
+    <wr-btn icon="trash" size="sm" color="danger" outlined wrPopover="Delete" mode="tooltip" (click)="remove(row)" />
+  </ng-template>
+</wr-table>
+
+protected readonly columns: WrTableColumns = {
+  name: { title: 'Name' },
+  note: { title: 'Note' },
+  // No title: the hint names the column.
+  actions: { title: '', headerHint: 'Actions', actions: true },
 };`,
     loadingModes: `<!-- 'auto': a spinner over an empty table, a bar over a filled one. -->
 <wr-table [columns]="columns" [items]="rows()" [loading]="refreshing()" />
@@ -999,6 +1036,7 @@ interface WrTableColumn<T = object> {
   format?: (value: unknown, row: T) => string;
   empty?: string;
   truncate?: 'tooltip' | null;
+  actions?: boolean;
   class?: WrClassInput;
 }
 
@@ -1154,6 +1192,13 @@ type WrTableSummaryContext =
       description:
         "'tooltip' cuts the cells to one line and shows a cut cell's full text in a tooltip. `null` turns the table's `truncate` off for the column. Since v16.1.",
       type: "'tooltip' | null",
+      sub: true,
+    },
+    {
+      name: 'actions',
+      description:
+        'A column of row actions: its template renders in one row at the end of the cell, and the column shrinks to it. Since v16.6.',
+      type: 'boolean',
       sub: true,
     },
     {

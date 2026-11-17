@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Layout"
+  updated="16.6.0"
   description="An app shell: header, sider, content and footer."
   [keywords]="['layout', 'shell', 'header', 'sider', 'wr-layout']"
   [labels]="['Composite']"
@@ -38,6 +39,93 @@
           <wr-layout-content>Main content area</wr-layout-content>
         </wr-layout>
       </wr-layout>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Content padding"
+    description="`wr-layout-content` pads itself with `--wr-layout-content-padding`, one length. Set the hook on the element instead of undoing the padding with negative margins. A `wr-page-header` with `bleed` reads it to reach the edges."
+  >
+    <ngwr-doc-code [code]="snippets.padding" language="scss" />
+    <ngwr-doc-snippet code="">
+      <wr-layout
+        style="height: 10rem; border: 1px solid var(--wr-border-base); border-radius: 0.5rem; overflow: hidden"
+      >
+        <wr-layout-header>App bar</wr-layout-header>
+        <wr-layout-content style="--wr-layout-content-padding: var(--wr-space-md)">Main content area</wr-layout-content>
+      </wr-layout>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Print"
+    description="On paper the header and the sider are hidden and the content takes the full width. The footer prints."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Hidden in print</th>
+            <th scope="col">By the sheet of</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>wr-layout-header</code>, <code>wr-layout-sider</code></th>
+            <td><code>ngwr/layout</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-sidebar</code></th>
+            <td><code>ngwr/sidebar</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-back-top</code></th>
+            <td><code>ngwr/back-top</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-speed-dial</code></th>
+            <td><code>ngwr/speed-dial</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Toasts</th>
+            <td><code>ngwr/toast</code></td>
+          </tr>
+          <tr>
+            <th scope="row">The loading bar</th>
+            <td><code>ngwr/loading-bar</code></td>
+          </tr>
+          <tr>
+            <th scope="row">A running tour</th>
+            <td><code>ngwr/tour</code></td>
+          </tr>
+          <tr>
+            <th scope="row">An open tooltip</th>
+            <td><code>ngwr/popover</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A sticky <code>wr-page-header</code> prints in the flow. Dialogs, drawers, popovers and menus print as they are.
+      Hide anything else with <code>class="wr-no-print"</code>, and show a block on paper only with
+      <code>class="wr-print-only"</code>; both come with <code>ngwr/theme</code>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Print this page"
+    description="The toolbar carries `.wr-no-print` and the line under the text carries `.wr-print-only`. Open the print preview to see the toolbar gone and the line there."
+  >
+    <ngwr-doc-snippet [code]="snippets.print">
+      <wr-card>
+        <wr-card-header>
+          <div class="wr-no-print">
+            <button wr-btn type="button" color="primary" (click)="print()">Print this page</button>
+          </div>
+        </wr-card-header>
+        <p>Q3 report. The toolbar above stays on screen only.</p>
+        <p class="wr-print-only">Printed from ngwr.dev</p>
+      </wr-card>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

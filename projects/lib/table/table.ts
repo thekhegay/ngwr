@@ -85,6 +85,7 @@ import type {
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableGroupContext,
+  WrTableLayout,
   WrTableLoadingMode,
   WrTableRow,
   WrTableRowClass,
@@ -144,6 +145,8 @@ interface CellColumn<T extends WrTableRow> {
   readonly width: number | null;
   /** The `width` a truncated column's cells are capped at. */
   readonly maxWidth: number | null;
+  /** Whether its template renders inside `.wr-table__actions`. */
+  readonly actions: boolean;
   /** Whether its cell names the row (see `labelColumnKey`). */
   readonly label: boolean;
   /** Whether its cell carries the tree indent and toggle. */
@@ -281,8 +284,12 @@ function isNgTemplateElement(tpl: TemplateRef<unknown>): boolean {
   return tag === undefined || tag === 'ng-template';
 }
 
-function cellClasses(base: 'wr-table__th' | 'wr-table__td', column: Pick<WrTableColumn, 'align' | 'class'>): string {
-  const own = column.align ? `${base} ${base}--align-${column.align}` : base;
+function cellClasses(
+  base: 'wr-table__th' | 'wr-table__td',
+  column: Pick<WrTableColumn, 'actions' | 'align' | 'class'>
+): string {
+  const aligned = column.align ? `${base} ${base}--align-${column.align}` : base;
+  const own = column.actions ? `${aligned} ${base}--actions` : aligned;
   return column.class ? wrToClassList(own, column.class).join(' ') : own;
 }
 
@@ -955,23 +962,28 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return this.rows()?.length ?? 0;
   });
 
+  /**
+   * The page the table shows. Clamped at BOTH ends, because `page` is a model the
+   * host owns (a `model()` takes no transform) and the data can shrink under it,
+   * which used to leave an empty slice with no way back except paging by hand.
+   * Below 1 the offset goes negative and `Array.slice` reads a negative start
+   * from the END; `|| 1` folds `0` and `NaN` in.
+   */
+  protected readonly shownPage = computed<number>(() => {
+    const page = Math.max(1, this.page() || 1);
+    const size = this.currentPageSize();
+    const items = this.rows();
+    if (!items || size <= 0 || this.total() !== null) return page;
+    return Math.min(page, Math.max(1, Math.ceil(items.length / size)));
+  });
+
   /** Items visible on the current page (client mode slices; server mode passes through). */
   protected readonly visibleItems = computed<readonly Record<string, unknown>[] | null | undefined>(() => {
     const items = this.rows();
     if (!items) return items;
     const size = this.currentPageSize();
     if (size <= 0 || this.total() !== null) return items;
-    // Clamped at BOTH ends, because `page` is a model the host owns (a `model()`
-    // takes no transform) and the data can shrink under it — a filter or a delete
-    // used to leave the table showing an empty slice with no way back except
-    // paging by hand. The pager clamps its own number downwards only, and it is
-    // not even rendered once the data drops below one page. Below 1 the offset
-    // goes negative, and `Array.slice` reads a negative start from the END: page
-    // 0 emptied the table and page -1 rendered a window counted from the back,
-    // with the pager highlighting nothing. `|| 1` folds `0` and `NaN` in.
-    const lastPage = Math.max(1, Math.ceil(items.length / size));
-    const page = Math.min(Math.max(1, this.page() || 1), lastPage);
-    const start = (page - 1) * size;
+    const start = (this.shownPage() - 1) * size;
     return items.slice(start, start + size);
   });
 
@@ -996,6 +1008,11 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   protected onPagerPage(page: number): void {
+    // The pager clamps its own number after the data shrinks and reports it; that is not a reader action.
+    if (page === this.shownPage()) {
+      if (page !== this.page()) this.page.set(page);
+      return;
+    }
     this.page.set(page);
     this.readerChanges.update(n => n + 1);
   }
@@ -1283,6 +1300,14 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         );
       });
     }
+
+    // Write a clamped page back so `[(page)]` and the pager agree with the rows. An empty
+    // dataset is left alone: a host may set the page before its rows arrive.
+    effect(() => {
+      const shown = this.shownPage();
+      if (shown === this.page() || !this.rows()?.length) return;
+      untracked(() => this.page.set(shown));
+    });
 
     // One `stateChange` per pass, however many parts one action wrote.
     effect(() => {
@@ -1574,6 +1599,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         end: pins.right.get(key) ?? null,
         width: resized.get(key) ?? column.width ?? null,
         maxWidth: truncates ? (column.width ?? null) : null,
+        actions: !!column.actions,
         label: key === labelKey,
         tree: key === treeKey,
         template: templates.get(key),
@@ -1599,11 +1625,22 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * cut cell's full text in a tooltip on hover and focus; a cell that fits
    * shows none. A column's own `truncate` wins, and `null` there turns it off
    * for that column. A cell is cut only where its column cannot grow: give the
-   * column a `width`, or the table a fixed layout (a resized or virtualized
-   * one has it).
+   * column a `width`, or the table a fixed layout (`layout="fixed"`, and a
+   * resized or virtualized one has it).
    * @default null
    */
   readonly truncate = input<WrTableTruncate | null>(null);
+
+  /**
+   * How the columns are sized. `'auto'` lets the browser size each column to
+   * its content. `'fixed'` keeps every column at its `width`, shares what is
+   * left between the columns without one, and wraps the text of the header and
+   * body cells: sorting or paging never moves a column. A column's
+   * `truncate` still cuts its cells to one line. Resizing works in both; a
+   * virtualized table keeps its one-line rows.
+   * @default 'auto'
+   */
+  readonly layout = input<WrTableLayout>('auto');
 
   /**
    * A column's name for its controls: the title, the hint after it, or the hint
@@ -1842,9 +1879,18 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return this.renderRows().slice(start, end);
   });
 
-  /** Fixed layout is on when a resize drag latched it OR virtualization forces it. */
+  /** Whether the columns hold their widths: `layout="fixed"`, a resize latch, virtualization or an edit hold. */
   protected readonly fixedLayoutActive = computed<boolean>(
-    () => this.fixedLayout() || this.virtualFixed() || this.editHeld()
+    () => this.layout() === 'fixed' || this.fixedLayout() || this.virtualFixed() || this.editHeld()
+  );
+
+  /**
+   * The fixed layout that also cuts every cell to one line, `.wr-table__table--fixed`.
+   * A virtualized body needs it for its row height. A resize or an edit hold
+   * takes it only over `layout="auto"`, where the cells did not wrap before.
+   */
+  protected readonly clippedLayout = computed<boolean>(
+    () => this.virtualFixed() || (this.layout() !== 'fixed' && (this.fixedLayout() || this.editHeld()))
   );
 
   /** Scroll a flat row index to the top of the virtual viewport. No-op on the server / when not virtual. */
@@ -2846,7 +2892,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * titles, then one row per item in the current column order. A cell is what
    * the plain cell shows: the column's `empty` for a missing value, its
    * `format` over the value, else the raw value. A `[wrTableCell]` template is
-   * not run, so a column drawn by one exports its `format` or its data.
+   * not run, so a column drawn by one exports its `format` or its data. An
+   * `actions` column has no data and is left out.
    *
    * Covers the current `items`, so in server-side mode (`total` set) it
    * exports the current page, while client-side pagination exports every page.
@@ -2861,7 +2908,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   toCsv(options: WrTableCsvOptions = {}): string {
     const delimiter = options.delimiter ?? ',';
     const escapeFormulas = options.escapeFormulas ?? true;
-    const cols = this.displayColumns();
+    const cols = this.displayColumns().filter(col => !col.column.actions);
     const rows = options.selectedOnly ? this.selectedRows() : this.datasetRows();
     const text = (value: unknown): string => {
       if (value == null) return '';

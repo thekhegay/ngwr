@@ -59,7 +59,7 @@ export const API = {
   ],
   // <[wrAutofocus]>
   WrAutofocus: [
-    { name: "wrAutofocus", description: "Truthy = focus. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },
+    { name: "wrAutofocus", description: "Truthy = focus the host, `'first'` = focus the first focusable element inside it. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },
   ],
   // <textarea[wrAutosize]>
   WrAutosize: [
@@ -147,6 +147,7 @@ export const API = {
   WrBreadcrumbs: [
     { name: "separator", description: "Separator glyph between items. Any short string.", type: "string", default: "'/'" },
     { name: "ariaLabel", description: "Accessible label for the `nav` landmark. Falls back to `breadcrumbs.label`, then `'Breadcrumbs'`.", type: "string | null", default: "null" },
+    { name: "truncate", description: "Keep every item on one line and end a long one in an ellipsis. A linked item is cut at `--wr-breadcrumbs-item-max-width` (16rem). The current item is cut at `--wr-breadcrumbs-current-max-width`, `none` by default, so it is cut only where it is wider than the trail. A cut item shows its full text as a `title` on hover.", type: "boolean", default: "false" },
   ],
   // <wr-breadcrumbs-item>
   WrBreadcrumbsItem: [
@@ -183,7 +184,7 @@ export const API = {
   // <wr-btn, button[wr-btn], a[wr-btn]>
   WrButton: [
     { name: "color", description: "Color variant. Omit for the neutral default style.", type: "WrColor | null", default: "null" },
-    { name: "size", description: "Size variant.", type: "WrButtonSize", default: "'md'" },
+    { name: "size", description: "Size variant. `null` (default) takes the size a container provides through `WR_BUTTON_SIZE`, such as a sized dialog, and `md` outside one. A size set here always wins.", type: "WrButtonSize | null", default: "null" },
     { name: "shape", description: "Corner treatment — `rounded`, `pill` or `squircle`. `null` (default) falls back to `rounded`. Inside a `<wr-btn-group shape=\"…\">`, the group's shape ALWAYS wins over this input — the group enforces a consistent corner treatment across its members.", type: "WrButtonShape | null", default: "null" },
     { name: "icon", description: "Icon name to render alongside the label. The icon is hidden while `loading` is `true` so the spinner can take its place.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Position of the icon relative to the label.", type: "WrButtonIconPosition", default: "'start'" },
@@ -301,6 +302,7 @@ export const API = {
     { name: "disabled", description: "Disable the cascader. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes while the trigger stays focusable and the path still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only cascader simply does not open — there is nothing to browse that is not already on the trigger — and the clear button goes away with it. Mirrored as `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrCascaderSize", default: "'md'" },
+    { name: "block", description: "Stretch the cascader to fill its parent's width.", type: "boolean", default: "false" },
     { name: "rounded", description: "Pill-shaped corners on the trigger.", type: "boolean", default: "false" },
     { name: "clearable", description: "Show a clear-all (×) button on the trigger when a path is selected.", type: "boolean", default: "true" },
     { name: "changeOnSelect", description: "Allow selecting non-leaf (parent) nodes. When `false`, only leaves (nodes without children) commit a selection.", type: "boolean", default: "false" },
@@ -519,6 +521,7 @@ export const API = {
     { name: "showSeconds", description: "Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panel.", type: "number", default: "1" },
     { name: "size", description: "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrDatePickerSize", default: "'md'" },
+    { name: "block", description: "Stretch the field to fill its parent's width. The panel keeps its size.", type: "boolean", default: "false" },
     { name: "rounded", description: "Pill-shaped corners on the field. The panel keeps its shape.", type: "boolean", default: "false" },
     { name: "clearable", description: "Show a clear (×) button once a date is picked. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
     { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
@@ -547,6 +550,7 @@ export const API = {
     { name: "showSeconds", description: "Show seconds, in the time panels and in both fields, unless `format` is set. Applies in `datetime` mode.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panels.", type: "number", default: "1" },
     { name: "size", description: "Control size — forwarded to each field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrDatePickerSize", default: "'md'" },
+    { name: "block", description: "Stretch the field to fill its parent's width. The panel keeps its size.", type: "boolean", default: "false" },
     { name: "rounded", description: "Pill-shaped corners on the field. The panel keeps its shape.", type: "boolean", default: "false" },
     { name: "clearable", description: "Show a clear (×) button once either end is picked. It is a pointer control: from the keyboard, emptying both fields clears the value.", type: "boolean", default: "false" },
     { name: "presets", description: "One-click ranges, drawn as a list of buttons on the start side of the panel. A click commits the range, closes the panel and emits `touch`, in both modes. The preset whose range equals the value is marked pressed, and one that reaches outside `minDate` / `maxDate` is disabled. The labels are the app's: the library ships none. A range function is called when the panel opens, with today in the display time zone. `wrLastDays`, `wrThisWeek`, `wrThisMonth` and `wrLastMonth` return one. See {@link WrDateRangePreset} for what each mode commits.", type: "readonly WrDateRangePreset[]", default: "[]" },
@@ -799,6 +803,11 @@ export const API = {
     { name: "clickSplash", description: "Whether a click or a tap splashes the ink outward from the point.", type: "boolean", default: "true" },
     { name: "quality", description: "How finely the fluid is simulated: the grids and the pressure solve.", type: "WrFluidCursorQuality", default: "'medium'" },
   ],
+  // <[wrForm]>
+  WrForm: [
+    { name: "inline", description: "Lay the fields out in a wrapping row, aligned on their bottom edge. `columns` is ignored.", type: "boolean", default: "false" },
+    { name: "columns", description: "How many equal columns a row holds. Below a form width of `30rem` every field takes a full row.", type: "number", default: "1" },
+  ],
   // <wr-form-error>
   WrFormError: [
     { name: "key", description: "Validator key this message corresponds to (e.g. `'required'`). Optional — without a key the message always renders, which is the plain inline-error usage inside `<wr-form-item>`.", type: "string" },
@@ -807,7 +816,7 @@ export const API = {
   WrFormField: [
     { name: "label", description: "Label text shown above the control.", type: "string", default: "''" },
     { name: "hint", description: "Hint text shown below the control. Hidden when an error is visible.", type: "string", default: "''" },
-    { name: "required", description: "Show a `*` next to the label.", type: "boolean", default: "false" },
+    { name: "required", description: "Show a `*` next to the label and set `aria-required` on the projected control.", type: "boolean", default: "false" },
     { name: "optional", description: "Show an \"optional\" marker next to the label — the word comes from `optionalLabel`. Mutually exclusive with `required`.", type: "boolean", default: "false" },
     { name: "optionalLabel", description: "Word inside the optional marker's parentheses. Falls back to `form.optional`, then `'optional'`. The parentheses are the template's, so no locale has to repeat punctuation.", type: "string | null", default: "null" },
     { name: "controlId", description: "Force a specific id on the label's `for` attribute. Auto-generated otherwise, and adopted by the projected `wrInput` unless that element already carries an `id` of its own.", type: "string", default: "`wr-form-field-${++uid}`" },
@@ -816,6 +825,10 @@ export const API = {
   // <wr-form-item>
   WrFormItem: [
     { name: "hasError", description: "When `true`, applies error coloring to the projected label and inputs.", type: "boolean", default: "false" },
+  ],
+  // <[wrFormSpan]>
+  WrFormSpan: [
+    { name: "wrFormSpan", description: "Columns to span. Empty or `'full'` takes the whole row.", type: "number | 'full'", default: "'full'" },
   ],
   // <wr-funnel-chart>
   WrFunnelChart: [
@@ -951,6 +964,7 @@ export const API = {
     { name: "decimals", description: "Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the digits shown once the field reformats on blur. `null` keeps the entered precision and formats with up to 20. Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` / `maximumFractionDigits` accept — because it is the one numeric input on this component that had no transform, and the value goes straight into the formatter, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
     { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
     { name: "size", description: "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract.", type: "WrInputSize", default: "'md'" },
+    { name: "block", description: "Stretch the field to fill its parent's width.", type: "boolean", default: "false" },
     { name: "rounded", description: "Pill-shaped corners — forwarded to the group AND the field.", type: "boolean", default: "false" },
     { name: "prefix", description: "Optional prefix label (e.g. `\"$\"`).", type: "string", default: "''" },
     { name: "suffix", description: "Optional suffix label (e.g. `\"kg\"`).", type: "string", default: "''" },
@@ -1152,6 +1166,7 @@ export const API = {
     { name: "responsive", description: "Stack the title and actions vertically when the header's own box is too narrow to sit them side by side (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
     { name: "compact", description: "One-line head: the breadcrumbs beside the title instead of above it, the subtitle after the title, a smaller title. Wraps when there is no room.", type: "boolean", default: "false" },
     { name: "sticky", description: "Keep the header in view while the page scrolls (`position: sticky` at `--wr-page-header-sticky-top`, under `--wr-page-header-sticky-z`).", type: "boolean", default: "false" },
+    { name: "bleed", description: "Run over the padding of the box the header tops, to the top and both side edges, by `--wr-page-header-bleed` (the content padding inside `wr-layout-content`, zero elsewhere until set).", type: "boolean", default: "false" },
   ],
   // <wr-pagination>
   WrPagination: [
@@ -1194,7 +1209,7 @@ export const API = {
   // <[wrPopover]>
   WrPopover: [
     { name: "wrPopover", description: "Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.", type: "TemplateRef<unknown> | string", required: true },
-    { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover / keyboard-focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host.", type: "'popover' | 'tooltip'", default: "'popover'" },
+    { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover / keyboard-focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host. A button or link host with no accessible name (no text, `aria-label`, `aria-labelledby` or `title`) is named by the text instead, through `aria-label`, and gets no `aria-describedby`. Your own `aria-label` always wins; when it equals the text, the host is not described by it a second time.", type: "'popover' | 'tooltip'", default: "'popover'" },
     { name: "trigger", description: "How the popover opens. Ignored in tooltip mode — a tooltip is always hover plus keyboard focus. A `hover` popover still opens from the keyboard, with Enter or Space on the trigger, and then takes focus the way a click one does.", type: "'click' | 'hover'", default: "'click'" },
     { name: "position", description: "Anchor side.", type: "WrPopoverPosition | null", default: "'bottom' for popover, 'top' for tooltip" },
     { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
@@ -1270,9 +1285,12 @@ export const API = {
   // <wr-radio-group>
   WrRadioGroup: [
     { name: "name", description: "Shared `name` attribute. Defaults to a random id so multiple groups on the same page don't collide. (Also the `FormUiControl.name` slot.)", type: "string", default: "wrRandomId('wr-radio-group')" },
+    { name: "options", description: "Option array. Each item is rendered as a `<wr-radio>` whose value is the item, or `[valueWith]` of it, and whose label comes from `[displayWith]`, before any projected `<wr-radio>` children.", type: "readonly T[]", default: "[]" },
+    { name: "displayWith", description: "Maps an `[options]` item to its label.", type: "(item: T) => string", default: "String" },
+    { name: "valueWith", description: "Maps an `[options]` item to the value the model holds, so a list of objects can bind an id. Values are compared with `===`. Without it an item is its own value.", type: "((item: T) => V) | null", default: "null" },
     { name: "disabled", description: "Disable the whole group. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse selection changes while every option stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Native radios ignore the `readonly` attribute, so the group cancels the activation instead and mirrors the state as `aria-readonly`, which role `radiogroup` supports.", type: "boolean", default: "false" },
-    { name: "value", description: "The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "null" },
+    { name: "value", description: "The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`.", type: "V | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur from any child so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-rating>
@@ -1382,6 +1400,7 @@ export const API = {
     { name: "disabled", description: "Disable the whole control. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes while every segment stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. NOTHING is mirrored into ARIA here, deliberately: the strip is a `role=\"group\"` of `aria-pressed` buttons, and ARIA defines `aria-readonly` for neither role — it is a state of `checkbox` / `radiogroup` / `textbox` and their kin, and it is not global. `aria-disabled` is the only attribute that would apply to a button, and it says the wrong thing: these segments are still focusable and the value still submits. So the state is honest in the DOM (`wr-segmented--readonly`) and silent in the accessibility tree rather than announced with a word that means something else.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSegmentedSize", default: "'md'" },
+    { name: "block", description: "Stretch the strip to fill its parent's width, shared equally by the segments.", type: "boolean", default: "false" },
   ],
   // <wr-select>
   WrSelect: [
@@ -1390,13 +1409,15 @@ export const API = {
     { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — `role=\"combobox\"` on an empty trigger otherwise has no name at all, which is the common case before anything is selected.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the select. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes while the trigger stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only select does not open — and with it go the clear button, the chip ×, the tag draft and the search query. The text-input shapes take the native `readonly` attribute, which is what keeps them focusable and selectable where `disabled` would not; every shape mirrors `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
+    { name: "block", description: "Stretch the select to fill its parent's width.", type: "boolean", default: "false" },
     { name: "rounded", description: "Pill-shaped corners on the trigger.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract. Read by the trigger's host classes AND by the overlay panel, which builds its size modifier separately.", type: "WrSelectSize", default: "'md'" },
     { name: "mode", description: "Behavior mode. `<wr-select>` is the unified combobox primitive — pick the shape via `[mode]`: - `'single'` (default) — one value, no input. Classic dropdown. - `'multi'` — array value, chips on the trigger. - `'search'` — type-ahead with sync filter or async loader. - `'tag'` — free-text + chips.", type: "WrSelectMode | null", default: "null" },
     { name: "searchable", description: "Add a type-ahead filter without changing the value shape — the missing multi-with-search combination, since `[mode]` picks exactly one shape: ```html <wr-select mode=\"multi\" searchable [(value)]=\"categories\">…</wr-select> ``` On `multi` the trigger keeps its chips and grows an inline text field (the shape `tag` mode already uses); on `single` it is equivalent to `mode=\"search\"`. Every search input (`[loader]`, `[debounceMs]`, `[minChars]`, the `(searchChange)` output, …) applies either way. Ignored in `tag` mode, which owns its own input.", type: "boolean", default: "false" },
     { name: "searchQuery", description: "The live search query. Empty string = no filter. Exposed via context so each `<wr-option>` can self-hide non-matching rows. Two-way bindable, so the query can be owned or reset from outside: `[(searchQuery)]=\"query\"`. For server-side search prefer the debounced {@link searchChange} output — `searchQueryChange` fires on every keystroke.", type: "string", default: "''" },
-    { name: "options", description: "Option array, in every mode with a panel. Each item is rendered as a `<wr-option>` whose value is the item and whose label comes from `[displayWith]`, before any projected `<wr-option>` children; a search query filters both lists alike. Ignored in `tag` mode, which has no panel.", type: "readonly T[]", default: "[]" },
+    { name: "options", description: "Option array, in every mode with a panel. Each item is rendered as a `<wr-option>` whose value is the item, or `[valueWith]` of it, and whose label comes from `[displayWith]`, before any projected `<wr-option>` children; a search query filters both lists alike. Ignored in `tag` mode, which has no panel.", type: "readonly T[]", default: "[]" },
     { name: "displayWith", description: "Maps an `[options]` item to its label: on its row, on the trigger when it is selected, on its chip in multi mode.", type: "(item: T) => string", default: "String" },
+    { name: "valueWith", description: "Maps an `[options]` item, or a `[loader]` result, to the value the model holds, so a list of objects can bind an id. The trigger and the chips show the label of the item whose value matches. Values are compared with `===`. Without it an item is its own value. Not read by `freeText`, which commits the typed string, or by `tag` mode, which has no options.", type: "((item: T) => V) | null", default: "null" },
     { name: "loader", description: "Search mode: async loader. When set, the loader is called on every (debounced) keystroke and its result replaces `[options]`. Supports Observables, Promises, and plain arrays.", type: "WrSelectSearchLoader<T> | null", default: "null" },
     { name: "serverSearch", description: "The option list is already scoped to the query upstream — skip the built-in client-side label filter. Set it when `[options]` is fed from a server via the {@link searchChange} output; the async `[loader]` path implies it. Without this, a server that ranks or fuzzy-matches (returning rows whose labels don't literally contain the query) would have those rows hidden again on the client.", type: "boolean", default: "false" },
     { name: "debounceMs", description: "Search mode: debounce (ms) applied to the loader.", type: "number", default: "250" },
@@ -1424,7 +1445,7 @@ export const API = {
     { name: "selectAll", description: "Multi mode: a first, pinned \"Select all\" row in the panel. It toggles every enabled option the panel is offering, so under a search only the ones the query matches, and with `virtualScroll` the whole filtered list rather than the rendered rows. It adds in display order and stops at `maxItems`; a second press, with nothing left to add, takes the offered options out again. A selection the search is hiding is never touched. The row is a `role=\"option\"`, since a listbox owns nothing else, and says its state through `aria-checked`: `true` when every offered option is selected, `mixed` when some are, `false` when none. The arrows and Home reach it like any row and Enter or Space toggles it. Not drawn in single mode, in tag mode, or while the panel offers no option.", type: "boolean", default: "false" },
     { name: "selectAllLabel", description: "Text of the select-all row. Falls back to `select.selectAll`, then `'Select all'`.", type: "string | null", default: "null" },
     { name: "maxTagCount", description: "Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.", type: "number", default: "0" },
-    { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly T[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | readonly T[] | null", default: "null" },
+    { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly V[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "V | readonly V[] | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
     { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
     { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
@@ -1626,7 +1647,8 @@ export const API = {
     { name: "stickyHeader", description: "Gives the table its own vertical scroll area, with the header row stuck to its top and the summary footer to its bottom, in every mode: plain, paged, grouped, tree, with pinned columns or selection. The pager stays below the scroll area. `viewportHeight` sizes it. A virtualized table already scrolls this way, so the input adds nothing there.", type: "boolean", default: "false" },
     { name: "viewportHeight", description: "Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a short table shrinks to fit; a long one caps and scrolls). `'fill'` takes the height the parent has left instead: the parent must be a flex column with a definite height (every flex ancestor up the chain needs `min-height: 0`), or a block with a definite height. The table then never shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the server prerender the exact first window of a virtualized table.", type: "number | string", default: "480" },
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
-    { name: "truncate", description: "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (a resized or virtualized one has it).", type: "WrTableTruncate | null", default: "null" },
+    { name: "truncate", description: "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (`layout=\"fixed\"`, and a resized or virtualized one has it).", type: "WrTableTruncate | null", default: "null" },
+    { name: "layout", description: "How the columns are sized. `'auto'` lets the browser size each column to its content. `'fixed'` keeps every column at its `width`, shares what is left between the columns without one, and wraps the text of the header and body cells: sorting or paging never moves a column. A column's `truncate` still cuts its cells to one line. Resizing works in both; a virtualized table keeps its one-line rows.", type: "WrTableLayout", default: "'auto'" },
     { name: "editable", description: "Vetoes the edit of single cells: called with the row and the column key, `false` keeps that cell read-only. Asked only for a column that has a `[wrTableEditCell]` template and does not say `editable: false`.", type: "WrTableEditable<T> | null", default: "null" },
     { name: "(cellEdit)", description: "Emits when a cell edit commits with a value other than the cell's own. The table does not write it: update the data behind `items` in the handler.", type: "WrTableCellEdit<T>" },
   ],
@@ -1840,6 +1862,7 @@ export const API = {
     { name: "align", description: "Horizontal alignment.", type: "WrTypographyAlign | null", default: "null" },
     { name: "truncate", description: "Truncate to single line with ellipsis.", type: "boolean", default: "false" },
     { name: "mono", description: "Render with monospace font.", type: "boolean", default: "false (auto-true for `code`)" },
+    { name: "numeric", description: "Tabular digits: every digit takes the same width, so amounts line up in a column.", type: "boolean", default: "false" },
   ],
   // <wr-virtual-scroll>
   WrVirtualScroll: [

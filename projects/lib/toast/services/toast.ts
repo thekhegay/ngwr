@@ -25,6 +25,8 @@ import type { WrToastOptions, WrToastPosition } from '../types';
  * Global defaults come from {@link WR_TOAST_CONFIG}; register
  * `provideWr(withToast(...))` once at bootstrap to customise. Each
  * `show()` call accepts per-toast overrides via {@link WrToastOptions}.
+ * `info()`, `success()`, `warning()` and `danger()` are `show()` with the
+ * type set and the message first.
  *
  * @example
  * ```ts
@@ -35,6 +37,7 @@ import type { WrToastOptions, WrToastPosition } from '../types';
  * toast.show({ message: 'Permalink copied', position: 'bottom', showCopy: true });
  * toast.show({ message: 'Item deleted', action: { label: 'Undo', run: () => restore() } });
  * toast.show({ type: 'danger', message: 'Door forced', outlet: 'alarms' });
+ * toast.success('Profile updated.', { title: 'Saved' });
  * ```
  *
  * @see https://ngwr.dev/reference/components/toast
@@ -102,6 +105,26 @@ export class WrToast {
     this.pushToHost();
 
     return ref;
+  }
+
+  /** An `info` toast: `show({ ...options, message, type: 'info' })`. */
+  info(message: string, options?: Omit<WrToastOptions, 'message' | 'type'>): WrToastRef {
+    return this.show({ ...options, message, type: 'info' });
+  }
+
+  /** A `success` toast: `show({ ...options, message, type: 'success' })`. */
+  success(message: string, options?: Omit<WrToastOptions, 'message' | 'type'>): WrToastRef {
+    return this.show({ ...options, message, type: 'success' });
+  }
+
+  /** A `warning` toast: `show({ ...options, message, type: 'warning' })`. */
+  warning(message: string, options?: Omit<WrToastOptions, 'message' | 'type'>): WrToastRef {
+    return this.show({ ...options, message, type: 'warning' });
+  }
+
+  /** A `danger` toast: `show({ ...options, message, type: 'danger' })`. */
+  danger(message: string, options?: Omit<WrToastOptions, 'message' | 'type'>): WrToastRef {
+    return this.show({ ...options, message, type: 'danger' });
   }
 
   /** Dismiss a single toast by id, in whichever stack holds it. */

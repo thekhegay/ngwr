@@ -382,6 +382,10 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   private detect(): boolean {
     const el = this.host.nativeElement;
+    if (el.disabled || el.readOnly) {
+      this.close();
+      return false;
+    }
     const caret = el.selectionStart ?? 0;
     const text = el.value.substring(0, caret);
     const triggers = this.triggers();
@@ -611,6 +615,10 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     if (!state) return;
 
     const el = this.host.nativeElement;
+    if (el.disabled || el.readOnly) {
+      this.close();
+      return;
+    }
     const value = el.value;
     const caret = el.selectionStart ?? value.length;
     const valueFn = this.valueWith();

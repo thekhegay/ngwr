@@ -1,0 +1,11 @@
+<h2 wrDialogTitle>Rename lamp</h2>
+<div wrDialogContent>
+  <p>The name shows in the room list and in every automation that uses this lamp.</p>
+  <wr-form-field label="Name">
+    <input wrInput value="Desk lamp" [size]="size" />
+  </wr-form-field>
+</div>
+<div wrDialogFooter>
+  <wr-btn wrDialogClose>Cancel</wr-btn>
+  <wr-btn color="primary" [wrDialogClose]="true">Save</wr-btn>
+</div>

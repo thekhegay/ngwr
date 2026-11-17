@@ -72,18 +72,14 @@ export class WrSortableItem {
    * Position among the list's rows, which IS the index into `items()`: the
    * consumer's own loop renders them in that order.
    *
-   * `indexOf` resolves by DOCUMENT ORDER over a plain array and touches no
-   * signal, so the `computed` needs a producer that changes whenever a position
-   * can. That producer is the `items` ARRAY, not its length: a reorder keeps the
-   * count, so a length-keyed index stayed on the slot the row had left, the
-   * highlight stayed behind with it, and a second pick-up of the same row moved
-   * its old neighbour instead. Host bindings run after the consumer's `@for`
-   * has moved the nodes, so the recomputation reads the new order.
+   * `positionOf` resolves by DOCUMENT ORDER and is keyed on the `items` ARRAY,
+   * not its length: a reorder keeps the count, so a length-keyed index stayed
+   * on the slot the row had left, the highlight stayed behind with it, and a
+   * second pick-up of the same row moved its old neighbour instead. Host
+   * bindings run after the consumer's `@for` has moved the nodes, so the
+   * recomputation reads the new order.
    */
-  protected readonly index = computed(() => {
-    this.list.items();
-    return this.list.indexOf(this);
-  });
+  protected readonly index = computed(() => this.list.positionOf(this));
 
   protected readonly grabbed = computed(() => this.list.grabbedIndex() === this.index());
 

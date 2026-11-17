@@ -5,6 +5,7 @@ import { ApplicationRef, Component, EnvironmentInjector, PLATFORM_ID, inject, si
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
+import { WrButton } from 'ngwr/button';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { WrMeta, withMeta } from 'ngwr/meta';
 import { WrOverlayOrder } from 'ngwr/overlay';
@@ -218,6 +219,35 @@ describe('WrDialog', () => {
 
     expect(panel()!.style.width).toBe('24rem');
     expect(panel()!.style.maxWidth).toBe('90vw');
+  });
+
+  it('applies the minimum width and the height options to the panel', async () => {
+    await open({ minWidth: '32rem', height: '60vh', maxHeight: '80vh' });
+
+    expect(panel()!.style.minWidth).toBe('32rem');
+    expect(panel()!.style.height).toBe('60vh');
+    expect(panel()!.style.maxHeight).toBe('80vh');
+  });
+
+  it.each(['sm', 'md', 'lg'] as const)('marks the panel with the %s size', async size => {
+    await open({ size });
+
+    expect(panel()!.classList.contains(`wr-dialog-panel--${size}`)).toBe(true);
+    expect(panel()!.style.width).toBe('');
+  });
+
+  it('leaves the panel unsized without a size', async () => {
+    await open();
+
+    expect(panel()!.className).not.toMatch(/wr-dialog-panel--(sm|md|lg)/);
+    expect(panel()!.style.width).toBe('');
+  });
+
+  it('lets an explicit width win over the width of the size, and keeps its scale', async () => {
+    await open({ size: 'lg', width: '24rem' });
+
+    expect(panel()!.style.width).toBe('24rem');
+    expect(panel()!.classList.contains('wr-dialog-panel--lg')).toBe(true);
   });
 
   it('hands WR_DIALOG_DATA to the mounted component', async () => {
@@ -628,6 +658,164 @@ describe('WrDialog panel gutter', () => {
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-width:\s*calc\(100vw - 2rem\)/);
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-height:\s*calc\(100dvh - 2rem\)/);
     expect(rules('.wr-dialog-panel')).not.toMatch(/max-(width|height)/);
+  });
+
+  it('gives each size its own width hook', () => {
+    expect(rules('.wr-dialog-panel')).toMatch(/--wr-dialog-width-sm:\s*28rem/);
+    expect(rules('.wr-dialog-panel')).toMatch(/--wr-dialog-width-md:\s*40rem/);
+    expect(rules('.wr-dialog-panel')).toMatch(/--wr-dialog-width-lg:\s*56rem/);
+    for (const size of ['sm', 'md', 'lg']) {
+      expect(rules(`.wr-dialog-panel--${size}`)).toMatch(new RegExp(`width:\\s*var\\(--wr-dialog-width-${size}\\)`));
+    }
+  });
+
+  it('scales the hooks at sm and lg and leaves md on the defaults', () => {
+    const hooks = (size: string): string[] =>
+      [...rules(`.wr-dialog-panel--${size}`).matchAll(/(--wr-dialog-[\w-]+):/g)].map(m => m[1]).sort();
+    const scaled = [
+      '--wr-dialog-content-font-size',
+      '--wr-dialog-content-line-height',
+      '--wr-dialog-footer-gap',
+      '--wr-dialog-intent-size',
+      '--wr-dialog-padding-x',
+      '--wr-dialog-padding-y',
+      '--wr-dialog-title-font-size',
+    ];
+
+    expect(hooks('md')).toEqual([]);
+    expect(hooks('sm')).toEqual(['--wr-dialog-close-font-size', '--wr-dialog-close-padding', ...scaled]);
+    expect(hooks('lg')).toEqual(['--wr-dialog-close-font-size', ...scaled]);
+  });
+
+  it('keeps the dismiss button a 24px target at sm', () => {
+    // The box is the glyph plus the padding on both sides: 0.875rem + (1.5rem - 0.875rem).
+    expect(rules('.wr-dialog-panel--sm')).toMatch(/--wr-dialog-close-font-size:\s*var\(--wr-text-sm\)/);
+    expect(rules('.wr-dialog-panel--sm')).toMatch(
+      /--wr-dialog-close-padding:\s*calc\(\(1\.5rem - var\(--wr-text-sm\)\) \/ 2\)/
+    );
+  });
+
+  it('grows the content into the room a height leaves', () => {
+    expect(rules('.wr-dialog__content')).toMatch(/flex:\s*1 1 auto/);
+    expect(rules('.wr-dialog__content')).toMatch(/overflow:\s*auto/);
+  });
+});
+
+@Component({
+  imports: [WrButton, WrDialogTitle, WrDialogFooter],
+  template: `
+    <h2 wrDialogTitle>Edit lamp</h2>
+    <div wrDialogFooter>
+      <button type="button" wr-btn id="unset">Cancel</button>
+      <button type="button" wr-btn id="own" size="sm">Reset</button>
+      <button type="button" wr-btn id="mid" size="md">Save</button>
+    </div>
+  `,
+})
+class WithButtons {}
+
+describe('WrDialog size and the buttons inside', () => {
+  let dialogs: WrDialog;
+
+  const sizeOf = (selector: string): string[] =>
+    [...document.querySelector<HTMLElement>(selector)!.classList].filter(name => /^wr-btn--(sm|md|lg)$/.test(name));
+  const settle = (): Promise<void> => TestBed.inject(ApplicationRef).whenStable();
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    dialogs = TestBed.inject(WrDialog);
+  });
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('gives a button with no size the size of the dialog, and lets its own size win', async () => {
+    dialogs.open(WithButtons, { size: 'lg' });
+    await settle();
+
+    expect(sizeOf('#unset')).toEqual(['wr-btn--lg']);
+    expect(sizeOf('#own')).toEqual(['wr-btn--sm']);
+    expect(sizeOf('#mid')).toEqual([]);
+  });
+
+  it.each([undefined, 'md'] as const)('leaves the buttons at md with size %s', async size => {
+    dialogs.open(WithButtons, { size });
+    await settle();
+
+    expect(sizeOf('#unset')).toEqual([]);
+    expect(sizeOf('#own')).toEqual(['wr-btn--sm']);
+  });
+
+  it('hands the app default from withDialog to the buttons of open()', async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDialog({ size: 'sm' }))] });
+    TestBed.inject(WrDialog).open(WithButtons);
+    await settle();
+
+    expect(sizeOf('#unset')).toEqual(['wr-btn--sm']);
+  });
+
+  it.each(['sm', 'lg'] as const)('renders the buttons of confirm() at %s', async size => {
+    void dialogs.confirm({ title: 'Delete?', size });
+    await settle();
+
+    expect(sizeOf('.wr-dialog-confirm__action--cancel')).toEqual([`wr-btn--${size}`]);
+    expect(sizeOf('.wr-dialog-confirm__action--confirm')).toEqual([`wr-btn--${size}`]);
+  });
+
+  it('renders the button of alert() at the size it was given', async () => {
+    void dialogs.alert({ title: 'Saved', size: 'sm' });
+    await settle();
+
+    expect(sizeOf('.wr-dialog-confirm__action--ok')).toEqual(['wr-btn--sm']);
+  });
+
+  it('leaves the buttons of confirm() at md without a size', async () => {
+    void dialogs.confirm({ title: 'Delete?' });
+    await settle();
+
+    expect(sizeOf('.wr-dialog-confirm__action--confirm')).toEqual([]);
+  });
+});
+
+describe('WrDialog size default', () => {
+  const panel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-dialog-panel')!;
+  const setup = (...features: WrFeature[]): WrDialog => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(...features)] });
+    return TestBed.inject(WrDialog);
+  };
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('takes the app default from withDialog, and a per-dialog value wins', () => {
+    const dialogs = setup(withDialog({ size: 'md' }));
+
+    const first = dialogs.open(Confirm);
+    expect(panel().classList.contains('wr-dialog-panel--md')).toBe(true);
+    first.close();
+
+    dialogs.open(Confirm, { size: 'sm' });
+    expect(panel().classList.contains('wr-dialog-panel--sm')).toBe(true);
+    expect(panel().classList.contains('wr-dialog-panel--md')).toBe(false);
+  });
+
+  it('lets an explicit width win over the app default', () => {
+    setup(withDialog({ size: 'md' })).open(Confirm, { width: '24rem' });
+
+    expect(panel().style.width).toBe('24rem');
+    expect(panel().classList.contains('wr-dialog-panel--md')).toBe(true);
+  });
+
+  it('keeps the app default off confirm(), which takes its own size', async () => {
+    const dialogs = setup(withDialog({ size: 'md' }));
+
+    const plain = dialogs.confirm({ title: 'Delete?' });
+    expect(panel().className).not.toMatch(/wr-dialog-panel--(sm|md|lg)/);
+    TestBed.resetTestingModule();
+    await plain;
+
+    void setup(withDialog({ size: 'md' })).confirm({ title: 'Delete?', size: 'sm' });
+    expect(panel().classList.contains('wr-dialog-panel--sm')).toBe(true);
   });
 });
 

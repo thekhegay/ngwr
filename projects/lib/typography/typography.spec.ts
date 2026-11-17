@@ -9,7 +9,15 @@ import { WrTypography } from './typography';
 @Component({
   imports: [WrTypography],
   template: `
-    <h1 wrTypography [variant]="variant()" [tone]="tone()" [align]="align()" [truncate]="truncate()" [mono]="mono()">
+    <h1
+      wrTypography
+      [variant]="variant()"
+      [tone]="tone()"
+      [align]="align()"
+      [truncate]="truncate()"
+      [mono]="mono()"
+      [numeric]="numeric()"
+    >
       Build interfaces
     </h1>
     <!-- Same bound variant, plus a class of the consumer's own — see the last case. -->
@@ -22,6 +30,7 @@ class Host {
   readonly align = signal<WrTypographyAlign | null>(null);
   readonly truncate = signal(false);
   readonly mono = signal(false);
+  readonly numeric = signal(false);
 }
 
 /** The way a consumer actually writes it: static attributes on native elements. */
@@ -32,7 +41,8 @@ class Host {
     <code wrTypography variant="code">inject(WrTheme)</code>
     <span wrTypography variant="caption" truncate>v10.0.0</span>
     <em wrTypography variant="small" mono>1.21.0</em>
-    <b wrTypography truncate="false" mono="false">Static false</b>
+    <b wrTypography truncate="false" mono="false" numeric="false">Static false</b>
+    <i wrTypography numeric>1,204.50</i>
     <ul wrTypography variant="list">
       <li>One</li>
       <li>Two</li>
@@ -212,6 +222,41 @@ describe('WrTypography', () => {
     expect(classes()).toEqual(['wr-typography', 'wr-typography--body', 'wr-typography--mono']);
   });
 
+  it('sets tabular digits on request, and stops when asked to stop', () => {
+    fixture.componentInstance.numeric.set(true);
+    fixture.detectChanges();
+    expect(classes()).toEqual(['wr-typography', 'wr-typography--body', 'wr-typography--numeric']);
+
+    fixture.componentInstance.numeric.set(false);
+    fixture.detectChanges();
+    expect(classes()).toEqual(['wr-typography', 'wr-typography--body']);
+  });
+
+  it('applies `numeric` and `mono` together', () => {
+    fixture.componentInstance.numeric.set(true);
+    fixture.componentInstance.mono.set(true);
+    fixture.detectChanges();
+
+    expect(classes()).toEqual([
+      'wr-typography',
+      'wr-typography--body',
+      'wr-typography--mono',
+      'wr-typography--numeric',
+    ]);
+  });
+
+  it('reads a bare `numeric` attribute as true', () => {
+    const plain = TestBed.createComponent(PlainHost);
+    plain.detectChanges();
+
+    expect([...(plain.nativeElement as HTMLElement).querySelector('i')!.classList].sort()).toEqual([
+      'wr-typography',
+      'wr-typography--body',
+      'wr-typography--numeric',
+    ]);
+    plain.destroy();
+  });
+
   it('keeps `code` monospace even when mono is explicitly false', () => {
     // Documented as auto-true for `code`, so the input is an opt-IN and never an
     // opt-out — a plain `mono() && …` would quietly hand back a proportional font.
@@ -228,6 +273,7 @@ describe('WrTypography', () => {
     fixture.componentInstance.align.set('center');
     fixture.componentInstance.truncate.set(true);
     fixture.componentInstance.mono.set(true);
+    fixture.componentInstance.numeric.set(true);
     fixture.detectChanges();
 
     expect(classes()).toEqual([
@@ -235,6 +281,7 @@ describe('WrTypography', () => {
       'wr-typography--align-center',
       'wr-typography--h2',
       'wr-typography--mono',
+      'wr-typography--numeric',
       'wr-typography--tone-primary',
       'wr-typography--truncate',
     ]);

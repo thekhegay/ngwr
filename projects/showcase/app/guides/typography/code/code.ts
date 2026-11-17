@@ -31,6 +31,8 @@ export default class TypographyCodePage {
     mono: `<p wrTypography [mono]="true">
   Forces monospace on any variant — useful for ids, paths, version tags.
 </p>`,
+    numeric: `<p wrTypography numeric>1,111,111.11</p>
+<p wrTypography numeric>8,888,888.88</p>`,
     tones: `<code wrTypography variant="code" tone="primary">ROUTES.docs.installation.path</code>
 <code wrTypography variant="code" tone="success">200 OK</code>
 <code wrTypography variant="code" tone="danger">500 Server Error</code>`,

@@ -95,6 +95,22 @@ html {
   scroll-padding-block-start: calc(var(--app-bar-height) + 4rem);
 }`;
 
+  protected readonly bleed = `<wr-layout-content>
+  <wr-page-header sticky bleed compact title="Invoices">
+    <div wrPageHeaderActions>…</div>
+    <div wrPageHeaderFilters>
+      <wr-select placeholder="Status">…</wr-select>
+      <input wrInput placeholder="Search invoices" />
+    </div>
+  </wr-page-header>
+  …
+</wr-layout-content>`;
+
+  protected readonly bleedScss = `// A shell of your own: say how far the header runs.
+.app-content wr-page-header {
+  --wr-page-header-bleed: var(--wr-space-lg);
+}`;
+
   protected readonly api = API.WrPageHeader;
 
   protected readonly related: readonly DocSeeAlsoLink[] = [

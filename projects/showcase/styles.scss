@@ -21,6 +21,7 @@
 @use 'styles/cards';
 @use 'styles/section';
 @use 'styles/demo';
+@use 'styles/print';
 
 // The showcase's focus ring, for the prose links below. Declares no rules.
 @use 'styles/mixins' as site;

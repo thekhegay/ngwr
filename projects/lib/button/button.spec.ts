@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, type Provider, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import type { WrColor } from 'ngwr/theme';
@@ -7,6 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { compileSass } from '../spec-sass';
 
 import { WrButton } from './button';
+import { WrButtonGroup } from './button-group';
+import { WR_BUTTON_SIZE } from './tokens';
 import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 @Component({
@@ -218,6 +220,88 @@ describe('WrButton modifiers', () => {
     host.shape.set('rounded');
     fixture.detectChanges();
     expect(classesOf('#bound')).toEqual(['wr-btn']);
+  });
+});
+
+@Component({
+  imports: [WrButton, WrButtonGroup],
+  template: `
+    <wr-btn id="unset">Unset</wr-btn>
+    <wr-btn id="own" size="sm">Own</wr-btn>
+    <wr-btn id="mid" size="md">Explicit md</wr-btn>
+    <wr-btn id="bound" [size]="size()">Bound</wr-btn>
+    <wr-btn-group [shape]="shape()">
+      <wr-btn id="grouped" shape="squircle">Grouped</wr-btn>
+    </wr-btn-group>
+  `,
+})
+class SizeHost {
+  readonly size = signal<WrButtonSize | null>(null);
+  readonly shape = signal<WrButtonShape | null>('pill');
+}
+
+describe('WrButton default size from a container', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SizeHost>>;
+
+  const mount = (providers: Provider[] = []): SizeHost => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers });
+    fixture = TestBed.createComponent(SizeHost);
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  };
+
+  const classesOf = (id: string): string[] => {
+    const el = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`#${id}`)!;
+    return [...el.classList].sort();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('is md with no extra class outside a container', () => {
+    mount();
+
+    expect(classesOf('unset')).toEqual(['wr-btn']);
+    expect(classesOf('bound')).toEqual(['wr-btn']);
+    expect(classesOf('own')).toEqual(['wr-btn', 'wr-btn--sm']);
+  });
+
+  it('takes the size the container provides, and its own size wins', () => {
+    mount([{ provide: WR_BUTTON_SIZE, useValue: () => 'lg' }]);
+
+    expect(classesOf('unset')).toEqual(['wr-btn', 'wr-btn--lg']);
+    expect(classesOf('own')).toEqual(['wr-btn', 'wr-btn--sm']);
+    expect(classesOf('mid')).toEqual(['wr-btn']);
+  });
+
+  it('goes back to the size of the container when its own is unset again', () => {
+    const host = mount([{ provide: WR_BUTTON_SIZE, useValue: () => 'lg' }]);
+    host.size.set('sm');
+    fixture.detectChanges();
+    expect(classesOf('bound')).toEqual(['wr-btn', 'wr-btn--sm']);
+
+    host.size.set(null);
+    fixture.detectChanges();
+    expect(classesOf('bound')).toEqual(['wr-btn', 'wr-btn--lg']);
+  });
+
+  it('follows a container whose size is a signal', () => {
+    const size = signal<WrButtonSize | null>('sm');
+    mount([{ provide: WR_BUTTON_SIZE, useValue: size }]);
+    expect(classesOf('unset')).toEqual(['wr-btn', 'wr-btn--sm']);
+
+    size.set(null);
+    fixture.detectChanges();
+    expect(classesOf('unset')).toEqual(['wr-btn']);
+  });
+
+  it('keeps the shape of a wr-btn-group over the shape of its buttons', () => {
+    const host = mount([{ provide: WR_BUTTON_SIZE, useValue: () => 'lg' }]);
+    expect(classesOf('grouped')).toEqual(['wr-btn', 'wr-btn--lg', 'wr-btn--pill']);
+
+    host.shape.set(null);
+    fixture.detectChanges();
+    expect(classesOf('grouped')).toEqual(['wr-btn', 'wr-btn--lg']);
   });
 });
 

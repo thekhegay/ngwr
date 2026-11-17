@@ -63,6 +63,13 @@
     --wr-segmented-option-py: 0.1875rem; // 3px
   }
 
+  // Layout
+  &--block,
+  &:where([block]:not([block='false'])) {
+    display: grid;
+    width: 100%;
+  }
+
   &__thumb {
     position: absolute;
     top: var(--wr-segmented-padding);

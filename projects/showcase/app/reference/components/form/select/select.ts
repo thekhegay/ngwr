@@ -125,12 +125,28 @@ protected readonly plan = signal<Plan | null>(null);
 protected readonly planName = (plan: Plan): string => plan.name;
 
 <wr-select placeholder="Pick a plan" [options]="plans" [displayWith]="planName" [(value)]="plan" />`,
+    valueWith: `protected readonly planKey = signal<string | null>('team');
+protected readonly planName = (plan: Plan): string => plan.name;
+protected readonly planId = (plan: Plan): string => plan.id;
+
+<wr-select
+  placeholder="Pick a plan"
+  [options]="plans"
+  [displayWith]="planName"
+  [valueWith]="planId"
+  [(value)]="planKey"
+/>`,
     position: `<wr-select placeholder="Opens above" position="top" [(value)]="size">
   <wr-option value="sm">Small</wr-option>
   <wr-option value="md">Medium</wr-option>
   <wr-option value="lg">Large</wr-option>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
+    block: `<wr-select block placeholder="Full width" [(value)]="size">
+  <wr-option value="sm">Small</wr-option>
+  <wr-option value="md">Medium</wr-option>
+  <wr-option value="lg">Large</wr-option>
+</wr-select>`,
     multi: `<wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
@@ -292,6 +308,8 @@ categoryId.setValue(2);`,
   ];
   protected readonly plan = signal<Plan | null>(null);
   protected readonly planName = (plan: Plan): string => plan.name;
+  protected readonly planKey = signal<string | null>('team');
+  protected readonly planId = (plan: Plan): string => plan.id;
 
   protected readonly countries = [
     'Australia',
@@ -425,7 +443,7 @@ categoryId.setValue(2);`,
     {
       name: '(valueChange)',
       description: 'The `[(value)]` half. Bound automatically by `[formField]` / `[(ngModel)]`.',
-      type: 'T | readonly T[] | null',
+      type: 'V | readonly V[] | null',
       default: '—',
     },
     {

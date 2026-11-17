@@ -1,6 +1,8 @@
 import { Component, signal } from '@angular/core';
 
+import { Pencil, Trash2 } from 'lucide';
 import { WrButton } from 'ngwr/button';
+import { provideWrIcons, wrLucideIcons } from 'ngwr/icon';
 import { WrPopover } from 'ngwr/popover';
 
 import {
@@ -24,6 +26,7 @@ import { API } from '#core/generated/api';
     DocCodeComponent,
     DocApiComponent,
   ],
+  providers: [provideWrIcons(wrLucideIcons({ pencil: Pencil, trash: Trash2 }))],
 })
 export default class PopoverPageComponent {
   protected readonly off = signal(true);
@@ -40,6 +43,11 @@ export default class PopoverPageComponent {
 </ng-template>`,
     hover: `<wr-btn [wrPopover]="card" trigger="hover">Hover me</wr-btn>`,
     positions: `<wr-btn [wrPopover]="hint" position="right">Right</wr-btn>`,
+    iconOnly: `<!-- One string: the accessible name and the tooltip -->
+<wr-btn icon="pencil" [wrPopover]="'Edit'" mode="tooltip" />
+
+<!-- Your own name wins; the tooltip then describes -->
+<wr-btn icon="trash" aria-label="Delete file" [wrPopover]="'Cannot be undone'" mode="tooltip" />`,
     tooltip: `<wr-btn [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>`,
     origin: `@Component({
   imports: [WrPopover],

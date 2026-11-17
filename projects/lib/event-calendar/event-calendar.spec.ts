@@ -7,7 +7,7 @@ import { Subject } from 'rxjs';
 import { provideWr } from 'ngwr';
 import { WrDateAdapter, withDates } from 'ngwr/date';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrEventCalendar } from './event-calendar';
 import type { WrCalendarEvent, WrCalendarEventChange, WrCalendarSlot, WrCalendarView } from './types';
@@ -1005,5 +1005,162 @@ describe('WrEventCalendar with a few hundred events', () => {
     expect(week.length).toBeGreaterThan(25);
     expect(week.length).toBeLessThan(MANY.length / 4);
     expect(rendered()).toEqual(expected);
+  });
+});
+
+@Component({
+  imports: [WrEventCalendar],
+  template: `
+    <wr-event-calendar
+      editable
+      view="day"
+      [events]="events()"
+      [date]="date()"
+      [dayEndHour]="24"
+      (slotClick)="slot.set($event)"
+      (eventChange)="changed.set($event)"
+    />
+  `,
+})
+class DstHost {
+  readonly events = signal<readonly WrCalendarEvent[]>([]);
+  readonly date = signal(new Date(0));
+  readonly slot = signal<WrCalendarSlot | null>(null);
+  readonly changed = signal<WrCalendarEventChange | null>(null);
+}
+
+/**
+ * Wall-clock placement on days whose length is not 24 hours. The calendar reads
+ * the browser's zone (see `withDates({ timeZone })`), so the spec moves the
+ * process zone to `Europe/Berlin` for its duration.
+ */
+describe('WrEventCalendar time grid on DST days', () => {
+  const zone = process.env['TZ'];
+  beforeAll(() => {
+    process.env['TZ'] = 'Europe/Berlin';
+  });
+  afterAll(() => {
+    if (zone === undefined) delete process.env['TZ'];
+    else process.env['TZ'] = zone;
+  });
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DstHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const rowOf = (el: Element): string => el.closest<HTMLElement>('[data-cell-minutes]')!.dataset['cellMinutes']!;
+  const clock = (date: Date): string =>
+    new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' }).format(date);
+
+  const mount = (events: readonly WrCalendarEvent[], date: Date): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates())] });
+    fixture = TestBed.createComponent(DstHost);
+    fixture.componentInstance.events.set(events);
+    fixture.componentInstance.date.set(date);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  describe('on the spring-forward day', () => {
+    const tenOclock = new Date(Date.UTC(2026, 2, 29, 8, 0));
+    const event: WrCalendarEvent = {
+      id: 'ten',
+      title: 'Ten',
+      start: tenOclock,
+      end: new Date(Date.UTC(2026, 2, 29, 9, 0)),
+    };
+
+    it('draws a 10:00 event in the 10:00 row', () => {
+      mount([event], tenOclock);
+
+      expect(rowOf(root().querySelector('.wr-event-calendar__chip--time')!)).toBe('600');
+    });
+
+    it('creates the slot of the row that was clicked', () => {
+      mount([], tenOclock);
+      root().querySelector<HTMLElement>('[data-cell-minutes="600"]')!.click();
+
+      const slot = fixture.componentInstance.slot()!;
+      expect(clock(slot.start)).toBe('10:00');
+      expect(clock(slot.end)).toBe('10:30');
+    });
+
+    it('moves an event by wall-clock rows with Alt and an arrow', () => {
+      mount([event], tenOclock);
+      const chip = root().querySelector<HTMLElement>('.wr-event-calendar__chip--time')!;
+      chip.focus();
+      chip.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, bubbles: true, cancelable: true })
+      );
+      fixture.detectChanges();
+
+      expect(clock(fixture.componentInstance.changed()!.start)).toBe('10:30');
+    });
+  });
+
+  describe('on the fall-back day', () => {
+    // 25 hours long: the last hour is 23:00 to 24:00 Berlin time, which ends 24 hours and 60 minutes after midnight.
+    const lateEvent: WrCalendarEvent = {
+      id: 'late',
+      title: 'Late',
+      start: new Date(Date.UTC(2026, 9, 25, 22, 30)),
+      end: new Date(Date.UTC(2026, 9, 25, 23, 0)),
+    };
+
+    it('shows an event in the last hour of the day', () => {
+      mount([lateEvent], new Date(Date.UTC(2026, 9, 25, 12, 0)));
+
+      const chip = root().querySelector('.wr-event-calendar__chip--time');
+      expect(chip).not.toBeNull();
+      expect(rowOf(chip!)).toBe('1410');
+    });
+  });
+});
+
+describe('WrEventCalendar with a display time zone', () => {
+  const zone = process.env['TZ'];
+  beforeAll(() => {
+    process.env['TZ'] = 'America/New_York';
+  });
+  afterAll(() => {
+    if (zone === undefined) delete process.env['TZ'];
+    else process.env['TZ'] = zone;
+  });
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DstHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const row = (minutes: number): HTMLElement => root().querySelector<HTMLElement>(`[data-cell-minutes="${minutes}"]`)!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ timeZone: 'Asia/Tokyo' }))] });
+    fixture = TestBed.createComponent(DstHost);
+    // 09:00 to 09:30 on 14 January 2026, Tokyo time.
+    fixture.componentInstance.events.set([
+      {
+        id: 'tokyo',
+        title: 'Tokyo',
+        start: new Date(Date.UTC(2026, 0, 14, 0, 0)),
+        end: new Date(Date.UTC(2026, 0, 14, 0, 30)),
+      },
+    ]);
+    fixture.componentInstance.date.set(new Date(Date.UTC(2026, 0, 14, 3, 0)));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('draws an event in its row on the display zone clock', () => {
+    const chip = root().querySelector('.wr-event-calendar__chip--time')!;
+    expect(chip.closest('[data-cell-minutes]')).toBe(row(540));
+  });
+
+  it('turns a click on a row into that time in the display zone', () => {
+    row(600).click();
+    fixture.detectChanges();
+
+    const slot = fixture.componentInstance.slot()!;
+    expect(slot.start.getTime()).toBe(Date.UTC(2026, 0, 14, 1, 0));
+    expect(slot.end.getTime()).toBe(Date.UTC(2026, 0, 14, 1, 30));
   });
 });

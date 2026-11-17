@@ -80,6 +80,13 @@ const HOOKS: [entry: string, block: string, element: string, hook: string, md: s
   ['transfer', 'wr-transfer', 'head', '--wr-transfer-head-padding-y', 'var(--wr-space-sm)'],
   ['transfer', 'wr-transfer', 'title', '--wr-transfer-title-font-size', 'var(--wr-text-sm)'],
   ['transfer', 'wr-transfer', 'item', '--wr-transfer-item-padding-x', 'var(--wr-space-sm)'],
+  ['dialog', 'wr-dialog-panel', '', '--wr-dialog-padding-y', 'var(--wr-space-lg)'],
+  ['dialog', 'wr-dialog-panel', '', '--wr-dialog-padding-x', 'var(--wr-space-lg)'],
+  ['dialog', 'wr-dialog-panel', '', '--wr-dialog-title-font-size', 'var(--wr-text-lg)'],
+  ['dialog', 'wr-dialog-panel', '', '--wr-dialog-content-font-size', 'var(--wr-text-base)'],
+  ['dialog', 'wr-dialog-panel', '', '--wr-dialog-close-font-size', 'var(--wr-text-base)'],
+  ['dialog', 'wr-dialog-panel', '', '--wr-dialog-footer-gap', 'var(--wr-space-sm)'],
+  ['dialog', 'wr-dialog-panel', '', '--wr-dialog-intent-size', '1.25rem'],
 ];
 
 /** Hooks only `lg` moves: at `sm` the part is already at the smallest target it may be. */

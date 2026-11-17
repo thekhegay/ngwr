@@ -1,8 +1,8 @@
 <ngwr-doc-page
   title="Form"
-  updated="15.0.0"
-  description="A plain layout wrapper for a label, a control and its error."
-  [keywords]="['form', 'wr-form-item', 'wr-form-error']"
+  updated="16.6.0"
+  description="The layout of a form's fields, and a plain wrapper for a label, a control and its error."
+  [keywords]="['form', 'wrForm', 'wrFormSpan', 'wr-form-item', 'wr-form-error']"
   [labels]="['Component']"
 >
   <ngwr-doc-section title="Which wrapper — item or field?">
@@ -61,6 +61,192 @@
         </div>
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Layout"
+    description="`wrForm` on the container spaces its fields: `wr-form-field`, `wr-form-item` or any other child. A form without it is untouched."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Mode</th>
+            <th scope="col">Markup</th>
+            <th scope="col">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Column</th>
+            <td><code>wrForm</code></td>
+            <td>One field per row, <code>--wr-form-gap</code> between them.</td>
+          </tr>
+          <tr>
+            <th scope="row">Inline</th>
+            <td><code>wrForm inline</code></td>
+            <td>A wrapping row, aligned on the bottom edge.</td>
+          </tr>
+          <tr>
+            <th scope="row">Columns</th>
+            <td><code>wrForm columns="2"</code></td>
+            <td>Rows of equal columns. One column once the form is narrower than <code>30rem</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Column">
+    <ngwr-doc-snippet [code]="snippets.column">
+      <div wrForm style="width: 100%; max-width: 24rem">
+        <wr-form-field label="Name"><input wrInput /></wr-form-field>
+        <wr-form-field label="Email"><input wrInput type="email" /></wr-form-field>
+        <div><wr-btn color="primary">Save</wr-btn></div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Inline" description="For a filter bar. The fields keep their own width and wrap.">
+    <ngwr-doc-snippet [code]="snippets.inline">
+      <div wrForm inline style="width: 100%">
+        <wr-form-field label="From"><input wrInput type="date" /></wr-form-field>
+        <wr-form-field label="To"><input wrInput type="date" /></wr-form-field>
+        <wr-btn color="primary">Apply</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Columns"
+    description="`wrFormSpan` stretches a field over the whole row, or over two columns with a value of `2`. The width that counts is the form's own, not the viewport's."
+  >
+    <ngwr-doc-snippet [code]="snippets.columns">
+      <div wrForm columns="2">
+        <wr-form-field label="First name"><input wrInput /></wr-form-field>
+        <wr-form-field label="Last name"><input wrInput /></wr-form-field>
+        <wr-form-field label="Address" wrFormSpan><input wrInput /></wr-form-field>
+        <wr-form-field label="Longitude"><input wrInput /></wr-form-field>
+        <wr-form-field label="Latitude"><input wrInput /></wr-form-field>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Profile form"
+    description="Two columns, with the textarea and the actions row spanning the whole row. A nested `inline` form puts the buttons side by side."
+  >
+    <ngwr-doc-snippet [code]="snippets.profile">
+      <form wrForm columns="2">
+        <wr-form-field label="First name" required><input wrInput placeholder="Ada" /></wr-form-field>
+        <wr-form-field label="Last name" required><input wrInput placeholder="Lovelace" /></wr-form-field>
+        <wr-form-field label="Email" wrFormSpan>
+          <input wrInput type="email" placeholder="ada@example.com" />
+        </wr-form-field>
+        <wr-form-field label="Country">
+          <wr-select placeholder="Pick a country" [(value)]="country">
+            <wr-option value="gb">United Kingdom</wr-option>
+            <wr-option value="de">Germany</wr-option>
+            <wr-option value="kz">Kazakhstan</wr-option>
+          </wr-select>
+        </wr-form-field>
+        <wr-form-field label="Date of birth"><wr-date-picker [(value)]="birthday" /></wr-form-field>
+        <wr-form-field label="About you" optional wrFormSpan>
+          <wr-textarea [rows]="3" placeholder="A few words about you" [(value)]="bio" />
+        </wr-form-field>
+        <wr-checkbox wrFormSpan [(checked)]="newsletter">Send me product news</wr-checkbox>
+        <div wrForm inline wrFormSpan>
+          <button wr-btn type="button" color="primary">Save</button>
+          <button wr-btn type="button">Cancel</button>
+        </div>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Filter bar"
+    description="`inline` keeps each field at its own width on one line, and wraps when the bar gets narrow."
+  >
+    <ngwr-doc-snippet [code]="snippets.filters">
+      <form wrForm inline>
+        <wr-form-field label="Search"><input wrInput type="search" placeholder="Order or customer" /></wr-form-field>
+        <wr-form-field label="Status">
+          <wr-select placeholder="Any" [(value)]="status">
+            <wr-option value="open">Open</wr-option>
+            <wr-option value="paid">Paid</wr-option>
+            <wr-option value="refunded">Refunded</wr-option>
+          </wr-select>
+        </wr-form-field>
+        <wr-form-field label="Created"><wr-date-range-picker [(value)]="range" /></wr-form-field>
+        <button wr-btn type="button" color="primary">Apply</button>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Three columns"
+    description='`wrFormSpan="2"` takes two of the three columns, so the field beside it fills the third.'
+  >
+    <ngwr-doc-snippet [code]="snippets.threeColumns">
+      <form wrForm columns="3">
+        <wr-form-field label="Street" wrFormSpan="2"><input wrInput placeholder="12 Abay Ave" /></wr-form-field>
+        <wr-form-field label="Apartment"><input wrInput placeholder="34" /></wr-form-field>
+        <wr-form-field label="City"><input wrInput placeholder="Almaty" /></wr-form-field>
+        <wr-form-field label="Region"><input wrInput /></wr-form-field>
+        <wr-form-field label="Postcode"><input wrInput placeholder="050000" /></wr-form-field>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Gap"
+    description="`--wr-form-gap` sets the space between fields, rows and columns alike. Set it on the form or above it."
+  >
+    <ngwr-doc-snippet [code]="snippets.gapDemo">
+      <form wrForm columns="2" style="--wr-form-gap: var(--wr-space-xs)">
+        <wr-form-field label="First name"><input wrInput /></wr-form-field>
+        <wr-form-field label="Last name"><input wrInput /></wr-form-field>
+        <wr-form-field label="Email" wrFormSpan><input wrInput type="email" /></wr-form-field>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Inline alignment"
+    description="By default an inline row lines up on the bottom edge, so a field with an error pushes its input up and the row looks ragged. `--wr-form-inline-align: flex-start` lines up the labels instead."
+  >
+    <ngwr-doc-snippet [code]="snippets.align">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Bottom edge (default)</p>
+          <form wrForm inline>
+            <wr-form-field label="Name">
+              <input wrInput [formControl]="name" />
+              <wr-form-error key="required">Name is required.</wr-form-error>
+            </wr-form-field>
+            <wr-form-field label="City"><input wrInput /></wr-form-field>
+          </form>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">flex-start</p>
+          <form wrForm inline style="--wr-form-inline-align: flex-start">
+            <wr-form-field label="Name">
+              <input wrInput [formControl]="name" />
+              <wr-form-error key="required">Name is required.</wr-form-error>
+            </wr-form-field>
+            <wr-form-field label="City"><input wrInput /></wr-form-field>
+          </form>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Form Layout API">
+    <ngwr-doc-api [rows]="layoutApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Form Span API">
+    <ngwr-doc-api [rows]="spanApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Form Item API">

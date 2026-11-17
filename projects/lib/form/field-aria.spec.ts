@@ -2,8 +2,10 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, form, minLength, required } from '@angular/forms/signals';
 
+import { WrCheckbox } from 'ngwr/checkbox';
 import { WrFileUpload } from 'ngwr/file-upload';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { WrInput } from 'ngwr/input';
 import { WrInputOtp } from 'ngwr/input-otp';
 import { WrKnob } from 'ngwr/knob';
 import { WrRating } from 'ngwr/rating';
@@ -239,5 +241,46 @@ describe('a field label over a role-based control', () => {
       expect.stringMatching(/^Attachments Click to browse/),
       'Explicit wins',
     ]);
+  });
+});
+
+@Component({
+  imports: [WrFormField, WrInput, WrTextarea, WrCheckbox],
+  template: `
+    <wr-form-field label="Name" [required]="required()"><input wrInput /></wr-form-field>
+    <wr-form-field label="Native" [required]="required()"><input wrInput required /></wr-form-field>
+    <wr-form-field label="Own" [required]="required()"><input wrInput aria-required="false" /></wr-form-field>
+    <wr-form-field label="Bio" [required]="required()"><wr-textarea /></wr-form-field>
+    <wr-form-field label="Terms" [required]="required()"><wr-checkbox>Agree</wr-checkbox></wr-form-field>
+  `,
+})
+class RequiredHost {
+  readonly required = signal(true);
+}
+
+describe('useFormFieldAria aria-required', () => {
+  it('marks the projected control while the field is required, and drops it again', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(RequiredHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const attrs = (): (string | null)[] =>
+      ['input:not([required]):not([aria-required="false"])', 'textarea', 'input[type="checkbox"]'].map(q =>
+        root.querySelector(q)!.getAttribute('aria-required')
+      );
+
+    expect(attrs()).toEqual(['true', 'true', 'true']);
+    // Native `required` already says it; a hand-written value stays.
+    expect(root.querySelector('input[required]')!.hasAttribute('aria-required')).toBe(false);
+    expect(
+      root
+        .querySelector('input[aria-required]:not([required]):not([aria-required="true"])')!
+        .getAttribute('aria-required')
+    ).toBe('false');
+
+    fixture.componentInstance.required.set(false);
+    fixture.detectChanges();
+    expect(attrs()).toEqual([null, null, null]);
+    fixture.destroy();
   });
 });

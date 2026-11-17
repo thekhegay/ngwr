@@ -122,3 +122,48 @@
     }
   }
 }
+
+/// Visually hidden, still read by a screen reader: out of flow and clipped to
+/// nothing, never `display: none` or `visibility: hidden`, which take the text
+/// out of the accessible tree too.
+///
+/// @example scss
+///   .wr-tree__sr-only {
+///     @include visually-hidden;
+///   }
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/// Paints with `--wr-color-canvas`, the page background one step behind
+/// `--wr-color-surface`: `body` when included at the stylesheet root, that
+/// element when included inside a rule. Opt-in: loading the theme paints
+/// nothing with the token.
+///
+/// At the root the selector is `:where(body)`, zero specificity, so any rule of
+/// a consumer wins.
+///
+/// @example scss
+///   @include theme.canvas;
+///
+///   // `wr-layout` paints its own background over `body`.
+///   .wr-layout-content {
+///     @include theme.canvas;
+///   }
+@mixin canvas {
+  @if & {
+    background-color: var(--wr-color-canvas);
+  } @else {
+    :where(body) {
+      background-color: var(--wr-color-canvas);
+    }
+  }
+}

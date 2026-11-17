@@ -26,7 +26,8 @@ import { wrCheckStyles } from 'ngwr/utils';
  * The element a `position: sticky` host actually pins against.
  *
  * Walks up looking for an ancestor that scrolls — `overflow` anything but
- * `visible` on an axis, and a box that can actually be scrolled. `null` means
+ * `visible` on an axis. Not its current size: a list that loads later makes an
+ * empty box scrollable after the observer is built. `null` means
  * the document scroller, which is both what the browser uses and what
  * `IntersectionObserver` takes for "the viewport".
  *
@@ -39,7 +40,7 @@ function scrollParent(el: HTMLElement): HTMLElement | null {
     if (node === document.body || node === document.documentElement) break;
     const style = getComputedStyle(node);
     const scrolls = /auto|scroll|overlay|hidden/.test(`${style.overflowY} ${style.overflowX}`);
-    if (scrolls && node.scrollHeight > node.clientHeight) return node;
+    if (scrolls) return node;
   }
   return null;
 }

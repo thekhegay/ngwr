@@ -394,3 +394,163 @@ describe('WrRadioGroup inside a form field', () => {
     fixture.destroy();
   });
 });
+
+/** `V` when it is a real type, a required extra argument nothing can supply when it is `any`. */
+type NotAny<V> = 0 extends 1 & V ? [never] : [];
+
+interface Plan {
+  id: number;
+  name: string;
+}
+
+const PLANS: readonly Plan[] = [
+  { id: 1, name: 'Free' },
+  { id: 2, name: 'Pro' },
+  { id: 3, name: 'Team' },
+];
+
+/**
+ * `strictTemplates` checks this host too: `V` comes from `valueWith`, so the
+ * field holds a number over `Plan` items and `valueChange` carries one.
+ */
+@Component({
+  imports: [FormField, WrRadio, WrRadioGroup],
+  template: `
+    <wr-radio-group
+      [options]="plans()"
+      [displayWith]="name"
+      [valueWith]="id"
+      [formField]="order.plan"
+      (valueChange)="expectId($event)"
+    >
+      <wr-radio [value]="0">Custom</wr-radio>
+    </wr-radio-group>
+  `,
+})
+class OptionsHost {
+  readonly plans = signal(PLANS);
+  readonly locked = signal(false);
+  readonly frozen = signal(false);
+  readonly name = (plan: Plan): string => plan.name;
+  readonly id = (plan: Plan): number => plan.id;
+  readonly model = signal<{ plan: number | null }>({ plan: null });
+  readonly order = form(this.model, path => {
+    disabled(path.plan, () => this.locked());
+    readonly(path.plan, () => this.frozen());
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- a probe's parameters exist to be typed, never read
+  expectId<V extends number | null>(_value: V, ..._rest: NotAny<V>): void {
+    return;
+  }
+}
+
+/** Without `valueWith` an item is its own value. */
+@Component({
+  imports: [WrRadioGroup],
+  template: `<wr-radio-group [options]="sizes" [(value)]="picked" />`,
+})
+class PlainOptionsHost {
+  readonly sizes = ['Small', 'Large'];
+  readonly picked = signal<string | null>(null);
+}
+
+describe('WrRadioGroup from an options array', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<OptionsHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): OptionsHost => fixture.componentInstance;
+  const inputs = (): HTMLInputElement[] => [...root().querySelectorAll<HTMLInputElement>('input.wr-radio__input')];
+  const labels = (): string[] =>
+    [...root().querySelectorAll<HTMLElement>('.wr-radio__text')].map(text => text.textContent.trim());
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(OptionsHost);
+    document.body.appendChild(root());
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    root().remove();
+    fixture.destroy();
+  });
+
+  it('renders one radio per item, labelled by displayWith, before the projected one', () => {
+    expect(labels()).toEqual(['Free', 'Pro', 'Team', 'Custom']);
+    expect(root().querySelectorAll('wr-radio.wr-radio')).toHaveLength(4);
+  });
+
+  it('shares one name across its own radios and the projected one', () => {
+    const names = new Set(inputs().map(input => input.name));
+
+    expect(names.size).toBe(1);
+    expect([...names][0]).not.toBe('');
+  });
+
+  it('puts the id in the bound field', () => {
+    inputs()[1].click();
+    fixture.detectChanges();
+
+    expect(host().model().plan).toBe(2);
+    expect(inputs().map(input => input.checked)).toEqual([false, true, false, false]);
+  });
+
+  it('checks the radio whose id the field holds', () => {
+    host().model.set({ plan: 3 });
+    fixture.detectChanges();
+
+    expect(inputs().map(input => input.checked)).toEqual([false, false, true, false]);
+    expect(root().querySelectorAll('.wr-radio--checked')).toHaveLength(1);
+  });
+
+  it('follows the array', () => {
+    host().plans.set([PLANS[2], PLANS[0]]);
+    fixture.detectChanges();
+
+    expect(labels()).toEqual(['Team', 'Free', 'Custom']);
+  });
+
+  it('disables every radio it rendered', () => {
+    host().locked.set(true);
+    fixture.detectChanges();
+
+    expect(inputs().every(input => input.disabled)).toBe(true);
+  });
+
+  it('refuses a pick while read-only and keeps the radios focusable', () => {
+    host().model.set({ plan: 1 });
+    host().frozen.set(true);
+    fixture.detectChanges();
+
+    inputs()[1].click();
+    fixture.detectChanges();
+
+    expect(host().model().plan).toBe(1);
+    expect(inputs().some(input => input.disabled)).toBe(false);
+    expect(root().querySelector('wr-radio-group')!.getAttribute('aria-readonly')).toBe('true');
+  });
+
+  it('focuses the checked radio it rendered', () => {
+    host().model.set({ plan: 2 });
+    fixture.detectChanges();
+
+    host().order.plan().focusBoundControl();
+
+    expect(document.activeElement).toBe(inputs()[1]);
+  });
+
+  it('takes the item as the value without valueWith', () => {
+    const plain = TestBed.createComponent(PlainOptionsHost);
+    plain.detectChanges();
+    const radios = [...(plain.nativeElement as HTMLElement).querySelectorAll<HTMLInputElement>('input')];
+
+    radios[1].click();
+    plain.detectChanges();
+
+    expect(plain.componentInstance.picked()).toBe('Large');
+    expect(radios[1].checked).toBe(true);
+    plain.destroy();
+  });
+});

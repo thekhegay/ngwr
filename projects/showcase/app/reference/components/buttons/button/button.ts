@@ -3,6 +3,7 @@ import { Component, signal } from '@angular/core';
 import { Copy, Download, Plus, Trash2, TriangleAlert } from 'lucide';
 import { WrButton, type WrButtonShape } from 'ngwr/button';
 import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
+import { WrPopover } from 'ngwr/popover';
 import { WR_COLORS } from 'ngwr/theme';
 import { WrTypography } from 'ngwr/typography';
 
@@ -20,6 +21,7 @@ import { API } from '#core/generated/api';
   templateUrl: './button.html',
   imports: [
     WrButton,
+    WrPopover,
     WrTypography,
     DocPageComponent,
     DocSectionComponent,
@@ -71,6 +73,13 @@ export default class ButtonComponent {
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
 <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
 <wr-btn icon="download" iconPosition="end">Download</wr-btn>`,
+    iconOnly: `<!-- import { WrPopover } from 'ngwr/popover' -->
+<wr-btn icon="trash" color="danger" outlined wrPopover="Delete" mode="tooltip" />
+<wr-btn icon="copy-outline" outlined wrPopover="Copy" mode="tooltip" />
+<wr-btn icon="download" wrPopover="Download" mode="tooltip" />
+
+<!-- No tooltip: name it yourself -->
+<wr-btn icon="add" color="primary" aria-label="Add" />`,
     disabled: `<wr-btn disabled>Disabled</wr-btn>`,
     loading: `<wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
   Click to toggle

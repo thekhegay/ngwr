@@ -1,0 +1,4 @@
+@for (item of options(); track $index) {
+  <wr-radio [value]="valueOf(item)">{{ displayWith()(item) }}</wr-radio>
+}
+<ng-content />

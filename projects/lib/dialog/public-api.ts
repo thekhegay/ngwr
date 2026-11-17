@@ -11,5 +11,6 @@ export type {
   WrDialogMessageOptions,
   WrDialogOptions,
   WrDialogRole,
+  WrDialogSize,
 } from './types';
 export { WrDialogTitle, WrDialogContent, WrDialogFooter, WrDialogClose } from './directives';

@@ -91,6 +91,9 @@ bootstrapApplication(AppComponent, {
   message: 'Profile updated.',
 });`,
 
+    shorthands: `this.toast.success('Profile updated.');
+this.toast.danger('Network error', { title: 'Failed', duration: 0 });`,
+
     parts: `this.toast.show({ title: 'Saved', message: '' });
 this.toast.show({ message: 'Link copied' });`,
 
@@ -143,6 +146,30 @@ ref.dismiss();`,
       name: 'show(options)',
       description: 'Opens a toast and returns a handle (`dismiss()`).',
       type: '(WrToastOptions) => WrToastRef',
+      default: '—',
+    },
+    {
+      name: 'info(message, options?)',
+      description: "`show()` with `type: 'info'`. `options` is `WrToastOptions` without `message` and `type`.",
+      type: "(string, Omit<WrToastOptions, 'message' | 'type'>?) => WrToastRef",
+      default: '—',
+    },
+    {
+      name: 'success(message, options?)',
+      description: "`show()` with `type: 'success'`.",
+      type: "(string, Omit<WrToastOptions, 'message' | 'type'>?) => WrToastRef",
+      default: '—',
+    },
+    {
+      name: 'warning(message, options?)',
+      description: "`show()` with `type: 'warning'`.",
+      type: "(string, Omit<WrToastOptions, 'message' | 'type'>?) => WrToastRef",
+      default: '—',
+    },
+    {
+      name: 'danger(message, options?)',
+      description: "`show()` with `type: 'danger'`.",
+      type: "(string, Omit<WrToastOptions, 'message' | 'type'>?) => WrToastRef",
       default: '—',
     },
     { name: 'dismiss(id)', description: 'Removes a single toast by id.', type: '(number) => void', default: '—' },
@@ -269,6 +296,10 @@ ref.dismiss();`,
       showProgress: this.showProgress(),
       showCopy: this.showCopy(),
     });
+  }
+
+  protected fireShorthand(type: WrToastType): void {
+    this.toast[type](this.messageFor(type), { showProgress: this.showProgress(), showCopy: this.showCopy() });
   }
 
   protected fireStack(): void {

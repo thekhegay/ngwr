@@ -300,6 +300,8 @@ describe('the surfaces that draw it', () => {
       'wrFitText',
       'wrDuration',
       'wrInitials',
+      'wrFocusFirstInvalid',
+      'wrHttpErrorText',
       'wrResolveCssColor',
       'wrToClassList',
       'wrTypeahead',

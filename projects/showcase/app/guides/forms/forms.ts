@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import {
   DocCodeComponent,
@@ -13,7 +14,14 @@ import {
 @Component({
   selector: 'ngwr-gs-forms-page',
   templateUrl: './forms.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocNgtrueComponent, DocSeeAlsoComponent],
+  imports: [
+    RouterLink,
+    DocPageComponent,
+    DocSectionComponent,
+    DocCodeComponent,
+    DocNgtrueComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class FormsGuidePage {
   protected readonly snippets = {
@@ -41,6 +49,16 @@ export class Order {
   });
 }`,
 
+    rules: `import { form, required } from '@angular/forms/signals';
+import { wrMatches, wrNotBlank } from 'ngwr/validators';
+
+protected readonly account = form(this.model, path => {
+  wrNotBlank(path.name);
+  required(path.password);
+  required(path.confirm);
+  wrMatches(path.confirm, path.password, { message: 'The passwords differ.' });
+});`,
+
     classic: `<form [formGroup]="form">
   <wr-select formControlName="plan">…</wr-select>
 </form>
@@ -65,6 +83,14 @@ export class Order {
   <input wrInput formControlName="handle" />
   <wr-form-error key="required">Pick a handle.</wr-form-error>
 </wr-form-field>`,
+
+    focusInvalid: `private readonly injector = inject(Injector);
+private readonly formEl = viewChild.required<ElementRef<HTMLElement>>('formEl');
+
+protected async save(): Promise<void> {
+  const sent = await submit(this.order, async () => this.api.save(this.model()));
+  if (!sent) void wrFocusFirstInvalid(this.formEl().nativeElement, { injector: this.injector });
+}`,
 
     catalog: `// app.config.ts: one message per error key, for every field
 provideWrI18nStaticLoader({

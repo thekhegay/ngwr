@@ -53,14 +53,15 @@ describe('WrAnchor', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
   let scroll: { to: ReturnType<typeof vi.fn>; toTop: ReturnType<typeof vi.fn> };
 
+  const path = (): string => location.pathname + location.search;
   const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
   const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-anchor')!;
   const links = (): HTMLAnchorElement[] => [...root().querySelectorAll<HTMLAnchorElement>('.wr-anchor__link')];
-  const linkFor = (id: string): HTMLAnchorElement => links().find(a => a.getAttribute('href') === `#${id}`)!;
+  const linkFor = (id: string): HTMLAnchorElement => links().find(a => a.getAttribute('href')!.endsWith(`#${id}`))!;
   const activeIds = (): string[] =>
     links()
       .filter(a => a.classList.contains('wr-anchor__link--active'))
-      .map(a => a.getAttribute('href')!.slice(1));
+      .map(a => a.getAttribute('href')!.split('#')[1]);
 
   /** The spy measures once per frame, so the frames are run by hand. */
   let frames: FrameRequestCallback[] = [];
@@ -133,7 +134,33 @@ describe('WrAnchor', () => {
   });
 
   it('links to the ids as fragments, so it still works with scripting off', () => {
-    expect(links().map(a => a.getAttribute('href'))).toEqual(['#intro', '#usage', '#basic', '#advanced']);
+    const p = path();
+    expect(links().map(a => a.getAttribute('href'))).toEqual([
+      `${p}#intro`,
+      `${p}#usage`,
+      `${p}#basic`,
+      `${p}#advanced`,
+    ]);
+  });
+
+  it('keeps the current path and query in the href, whatever the base is', () => {
+    history.replaceState(null, '', '/docs/page?tab=2');
+    fixture.componentInstance.links.set([...LINKS]);
+    fixture.detectChanges();
+
+    expect(linkFor('intro').getAttribute('href')).toBe('/docs/page?tab=2#intro');
+    history.replaceState(null, '', '/');
+  });
+
+  it('leaves modified and non-primary clicks to the browser', () => {
+    for (const init of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { button: 1 }]) {
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      linkFor('intro').dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    const plain = new MouseEvent('click', { bubbles: true, cancelable: true });
+    linkFor('intro').dispatchEvent(plain);
+    expect(plain.defaultPrevented).toBe(true);
   });
 
   it('highlights something on first paint, without waiting for a scroll', () => {
@@ -303,7 +330,7 @@ describe('WrAnchor', () => {
     fixture.detectChanges();
 
     // Only the two levels the template draws exist as links.
-    expect(links().map(a => a.getAttribute('href'))).toEqual(['#intro', '#usage', '#basic']);
+    expect(links().map(a => a.getAttribute('href'))).toEqual([`${path()}#intro`, `${path()}#usage`, `${path()}#basic`]);
 
     // The cursor is past every target, including the grandchild's.
     placeTargets({ intro: -300, usage: -200, basic: -100, deeper: -50 });

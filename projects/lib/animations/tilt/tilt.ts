@@ -6,7 +6,19 @@
  */
 
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { DestroyRef, Directive, ElementRef, PLATFORM_ID, afterNextRender, inject } from '@angular/core';
+import {
+  DestroyRef,
+  Directive,
+  ElementRef,
+  PLATFORM_ID,
+  afterNextRender,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+
+import { WrPlatform } from 'ngwr/platform';
 
 import { type WrPointerFollower, WrPointerTracker } from '../internal';
 
@@ -121,6 +133,8 @@ export function tiltTransform(x: number, y: number): string {
 export class WrTilt implements WrPointerFollower {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly doc = inject(DOCUMENT);
+  private readonly platform = inject(WrPlatform);
+  private readonly mounted = signal(false);
   private tracker: WrPointerTracker | null = null;
   /** The rendered angles, in degrees. */
   private x = 0;
@@ -131,20 +145,27 @@ export class WrTilt implements WrPointerFollower {
   constructor() {
     if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
 
-    afterNextRender(() => {
-      const view = this.doc.defaultView;
-      if (!view) return;
-      if (view.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-      if (view.matchMedia?.('(forced-colors: active)').matches) return;
-      this.tracker = new WrPointerTracker(this.host.nativeElement, view, this);
-      this.tracker.start();
+    afterNextRender(() => this.mounted.set(true));
+
+    effect(() => {
+      const run = this.mounted() && !this.platform.prefersReducedMotion();
+      untracked(() => (run ? this.begin() : this.end()));
     });
 
-    inject(DestroyRef).onDestroy(() => {
-      this.tracker?.stop();
-      this.tracker = null;
-      this.rest();
-    });
+    inject(DestroyRef).onDestroy(() => this.end());
+  }
+
+  private begin(): void {
+    const view = this.doc.defaultView;
+    if (this.tracker || !view || view.matchMedia?.('(forced-colors: active)').matches) return;
+    this.tracker = new WrPointerTracker(this.host.nativeElement, view, this);
+    this.tracker.start();
+  }
+
+  private end(): void {
+    this.tracker?.stop();
+    this.tracker = null;
+    this.rest();
   }
 
   enter(): void {

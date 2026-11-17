@@ -67,6 +67,13 @@
     height: 0;
   }
 
+  // Layout
+  &--block,
+  &:where([block]:not([block='false'])) {
+    display: grid;
+    width: 100%;
+  }
+
   &--disabled {
     --wr-cascader-color: var(--wr-color-on-surface-muted);
     --wr-cascader-bg: var(--wr-color-fill);

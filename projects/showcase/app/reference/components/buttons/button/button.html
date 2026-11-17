@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Button"
-  updated="15.0.0"
+  updated="16.6.0"
   description="A button for an action or a link."
   [keywords]="['button', 'wr-btn']"
   [labels]="['Component']"
@@ -38,7 +38,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Sizes">
+  <ngwr-doc-section
+    title="Sizes"
+    description="With no `size`, a button takes the one its container provides through `WR_BUTTON_SIZE`, as a sized dialog does, and `md` otherwise."
+  >
     <ngwr-doc-snippet [code]="snippets.sizes">
       <wr-btn size="sm" color="primary">Small</wr-btn>
       <wr-btn size="md" color="primary">Medium</wr-btn>
@@ -71,6 +74,22 @@
       <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
       <wr-btn icon="download" iconPosition="end">Download</wr-btn>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Icon only"
+    description="A button with no text needs a name. A `[wrPopover]` tooltip gives it one: the same string is the accessible name and the hint. Since v16.6."
+  >
+    <ngwr-doc-snippet [code]="snippets.iconOnly">
+      <wr-btn icon="trash" color="danger" outlined wrPopover="Delete" mode="tooltip" />
+      <wr-btn icon="copy-outline" outlined wrPopover="Copy" mode="tooltip" />
+      <wr-btn icon="download" wrPopover="Download" mode="tooltip" />
+      <wr-btn icon="add" color="primary" aria-label="Add" />
+    </ngwr-doc-snippet>
+    <p>
+      Your own <code>aria-label</code> wins, and a button with text is only described. See
+      <a class="ngwr-doc-link" href="/reference/components/popover#icon-only-buttons">Popover</a>.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled">

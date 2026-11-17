@@ -272,3 +272,10 @@
     animation: none;
   }
 }
+
+// A hint that was open under the pointer. A popover is content and prints.
+@media print {
+  .wr-tooltip-overlay {
+    display: none;
+  }
+}

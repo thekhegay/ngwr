@@ -12,6 +12,13 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 - **One intent name**: alert and toast say `type`, result and load-state say `status`, button and tag say `color`; a rename waits for a major.
 - **`wr-graph` selection and highlight**: pick a node and light up its links, after zoom and pan.
+- **Pagination on one page**: `hideOnSinglePage` on `wr-pagination`.
+- **`[wrInView]`**: an output with `threshold` and `once`, on one shared observer.
+- **Table search**: client-side text search through each column's `format`.
+- **Stored files**: already uploaded files (name, size, link, remove) in `wr-file-upload`'s list.
+- **Cropper to file**: `WrImageCropper.toFile(name)` with the extension of the encoded type.
+- **Small gaps**: a checked `wr-dropdown-item`, a count on `wr-tab`, an avatar group, a ghost `wr-btn`.
+- **Exact router tabs**: an `exact` option, so an overview tab is not selected on every child route.
 
 ## Very low
 

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="16.4.0"
+  updated="16.6.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -53,6 +53,33 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="An id as the value"
+    description="`[valueWith]` maps an item to the value the model holds. The trigger and the chips still show the item's label, for a value set from code too."
+  >
+    <ngwr-doc-snippet [code]="snippets.valueWith">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-select
+          placeholder="Pick a plan"
+          [options]="plans"
+          [displayWith]="planName"
+          [valueWith]="planId"
+          [(value)]="planKey"
+        />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ planKey() | json }}</span>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>It applies to <code>[options]</code> and <code>[loader]</code> results in single, multi and search mode.</li>
+      <li>Values are compared with <code>===</code>, so return a primitive or a stable reference.</li>
+      <li>
+        A picked value keeps its label after a search drops its row. A value set from code that no item carries shows
+        the placeholder, or itself on a multi chip, until its item arrives.
+      </li>
+      <li><code>freeText</code> still commits the typed text, and tag mode has no options, so neither reads it.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Position"
     description='`position="top"` opens the panel above the trigger. Either side gives way to the other when there is no room.'
   >
@@ -73,8 +100,18 @@
 
   <ngwr-doc-section
     title="Width"
-    description="A select is `10rem` wide by default. Change that with `--wr-select-min-width`; a `min-width` on `.wr-select__trigger` has no effect."
-  />
+    description="A select is `10rem` wide by default. Change that with `--wr-select-min-width`; a `min-width` on `.wr-select__trigger` has no effect. `block` fills the parent's width. Inside a `<wr-form-field>` it fills the field without it."
+  >
+    <ngwr-doc-snippet [code]="snippets.block">
+      <div style="width: 100%">
+        <wr-select block placeholder="Full width" [(value)]="size">
+          <wr-option value="sm">Small</wr-option>
+          <wr-option value="md">Medium</wr-option>
+          <wr-option value="lg">Large</wr-option>
+        </wr-select>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Multi mode"
@@ -462,17 +499,22 @@
 
   <ngwr-doc-section
     title="Typed values"
-    description="`T` is an option's value, inferred from `[options]`, `[loader]` or the value you bind."
+    description="`T` is an item of `[options]` or `[loader]`. `V` is an option's value, inferred from `[valueWith]` or the value you bind."
   >
     <ngwr-doc-code [code]="snippets.typed" language="angular-ts" />
     <ul>
       <li>
-        <code>value</code> is <code>T | readonly T[] | null</code>: one <code>T</code> in single and search mode, an
+        <code>value</code> is <code>V | readonly V[] | null</code>: one <code>V</code> in single and search mode, an
         array in multi and tag mode. The mode is a runtime input, so narrow <code>(valueChange)</code> yourself.
+      </li>
+      <li>Without <code>[valueWith]</code> an item is its own value, so bind a value of the item's type.</li>
+      <li>
+        With neither <code>[valueWith]</code> nor a value binding, <code>(valueChange)</code> carries <code>any</code>:
+        a template gives <code>V</code> nothing to infer from.
       </li>
       <li>
         A projected <code>&lt;wr-option&gt;</code> keeps <code>value: unknown</code>: it cannot see the select's
-        <code>T</code>.
+        <code>V</code>.
       </li>
     </ul>
   </ngwr-doc-section>

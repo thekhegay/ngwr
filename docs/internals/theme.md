@@ -95,7 +95,7 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing tokens, colours,
   file declares itself — so the mixins and functions a consumer reaches for in
   a COMPONENT stylesheet are re-declared there as one-line wrappers, the
   forward's `hide` list being the source for which ones (`smooth-br`,
-  `touch-target`, `focus-ring`, `rebrand` and `contrast` today). In a component
+  `touch-target`, `focus-ring`, `scrollbar`, `visually-hidden`, `canvas`, `rebrand` and `contrast` today). In a component
   stylesheet that `@use` still brings a second, shimmed-dead copy of the token
   layer along, because a component stylesheet is its own Sass compilation.
   Three rules hold it together and each one is a build error or a silent loss if
@@ -156,6 +156,28 @@ stylesheet sets either property; `theme/scrollbar.spec.ts` holds that. The
 showcase includes it at its root; `wr-virtual-scroll` and `wr-marquee` include
 it on their own viewport, so they look the same without the page-wide opt-in.
 `forced-colors` keeps the system scrollbar. The docs page is `/guides/scrollbar`.
+**The canvas is a role for the page, opt-in, one step behind the surface.**
+`--wr-color-canvas` is `light-dark(var(--wr-color-gray-100), var(--wr-color-gray-950))`,
+declared on `:root` beside `--wr-color-white` and outside `derived()`, so a
+`:root` rebrand does not re-declare it after the high-contrast override. No
+component paints with it: cards, tables and panels keep `surface`, which is what
+makes the step visible. `@include theme.canvas` at a stylesheet root paints
+`:where(body)`; inside a rule it paints that element, which is how an app on
+`wr-layout` opts in (`.wr-layout-content { @include theme.canvas; }`), since the
+layout paints `surface` over `body`. In light an `-ink` on its `-soft` tint
+reads 4.64:1 at worst on the canvas (`warning`), above AA and under the 5.0
+target; dark only gains. Under `prefers-contrast: more` the token is the
+surface: the 7:1 ink shares do not hold on the light canvas, and the deepened
+hairline separates a card from the page. `--wr-color-hover` and
+`--wr-color-fill` equal the light canvas, so a neutral hover tint drawn
+directly on it does not show. `theme/canvas.spec.ts` holds all of it.
+**Print.** Each piece of app chrome hides itself in its own sheet's
+`@media print` (layout header and sider, sidebar, back-top, speed-dial, toasts,
+loading bar, tour, tooltip pane), with no `!important`, so an app's own rule
+wins. Dialogs, drawers, popovers and menus print: an open one may be the thing
+being printed. `.wr-no-print` and `.wr-print-only` come with the theme
+(`theme/styles/_print.scss`) and are `!important` for the reason `_motion.scss`
+gives: the theme loads first. `print.spec.ts` holds all of it.
 
 A component paints with the ROLE, never with a ramp step: the step is the
 substrate, and reaching past the role is how a component ends up right in one

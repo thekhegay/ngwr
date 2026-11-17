@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
+import { WrCard } from 'ngwr/card';
 import { WR_COLORS } from 'ngwr/theme';
 
 import { DocCodeComponent, DocPageComponent, DocSectionComponent, DocSeeAlsoComponent } from '#core/components';
@@ -22,7 +24,7 @@ interface Token {
   selector: 'ngwr-tokens-colors',
   templateUrl: './colors.html',
   styleUrl: './colors.scss',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
+  imports: [WrCard, RouterLink, DocPageComponent, DocSectionComponent, DocCodeComponent, DocSeeAlsoComponent],
 })
 export default class TokensColorsPage {
   /** Taken from the tuple, so the page cannot fall behind the palette. */
@@ -49,7 +51,8 @@ export default class TokensColorsPage {
   ];
 
   protected readonly neutralTokens: readonly Token[] = [
-    { name: '--wr-color-surface', use: 'Page and card background' },
+    { name: '--wr-color-surface', use: 'Card, table and panel background, and the page by default' },
+    { name: '--wr-color-canvas', use: 'Page background one step behind the surface, opt-in' },
     { name: '--wr-color-on-surface', use: 'Body text' },
     { name: '--wr-color-on-surface-muted', use: 'Secondary text' },
     { name: '--wr-color-placeholder', use: 'Placeholder text' },
@@ -58,6 +61,8 @@ export default class TokensColorsPage {
     { name: '--wr-border-subtle, -base, -strong', use: 'Borders and dividers' },
     { name: '--wr-color-overlay', use: 'Modal and drawer scrim' },
   ];
+
+  protected readonly schemes = ['light', 'dark'] as const;
 
   /** The fixed ramp. It does not follow dark mode. */
   protected readonly grayRamp = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;

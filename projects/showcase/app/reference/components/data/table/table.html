@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.4.0"
+  updated="16.6.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -128,18 +128,37 @@
 
   <ngwr-doc-section
     title="Row actions"
-    description='Give the action column a key no row property uses and an empty title, and read the row with `let-row="item"`.'
+    description='Give the action column a key no row property uses, an empty title and `actions: true`, and read the row with `let-row="item"`. The buttons sit in one row at the end of the cell, and the column shrinks to them.'
   >
     <ngwr-doc-snippet [code]="snippets.rowActions">
       <div style="width: 100%">
         <wr-table [columns]="actionColumns" [items]="actionRows()" emptyLabel="Every row deleted.">
           <ng-template wrTableCell="actions" let-row="item">
-            <wr-btn size="sm" color="danger" outlined (click)="removeRow(row)">Delete</wr-btn>
+            <wr-btn icon="pencil" size="sm" outlined wrPopover="Edit" mode="tooltip" />
+            <wr-btn
+              icon="trash"
+              size="sm"
+              color="danger"
+              outlined
+              wrPopover="Delete"
+              mode="tooltip"
+              (click)="removeRow(row)"
+            />
           </ng-template>
         </wr-table>
         <wr-btn size="sm" style="margin-top: 0.75rem" (click)="restoreRows()">Restore rows</wr-btn>
       </div>
     </ngwr-doc-snippet>
+    <ul>
+      <li>An icon-only <code>wr-btn</code> is square. Name each one: a tooltip, or an <code>aria-label</code>.</li>
+      <li>
+        The template renders inside <code>.wr-table__actions</code>; <code>--wr-table-actions-gap</code> is the gap
+        between the buttons.
+      </li>
+      <li>Under <code>layout="fixed"</code> the column does not shrink: give it a <code>width</code>.</li>
+      <li><code>pin: 'right'</code> keeps the column in view while the table scrolls sideways.</li>
+      <li><code>toCsv()</code> leaves the column out.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section
@@ -193,6 +212,27 @@
       <li>
         The tooltip opens on hover, and on keyboard focus of a control in the header or the cell. A table holds one
         tooltip, created on first use.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Fixed layout"
+    description='`layout="fixed"` keeps every column at its `width` and wraps the text, so sorting or paging never moves a column.'
+  >
+    <ngwr-doc-code [code]="snippets.layout" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table layout="fixed" [columns]="layoutColumns" [items]="layoutRows" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>Columns without a <code>width</code> share what is left.</li>
+      <li>A column's <code>truncate</code> still cuts its cells to one line: the role column here.</li>
+      <li>Resizing works as before, and the cells keep wrapping. A virtualized table keeps its one-line rows.</li>
+      <li>
+        The table carries <code>.wr-table__table--layout-fixed</code>. <code>.wr-table__table--fixed</code> is the
+        layout a resized <code>auto</code> table takes, which cuts every cell.
       </li>
     </ul>
   </ngwr-doc-section>

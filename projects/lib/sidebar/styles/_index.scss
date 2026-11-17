@@ -396,3 +396,9 @@
     border: 0;
   }
 }
+
+@media print {
+  .wr-sidebar {
+    display: none;
+  }
+}

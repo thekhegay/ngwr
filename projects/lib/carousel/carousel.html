@@ -31,7 +31,7 @@
   (touchstart)="onSwipeStart($event)"
   (touchmove)="onSwipeMove($event)"
   (touchend)="onSwipeEnd($event, viewport)"
-  (touchcancel)="onSwipeEnd($event, viewport)"
+  (touchcancel)="onSwipeCancel()"
 >
   <div class="wr-carousel__track" [style.transform]="trackStyle()" [style.transition]="dragging() ? 'none' : null">
     <ng-content />

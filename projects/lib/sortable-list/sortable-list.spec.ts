@@ -125,6 +125,33 @@ describe('WrSortableList', () => {
     expect(rows()).toEqual(['1. Nine']);
   });
 
+  it('keeps every row on its document position after a reorder, an add and a remove', () => {
+    const items = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-sortable-list__item')];
+    const grabbed = (): string[] =>
+      items()
+        .filter(el => el.classList.contains('wr-sortable-list__item--grabbed'))
+        .map(el => el.textContent.trim());
+    const set = (labels: string[]): void => {
+      fixture.componentInstance.items.set(
+        labels.map((label, id) => ({ id: ROWS.find(r => r.label === label)?.id ?? 10 + id, label }))
+      );
+      fixture.detectChanges();
+    };
+
+    items()[2].dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    expect(grabbed()).toEqual(['3. Three']);
+
+    set(['Three', 'Two', 'One']);
+    expect(grabbed()).toEqual(['3. One']);
+
+    set(['Three', 'Two', 'One', 'Four']);
+    expect(grabbed()).toEqual(['3. One']);
+
+    set(['Two', 'One', 'Four']);
+    expect(grabbed()).toEqual(['3. Four']);
+  });
+
   /**
    * The keyboard path is the only reorder path a keyboard has — `cdkDrag` ships
    * none — so unlike the gesture above it is entirely this component's code and

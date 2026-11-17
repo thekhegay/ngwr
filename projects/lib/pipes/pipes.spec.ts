@@ -38,6 +38,14 @@ describe('wrBytes', () => {
   let pipe: WrBytes;
   beforeEach(() => (pipe = bytes('en-US')));
 
+  it('moves to the next unit when rounding reaches 1024', () => {
+    expect(wrFormatBytes(1048575, 'en-US', 1)).toBe('1.0 MB');
+    expect(wrFormatBytes(1023.96 * 1024, 'en-US', 1)).toBe('1.0 MB');
+    expect(wrFormatBytes(1024 ** 3 - 1, 'en-US', 1)).toBe('1.0 GB');
+    expect(wrFormatBytes(1048575, 'en-US', 0)).toBe('1 MB');
+    expect(wrFormatBytes(1047552, 'en-US', 1)).toBe('1,023.0 kB');
+  });
+
   it('picks the unit by magnitude', () => {
     expect(pipe.transform(512)).toBe('512 B');
     expect(pipe.transform(1024)).toBe('1.0 kB');

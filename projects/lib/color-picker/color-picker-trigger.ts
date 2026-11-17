@@ -11,8 +11,10 @@ import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import {
+  type ComponentRef,
   DestroyRef,
   Directive,
+  effect,
   ElementRef,
   Injector,
   ViewContainerRef,
@@ -166,6 +168,7 @@ export class WrColorPickerTrigger {
   readonly isOpen = this.openState.asReadonly();
   private overlayRef: OverlayRef | null = null;
   private finder: FocusTrap | null = null;
+  private picker: ComponentRef<WrColorPicker> | null = null;
 
   /** @internal Public so the host binding can read it. */
   protected readonly panelId = `wr-color-picker-panel-${++triggerUid}`;
@@ -173,6 +176,22 @@ export class WrColorPickerTrigger {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('color-picker');
     this.destroyRef.onDestroy(() => this.dispose());
+    effect(() => {
+      const inputs = {
+        alpha: this.alpha(),
+        format: this.format(),
+        swatches: this.swatches(),
+        size: this.size(),
+        disabled: this.disabled(),
+        value: this.value(),
+      };
+      if (!this.picker) return;
+      if (inputs.disabled) {
+        this.close();
+        return;
+      }
+      for (const [name, value] of Object.entries(inputs)) this.picker.setInput(name, value);
+    });
   }
 
   /** Toggle the picker. Open if closed, close if open. */
@@ -219,6 +238,7 @@ export class WrColorPickerTrigger {
     const portal = new ComponentPortal(WrColorPicker, this.vcr);
     const ref = this.overlayRef.attach(portal);
 
+    this.picker = ref;
     ref.setInput('alpha', this.alpha());
     ref.setInput('format', this.format());
     ref.setInput('swatches', this.swatches());
@@ -313,6 +333,7 @@ export class WrColorPickerTrigger {
   private dispose(): void {
     this.finder?.destroy();
     this.finder = null;
+    this.picker = null;
     if (this.overlayRef) {
       this.overlayRef.dispose();
       this.overlayRef = null;

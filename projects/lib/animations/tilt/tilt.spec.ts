@@ -1,6 +1,7 @@
-import { Component, PLATFORM_ID } from '@angular/core';
+import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { WrPlatform } from 'ngwr/platform';
 import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TILT_MAX_ANGLE, TILT_PERSPECTIVE, WrTilt, tiltAngles, tiltDepth, tiltRate, tiltTransform } from './tilt';
@@ -324,12 +325,13 @@ describe('WrTilt', () => {
     expect(el.getAttribute('style')).toBeNull();
   });
 
+  const platform = (reduced: boolean): { reduced: ReturnType<typeof signal<boolean>>; provider: unknown } => {
+    const value = signal(reduced);
+    return { reduced: value, provider: { provide: WrPlatform, useValue: { prefersReducedMotion: value } } };
+  };
+
   it('does nothing under reduced motion', async () => {
-    vi.stubGlobal(
-      'matchMedia',
-      vi.fn((query: string) => ({ matches: query === '(prefers-reduced-motion: reduce)' }))
-    );
-    const el = await render();
+    const el = await render([platform(true).provider]);
 
     enter(el, RECT.left, RECT.top);
     move(el, RECT.left, RECT.top);
@@ -338,12 +340,36 @@ describe('WrTilt', () => {
     expect(el.getAttribute('style')).toBeNull();
   });
 
+  it('stops when reduced motion turns on mid-session and starts again when it turns off', async () => {
+    const { reduced, provider } = platform(false);
+    const el = await render([provider]);
+
+    enter(el, CENTRE.x, 60);
+    frames.run();
+    expect(angles(el)).not.toBeNull();
+
+    reduced.set(true);
+    TestBed.tick();
+    expect(el.style.length).toBe(0);
+    frames.reset();
+    enter(el, CENTRE.x, 60);
+    move(el, CENTRE.x, 55);
+    expect(frames.request).not.toHaveBeenCalled();
+
+    reduced.set(false);
+    TestBed.tick();
+    enter(el, CENTRE.x, 60);
+    expect(frames.request).toHaveBeenCalled();
+    frames.run();
+    expect(angles(el)).not.toBeNull();
+  });
+
   it('does nothing under forced colours', async () => {
     vi.stubGlobal(
       'matchMedia',
       vi.fn((query: string) => ({ matches: query === '(forced-colors: active)' }))
     );
-    const el = await render();
+    const el = await render([platform(false).provider]);
 
     enter(el, RECT.left, RECT.top);
 

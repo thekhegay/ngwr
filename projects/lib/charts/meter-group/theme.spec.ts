@@ -130,6 +130,26 @@ describe('WrMeterGroup on the chart theme', () => {
       expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('Media');
       expect(Number.parseFloat(pane.style.left) + 40).toBeCloseTo(320, 3);
     });
+
+    it('points past-the-max segments at the visible part of their band', () => {
+      set(h => {
+        h.max.set(100);
+        h.segments.set([
+          { label: 'Used', value: 80 },
+          { label: 'Over', value: 60 },
+        ]);
+      });
+      vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        return this.classList.contains('cdk-overlay-pane') ? new DOMRect(0, 0, 80, 40) : new DOMRect(100, 50, 400, 10);
+      });
+      bands()[1].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+      fixture.detectChanges();
+
+      // Over shows only 80% to 100% of the bar: x 420 to 500, centred on 460.
+      const pane = document.querySelector<HTMLElement>('.cdk-overlay-pane')!;
+      expect(document.querySelector('.wr-chart-tooltip__label')!.textContent.trim()).toBe('Over');
+      expect(Number.parseFloat(pane.style.left) + 40).toBeCloseTo(460, 3);
+    });
   });
 
   describe('legend', () => {

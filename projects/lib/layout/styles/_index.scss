@@ -28,11 +28,14 @@
 }
 
 .wr-layout-content {
+  // One length: `wr-page-header[bleed]` negates it to reach the edges.
+  --wr-layout-content-padding: var(--wr-space-xl);
+
   display: block;
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
-  padding: var(--wr-space-xl);
+  padding: var(--wr-layout-content-padding);
   background: var(--wr-color-surface);
   font-family: var(--wr-font-family-base);
   color: var(--wr-color-on-surface);
@@ -62,5 +65,14 @@
     order: 1;
     border-inline-end: 0;
     border-inline-start: 1px solid var(--wr-border-base);
+  }
+}
+
+// The header and the sider are app chrome. The content is a flex item that
+// grows, so it takes the sider's width with nothing left to reset.
+@media print {
+  .wr-layout-header,
+  .wr-layout-sider {
+    display: none;
   }
 }

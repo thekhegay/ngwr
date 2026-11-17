@@ -34,7 +34,7 @@ import {
   wrMirrorOffsets,
 } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
-import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrToClassList, wrCheckStyles, type WrClassInput, wrNoteFocusReturn, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrPopconfirmPanel } from './popconfirm-panel';
 import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
@@ -338,6 +338,7 @@ export class WrPopconfirm {
     this.overlayRef = null;
     this.openState.set(false);
     if (returnFocus) wrRestoreFocus(this.host.nativeElement, this.focusMonitor);
+    else wrNoteFocusReturn(this.host.nativeElement);
   }
 
   /**

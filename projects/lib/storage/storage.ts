@@ -129,7 +129,8 @@ export class WrStorage {
     if (!isEnvelope(parsed)) return parsed as T;
 
     if (parsed.e !== undefined && parsed.e < Date.now()) {
-      this.remove(key);
+      // Watchers are written untracked: a read inside a computed or template must not write signals.
+      untracked(() => this.remove(key));
       return fallback;
     }
     return parsed.v as T;

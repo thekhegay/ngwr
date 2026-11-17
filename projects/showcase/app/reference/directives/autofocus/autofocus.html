@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="wrAutofocus"
+  updated="16.6.0"
   description="Focus an element on init, or each time a binding turns true."
   [keywords]="['wrAutofocus', 'autofocus', 'directive']"
   [labels]="['Directive']"
@@ -17,6 +18,27 @@
           placeholder="I focus when the binding flips to true"
           style="max-width: 18rem"
         />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="First field in a container"
+    description='`wrAutofocus="first"` focuses the first focusable element inside the host. Disabled and hidden ones are skipped.'
+  >
+    <ngwr-doc-code [code]="snippets.first" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 18rem">
+        <wr-btn style="align-self: flex-start" (click)="formOpen.set(!formOpen())">
+          {{ formOpen() ? 'Close the form' : 'Open the form' }}
+        </wr-btn>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem" [wrAutofocus]="formOpen() && 'first'">
+          @if (formOpen()) {
+            <input wrInput disabled placeholder="Disabled, skipped" />
+            <input wrInput placeholder="I take the focus" />
+            <input wrInput placeholder="Next field" />
+          }
+        </div>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

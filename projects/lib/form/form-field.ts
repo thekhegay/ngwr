@@ -204,7 +204,7 @@ export class WrFormField implements WrFormFieldContext, AfterContentChecked {
   /** Hint text shown below the control. Hidden when an error is visible. */
   readonly hint = input<string>('');
 
-  /** Show a `*` next to the label. @default false */
+  /** Show a `*` next to the label and set `aria-required` on the projected control. @default false */
   readonly required = input(false, { transform: coerceBooleanProperty });
 
   /**

@@ -1,0 +1,85 @@
+<ngwr-doc-page
+  title="wrHttpErrorText"
+  since="16.6.0"
+  description="A sentence for a failed request, in the active language. `wrHttpStatus` reads the status alone."
+  [keywords]="[
+    'wrHttpErrorText',
+    'wrHttpStatus',
+    'http',
+    'error',
+    'status',
+    'HttpErrorResponse',
+    'offline',
+    'message',
+    'i18n',
+    'utils',
+  ]"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Call it where the request fails and show the result. Outside an injection context, such as a `catch`, pass an `injector`. Lives in `ngwr/i18n`, since the texts are catalog keys."
+  >
+    <ngwr-doc-code [code]="snippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Which text wins" description="Highest first.">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Source</th>
+            <th scope="col">When</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>overrides[status]</code></th>
+            <td>The screen names the status. A string, or a function of the error.</td>
+          </tr>
+          <tr>
+            <th scope="row">The response body</th>
+            <td>
+              Only with <code>serverMessage: true</code>: <code>error.error.message</code>, or a body that is a plain
+              string. An empty one, or an HTML page from a proxy, is skipped.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>httpError.&lt;status&gt;</code></th>
+            <td>The catalog has the status: 400, 401, 403, 404, 409, 413, 422, 429 and 503.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>httpError.4xx</code>, <code>httpError.5xx</code></th>
+            <td>Any other status of that class. Both take <code ngNonBindable>{{status}}</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>httpError.network</code></th>
+            <td>Status <code>0</code>: offline, CORS, a dropped connection.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>httpError.unknown</code></th>
+            <td>Not an HTTP error, or a status outside 4xx and 5xx.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The texts ship in every ngwr catalog, so register yours with <code>provideWrI18nBaseCatalogs()</code>. With none
+      registered the text is English.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Reword a text"
+    description="For one screen, use `overrides`. For the whole app, put the key in your own catalog: it wins over ngwr's."
+  >
+    <ngwr-doc-code [code]="catalogSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>
