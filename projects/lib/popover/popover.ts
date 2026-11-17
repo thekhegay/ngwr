@@ -10,12 +10,14 @@ import { Directionality } from '@angular/cdk/bidi';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { type FlexibleConnectedPositionStrategy, type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';
-import type { ComponentRef, TemplateRef } from '@angular/core';
+import { isPlatformServer } from '@angular/common';
+import type { AfterViewInit, ComponentRef, TemplateRef } from '@angular/core';
 import {
   DestroyRef,
   Directive,
   ElementRef,
   Injector,
+  PLATFORM_ID,
   ViewContainerRef,
   afterNextRender,
   afterRenderEffect,
@@ -56,12 +58,15 @@ import { type WrPopoverPosition, wrPopoverPositions } from './types';
 /** Roles a tooltip may name: both take their name from content, so an empty one has none. */
 const NAMEABLE = 'button, a[href], [role="button"], [role="link"]';
 
+/** Marks an `aria-label` the server wrote, so the browser takes it over instead of reading it as the consumer's. */
+const SERVER_NAMED = 'data-wr-named';
+
 /** Whether anything inside `el` gives it an accessible name. */
 function hasNamingContent(el: Element): boolean {
   for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === Node.TEXT_NODE) {
+    if (node.nodeType === node.TEXT_NODE) {
       if (node.textContent?.trim()) return true;
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
+    } else if (node.nodeType === node.ELEMENT_NODE) {
       const child = node as Element;
       if (child.getAttribute('aria-hidden') === 'true') continue;
       if (child.matches('[aria-label], [aria-labelledby], [title], img[alt]:not([alt=""])')) return true;
@@ -161,7 +166,7 @@ let popoverUid = 0;
     '(keydown.tab)': 'onTriggerTab($event)',
   },
 })
-export class WrPopover {
+export class WrPopover implements AfterViewInit {
   /**
    * Content to render inside the panel.
    * - In **popover** mode (default): pass a `TemplateRef`.
@@ -315,6 +320,7 @@ export class WrPopover {
   private writtenName: string | null = null;
   /** Whether the tooltip text is the host's accessible name, so it must not describe it too. */
   protected readonly namesHost = signal(false);
+  private readonly onServer = isPlatformServer(inject(PLATFORM_ID));
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('popover');
@@ -430,6 +436,15 @@ export class WrPopover {
       // either way, but the CDK's own bookkeeping only clears from here.
       this.focusMonitor.stopMonitoring(this.host);
     });
+  }
+
+  /**
+   * The first name, on the server too, where no render hook runs. A view hook
+   * rather than an `effect()`: effects run before host bindings, and `<wr-btn>`
+   * gets its `role` from one.
+   */
+  ngAfterViewInit(): void {
+    this.syncName();
   }
 
   /** Open the panel. Does nothing while the trigger is disabled. */
@@ -578,6 +593,10 @@ export class WrPopover {
     const content = this.content();
     const text = this.isTooltip() && !this.origin() && typeof content === 'string' ? content.trim() : '';
     const current = el.getAttribute('aria-label');
+    if (this.writtenName === null && el.hasAttribute(SERVER_NAMED)) {
+      this.writtenName = current;
+      el.removeAttribute(SERVER_NAMED);
+    }
     const mine = this.writtenName !== null && current === this.writtenName;
 
     const unnamed =
@@ -589,11 +608,13 @@ export class WrPopover {
 
     if (text && unnamed) {
       if (current !== text) el.setAttribute('aria-label', text);
+      if (this.onServer) el.setAttribute(SERVER_NAMED, '');
       this.writtenName = text;
       this.namesHost.set(true);
       return;
     }
     if (mine) el.removeAttribute('aria-label');
+    if (this.onServer) el.removeAttribute(SERVER_NAMED);
     this.writtenName = null;
     this.namesHost.set(!!text && !mine && current?.trim() === text);
   }

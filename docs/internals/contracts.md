@@ -197,8 +197,10 @@ because it is guidance rather than a plan.
   `WR_COPIED_DURATION` from `ngwr/clipboard`, shared with `<wr-copy-value>`.
 - A `mode="tooltip"` `[wrPopover]` NAMES a button or link that has no
   accessible name (an icon-only `wr-btn`): it writes its string as `aria-label`
-  after render and sets no `aria-describedby`, because the same text as name
-  and description is read twice. An `aria-label`, `aria-labelledby` or `title`
+  and sets no `aria-describedby`, because the same text as name and description
+  is read twice. The first write is in `ngAfterViewInit`, so the name is in the
+  server's markup; there it also sets `data-wr-named`, which lets the browser
+  take the name over instead of reading it as the consumer's. An `aria-label`, `aria-labelledby` or `title`
   of the consumer's wins; an `aria-label` equal to the string drops the
   description too. Any other host is described as before. `ngwr/button` has no
   `label` input for this on purpose: it would make every button import the
