@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Layout"
+  updated="16.6.0"
   description="An app shell: header, sider, content and footer."
   [keywords]="['layout', 'shell', 'header', 'sider', 'wr-layout']"
   [labels]="['Composite']"
@@ -37,6 +38,21 @@
           </wr-layout-sider>
           <wr-layout-content>Main content area</wr-layout-content>
         </wr-layout>
+      </wr-layout>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Content padding"
+    description="`wr-layout-content` pads itself with `--wr-layout-content-padding`, one length. Set the hook on the element instead of undoing the padding with negative margins."
+  >
+    <ngwr-doc-code [code]="snippets.padding" language="scss" />
+    <ngwr-doc-snippet code="">
+      <wr-layout
+        style="height: 10rem; border: 1px solid var(--wr-border-base); border-radius: 0.5rem; overflow: hidden"
+      >
+        <wr-layout-header>App bar</wr-layout-header>
+        <wr-layout-content style="--wr-layout-content-padding: var(--wr-space-md)">Main content area</wr-layout-content>
       </wr-layout>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

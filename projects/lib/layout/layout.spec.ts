@@ -4,6 +4,8 @@ import { By } from '@angular/platform-browser';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { compileSass } from '../spec-sass';
+
 import { WrLayout } from './layout';
 import { WrLayoutContent } from './layout-content';
 import { WrLayoutFooter } from './layout-footer';
@@ -120,5 +122,51 @@ describe('WrLayout', () => {
     fixture.detectChanges();
 
     expect(sider()!.className).toContain('wr-layout-sider--reverse');
+  });
+});
+
+/**
+ * jsdom loads no stylesheet, so the compiled sheet goes into the document here
+ * and the padding is read off the rendered `wr-layout-content`.
+ */
+describe('WrLayoutContent padding hook', () => {
+  @Component({
+    imports: [WrLayoutContent],
+    template: `
+      <wr-layout-content data-probe="default">content</wr-layout-content>
+      <wr-layout-content data-probe="override" style="--wr-layout-content-padding: 0.5rem">content</wr-layout-content>
+    `,
+  })
+  class PaddingHost {}
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PaddingHost>>;
+  let sheet: HTMLStyleElement;
+
+  const padding = (name: string): string =>
+    getComputedStyle((fixture.nativeElement as HTMLElement).querySelector(`[data-probe="${name}"]`)!).paddingTop;
+
+  beforeEach(() => {
+    sheet = document.createElement('style');
+    sheet.textContent = compileSass(`@use 'layout/styles';`);
+    document.head.append(sheet);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(PaddingHost);
+    fixture.detectChanges();
+    document.body.append(fixture.nativeElement as HTMLElement);
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    sheet.remove();
+  });
+
+  it('pads the content with the space token by default', () => {
+    // `--wr-space-xl`, 1.5rem.
+    expect(padding('default')).toBe('24px');
+  });
+
+  it('pads the content with the hook an app sets', () => {
+    expect(padding('override')).toBe('8px');
   });
 });

@@ -11,7 +11,7 @@ import { wrCheckStyles } from 'ngwr/utils';
 
 /**
  * Main content area of a {@link WrLayout}. Flex-grows to fill
- * remaining space.
+ * remaining space. Its padding is `--wr-layout-content-padding`, one length.
  */
 @Component({
   selector: 'wr-layout-content',
