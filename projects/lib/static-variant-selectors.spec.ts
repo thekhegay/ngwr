@@ -74,6 +74,7 @@ const VARIANTS: [entry: string, byClass: string, byAttribute: string][] = [
   ['badge', '.wr-tag--success', `.wr-tag${value('color', 'success')}`],
   ['badge', '.wr-tag--success.wr-tag--outlined', `.wr-tag${value('color', 'success')}${flag('outlined')}`],
   ['badge', '.wr-tag--success.wr-tag--transparent', `.wr-tag${value('color', 'success')}${flag('transparent')}`],
+  ['form', '.wr-form--inline', `.wr-form${flag('inline')}`],
   ...sizes('select', 'wr-select'),
   ['select', '.wr-select--rounded', `.wr-select${flag('rounded')}`],
   ...sizes('textarea', 'wr-textarea'),
