@@ -18,7 +18,7 @@ export type WrDialogRole = 'dialog' | 'alertdialog';
  */
 export type WrDialogAutoFocus = 'first-tabbable' | 'dialog' | false;
 
-/** A dialog width step. Each one reads its `--wr-dialog-width-<size>` hook. */
+/** A dialog size: a width step, read from `--wr-dialog-width-<size>`, and the scale of the dialog's parts. */
 export type WrDialogSize = 'sm' | 'md' | 'lg';
 
 /**
@@ -57,14 +57,18 @@ export interface WrDialogOptions<D = unknown> {
   /** Accessible name for the dismiss button. Falls back to the `dialog.close` catalog key. */
   readonly closeLabel?: string;
   /**
-   * A width step: `sm`, `md` or `lg`, 28rem, 40rem and 56rem unless the
-   * `--wr-dialog-width-<size>` hooks say otherwise. The panel gets the
-   * `wr-dialog-panel--<size>` class and still narrows to the viewport gutter.
-   * An explicit `width` wins. With neither, the panel is as wide as its content.
+   * `sm`, `md` or `lg`. A width step, 28rem, 40rem and 56rem unless the
+   * `--wr-dialog-width-<size>` hooks say otherwise, and the scale of the
+   * dialog: its padding, title, text, dismiss button and footer gap, through
+   * the `--wr-dialog-*` hooks. `md` scales nothing. A `wr-btn` inside with no
+   * `size` of its own takes this one, the buttons of `confirm()` and `alert()`
+   * included. The panel gets the `wr-dialog-panel--<size>` class and still
+   * narrows to the viewport gutter. An explicit `width` wins over the width
+   * step only. With neither, the panel is as wide as its content.
    * @default undefined, or what `withDialog()` sets for `open()`
    */
   readonly size?: WrDialogSize;
-  /** Width applied to the panel — any valid CSS length. Wins over `size`. */
+  /** Width applied to the panel — any valid CSS length. Wins over the width of a `size`. */
   readonly width?: string;
   /**
    * Minimum width applied to the panel, in place of `--wr-dialog-min-width`.

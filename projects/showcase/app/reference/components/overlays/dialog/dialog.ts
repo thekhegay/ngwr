@@ -4,6 +4,7 @@ import { WrButton } from 'ngwr/button';
 import { WrDialog, type WrDialogIntent, type WrDialogSize } from 'ngwr/dialog';
 
 import { ConfirmDialogComponent, type ConfirmData } from './confirm-dialog';
+import { SizedDialogComponent } from './sized-dialog';
 import { WaitingDialogComponent } from './waiting-dialog';
 
 import {
@@ -33,8 +34,11 @@ export default class DialogPageComponent {
 });
 
 const ok = await ref.awaitClose();`,
-    size: `// A step: 'sm', 'md' or 'lg'.
-this.dialog.open(EditLampComponent, { size: 'md' });
+    size: `// 'sm', 'md' or 'lg': the width, the scale and the buttons inside.
+this.dialog.open(RenameLampComponent, { size: 'lg' });
+
+// confirm() and alert() take it per call.
+await this.dialog.confirm({ title: 'Delete lamp?', size: 'sm' });
 
 // A fixed height: the content scrolls, the footer stays in place.
 this.dialog.open(LampListComponent, { size: 'lg', height: '60vh', minWidth: '20rem' });
@@ -313,14 +317,14 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     {
       name: 'size',
       description:
-        'Width step, read from `--wr-dialog-width-<size>`. The default comes from `withDialog()`, for `open()` only.',
+        'Width step, read from `--wr-dialog-width-<size>`, and the scale of the dialog and of the `wr-btn`s inside. The default comes from `withDialog()`, for `open()` only.',
       type: "'sm' | 'md' | 'lg'",
       default: '—',
       sub: true,
     },
     {
       name: 'width',
-      description: 'Panel width — any CSS length. Wins over `size`.',
+      description: 'Panel width — any CSS length. Wins over the width of a `size`.',
       type: 'string',
       default: '—',
       sub: true,
@@ -480,10 +484,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
   }
 
   protected openSized(size: WrDialogSize): void {
-    this.dialog.open<ConfirmDialogComponent, boolean, ConfirmData>(ConfirmDialogComponent, {
-      data: { title: `Size ${size}`, message: 'The width comes from the size hook.' },
-      size,
-    });
+    this.dialog.open<SizedDialogComponent, boolean, WrDialogSize>(SizedDialogComponent, { data: size, size });
   }
 
   protected openNamed(): void {

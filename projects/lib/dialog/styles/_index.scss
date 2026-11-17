@@ -144,12 +144,33 @@
   // Written out, not looped: `gen:css-vars` reads the hooks from the source.
   &--sm {
     width: var(--wr-dialog-width-sm);
+
+    --wr-dialog-padding-y: var(--wr-space-md);
+    --wr-dialog-padding-x: var(--wr-space-md);
+    --wr-dialog-title-font-size: var(--wr-text-base);
+    --wr-dialog-content-font-size: var(--wr-text-sm);
+    --wr-dialog-content-line-height: var(--wr-text-sm-leading);
+    // The glyph steps down and the padding takes up the slack: the box stays
+    // 24px, the smallest target WCAG 2.5.8 allows.
+    --wr-dialog-close-font-size: var(--wr-text-sm);
+    --wr-dialog-close-padding: calc((1.5rem - var(--wr-text-sm)) / 2);
+    --wr-dialog-footer-gap: var(--wr-space-xs);
+    --wr-dialog-intent-size: 1rem;
   }
   &--md {
     width: var(--wr-dialog-width-md);
   }
   &--lg {
     width: var(--wr-dialog-width-lg);
+
+    --wr-dialog-padding-y: var(--wr-space-xl);
+    --wr-dialog-padding-x: var(--wr-space-xl);
+    --wr-dialog-title-font-size: var(--wr-text-xl);
+    --wr-dialog-content-font-size: var(--wr-text-lg);
+    --wr-dialog-content-line-height: var(--wr-text-lg-leading);
+    --wr-dialog-close-font-size: var(--wr-text-lg);
+    --wr-dialog-footer-gap: var(--wr-space-md);
+    --wr-dialog-intent-size: 1.5rem;
   }
 
   // The component the service mounts sits BETWEEN this panel and the dialog's

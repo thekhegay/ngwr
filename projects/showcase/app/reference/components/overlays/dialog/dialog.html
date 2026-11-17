@@ -22,11 +22,11 @@
 
   <ngwr-doc-section
     title="Size"
-    description="`size` picks a width step. `width` wins over it, and with neither the panel is as wide as its content."
+    description="`size` picks a width step and scales the dialog: padding, title, text, the dismiss button and the footer gap. `wr-btn`s inside follow it."
   >
     <ngwr-doc-code [code]="snippets.size" language="typescript" />
 
-    <ngwr-doc-snippet code="dialog.open(ConfirmComponent, { size })">
+    <ngwr-doc-snippet code="dialog.open(RenameLampComponent, { size })">
       <wr-btn (click)="openSized('sm')">Small</wr-btn>
       <wr-btn (click)="openSized('md')">Medium</wr-btn>
       <wr-btn (click)="openSized('lg')">Large</wr-btn>
@@ -37,35 +37,59 @@
         <thead>
           <tr>
             <th scope="col">Size</th>
-            <th scope="col">Hook</th>
-            <th scope="col">Default</th>
+            <th scope="col">Width</th>
+            <th scope="col">Padding</th>
+            <th scope="col">Title</th>
+            <th scope="col">Text</th>
+            <th scope="col">Footer gap</th>
+            <th scope="col">Buttons</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <th scope="row"><code>sm</code></th>
-            <td><code>--wr-dialog-width-sm</code></td>
             <td><code>28rem</code></td>
+            <td><code>0.75rem</code></td>
+            <td><code>1rem</code></td>
+            <td><code>0.875rem</code></td>
+            <td><code>0.25rem</code></td>
+            <td><code>sm</code></td>
           </tr>
           <tr>
-            <th scope="row"><code>md</code></th>
-            <td><code>--wr-dialog-width-md</code></td>
-            <td><code>40rem</code></td>
+            <th scope="row"><code>md</code>, or none</th>
+            <td><code>40rem</code>, or the content</td>
+            <td><code>1rem</code></td>
+            <td><code>1.125rem</code></td>
+            <td><code>1rem</code></td>
+            <td><code>0.5rem</code></td>
+            <td><code>md</code></td>
           </tr>
           <tr>
             <th scope="row"><code>lg</code></th>
-            <td><code>--wr-dialog-width-lg</code></td>
             <td><code>56rem</code></td>
+            <td><code>1.5rem</code></td>
+            <td><code>1.25rem</code></td>
+            <td><code>1.125rem</code></td>
+            <td><code>0.75rem</code></td>
+            <td><code>lg</code></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <p>
+      The width reads <code>--wr-dialog-width-&lt;size&gt;</code> and the rest the dialog's own
+      <code>--wr-dialog-*</code> hooks. A <code>wr-btn</code> inside with no <code>size</code> takes the dialog's, the
+      buttons of <code>confirm()</code> and <code>alert()</code> included; a <code>size</code> on the button wins. Other
+      controls keep their own <code>size</code>. A <code>width</code> wins over the width step and keeps the scale.
+    </p>
+
+    <p>
       Every size still narrows to the viewport gutter. <code>minWidth</code>, <code>height</code> and
       <code>maxHeight</code> take any CSS length; with a <code>height</code>, <code>[wrDialogContent]</code> scrolls and
       the footer stays on the panel's edge. A <code>size</code> in <code>withDialog()</code> applies to
-      <code>open()</code>, never to <code>confirm()</code> or <code>alert()</code>.
+      <code>open()</code>, never to <code>confirm()</code> or <code>alert()</code>, which take <code>size</code> per
+      call.
     </p>
   </ngwr-doc-section>
 
