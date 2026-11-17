@@ -493,6 +493,12 @@ describe('the shipped catalogs', () => {
       }
     };
     walk(join(root, 'projects/lib'));
+    // The one file in i18n/ that asks the catalog for keys of its own.
+    sources.push(
+      readFileSync(join(root, 'projects/lib/i18n/http-error.ts'), 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, c =>
+        c.replace(/[^\n]/g, ' ')
+      )
+    );
 
     /** The text between a call's opening paren and its matching close. */
     const argsAt = (text: string, from: number): string => {
