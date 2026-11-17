@@ -59,7 +59,7 @@ export const API = {
   ],
   // <[wrAutofocus]>
   WrAutofocus: [
-    { name: "wrAutofocus", description: "Truthy = focus. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },
+    { name: "wrAutofocus", description: "Truthy = focus the host, `'first'` = focus the first focusable element inside it. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },
   ],
   // <textarea[wrAutosize]>
   WrAutosize: [
