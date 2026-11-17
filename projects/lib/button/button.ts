@@ -25,7 +25,7 @@ import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
 import { wrCheckStyles } from 'ngwr/utils';
 
-import { WR_BUTTON_GROUP } from './tokens';
+import { WR_BUTTON_GROUP, WR_BUTTON_SIZE } from './tokens';
 import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types';
 
 /**
@@ -85,8 +85,14 @@ export class WrButton {
    */
   readonly color = input<WrColor | null>(null);
 
-  /** Size variant. @default 'md' */
-  readonly size = input<WrButtonSize>('md');
+  /**
+   * Size variant. `null` (default) takes the size a container provides through
+   * `WR_BUTTON_SIZE`, such as a sized dialog, and `md` outside one. A size set
+   * here always wins.
+   *
+   * @default null
+   */
+  readonly size = input<WrButtonSize | null>(null);
 
   /**
    * Corner treatment — `rounded`, `pill` or `squircle`. `null` (default) falls
@@ -140,6 +146,10 @@ export class WrButton {
   protected readonly resolvedShape = computed<WrButtonShape>(() =>
     this.group ? (this.group.shape() ?? 'rounded') : (this.shape() ?? 'rounded')
   );
+
+  private readonly containerSize = inject(WR_BUTTON_SIZE, { optional: true });
+
+  protected readonly resolvedSize = computed<WrButtonSize>(() => this.size() ?? this.containerSize?.() ?? 'md');
 
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -310,7 +320,7 @@ export class WrButton {
     const color = this.color();
     if (color) parts.push(`wr-btn--${color}`);
 
-    const size = this.size();
+    const size = this.resolvedSize();
     if (size !== 'md') parts.push(`wr-btn--${size}`);
 
     const shape = this.resolvedShape();
