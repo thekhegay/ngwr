@@ -77,6 +77,10 @@ export class WrForm {
   host: { class: 'wr-form__span', '[style.--wr-form-span]': 'track()' },
 })
 export class WrFormSpan {
+  constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('form');
+  }
+
   /**
    * Columns to span. Empty or `'full'` takes the whole row.
    *
