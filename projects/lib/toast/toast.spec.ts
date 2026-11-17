@@ -86,6 +86,46 @@ describe('WrToast', () => {
       expect(item.classList.contains('wr-toast--success')).toBe(true);
     });
 
+    it.each(['info', 'success', 'warning', 'danger'] as const)('%s() shows a toast of that type', type => {
+      toast[type]('Profile updated.');
+      tick();
+
+      expect(messages()).toEqual(['Profile updated.']);
+      expect(items()[0].classList.contains(`wr-toast--${type}`)).toBe(true);
+    });
+
+    it.each(['info', 'success', 'warning', 'danger'] as const)('%s() passes the other options through', type => {
+      const run = vi.fn();
+      toast[type]('Report.pdf deleted', {
+        title: 'Deleted',
+        closable: false,
+        class: 'audit',
+        action: { label: 'Undo', run },
+      });
+      tick();
+
+      const item = items()[0];
+      expect(item.classList.contains(`wr-toast--${type}`)).toBe(true);
+      expect(item.classList.contains('audit')).toBe(true);
+      expect(item.querySelector('.wr-toast__title')?.textContent?.trim()).toBe('Deleted');
+      expect(actions(item).map(b => b.textContent?.trim())).toEqual(['Undo']);
+    });
+
+    it('returns the ref of the toast a shorthand opened', () => {
+      toast.info('Stays');
+      const ref = toast.danger('Network error', { duration: 0 });
+      tick();
+      expect(messages()).toHaveLength(2);
+
+      vi.advanceTimersByTime(60_000);
+      tick();
+      expect(messages()).toEqual(['Network error']);
+
+      ref.dismiss();
+      tick();
+      expect(items()).toHaveLength(0);
+    });
+
     it('omits the title element entirely when no title was given', () => {
       toast.show({ message: 'Permalink copied' });
       tick();
