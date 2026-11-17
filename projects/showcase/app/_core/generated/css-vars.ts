@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1879 hook(s) across 115 page(s). A property is here only when the
+ * 1882 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1224,6 +1224,9 @@ export const CSS_VARS = {
       { name: "--wr-dialog-title-font-size", default: "var(--wr-text-lg)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-title-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-title-line-height", default: "var(--wr-text-base-leading)", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-width-lg", default: "56rem", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-width-md", default: "40rem", scope: ".wr-dialog-panel" },
+      { name: "--wr-dialog-width-sm", default: "28rem", scope: ".wr-dialog-panel" },
     ],
   },
   "reference/components/divider": {
