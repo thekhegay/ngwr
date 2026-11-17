@@ -41,6 +41,13 @@
     width: 100%;
   }
 
+  // Layout
+  &--block,
+  &:where([block]:not([block='false'])) {
+    display: block;
+    width: 100%;
+  }
+
   &--sm,
   &:where([size='sm']) {
     --wr-input-number-step-icon-size: var(--wr-control-font-size-sm); // 12px
