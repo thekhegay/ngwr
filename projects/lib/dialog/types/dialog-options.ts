@@ -18,6 +18,9 @@ export type WrDialogRole = 'dialog' | 'alertdialog';
  */
 export type WrDialogAutoFocus = 'first-tabbable' | 'dialog' | false;
 
+/** A dialog width step. Each one reads its `--wr-dialog-width-<size>` hook. */
+export type WrDialogSize = 'sm' | 'md' | 'lg';
+
 /**
  * Options accepted by `WrDialog.open()`.
  */
@@ -53,10 +56,30 @@ export interface WrDialogOptions<D = unknown> {
   readonly closable?: boolean;
   /** Accessible name for the dismiss button. Falls back to the `dialog.close` catalog key. */
   readonly closeLabel?: string;
-  /** Width applied to the panel — any valid CSS length. */
+  /**
+   * A width step: `sm`, `md` or `lg`, 28rem, 40rem and 56rem unless the
+   * `--wr-dialog-width-<size>` hooks say otherwise. The panel gets the
+   * `wr-dialog-panel--<size>` class and still narrows to the viewport gutter.
+   * An explicit `width` wins. With neither, the panel is as wide as its content.
+   * @default undefined, or what `withDialog()` sets for `open()`
+   */
+  readonly size?: WrDialogSize;
+  /** Width applied to the panel — any valid CSS length. Wins over `size`. */
   readonly width?: string;
+  /**
+   * Minimum width applied to the panel, in place of `--wr-dialog-min-width`.
+   * A minimum wins over the viewport gutter, so a long one overflows a phone.
+   */
+  readonly minWidth?: string;
   /** Maximum width applied to the panel. */
   readonly maxWidth?: string;
+  /**
+   * Height applied to the panel — any valid CSS length. The viewport gutter
+   * still caps it, and `[wrDialogContent]` takes the room left and scrolls.
+   */
+  readonly height?: string;
+  /** Maximum height applied to the panel, in place of the viewport gutter. */
+  readonly maxHeight?: string;
   /**
    * Extra CSS classes for the panel. A space-separated string works as well as
    * an array — the CDK would throw `InvalidCharacterError` on the first, so the

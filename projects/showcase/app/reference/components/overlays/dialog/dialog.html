@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dialog"
-  updated="16.5.0"
+  updated="16.6.0"
   description="Open any component as a modal dialog and await its result."
   [keywords]="['dialog', 'modal', 'wr-dialog', 'overlay', 'portal']"
   [labels]="['Service', 'Directives', 'CDK Dialog']"
@@ -18,6 +18,55 @@
         Last result: {{ lastResult() }}
       </span>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Size"
+    description="`size` picks a width step. `width` wins over it, and with neither the panel is as wide as its content."
+  >
+    <ngwr-doc-code [code]="snippets.size" language="typescript" />
+
+    <ngwr-doc-snippet code="dialog.open(ConfirmComponent, { size })">
+      <wr-btn (click)="openSized('sm')">Small</wr-btn>
+      <wr-btn (click)="openSized('md')">Medium</wr-btn>
+      <wr-btn (click)="openSized('lg')">Large</wr-btn>
+    </ngwr-doc-snippet>
+
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Size</th>
+            <th scope="col">Hook</th>
+            <th scope="col">Default</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>sm</code></th>
+            <td><code>--wr-dialog-width-sm</code></td>
+            <td><code>28rem</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>md</code></th>
+            <td><code>--wr-dialog-width-md</code></td>
+            <td><code>40rem</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>lg</code></th>
+            <td><code>--wr-dialog-width-lg</code></td>
+            <td><code>56rem</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Every size still narrows to the viewport gutter. <code>minWidth</code>, <code>height</code> and
+      <code>maxHeight</code> take any CSS length; with a <code>height</code>, <code>[wrDialogContent]</code> scrolls and
+      the footer stays on the panel's edge. A <code>size</code> in <code>withDialog()</code> applies to
+      <code>open()</code>, never to <code>confirm()</code> or <code>alert()</code>.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section
