@@ -474,13 +474,13 @@
             class="wr-option"
             [id]="virtualRowId(entry.index)"
             [class.wr-option--active]="entry.index === activeIndex()"
-            [class.wr-option--selected]="isSelected(entry.item)"
-            [class.wr-option--disabled]="atMaxItems() && !isSelected(entry.item)"
-            [attr.aria-selected]="isSelected(entry.item)"
-            [attr.aria-disabled]="atMaxItems() && !isSelected(entry.item) ? true : null"
+            [class.wr-option--selected]="isSelected(entry.value)"
+            [class.wr-option--disabled]="atMaxItems() && !isSelected(entry.value)"
+            [attr.aria-selected]="isSelected(entry.value)"
+            [attr.aria-disabled]="atMaxItems() && !isSelected(entry.value) ? true : null"
             [attr.aria-setsize]="filteredDynamicOptions().length"
             [attr.aria-posinset]="entry.index + 1"
-            (click)="selectOption(entry.item)"
+            (click)="selectOption(entry.value)"
           >
             <!-- Only the select-wide template reaches a virtual row — there is no
                  `<wr-option>` here to declare one — and only rows inside the
@@ -489,7 +489,7 @@
               <span class="wr-option__leading" aria-hidden="true">
                 <ng-container
                   [ngTemplateOutlet]="leading"
-                  [ngTemplateOutletContext]="{ $implicit: entry.item, placement: 'option' }"
+                  [ngTemplateOutletContext]="{ $implicit: entry.value, placement: 'option' }"
                 />
               </span>
             }
@@ -505,7 +505,7 @@
            mode. Rendered as wr-option so the standard registration / filter
            pipeline applies uniformly. -->
       @for (item of dynamicOptions(); track $index) {
-        <wr-option [value]="item">{{ displayWith()(item) }}</wr-option>
+        <wr-option [value]="valueOf(item)">{{ displayWith()(item) }}</wr-option>
       }
     }
 

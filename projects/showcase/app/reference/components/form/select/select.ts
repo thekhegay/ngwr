@@ -125,6 +125,17 @@ protected readonly plan = signal<Plan | null>(null);
 protected readonly planName = (plan: Plan): string => plan.name;
 
 <wr-select placeholder="Pick a plan" [options]="plans" [displayWith]="planName" [(value)]="plan" />`,
+    valueWith: `protected readonly planKey = signal<string | null>('team');
+protected readonly planName = (plan: Plan): string => plan.name;
+protected readonly planId = (plan: Plan): string => plan.id;
+
+<wr-select
+  placeholder="Pick a plan"
+  [options]="plans"
+  [displayWith]="planName"
+  [valueWith]="planId"
+  [(value)]="planKey"
+/>`,
     position: `<wr-select placeholder="Opens above" position="top" [(value)]="size">
   <wr-option value="sm">Small</wr-option>
   <wr-option value="md">Medium</wr-option>
@@ -292,6 +303,8 @@ categoryId.setValue(2);`,
   ];
   protected readonly plan = signal<Plan | null>(null);
   protected readonly planName = (plan: Plan): string => plan.name;
+  protected readonly planKey = signal<string | null>('team');
+  protected readonly planId = (plan: Plan): string => plan.id;
 
   protected readonly countries = [
     'Australia',
