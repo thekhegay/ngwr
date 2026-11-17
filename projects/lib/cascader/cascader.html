@@ -10,6 +10,7 @@
   [attr.aria-controls]="panelId"
   [attr.aria-readonly]="readonly() || null"
   [attr.aria-invalid]="fieldAria.ariaInvalid()"
+  [attr.aria-required]="fieldAria.ariaRequired()"
   [attr.aria-describedby]="fieldAria.describedBy()"
   (click)="onTriggerClick()"
   (keydown)="onTriggerKeydown($event)"

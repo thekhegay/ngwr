@@ -3,6 +3,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
 
+import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrCascader } from './cascader';
@@ -1189,5 +1190,31 @@ describe('WrCascader open and close from code', () => {
 
     expect(panel()).toBeNull();
     expect([before.opened(), before.closed()]).toEqual([1, 0]);
+  });
+});
+
+@Component({
+  imports: [WrCascader, WrFormField],
+  template: `
+    <wr-form-field label="Place" [required]="required()"><wr-cascader [options]="options" /></wr-form-field>
+  `,
+})
+class RequiredHost {
+  readonly options = OPTIONS;
+  readonly required = signal(true);
+}
+
+describe('WrCascader aria-required', () => {
+  it('marks the combobox while the field is required', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(RequiredHost);
+    fixture.detectChanges();
+    const trigger = (fixture.nativeElement as HTMLElement).querySelector('[role="combobox"]')!;
+    expect(trigger.getAttribute('aria-required')).toBe('true');
+
+    fixture.componentInstance.required.set(false);
+    fixture.detectChanges();
+    expect(trigger.hasAttribute('aria-required')).toBe(false);
+    fixture.destroy();
   });
 });
