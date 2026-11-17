@@ -51,6 +51,10 @@ export default class LayoutPageComponent {
   </wr-layout>
 </wr-layout>`,
 
+    padding: `wr-layout-content {
+  --wr-layout-content-padding: var(--wr-space-md);
+}`,
+
     print: `<wr-layout-content>
   <p class="wr-print-only">Acme Ltd, printed from the back office</p>
   <button wr-btn class="wr-no-print" (click)="print()">Print</button>
