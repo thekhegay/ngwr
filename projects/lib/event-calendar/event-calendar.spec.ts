@@ -1116,3 +1116,51 @@ describe('WrEventCalendar time grid on DST days', () => {
     });
   });
 });
+
+describe('WrEventCalendar with a display time zone', () => {
+  const zone = process.env['TZ'];
+  beforeAll(() => {
+    process.env['TZ'] = 'America/New_York';
+  });
+  afterAll(() => {
+    if (zone === undefined) delete process.env['TZ'];
+    else process.env['TZ'] = zone;
+  });
+
+  let fixture: ReturnType<typeof TestBed.createComponent<DstHost>>;
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const row = (minutes: number): HTMLElement => root().querySelector<HTMLElement>(`[data-cell-minutes="${minutes}"]`)!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ timeZone: 'Asia/Tokyo' }))] });
+    fixture = TestBed.createComponent(DstHost);
+    // 09:00 to 09:30 on 14 January 2026, Tokyo time.
+    fixture.componentInstance.events.set([
+      {
+        id: 'tokyo',
+        title: 'Tokyo',
+        start: new Date(Date.UTC(2026, 0, 14, 0, 0)),
+        end: new Date(Date.UTC(2026, 0, 14, 0, 30)),
+      },
+    ]);
+    fixture.componentInstance.date.set(new Date(Date.UTC(2026, 0, 14, 3, 0)));
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('draws an event in its row on the display zone clock', () => {
+    const chip = root().querySelector('.wr-event-calendar__chip--time')!;
+    expect(chip.closest('[data-cell-minutes]')).toBe(row(540));
+  });
+
+  it('turns a click on a row into that time in the display zone', () => {
+    row(600).click();
+    fixture.detectChanges();
+
+    const slot = fixture.componentInstance.slot()!;
+    expect(slot.start.getTime()).toBe(Date.UTC(2026, 0, 14, 1, 0));
+    expect(slot.end.getTime()).toBe(Date.UTC(2026, 0, 14, 1, 30));
+  });
+});

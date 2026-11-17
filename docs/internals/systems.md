@@ -184,7 +184,7 @@ one component folder. Reach for them instead of hand-rolling:
   string, and a signal read: `wrDate` is impure and compares it to keep its
   last result, and both pickers fold it into their echo guard. A custom
   adapter inherits `zoned()` returning itself, so it shows the browser's zone
-  until it overrides it. `wr-event-calendar` does not use `zoned()` yet.
+  until it overrides it. `wr-event-calendar` works on it for every day, row and click.
   `wrParseDate` is the entry point's one plain function: a backend
   value (a `Date`, epoch milliseconds, an ISO string, the SQL space form Safari
   refuses) as a `Date` or `null`, never an Invalid Date. It reads a date-only
