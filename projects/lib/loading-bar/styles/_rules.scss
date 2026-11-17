@@ -34,3 +34,9 @@
       opacity 0.2s ease;
   }
 }
+
+@media print {
+  .wr-loading-bar {
+    display: none;
+  }
+}

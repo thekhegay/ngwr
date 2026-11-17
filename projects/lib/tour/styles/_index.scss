@@ -104,3 +104,11 @@
 // The popup rides above the cut-out.
 // No `z-index` on the pane — the comment above `.wr-tour-cutout` already said
 // one here "cannot help", and it was carrying 1001 anyway.
+
+// The cut-out's spread shadow would dim the whole sheet.
+@media print {
+  .wr-tour__spotlight,
+  .wr-tour-overlay {
+    display: none;
+  }
+}

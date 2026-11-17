@@ -232,3 +232,9 @@
     }
   }
 }
+
+@media print {
+  .wr-speed-dial {
+    display: none;
+  }
+}

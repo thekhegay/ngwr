@@ -64,3 +64,12 @@
     border-inline-start: 1px solid var(--wr-border-base);
   }
 }
+
+// The header and the sider are app chrome. The content is a flex item that
+// grows, so it takes the sider's width with nothing left to reset.
+@media print {
+  .wr-layout-header,
+  .wr-layout-sider {
+    display: none;
+  }
+}

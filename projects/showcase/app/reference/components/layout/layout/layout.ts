@@ -50,6 +50,11 @@ export default class LayoutPageComponent {
     <wr-layout-content>Main</wr-layout-content>
   </wr-layout>
 </wr-layout>`,
+
+    print: `<wr-layout-content>
+  <p class="wr-print-only">Acme Ltd, printed from the back office</p>
+  <button wr-btn class="wr-no-print" (click)="print()">Print</button>
+</wr-layout-content>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
