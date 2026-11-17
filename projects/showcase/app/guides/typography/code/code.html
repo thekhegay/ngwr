@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Code"
   description="Show inline code and monospace text."
-  [keywords]="['typography', 'code', 'mono', 'monospace']"
+  [keywords]="['typography', 'code', 'mono', 'monospace', 'numeric', 'tabular']"
   [labels]="['Directive']"
 >
   <ngwr-doc-section title="Inline code" description='Wrap inline tokens in `<code wrTypography variant="code">`.'>
@@ -17,6 +17,27 @@
       <p wrTypography [mono]="true" style="max-width: 32rem">
         Forces monospace on any variant — useful for ids, paths, version tags.
       </p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Tabular digits"
+    description="`numeric` gives every digit the same width, so amounts line up. It keeps the font, and works with `mono`."
+  >
+    <ngwr-doc-code [code]="snippets.numeric" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default</p>
+          <p wrTypography variant="h4">1,111,111.11</p>
+          <p wrTypography variant="h4">8,888,888.88</p>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>numeric</code></p>
+          <p wrTypography variant="h4" numeric>1,111,111.11</p>
+          <p wrTypography variant="h4" numeric>8,888,888.88</p>
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
