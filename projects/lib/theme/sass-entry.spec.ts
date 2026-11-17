@@ -94,6 +94,7 @@ describe("the public entry `@use 'ngwr/theme'`", { timeout: COMPILE_TIMEOUT }, (
     'focus-ring',
     'scrollbar',
     'visually-hidden',
+    'canvas',
     'rebrand',
     'contrast',
   ] as const;
@@ -159,7 +160,9 @@ describe("the public entry `@use 'ngwr/theme'`", { timeout: COMPILE_TIMEOUT }, (
       '.v { color: t.contrast(#3969e2); } ' +
       '.w:focus-visible { @include t.focus-ring; } ' +
       '.s { @include t.scrollbar; } ' +
-      '@include t.scrollbar;';
+      '@include t.scrollbar; ' +
+      '.c { @include t.canvas; } ' +
+      '@include t.canvas;';
     const css = (spec: string): string => compile(`@use '${spec}' as t; ${body}`);
 
     expect(css('theme')).toBe(css('theme/styles'));

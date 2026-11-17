@@ -104,6 +104,17 @@ provideWr(withTheme({ defaultMode: 'light', storageKey: null }));`,
   @include theme.rebrand((primary: #be123c));
 }`,
 
+    canvas: `@use 'ngwr/theme';
+@use 'ngwr/layout';
+
+// The page: paints body.
+@include theme.canvas;
+
+// With wr-layout, which paints its own background over body.
+.wr-layout-content {
+  @include theme.canvas;
+}`,
+
     component: `.wr-btn {
   --wr-btn-radius: 999px;
   --wr-btn-padding-x: 1.5rem;

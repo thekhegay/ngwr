@@ -43,7 +43,7 @@
 // gap: a dark value is the second argument of a `light-dark()` in any
 // declaration, in a global stylesheet and a component stylesheet alike, with
 // no selector for encapsulation to rewrite.
-@forward 'styles' hide smooth-br, touch-target, focus-ring, scrollbar, visually-hidden, rebrand, contrast;
+@forward 'styles' hide smooth-br, touch-target, focus-ring, scrollbar, visually-hidden, canvas, rebrand, contrast;
 @use 'styles' as base;
 
 /// iOS-style smooth corners, degrading to a plain radius where `corner-shape`
@@ -72,6 +72,12 @@
 /// Out of sight and out of flow, still read by a screen reader.
 @mixin visually-hidden {
   @include base.visually-hidden;
+}
+
+/// The page background, `--wr-color-canvas`: `body` at the stylesheet root, one
+/// element inside a rule. Loading the theme paints nothing with it.
+@mixin canvas {
+  @include base.canvas;
 }
 
 /// Re-emit an intent's whole token set on the current selector, from one seed —
