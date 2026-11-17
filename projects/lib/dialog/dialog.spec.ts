@@ -220,6 +220,35 @@ describe('WrDialog', () => {
     expect(panel()!.style.maxWidth).toBe('90vw');
   });
 
+  it('applies the minimum width and the height options to the panel', async () => {
+    await open({ minWidth: '32rem', height: '60vh', maxHeight: '80vh' });
+
+    expect(panel()!.style.minWidth).toBe('32rem');
+    expect(panel()!.style.height).toBe('60vh');
+    expect(panel()!.style.maxHeight).toBe('80vh');
+  });
+
+  it.each(['sm', 'md', 'lg'] as const)('marks the panel with the %s size', async size => {
+    await open({ size });
+
+    expect(panel()!.classList.contains(`wr-dialog-panel--${size}`)).toBe(true);
+    expect(panel()!.style.width).toBe('');
+  });
+
+  it('leaves the panel unsized without a size', async () => {
+    await open();
+
+    expect(panel()!.className).not.toMatch(/wr-dialog-panel--(sm|md|lg)/);
+    expect(panel()!.style.width).toBe('');
+  });
+
+  it('lets an explicit width win over the size', async () => {
+    await open({ size: 'lg', width: '24rem' });
+
+    expect(panel()!.style.width).toBe('24rem');
+    expect(panel()!.className).not.toMatch(/wr-dialog-panel--(sm|md|lg)/);
+  });
+
   it('hands WR_DIALOG_DATA to the mounted component', async () => {
     const ref = await open({ data: { message: 'This cannot be undone' } });
 
@@ -628,6 +657,62 @@ describe('WrDialog panel gutter', () => {
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-width:\s*calc\(100vw - 2rem\)/);
     expect(rules('.wr-dialog-panel.cdk-overlay-pane')).toMatch(/max-height:\s*calc\(100dvh - 2rem\)/);
     expect(rules('.wr-dialog-panel')).not.toMatch(/max-(width|height)/);
+  });
+
+  it('gives each size its own width hook', () => {
+    expect(rules('.wr-dialog-panel')).toMatch(/--wr-dialog-width-sm:\s*28rem/);
+    expect(rules('.wr-dialog-panel')).toMatch(/--wr-dialog-width-md:\s*40rem/);
+    expect(rules('.wr-dialog-panel')).toMatch(/--wr-dialog-width-lg:\s*56rem/);
+    for (const size of ['sm', 'md', 'lg']) {
+      expect(rules(`.wr-dialog-panel--${size}`)).toMatch(new RegExp(`width:\\s*var\\(--wr-dialog-width-${size}\\)`));
+    }
+  });
+
+  it('grows the content into the room a height leaves', () => {
+    expect(rules('.wr-dialog__content')).toMatch(/flex:\s*1 1 auto/);
+    expect(rules('.wr-dialog__content')).toMatch(/overflow:\s*auto/);
+  });
+});
+
+describe('WrDialog size default', () => {
+  const panel = (): HTMLElement => document.querySelector<HTMLElement>('.wr-dialog-panel')!;
+  const setup = (...features: WrFeature[]): WrDialog => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(...features)] });
+    return TestBed.inject(WrDialog);
+  };
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('takes the app default from withDialog, and a per-dialog value wins', () => {
+    const dialogs = setup(withDialog({ size: 'md' }));
+
+    const first = dialogs.open(Confirm);
+    expect(panel().classList.contains('wr-dialog-panel--md')).toBe(true);
+    first.close();
+
+    dialogs.open(Confirm, { size: 'sm' });
+    expect(panel().classList.contains('wr-dialog-panel--sm')).toBe(true);
+    expect(panel().classList.contains('wr-dialog-panel--md')).toBe(false);
+  });
+
+  it('lets an explicit width win over the app default', () => {
+    setup(withDialog({ size: 'md' })).open(Confirm, { width: '24rem' });
+
+    expect(panel().style.width).toBe('24rem');
+    expect(panel().classList.contains('wr-dialog-panel--md')).toBe(false);
+  });
+
+  it('keeps the app default off confirm(), which takes its own size', async () => {
+    const dialogs = setup(withDialog({ size: 'md' }));
+
+    const plain = dialogs.confirm({ title: 'Delete?' });
+    expect(panel().className).not.toMatch(/wr-dialog-panel--(sm|md|lg)/);
+    TestBed.resetTestingModule();
+    await plain;
+
+    void setup(withDialog({ size: 'md' })).confirm({ title: 'Delete?', size: 'sm' });
+    expect(panel().classList.contains('wr-dialog-panel--sm')).toBe(true);
   });
 });
 

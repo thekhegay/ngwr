@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrDialog, type WrDialogIntent } from 'ngwr/dialog';
+import { WrDialog, type WrDialogIntent, type WrDialogSize } from 'ngwr/dialog';
 
 import { ConfirmDialogComponent, type ConfirmData } from './confirm-dialog';
 import { WaitingDialogComponent } from './waiting-dialog';
@@ -33,6 +33,14 @@ export default class DialogPageComponent {
 });
 
 const ok = await ref.awaitClose();`,
+    size: `// A step: 'sm', 'md' or 'lg'.
+this.dialog.open(EditLampComponent, { size: 'md' });
+
+// A fixed height: the content scrolls, the footer stays in place.
+this.dialog.open(LampListComponent, { size: 'lg', height: '60vh', minWidth: '20rem' });
+
+// Every open() in the app.
+provideWr(withDialog({ size: 'sm' }));`,
     template: `<!-- Inside the opened component.
      imports: [WrDialogTitle, WrDialogContent, WrDialogFooter, WrDialogClose] -->
 <h2 wrDialogTitle>Delete</h2>
@@ -150,7 +158,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     },
     {
       name: 'withDialog(defaults)',
-      description: 'App-wide defaults, as a feature of `provideWr()`. Takes `tabTitle`.',
+      description: 'App-wide defaults, as a feature of `provideWr()`. Takes `tabTitle`, `autoFocus` and `size`.',
       type: '(WrDialogDefaults) => WrFeature',
       default: '-',
     },
@@ -160,7 +168,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     {
       name: 'WrDialogConfirmOptions',
       description:
-        'Argument of `confirm()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle`, `autoFocus` and `toasts` from `WrDialogOptions`.',
+        'Argument of `confirm()`. Also takes `size`, `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle`, `autoFocus` and `toasts` from `WrDialogOptions`.',
       type: 'interface',
       default: '-',
     },
@@ -208,7 +216,7 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     {
       name: 'WrDialogAlertOptions',
       description:
-        'Argument of `alert()`. Also takes `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle`, `autoFocus` and `toasts` from `WrDialogOptions`.',
+        'Argument of `alert()`. Also takes `size`, `width`, `maxWidth`, `panelClass`, `closeOnBackdropClick`, `closeOnEscape`, `closeOnNavigation`, `tabTitle`, `autoFocus` and `toasts` from `WrDialogOptions`.',
       type: 'interface',
       default: '-',
     },
@@ -302,8 +310,43 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
       default: "'dialog'",
       sub: true,
     },
-    { name: 'width', description: 'Panel width — any CSS length.', type: 'string', default: '—', sub: true },
+    {
+      name: 'size',
+      description:
+        'Width step, read from `--wr-dialog-width-<size>`. The default comes from `withDialog()`, for `open()` only.',
+      type: "'sm' | 'md' | 'lg'",
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'width',
+      description: 'Panel width — any CSS length. Wins over `size`.',
+      type: 'string',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'minWidth',
+      description: 'Panel minimum width, in place of `--wr-dialog-min-width`. It wins over the viewport gutter.',
+      type: 'string',
+      default: '—',
+      sub: true,
+    },
     { name: 'maxWidth', description: 'Panel maximum width.', type: 'string', default: '—', sub: true },
+    {
+      name: 'height',
+      description: 'Panel height — any CSS length. `[wrDialogContent]` scrolls inside it.',
+      type: 'string',
+      default: '—',
+      sub: true,
+    },
+    {
+      name: 'maxHeight',
+      description: 'Panel maximum height, in place of the viewport gutter.',
+      type: 'string',
+      default: '—',
+      sub: true,
+    },
     {
       name: 'closeOnBackdropClick',
       description: 'Close when the backdrop is clicked.',
@@ -434,6 +477,13 @@ const result = await ref.awaitClose(); // 'uploaded', or undefined when dismisse
     });
     const result = await ref.awaitClose();
     this.lastResult.set(result === true ? 'Confirmed' : 'Cancelled');
+  }
+
+  protected openSized(size: WrDialogSize): void {
+    this.dialog.open<ConfirmDialogComponent, boolean, ConfirmData>(ConfirmDialogComponent, {
+      data: { title: `Size ${size}`, message: 'The width comes from the size hook.' },
+      size,
+    });
   }
 
   protected openNamed(): void {

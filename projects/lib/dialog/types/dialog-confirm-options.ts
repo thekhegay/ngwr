@@ -12,6 +12,7 @@ import type { WrDialogOptions } from './dialog-options';
 /** The `WrDialogOptions` that `confirm()` and `alert()` pass through to the dialog. */
 export type WrDialogMessageOptions = Pick<
   WrDialogOptions,
+  | 'size'
   | 'width'
   | 'maxWidth'
   | 'panelClass'
