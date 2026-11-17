@@ -9,6 +9,8 @@ import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { compileSass } from '../spec-sass';
+
 import { WrBreadcrumbs } from './breadcrumbs';
 import { WrBreadcrumbsItem } from './breadcrumbs-item';
 
@@ -266,5 +268,89 @@ describe('WrBreadcrumbs landmark name', () => {
 
   it('falls back to English when no catalog carries the key', async () => {
     expect(await nameOf([])).toBe('Breadcrumbs');
+  });
+});
+
+/**
+ * jsdom has no layout, so a cut label is one whose `scrollWidth` the spec sets
+ * past its `clientWidth`. The compiled sheet goes into the document for the
+ * half that is CSS: the label has no box until the trail is `truncate`.
+ */
+describe('WrBreadcrumbs truncate', () => {
+  const LONG = 'Quarterly revenue forecast for the northern region';
+
+  @Component({
+    imports: [WrBreadcrumbs, WrBreadcrumbsItem],
+    template: `
+      <wr-breadcrumbs [truncate]="truncate()">
+        <wr-breadcrumbs-item href="/boards">Quarterly revenue forecast for the northern region</wr-breadcrumbs-item>
+        <wr-breadcrumbs-item>Task 12</wr-breadcrumbs-item>
+      </wr-breadcrumbs>
+    `,
+  })
+  class TruncateHost {
+    readonly truncate = signal(true);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<TruncateHost>>;
+  let sheet: HTMLStyleElement;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const trail = (): HTMLElement => root().querySelector<HTMLElement>('wr-breadcrumbs')!;
+  const items = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('wr-breadcrumbs-item')];
+  const label = (index: number): HTMLElement => items()[index].querySelector<HTMLElement>('.wr-breadcrumbs__label')!;
+
+  const hover = (index: number, scrollWidth: number, clientWidth: number): void => {
+    Object.defineProperty(label(index), 'scrollWidth', { configurable: true, value: scrollWidth });
+    Object.defineProperty(label(index), 'clientWidth', { configurable: true, value: clientWidth });
+    items()[index].dispatchEvent(new Event('pointerenter'));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    sheet = document.createElement('style');
+    sheet.textContent = compileSass(`@use 'breadcrumbs/styles';`);
+    document.head.append(sheet);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    fixture = TestBed.createComponent(TruncateHost);
+    fixture.detectChanges();
+    document.body.append(root());
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    sheet.remove();
+  });
+
+  it('takes the modifier only when asked, and cuts the label only under it', () => {
+    expect(trail().className).toBe('wr-breadcrumbs wr-breadcrumbs--truncate');
+    expect(getComputedStyle(label(0)).textOverflow).toBe('ellipsis');
+    expect(getComputedStyle(label(0)).whiteSpace).toBe('nowrap');
+
+    fixture.componentInstance.truncate.set(false);
+    fixture.detectChanges();
+    expect(trail().className).toBe('wr-breadcrumbs');
+    expect(getComputedStyle(label(0)).display).toBe('contents');
+    expect(getComputedStyle(label(0)).whiteSpace).not.toBe('nowrap');
+  });
+
+  it('keeps the full text in the DOM, where the accessible name comes from', () => {
+    expect(label(0).textContent.trim()).toBe(LONG);
+    expect(items()[0].querySelector('a')!.textContent.trim()).toBe(LONG);
+    expect(label(0).hasAttribute('title')).toBe(false);
+  });
+
+  it('gives a cut label its full text as a title on hover, and takes it back', () => {
+    hover(0, 420, 256);
+    expect(label(0).getAttribute('title')).toBe(LONG);
+
+    hover(0, 256, 256);
+    expect(label(0).hasAttribute('title')).toBe(false);
+  });
+
+  it('gives a label that fits no title', () => {
+    hover(1, 60, 60);
+    expect(label(1).hasAttribute('title')).toBe(false);
   });
 });

@@ -6,7 +6,7 @@
  */
 
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, ElementRef, ViewEncapsulation, computed, inject, input, signal } from '@angular/core';
 import { type Params, RouterLink } from '@angular/router';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
@@ -21,6 +21,11 @@ import { wrCheckStyles } from 'ngwr/utils';
  * `<a class="wr-breadcrumbs__current" role="text" tabindex="-1"
  * aria-current="page">` (when neither is set — typically the last crumb).
  *
+ * The text sits in a `<span class="wr-breadcrumbs__label">`, which has no box of
+ * its own until the trail is `truncate`. A label that is cut then takes its full
+ * text as a `title` while the pointer is over the crumb. The accessible name is
+ * the text itself, cut or not.
+ *
  * @example
  * ```html
  * <wr-breadcrumbs-item icon="home" routerLink="/">Home</wr-breadcrumbs-item>
@@ -34,7 +39,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   templateUrl: './breadcrumbs-item.html',
   encapsulation: ViewEncapsulation.None,
   imports: [NgTemplateOutlet, RouterLink, WrIcon],
-  host: { class: 'wr-breadcrumbs__item', role: 'listitem' },
+  host: { class: 'wr-breadcrumbs__item', role: 'listitem', '(pointerenter)': 'markCut()' },
 })
 export class WrBreadcrumbsItem {
   constructor() {
@@ -64,6 +69,17 @@ export class WrBreadcrumbsItem {
 
   protected readonly isLink = computed(() => this.href() != null || this.routerLink() != null);
   protected readonly isRouter = computed(() => this.routerLink() != null);
+
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  protected readonly cutTitle = signal<string | null>(null);
+
+  protected markCut(): void {
+    const label = this.host.nativeElement.querySelector<HTMLElement>('.wr-breadcrumbs__label');
+    // A pixel of slack: a fractional width rounds the two reads apart.
+    const cut = !!label && label.scrollWidth > label.clientWidth + 1;
+    this.cutTitle.set(cut ? label.textContent.trim() : null);
+  }
 
   protected readonly rootClass = computed(() => (this.isLink() ? 'wr-breadcrumbs__link' : 'wr-breadcrumbs__current'));
 }

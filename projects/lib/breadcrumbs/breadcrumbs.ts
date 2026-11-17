@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
@@ -30,6 +31,9 @@ function cssString(value: string): string {
  *
  * <!-- Custom separator -->
  * <wr-breadcrumbs separator="›">…</wr-breadcrumbs>
+ *
+ * <!-- Long names end in an ellipsis instead of wrapping -->
+ * <wr-breadcrumbs truncate>…</wr-breadcrumbs>
  * ```
  *
  * @see https://ngwr.dev/reference/components/breadcrumbs
@@ -41,6 +45,7 @@ function cssString(value: string): string {
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-breadcrumbs',
+    '[class.wr-breadcrumbs--truncate]': 'truncate()',
     '[style.--wr-breadcrumbs-separator]': 'separatorValue()',
   },
 })
@@ -53,6 +58,16 @@ export class WrBreadcrumbs {
    * then `'Breadcrumbs'`.
    */
   readonly ariaLabel = input<string | null>(null);
+
+  /**
+   * Keep every item on one line and end a long one in an ellipsis. A linked item
+   * is cut at `--wr-breadcrumbs-item-max-width` (16rem). The current item is cut
+   * at `--wr-breadcrumbs-current-max-width`, `none` by default, so it is cut only
+   * where it is wider than the trail. A cut item shows its full text as a `title`
+   * on hover.
+   * @default false
+   */
+  readonly truncate = input(false, { transform: coerceBooleanProperty });
 
   // The English default used to live on the input itself, which made this the one
   // landmark in the library a catalog could not reach: `wr-anchor` and `wr-sidebar`
