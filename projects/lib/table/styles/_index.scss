@@ -54,6 +54,7 @@
   // A column's place in a multi-column sort, drawn after its indicator.
   --wr-table-sort-order-font-size: var(--wr-table-head-font-size);
   --wr-table-sort-order-font-weight: var(--wr-font-weight-semibold);
+  --wr-table-actions-gap: var(--wr-space-xs);
   --wr-table-tree-lead-margin-end: var(--wr-space-xs);
   --wr-table-tree-toggle-radius: var(--wr-border-radius-sm);
   --wr-table-expand-btn-padding: var(--wr-space-xs);
@@ -327,6 +328,31 @@
 
   // --- Row selection --------------------------------------------------------
   &__th--select,
+  // --- Row actions ----------------------------------------------------------
+  // `column.actions`. `width: 1%` shrinks the column to its buttons under auto
+  // layout; a fixed layout would read it literally, so there the column takes
+  // its `width`.
+  &__th--actions,
+  &__td--actions {
+    width: 1%;
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  &__table--layout-fixed &__th--actions,
+  &__table--layout-fixed &__td--actions {
+    width: auto;
+  }
+
+  &__actions {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--wr-table-actions-gap);
+    vertical-align: middle;
+  }
+
   &__td--select {
     width: 1%;
     white-space: nowrap;
@@ -1136,6 +1162,10 @@
   .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-left::after,
   .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-right::after {
     content: none;
+  }
+
+  .wr-table--responsive .wr-table__td--actions {
+    width: auto;
   }
 
   // Fixed-layout truncation is meaningless in cards — let values wrap again.

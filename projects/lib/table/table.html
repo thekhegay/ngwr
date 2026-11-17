@@ -417,7 +417,16 @@
                       [ngTemplateOutletContext]="cellEdit.context"
                     />
                   } @else if (col.template; as tpl) {
-                    <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="cellContext(entry.row, col)" />
+                    @if (col.actions) {
+                      <div class="wr-table__actions">
+                        <ng-container
+                          [ngTemplateOutlet]="tpl"
+                          [ngTemplateOutletContext]="cellContext(entry.row, col)"
+                        />
+                      </div>
+                    } @else {
+                      <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="cellContext(entry.row, col)" />
+                    }
                   } @else {
                     {{ cellText(entry.row, col.key, col.column) }}
                   }

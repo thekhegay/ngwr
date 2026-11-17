@@ -305,7 +305,9 @@ one component folder. Reach for them instead of hand-rolling:
   `layout="fixed"` is `.wr-table__table--layout-fixed`: fixed widths, wrapping
   cells. `.wr-table__table--fixed` is the older class that also cuts every cell
   to one line: a virtualized body always wears it, a resize or an edit hold
-  only over `layout="auto"`.
+  only over `layout="auto"`. `actions: true` on a column wraps its cell
+  template in `.wr-table__actions` and shrinks the column with `width: 1%`,
+  which a fixed layout would read literally, so there the rule steps back.
   `stickyHeader` gives any mode its own scroll area under a sticky header, the
   one a virtualized body already scrolls in (host class `wr-table--sticky-head`
   for both), sized by `viewportHeight`, where `'fill'` takes the parent's
