@@ -362,13 +362,9 @@
   // name: the event titles and the "+N more" a sighted user reads would be missing
   // from it (WCAG 2.5.3, Label in Name).
   &__sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
+    @include styles.visually-hidden;
+
     clip-path: inset(50%);
-    white-space: nowrap;
   }
 
   &__daynum {

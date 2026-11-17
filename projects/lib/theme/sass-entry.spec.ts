@@ -88,7 +88,15 @@ describe("the public entry `@use 'ngwr/theme'`", { timeout: COMPILE_TIMEOUT }, (
    * `rebrand` and `contrast` joined in the same release, because a compile-time
    * rebrand is now how a brand colour reaches the dark scheme at all.
    */
-  const WRAPPED = ['smooth-br', 'touch-target', 'focus-ring', 'scrollbar', 'rebrand', 'contrast'] as const;
+  const WRAPPED = [
+    'smooth-br',
+    'touch-target',
+    'focus-ring',
+    'scrollbar',
+    'visually-hidden',
+    'rebrand',
+    'contrast',
+  ] as const;
 
   it('is the file the `exports` map names', () => {
     const pkg = JSON.parse(readFileSync(join(LIB, 'package.json'), 'utf8')) as {

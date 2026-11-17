@@ -20,15 +20,7 @@
 // element per block, since a BEM class is public API: the range picker's is its own.
 .wr-date-picker__sr-only,
 .wr-date-range-picker__sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  @include theme.visually-hidden;
 }
 
 .wr-date-picker {
