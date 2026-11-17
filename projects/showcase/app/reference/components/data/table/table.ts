@@ -248,7 +248,7 @@ export default class TablePageComponent {
   protected readonly actionColumns: WrTableColumns = {
     name: { title: 'Name' },
     email: { title: 'Email' },
-    actions: { title: '', width: 96 },
+    actions: { title: '', headerHint: 'Actions', actions: true },
   };
 
   protected removeRow(row: Record<string, unknown>): void {
@@ -315,12 +315,6 @@ export default class TablePageComponent {
       seats: 5,
     },
   ];
-
-  protected readonly rowActionColumns: WrTableColumns = {
-    name: { title: 'Name' },
-    note: { title: 'Note' },
-    actions: { title: '', headerHint: 'Actions', actions: true },
-  };
 
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
@@ -523,17 +517,6 @@ const columns: WrTableColumns<Invoice> = {
 <wr-table [columns]="columns" [items]="invoices">
   <ng-template wrTableCell="amount" [wrTableCellOf]="invoices" let-value let-row="item">
     {{ row.customer }} owes {{ value ?? 'nothing' }}
-  </ng-template>
-</wr-table>`,
-    rowActions: `const columns: WrTableColumns = {
-  name: { title: 'Name' },
-  email: { title: 'Email' },
-  actions: { title: '', width: 96 },
-};
-
-<wr-table [columns]="columns" [items]="rows">
-  <ng-template wrTableCell="actions" let-row="item">
-    <wr-btn size="sm" color="danger" outlined (click)="remove(row)">Delete</wr-btn>
   </ng-template>
 </wr-table>`,
     states: `<wr-table [columns]="columns" [items]="rows()" [loading]="loading()" emptyLabel="No users yet" />
