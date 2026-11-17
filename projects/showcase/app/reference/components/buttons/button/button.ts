@@ -71,6 +71,11 @@ export default class ButtonComponent {
     icon: `<wr-btn icon="add" color="primary">Add</wr-btn>
 <wr-btn icon="trash" color="danger" outlined>Delete</wr-btn>
 <wr-btn icon="download" iconPosition="end">Download</wr-btn>`,
+    iconOnly: `<!-- import { WrPopover } from 'ngwr/popover' -->
+<wr-btn icon="trash" [wrPopover]="'Delete'" mode="tooltip" />
+
+<!-- No tooltip: name it yourself -->
+<wr-btn icon="trash" aria-label="Delete" />`,
     disabled: `<wr-btn disabled>Disabled</wr-btn>`,
     loading: `<wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
   Click to toggle
