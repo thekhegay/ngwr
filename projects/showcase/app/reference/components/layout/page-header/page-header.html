@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Page Header"
-  updated="15.6.0"
+  updated="16.6.0"
   description="A page title with slots for breadcrumbs, actions, tags and filters."
   [keywords]="['page-header', 'wr-page-header', 'sticky', 'compact']"
   [labels]="['Composite']"
@@ -167,6 +167,49 @@
       </table>
     </div>
     <ngwr-doc-code [code]="stickyScss" language="scss" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sticky with a second row"
+    description="The filter row is inside the sticky box, so it stays in view with the title. `bleed` runs the header over the padding of `wr-layout-content`, to the top and both side edges, and pads it by as much. Make it the first thing in the content."
+  >
+    <ngwr-doc-code [code]="bleed" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- A div stands in for wr-layout-content: the page has its own main landmark. -->
+      <div
+        class="ngwr-demo-scroll"
+        tabindex="0"
+        style="
+          --wr-layout-content-padding: var(--wr-space-xl);
+          --ngwr-demo-scroll-padding: 7rem;
+          padding: var(--wr-layout-content-padding);
+        "
+      >
+        <wr-page-header sticky bleed compact title="Invoices" subtitle="24 this month">
+          <div wrPageHeaderActions>
+            <wr-btn color="primary">New invoice</wr-btn>
+          </div>
+          <div wrPageHeaderFilters>
+            <wr-select placeholder="Status">
+              <wr-option value="paid">Paid</wr-option>
+              <wr-option value="due">Due</wr-option>
+            </wr-select>
+            <input wrInput placeholder="Search invoices" />
+          </div>
+        </wr-page-header>
+        @for (row of rows; track row) {
+          <div class="ngwr-demo-scroll__row">
+            <span>Invoice #{{ row }}</span>
+            <wr-btn size="sm" outlined>Open</wr-btn>
+          </div>
+        }
+      </div>
+    </ngwr-doc-snippet>
+    <p>
+      The amount is <code>--wr-page-header-bleed</code>. It reads <code>--wr-layout-content-padding</code>, so it is
+      zero outside a <code>wr-layout-content</code> until you set it.
+    </p>
+    <ngwr-doc-code [code]="bleedScss" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

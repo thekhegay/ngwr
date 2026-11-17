@@ -4,7 +4,10 @@ import { join } from 'node:path';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { WrLayoutContent } from 'ngwr/layout';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrPageHeader } from './page-header';
 
@@ -109,6 +112,85 @@ describe('WrPageHeader', () => {
     plain.detectChanges();
     expect((plain.nativeElement as HTMLElement).querySelector('.wr-page-header__filters')!.childNodes.length).toBe(0);
     plain.destroy();
+  });
+
+  it('keeps the filter row inside the sticky box, so it stays in view with the title', () => {
+    fixture.componentInstance.sticky.set(true);
+    fixture.detectChanges();
+
+    const filters = root().querySelector<HTMLElement>('.wr-page-header__filters')!;
+    expect(filters.parentElement).toBe(host());
+    expect(host().className).toContain('wr-page-header--sticky');
+  });
+});
+
+/**
+ * jsdom loads no stylesheet, so the compiled sheets go into the document here
+ * and the margins are read off the rendered header.
+ */
+describe('WrPageHeader bleed', () => {
+  @Component({
+    imports: [WrPageHeader, WrLayoutContent],
+    template: `
+      <wr-layout-content>
+        <wr-page-header data-probe="plain" title="Plain" sticky />
+        <wr-page-header data-probe="bleed" title="Bleed" sticky bleed />
+      </wr-layout-content>
+      <wr-layout-content style="--wr-layout-content-padding: 0.5rem">
+        <wr-page-header data-probe="tight" title="Tight" bleed />
+      </wr-layout-content>
+      <wr-page-header data-probe="outside" title="Outside" bleed />
+      <wr-page-header data-probe="own" title="Own" bleed style="--wr-page-header-bleed: 1rem" />
+    `,
+  })
+  class BleedHost {}
+
+  let fixture: ReturnType<typeof TestBed.createComponent<BleedHost>>;
+  let sheet: HTMLStyleElement;
+
+  const style = (name: string): CSSStyleDeclaration =>
+    getComputedStyle((fixture.nativeElement as HTMLElement).querySelector(`[data-probe="${name}"]`)!);
+
+  beforeEach(() => {
+    sheet = document.createElement('style');
+    sheet.textContent = compileSass(`@use 'layout/styles' as layout;\n@use 'page-header/styles' as page-header;`);
+    document.head.append(sheet);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(BleedHost);
+    fixture.detectChanges();
+    document.body.append(fixture.nativeElement as HTMLElement);
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    sheet.remove();
+  });
+
+  it('leaves a header alone until asked', () => {
+    expect(style('plain').marginLeft).toBe('0px');
+    expect(style('plain').paddingLeft).toBe('0px');
+  });
+
+  it('runs over the content padding on three sides and pads itself by as much', () => {
+    const bleed = style('bleed');
+    expect(bleed.marginTop).toBe('-24px');
+    expect(bleed.marginLeft).toBe('-24px');
+    expect(bleed.marginRight).toBe('-24px');
+    expect(bleed.marginBottom).toBe('0px');
+    expect(bleed.paddingLeft).toBe('24px');
+    expect(bleed.paddingRight).toBe('24px');
+  });
+
+  it('follows the padding an app gives the content', () => {
+    expect(style('tight').marginLeft).toBe('-8px');
+    expect(style('tight').paddingLeft).toBe('8px');
+  });
+
+  it('bleeds by nothing outside a layout, and by its own hook when that is set', () => {
+    expect(style('outside').marginLeft).toBe('0px');
+    expect(style('own').marginLeft).toBe('-16px');
+    expect(style('own').paddingLeft).toBe('16px');
   });
 });
 
