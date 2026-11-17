@@ -170,6 +170,21 @@
     overflow: hidden;
   }
 
+  // `layout="fixed"`: the widths hold and the text wraps. `anywhere`, because a
+  // fixed column cannot grow around a long word.
+  &__table--layout-fixed {
+    table-layout: fixed;
+  }
+
+  &__table--layout-fixed &__th,
+  &__table--layout-fixed &__td {
+    overflow-wrap: anywhere;
+  }
+
+  &__table--layout-fixed &__th {
+    white-space: normal;
+  }
+
   // `truncate: 'tooltip'`. The cut happens where the column cannot grow: under
   // a fixed layout, or at the `max-width` the component writes from `width`.
   &__td--truncate {

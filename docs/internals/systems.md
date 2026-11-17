@@ -302,6 +302,10 @@ one component folder. Reach for them instead of hand-rolling:
   selection, expandable rows, summary rows, CSV export, grouping, **tree rows**
   (`childrenKey` makes `items` the roots and the table announces a `treegrid`)
   and a virtualized body are all opt-in inputs on the one component.
+  `layout="fixed"` is `.wr-table__table--layout-fixed`: fixed widths, wrapping
+  cells. `.wr-table__table--fixed` is the older class that also cuts every cell
+  to one line: a virtualized body always wears it, a resize or an edit hold
+  only over `layout="auto"`.
   `stickyHeader` gives any mode its own scroll area under a sticky header, the
   one a virtualized body already scrolls in (host class `wr-table--sticky-head`
   for both), sized by `viewportHeight`, where `'fill'` takes the parent's

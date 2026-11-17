@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.4.0"
+  updated="16.6.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -193,6 +193,27 @@
       <li>
         The tooltip opens on hover, and on keyboard focus of a control in the header or the cell. A table holds one
         tooltip, created on first use.
+      </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Fixed layout"
+    description='`layout="fixed"` keeps every column at its `width` and wraps the text, so sorting or paging never moves a column.'
+  >
+    <ngwr-doc-code [code]="snippets.layout" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table layout="fixed" [columns]="layoutColumns" [items]="layoutRows" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>Columns without a <code>width</code> share what is left.</li>
+      <li>A column's <code>truncate</code> still cuts its cells to one line: the role column here.</li>
+      <li>Resizing works as before, and the cells keep wrapping. A virtualized table keeps its one-line rows.</li>
+      <li>
+        The table carries <code>.wr-table__table--layout-fixed</code>. <code>.wr-table__table--fixed</code> is the
+        layout a resized <code>auto</code> table takes, which cuts every cell.
       </li>
     </ul>
   </ngwr-doc-section>
