@@ -22,6 +22,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { WR_BUTTON_SIZE } from 'ngwr/button';
 import { WrI18n } from 'ngwr/i18n';
 import { WrMeta } from 'ngwr/meta';
 import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
@@ -95,7 +96,7 @@ export class WrDialog {
       backdropClass: DEFAULT_BACKDROP_CLASS,
       panelClass: wrToClassList(
         DEFAULT_PANEL_CLASS,
-        size && !options.width ? `${DEFAULT_PANEL_CLASS}--${size}` : false,
+        size ? `${DEFAULT_PANEL_CLASS}--${size}` : false,
         options.panelClass
       ),
       width: options.width,
@@ -130,6 +131,7 @@ export class WrDialog {
         // Provided as its own token as well, so dialog content can reach for
         // the familiar `inject(WrDialogRef)` and close itself.
         { provide: WrDialogRef, useValue: dialogRef },
+        ...(size ? [{ provide: WR_BUTTON_SIZE, useValue: () => size }] : []),
       ],
     });
 

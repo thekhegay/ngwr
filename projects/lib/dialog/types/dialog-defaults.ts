@@ -9,6 +9,6 @@ import type { WrDialogOptions } from './dialog-options';
 
 /**
  * App-wide dialog defaults, passed to `provideWr(withDialog(...))`. `size`
- * applies to `open()` only: `confirm()` and `alert()` stay as wide as their text.
+ * applies to `open()` only: `confirm()` and `alert()` take their own.
  */
 export type WrDialogDefaults = Pick<WrDialogOptions, 'tabTitle' | 'autoFocus' | 'size'>;

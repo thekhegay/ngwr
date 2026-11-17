@@ -13,7 +13,7 @@ import type { WrDialogDefaults } from './types';
 /**
  * App-wide dialog defaults, as a feature of `provideWr()`: `tabTitle`, so
  * every dialog names the browser tab while it is open, `autoFocus`, where
- * focus goes on open, and `size`, the width step of every `open()`. The same
+ * focus goes on open, and `size`, the size of every `open()`. The same
  * option on `open()` or `confirm()` still wins.
  *
  * Bootstrap only: `WrDialog` is root-provided and reads it once, from the root
