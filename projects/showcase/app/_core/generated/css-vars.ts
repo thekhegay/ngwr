@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1882 hook(s) across 115 page(s). A property is here only when the
+ * 1883 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -2049,6 +2049,7 @@ export const CSS_VARS = {
   "reference/components/table": {
     subpath: "ngwr/table",
     vars: [
+      { name: "--wr-table-actions-gap", default: "var(--wr-space-xs)", scope: ".wr-table" },
       { name: "--wr-table-bg", default: "var(--wr-color-surface)", scope: ".wr-table" },
       { name: "--wr-table-border", default: "var(--wr-border-base)", scope: ".wr-table" },
       { name: "--wr-table-card-cell-gap", default: "var(--wr-space-lg)", scope: ".wr-table" },
