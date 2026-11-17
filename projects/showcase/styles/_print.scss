@@ -1,0 +1,25 @@
+// Paper gets the page, not the site around it: the header, the navigation, the
+// "On this page" list and the footer stay on screen. `!important` because the
+// shell's own component styles carry an attribute selector this sheet cannot
+// outweigh otherwise.
+@media print {
+  ngwr-header,
+  .ngwr-layout__sidebar,
+  .ngwr-layout__mobile-bar,
+  ngwr-doc-page .toc,
+  ngwr-doc-see-also,
+  ngwr-footer,
+  .wr-next-banner {
+    display: none !important;
+  }
+
+  // The grid kept a column for the sidebar.
+  .ngwr-layout {
+    display: block !important;
+  }
+
+  ngwr-doc-snippet,
+  ngwr-doc-code {
+    break-inside: avoid;
+  }
+}
