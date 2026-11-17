@@ -332,6 +332,9 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
    */
   readonly readonly = input(false, { transform: coerceBooleanProperty });
 
+  /** Stretch the select to fill its parent's width. @default false */
+  readonly block = input(false, { transform: coerceBooleanProperty });
+
   /** Pill-shaped corners on the trigger. @default false */
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
@@ -982,6 +985,7 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
     const parts: string[] = [];
     if (this.isOpen()) parts.push('wr-select--open');
     if (this.rounded()) parts.push('wr-select--rounded');
+    if (this.block()) parts.push('wr-select--block');
     const size = this.size();
     if (size !== 'md') parts.push(`wr-select--${size}`);
     if (this.isMulti()) parts.push('wr-select--multi');

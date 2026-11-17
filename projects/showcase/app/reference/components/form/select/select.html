@@ -100,8 +100,18 @@
 
   <ngwr-doc-section
     title="Width"
-    description="A select is `10rem` wide by default. Change that with `--wr-select-min-width`; a `min-width` on `.wr-select__trigger` has no effect."
-  />
+    description="A select is `10rem` wide by default. Change that with `--wr-select-min-width`; a `min-width` on `.wr-select__trigger` has no effect. `block` fills the parent's width. Inside a `<wr-form-field>` it fills the field without it."
+  >
+    <ngwr-doc-snippet [code]="snippets.block">
+      <div style="width: 100%">
+        <wr-select block placeholder="Full width" [(value)]="size">
+          <wr-option value="sm">Small</wr-option>
+          <wr-option value="md">Medium</wr-option>
+          <wr-option value="lg">Large</wr-option>
+        </wr-select>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
 
   <ngwr-doc-section
     title="Multi mode"

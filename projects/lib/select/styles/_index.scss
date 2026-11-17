@@ -70,6 +70,13 @@
     height: 0;
   }
 
+  // Layout
+  &--block,
+  &:where([block]:not([block='false'])) {
+    display: grid;
+    width: 100%;
+  }
+
   // Sizes — share the `--wr-control-*` contract (22 / 30 / 36 px). Multi/tag
   // min-height and the search/tag inputs all read these vars, so every mode
   // tracks the size. Declared before `--rounded` so the pill modifier wins.
