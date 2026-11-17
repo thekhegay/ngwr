@@ -184,7 +184,7 @@ export const API = {
   // <wr-btn, button[wr-btn], a[wr-btn]>
   WrButton: [
     { name: "color", description: "Color variant. Omit for the neutral default style.", type: "WrColor | null", default: "null" },
-    { name: "size", description: "Size variant.", type: "WrButtonSize", default: "'md'" },
+    { name: "size", description: "Size variant. `null` (default) takes the size a container provides through `WR_BUTTON_SIZE`, such as a sized dialog, and `md` outside one. A size set here always wins.", type: "WrButtonSize | null", default: "null" },
     { name: "shape", description: "Corner treatment — `rounded`, `pill` or `squircle`. `null` (default) falls back to `rounded`. Inside a `<wr-btn-group shape=\"…\">`, the group's shape ALWAYS wins over this input — the group enforces a consistent corner treatment across its members.", type: "WrButtonShape | null", default: "null" },
     { name: "icon", description: "Icon name to render alongside the label. The icon is hidden while `loading` is `true` so the spinner can take its place.", type: "WrIconName | null", default: "null" },
     { name: "iconPosition", description: "Position of the icon relative to the label.", type: "WrButtonIconPosition", default: "'start'" },
