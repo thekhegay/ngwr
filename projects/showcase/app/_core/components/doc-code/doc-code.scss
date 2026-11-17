@@ -143,14 +143,25 @@
   }
 }
 
-// `[wrap]`: a long line folds at its spaces rather than scrolling, and keeps
-// clear of the copy button in the corner, which a wrapped first line would
-// otherwise run under.
-:host(.wrap) ::ng-deep pre {
+// A long line folds at its spaces rather than scrolling, and keeps clear of the
+// copy button in the corner, which a wrapped first line would otherwise run under.
+:host ::ng-deep pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   // rtl-ok: the code is always LTR and the copy button keeps to its right edge
   padding-right: calc(var(--ngwr-doc-code-padding) + 2rem);
+}
+
+// The folded part of a line hangs two columns past the line's own indent.
+:host ::ng-deep pre .line {
+  --ngwr-code-hang: calc(var(--ngwr-code-indent, 0ch) + 2ch);
+
+  display: inline-block;
+  box-sizing: border-box;
+  width: 100%;
+  // rtl-ok: the code is always LTR
+  padding-left: var(--ngwr-code-hang);
+  text-indent: calc(-1 * var(--ngwr-code-hang));
 }
 
 // Shiki ships both `github-light-high-contrast` and `github-dark-high-contrast`
