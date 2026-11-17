@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
+import { WrCard, WrCardHeader } from 'ngwr/card';
 import { WrLayout, WrLayoutContent, WrLayoutFooter, WrLayoutHeader, WrLayoutSider } from 'ngwr/layout';
 
 import {
@@ -17,6 +19,8 @@ import {
   templateUrl: './layout.html',
   imports: [
     WrButton,
+    WrCard,
+    WrCardHeader,
     WrLayout,
     WrLayoutHeader,
     WrLayoutSider,
@@ -30,7 +34,13 @@ import {
   ],
 })
 export default class LayoutPageComponent {
+  private readonly document = inject(DOCUMENT);
+
   protected readonly collapsed = signal(false);
+
+  protected print(): void {
+    this.document.defaultView?.print();
+  }
 
   protected toggleSider(): void {
     this.collapsed.update(v => !v);
@@ -55,10 +65,15 @@ export default class LayoutPageComponent {
   --wr-layout-content-padding: var(--wr-space-md);
 }`,
 
-    print: `<wr-layout-content>
-  <p class="wr-print-only">Acme Ltd, printed from the back office</p>
-  <button wr-btn class="wr-no-print" (click)="print()">Print</button>
-</wr-layout-content>`,
+    print: `<wr-card>
+  <wr-card-header>
+    <div class="wr-no-print">
+      <button wr-btn type="button" color="primary" (click)="print()">Print this page</button>
+    </div>
+  </wr-card-header>
+  <p>Q3 report.</p>
+  <p class="wr-print-only">Printed from ngwr.dev</p>
+</wr-card>`,
   };
 
   protected readonly api: readonly DocApiRow[] = [

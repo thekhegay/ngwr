@@ -1,10 +1,14 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { WrButton } from 'ngwr/button';
+import { WrCheckbox } from 'ngwr/checkbox';
+import { WrDatePicker, WrDateRangePicker, type WrDateRange } from 'ngwr/date-picker';
 import { WrForm, WrFormError, WrFormField, WrFormItem, WrFormSpan } from 'ngwr/form';
 import { WrInput } from 'ngwr/input';
+import { WrOption, WrSelect } from 'ngwr/select';
+import { WrTextarea } from 'ngwr/textarea';
 
 import {
   DocApiComponent,
@@ -23,6 +27,13 @@ import { API } from '#core/generated/api';
   templateUrl: './form.html',
   imports: [
     FormsModule,
+    ReactiveFormsModule,
+    WrCheckbox,
+    WrDatePicker,
+    WrDateRangePicker,
+    WrOption,
+    WrSelect,
+    WrTextarea,
     RouterLink,
     WrInput,
     WrButton,
@@ -43,6 +54,23 @@ export default class FormComponent {
   protected readonly email = signal('');
   protected readonly emailInvalid = signal(false);
 
+  protected readonly country = signal<string | null>(null);
+  protected readonly birthday = signal<Date | null>(null);
+  protected readonly bio = signal('');
+  protected readonly newsletter = signal(false);
+  protected readonly status = signal<string | null>(null);
+  protected readonly range = signal<WrDateRange | null>(null);
+
+  /** Starts empty and touched, so its error shows from the first paint. */
+  protected readonly name = new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required.bind(Validators)],
+  });
+
+  constructor() {
+    this.name.markAsTouched();
+  }
+
   protected readonly snippets = {
     column: `<form wrForm>
   <wr-form-field label="Name"><input wrInput /></wr-form-field>
@@ -61,11 +89,56 @@ export default class FormComponent {
   <wr-form-field label="Longitude"><input wrInput /></wr-form-field>
   <wr-form-field label="Latitude"><input wrInput /></wr-form-field>
 </form>`,
-    gap: `.settings-form {
-  --wr-form-gap: var(--wr-space-xl);
-  // Fields whose errors show: line the labels up instead of the bottom edges.
-  --wr-form-inline-align: flex-start;
-}`,
+    profile: `<form wrForm columns="2">
+  <wr-form-field label="First name" required><input wrInput /></wr-form-field>
+  <wr-form-field label="Last name" required><input wrInput /></wr-form-field>
+  <wr-form-field label="Email" wrFormSpan><input wrInput type="email" /></wr-form-field>
+  <wr-form-field label="Country">
+    <wr-select [(value)]="country">
+      <wr-option value="gb">United Kingdom</wr-option>
+      <wr-option value="de">Germany</wr-option>
+    </wr-select>
+  </wr-form-field>
+  <wr-form-field label="Date of birth"><wr-date-picker [(value)]="birthday" /></wr-form-field>
+  <wr-form-field label="About you" optional wrFormSpan>
+    <wr-textarea [rows]="3" [(value)]="bio" />
+  </wr-form-field>
+  <wr-checkbox wrFormSpan [(checked)]="newsletter">Send me product news</wr-checkbox>
+  <div wrForm inline wrFormSpan>
+    <button wr-btn type="button" color="primary">Save</button>
+    <button wr-btn type="button">Cancel</button>
+  </div>
+</form>`,
+    filters: `<form wrForm inline>
+  <wr-form-field label="Search"><input wrInput type="search" /></wr-form-field>
+  <wr-form-field label="Status">
+    <wr-select [(value)]="status">
+      <wr-option value="open">Open</wr-option>
+      <wr-option value="paid">Paid</wr-option>
+    </wr-select>
+  </wr-form-field>
+  <wr-form-field label="Created"><wr-date-range-picker [(value)]="range" /></wr-form-field>
+  <button wr-btn type="button" color="primary">Apply</button>
+</form>`,
+    threeColumns: `<form wrForm columns="3">
+  <wr-form-field label="Street" wrFormSpan="2"><input wrInput /></wr-form-field>
+  <wr-form-field label="Apartment"><input wrInput /></wr-form-field>
+  <wr-form-field label="City"><input wrInput /></wr-form-field>
+  <wr-form-field label="Region"><input wrInput /></wr-form-field>
+  <wr-form-field label="Postcode"><input wrInput /></wr-form-field>
+</form>`,
+    gapDemo: `<form wrForm columns="2" style="--wr-form-gap: var(--wr-space-xs)">
+  <wr-form-field label="First name"><input wrInput /></wr-form-field>
+  <wr-form-field label="Last name"><input wrInput /></wr-form-field>
+  <wr-form-field label="Email" wrFormSpan><input wrInput type="email" /></wr-form-field>
+</form>`,
+    align: `<form wrForm inline style="--wr-form-inline-align: flex-start">
+  <wr-form-field label="Name">
+    <input wrInput [formControl]="name" />
+    <wr-form-error key="required">Name is required.</wr-form-error>
+  </wr-form-field>
+  <wr-form-field label="City"><input wrInput /></wr-form-field>
+</form>`,
     basic: `<wr-form-item>
   <label>Email</label>
   <input wrInput type="email" [(ngModel)]="email" />
