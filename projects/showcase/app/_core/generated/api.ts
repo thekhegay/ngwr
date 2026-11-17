@@ -1198,7 +1198,7 @@ export const API = {
   // <[wrPopover]>
   WrPopover: [
     { name: "wrPopover", description: "Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.", type: "TemplateRef<unknown> | string", required: true },
-    { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover / keyboard-focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host.", type: "'popover' | 'tooltip'", default: "'popover'" },
+    { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover / keyboard-focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host. A button or link host with no accessible name (no text, `aria-label`, `aria-labelledby` or `title`) is named by the text instead, through `aria-label`, and gets no `aria-describedby`. Your own `aria-label` always wins; when it equals the text, the host is not described by it a second time.", type: "'popover' | 'tooltip'", default: "'popover'" },
     { name: "trigger", description: "How the popover opens. Ignored in tooltip mode — a tooltip is always hover plus keyboard focus. A `hover` popover still opens from the keyboard, with Enter or Space on the trigger, and then takes focus the way a click one does.", type: "'click' | 'hover'", default: "'click'" },
     { name: "position", description: "Anchor side.", type: "WrPopoverPosition | null", default: "'bottom' for popover, 'top' for tooltip" },
     { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
