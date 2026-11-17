@@ -84,6 +84,14 @@ protected readonly account = form(this.model, path => {
   <wr-form-error key="required">Pick a handle.</wr-form-error>
 </wr-form-field>`,
 
+    focusInvalid: `private readonly injector = inject(Injector);
+private readonly formEl = viewChild.required<ElementRef<HTMLElement>>('formEl');
+
+protected async save(): Promise<void> {
+  const sent = await submit(this.order, async () => this.api.save(this.model()));
+  if (!sent) void wrFocusFirstInvalid(this.formEl().nativeElement, { injector: this.injector });
+}`,
+
     catalog: `// app.config.ts: one message per error key, for every field
 provideWrI18nStaticLoader({
   en: {

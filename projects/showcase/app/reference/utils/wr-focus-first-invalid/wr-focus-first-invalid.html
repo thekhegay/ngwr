@@ -1,0 +1,62 @@
+<ngwr-doc-page
+  title="wrFocusFirstInvalid"
+  since="16.6.0"
+  description="After a refused submit, focuses the first invalid control and scrolls its field into view."
+  [keywords]="['wrFocusFirstInvalid', 'focus', 'invalid', 'submit', 'validation', 'forms', 'a11y', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Call it after `submit()` or `markAllAsTouched()`, with an `injector`: it waits for the render that draws the errors."
+  >
+    <ngwr-doc-code [code]="snippet" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Case</th>
+            <th scope="col">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">What counts as invalid</th>
+            <td>
+              An element with <code>aria-invalid="true"</code>, or a <code>&lt;wr-form-field&gt;</code> showing an
+              error.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">A group, such as <code>wr-radio-group</code></th>
+            <td>The first control inside it takes the focus.</td>
+          </tr>
+          <tr>
+            <th scope="row">Disabled or hidden</th>
+            <td>Skipped.</td>
+          </tr>
+          <tr>
+            <th scope="row">Scroll</th>
+            <td>The field goes to the centre, smoothly. Under <code>prefers-reduced-motion</code> it jumps.</td>
+          </tr>
+          <tr>
+            <th scope="row">No <code>injector</code></th>
+            <td>It looks at once. Use it when the errors are already on screen.</td>
+          </tr>
+          <tr>
+            <th scope="row">On the server</th>
+            <td>Does nothing and resolves to <code>false</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

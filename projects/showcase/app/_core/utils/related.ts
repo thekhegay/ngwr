@@ -103,6 +103,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/select',
     'reference/components/input',
     'reference/validators/match-fields',
+    'reference/utils/wr-focus-first-invalid',
     'guides/translations/setup',
   ],
   'guides/grid': ['guides/mobile', 'reference/components/layout', 'guides/tokens/sizing'],
@@ -712,6 +713,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/input',
     'guides/overlay',
     'reference/utils/wr-get-focusable-elements',
+    'reference/utils/wr-focus-first-invalid',
   ],
   'reference/directives/autosize': [
     'reference/components/textarea',
@@ -885,6 +887,12 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/utils/wr-throttle',
     'reference/components/select',
     'reference/components/command-palette',
+  ],
+  'reference/utils/wr-focus-first-invalid': [
+    'guides/forms',
+    'reference/components/form-field',
+    'reference/directives/autofocus',
+    'reference/utils/wr-get-focusable-elements',
   ],
   'reference/utils/wr-get-focusable-elements': [
     'reference/utils/wr-trap-focus',

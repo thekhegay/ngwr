@@ -38,6 +38,10 @@ export default [
     loadComponent: () => import('./wr-get-focusable-elements/wr-get-focusable-elements'),
   },
   { path: utils.wrTrapFocus.path, loadComponent: () => import('./wr-trap-focus/wr-trap-focus') },
+  {
+    path: utils.wrFocusFirstInvalid.path,
+    loadComponent: () => import('./wr-focus-first-invalid/wr-focus-first-invalid'),
+  },
   { path: utils.wrAction.path, loadComponent: () => import('./wr-action/wr-action') },
   { path: utils.wrDecimal.path, loadComponent: () => import('./wr-decimal/wr-decimal') },
   { path: utils.wrDownloadBlob.path, loadComponent: () => import('./wr-download-blob/wr-download-blob') },

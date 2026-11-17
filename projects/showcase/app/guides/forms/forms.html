@@ -158,6 +158,19 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Focus the first invalid field"
+    description="After a refused submit, `wrFocusFirstInvalid` focuses the first field in error and scrolls it into view."
+  >
+    <ngwr-doc-code [code]="snippets.focusInvalid" language="typescript" />
+
+    <p>
+      Call it after <code>submit()</code> or <code>markAllAsTouched()</code> and pass an <code>injector</code>: it waits
+      for the render that draws the errors. See
+      <a routerLink="/reference/utils/wr-focus-first-invalid">wrFocusFirstInvalid</a>.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Draw a form from its schema"
     description="Describe each field with `WR_FIELD` next to its rules, and `<wr-schema-form>` draws it."
   >
