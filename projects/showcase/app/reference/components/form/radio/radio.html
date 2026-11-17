@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Radio"
-  updated="15.0.0"
+  updated="16.6.0"
   description="Pick one option from a short list."
   [keywords]="['radio', 'wr-radio', 'wr-radio-group']"
   [labels]="['Component']"
@@ -28,6 +28,18 @@
         <wr-radio value="pro">Pro — $9/mo</wr-radio>
         <wr-radio value="enterprise">Enterprise — custom</wr-radio>
       </wr-radio-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Options from an array"
+    description="`[options]` renders a radio per item, before any projected ones. `[displayWith]` labels it and `[valueWith]` picks the value the model holds; without it the value is the item itself."
+  >
+    <ngwr-doc-snippet [code]="snippets.options">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem">
+        <wr-radio-group [options]="tiers" [displayWith]="tierName" [valueWith]="tierId" [(value)]="tier" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ tier() }}</span>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
