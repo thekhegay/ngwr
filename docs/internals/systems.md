@@ -247,7 +247,7 @@ one component folder. Reach for them instead of hand-rolling:
   own implementation for a string built in TypeScript — the locale is their
   second argument, except `wrFormatDate`, which takes the adapter the pipe
   injects), and
-  `ngwr/validators` (`WrValidators`). A chart builds on `ngwr/charts/core` —
+  `ngwr/validators` (`WrValidators`, and the Signal Forms rules `wrMatches` and `wrNotBlank`). A chart builds on `ngwr/charts/core` —
   the palette, dashes and markers, `useChartNumbers`, `wrChartAxis` and the
   visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,
   line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,

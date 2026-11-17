@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import {
   DocCodeComponent,
@@ -13,7 +14,14 @@ import {
 @Component({
   selector: 'ngwr-gs-forms-page',
   templateUrl: './forms.html',
-  imports: [DocPageComponent, DocSectionComponent, DocCodeComponent, DocNgtrueComponent, DocSeeAlsoComponent],
+  imports: [
+    RouterLink,
+    DocPageComponent,
+    DocSectionComponent,
+    DocCodeComponent,
+    DocNgtrueComponent,
+    DocSeeAlsoComponent,
+  ],
 })
 export default class FormsGuidePage {
   protected readonly snippets = {
@@ -40,6 +48,16 @@ export class Order {
     required(path.plan, { message: 'Pick a plan.' });
   });
 }`,
+
+    rules: `import { form, required } from '@angular/forms/signals';
+import { wrMatches, wrNotBlank } from 'ngwr/validators';
+
+protected readonly account = form(this.model, path => {
+  wrNotBlank(path.name);
+  required(path.password);
+  required(path.confirm);
+  wrMatches(path.confirm, path.password, { message: 'The passwords differ.' });
+});`,
 
     classic: `<form [formGroup]="form">
   <wr-select formControlName="plan">…</wr-select>
