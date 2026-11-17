@@ -444,7 +444,7 @@ export const DOC_ROUTES: Readonly<
   "reference/components/empty": {"title":"Empty","kind":"Component","labels":["Display"],"description":"A placeholder for a view with no data."},
   "reference/components/event-calendar": {"title":"Event calendar","kind":"Component","labels":["Component"],"description":"Month, week and day views of events the user can move and resize."},
   "reference/components/file-upload": {"title":"File Upload","kind":"Component","labels":["Signal Forms"],"description":"Pick files by dropping them on a zone or browsing."},
-  "reference/components/form": {"title":"Form","kind":"Component","labels":["Component"],"description":"A plain layout wrapper for a label, a control and its error."},
+  "reference/components/form": {"title":"Form","kind":"Component","labels":["Component"],"description":"The layout of a form's fields, and a plain wrapper for a label, a control and its error."},
   "reference/components/form-field": {"title":"Form Field","kind":"Component","labels":["Component"],"description":"Wraps a form control with a label, a hint and its error messages."},
   "reference/components/graph": {"title":"Graph","kind":"Component","labels":["Component","SSR-safe"],"description":"Draws blocks joined parent to child, top to bottom, for display only."},
   "reference/components/icon": {"title":"Icon","kind":"Component","labels":["Component"],"description":"Renders an SVG icon you register by name; ngwr ships none of its own."},

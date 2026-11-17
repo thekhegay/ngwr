@@ -802,6 +802,11 @@ export const API = {
     { name: "clickSplash", description: "Whether a click or a tap splashes the ink outward from the point.", type: "boolean", default: "true" },
     { name: "quality", description: "How finely the fluid is simulated: the grids and the pressure solve.", type: "WrFluidCursorQuality", default: "'medium'" },
   ],
+  // <[wrForm]>
+  WrForm: [
+    { name: "inline", description: "Lay the fields out in a wrapping row, aligned on their bottom edge. `columns` is ignored.", type: "boolean", default: "false" },
+    { name: "columns", description: "How many equal columns a row holds. Below a form width of `30rem` every field takes a full row.", type: "number", default: "1" },
+  ],
   // <wr-form-error>
   WrFormError: [
     { name: "key", description: "Validator key this message corresponds to (e.g. `'required'`). Optional — without a key the message always renders, which is the plain inline-error usage inside `<wr-form-item>`.", type: "string" },
@@ -819,6 +824,10 @@ export const API = {
   // <wr-form-item>
   WrFormItem: [
     { name: "hasError", description: "When `true`, applies error coloring to the projected label and inputs.", type: "boolean", default: "false" },
+  ],
+  // <[wrFormSpan]>
+  WrFormSpan: [
+    { name: "wrFormSpan", description: "Columns to span. Empty or `'full'` takes the whole row.", type: "number | 'full'", default: "'full'" },
   ],
   // <wr-funnel-chart>
   WrFunnelChart: [

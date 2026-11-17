@@ -147,7 +147,7 @@ export const UPDATED = {
   "reference/components/editor": "15.0.0",
   "reference/components/event-calendar": "16.3.0",
   "reference/components/file-upload": "16.4.0",
-  "reference/components/form": "15.0.0",
+  "reference/components/form": "16.6.0",
   "reference/components/form-field": "15.0.0",
   "reference/components/graph": "16.4.0",
   "reference/components/icon": "16.0.0",

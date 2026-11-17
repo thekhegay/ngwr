@@ -124,7 +124,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/event-calendar/testing` | `import { WrEventCalendarChipHarness } from 'ngwr/event-calendar/testing'` | — |
 | `ngwr/file-upload` | `import { WrFileUpload } from 'ngwr/file-upload'` | `wr-file-upload` |
 | `ngwr/file-upload/testing` | `import { WrFileUploadHarness } from 'ngwr/file-upload/testing'` | — |
-| `ngwr/form` | `import { WrFormField } from 'ngwr/form'` | `wr-form-error` `wr-form-field` `wr-form-item` |
+| `ngwr/form` | `import { WrFormField } from 'ngwr/form'` | `wr-form-error` `wr-form-field` `wr-form-item` `[wrForm]` `[wrFormSpan]` |
 | `ngwr/form/testing` | `import { WrFormFieldHarness } from 'ngwr/form/testing'` | — |
 | `ngwr/graph` | `import { WrGraph } from 'ngwr/graph'` | `ng-template[wrGraphNode]` `wr-graph` |
 | `ngwr/graph/testing` | `import { WrGraphHarness } from 'ngwr/graph/testing'` | — |
