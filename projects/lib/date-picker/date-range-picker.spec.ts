@@ -1741,3 +1741,28 @@ describe('WrDateRangePicker open and close from code', () => {
     expect([before.opened(), before.closed()]).toEqual([1, 0]);
   });
 });
+
+@Component({
+  imports: [WrDateRangePicker, WrFormField],
+  template: `<wr-form-field label="Trip" [required]="required()"><wr-date-range-picker /></wr-form-field>`,
+})
+class RequiredFieldHost {
+  readonly required = signal(true);
+}
+
+describe('WrDateRangePicker aria-required', () => {
+  it('marks both text inputs while the field is required', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
+    const fixture = TestBed.createComponent(RequiredFieldHost);
+    fixture.detectChanges();
+    const inputs = [...(fixture.nativeElement as HTMLElement).querySelectorAll('input.wr-input')];
+    expect(inputs.length).toBe(2);
+    expect(inputs.map(i => i.getAttribute('aria-required'))).toEqual(['true', 'true']);
+
+    fixture.componentInstance.required.set(false);
+    fixture.detectChanges();
+    expect(inputs.some(i => i.hasAttribute('aria-required'))).toBe(false);
+    fixture.destroy();
+  });
+});

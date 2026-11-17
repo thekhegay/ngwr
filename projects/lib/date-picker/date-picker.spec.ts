@@ -2379,3 +2379,27 @@ describe('WrDatePicker open and close from code', () => {
     expect([before.opened(), before.closed()]).toEqual([1, 0]);
   });
 });
+
+@Component({
+  imports: [WrDatePicker, WrFormField],
+  template: `<wr-form-field label="Due" [required]="required()"><wr-date-picker /></wr-form-field>`,
+})
+class RequiredFieldHost {
+  readonly required = signal(true);
+}
+
+describe('WrDatePicker aria-required', () => {
+  it('marks the text input while the field is required', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale: 'en-US' }))] });
+    const fixture = TestBed.createComponent(RequiredFieldHost);
+    fixture.detectChanges();
+    const input = (fixture.nativeElement as HTMLElement).querySelector('input.wr-input')!;
+    expect(input.getAttribute('aria-required')).toBe('true');
+
+    fixture.componentInstance.required.set(false);
+    fixture.detectChanges();
+    expect(input.hasAttribute('aria-required')).toBe(false);
+    fixture.destroy();
+  });
+});

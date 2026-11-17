@@ -5,6 +5,7 @@ import { FormField, form } from '@angular/forms/signals';
 
 import { Subject } from 'rxjs';
 
+import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -608,5 +609,31 @@ describe('WrInputOtp focusBoundControl', () => {
 
     expect(document.activeElement).toBe(first);
     expect([first.selectionStart, first.selectionEnd]).toEqual([0, 1]);
+  });
+});
+
+@Component({
+  imports: [WrInputOtp, WrFormField],
+  template: `<wr-form-field label="Code" [required]="required()"><wr-input-otp [length]="4" /></wr-form-field>`,
+})
+class RequiredHost {
+  readonly required = signal(true);
+}
+
+describe('WrInputOtp aria-required', () => {
+  it('marks every box, not the group, while the field is required', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(RequiredHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const boxes = [...root.querySelectorAll('input')];
+    expect(boxes.length).toBe(4);
+    expect(boxes.map(b => b.getAttribute('aria-required'))).toEqual(['true', 'true', 'true', 'true']);
+    expect(root.querySelector('[role="group"]')!.hasAttribute('aria-required')).toBe(false);
+
+    fixture.componentInstance.required.set(false);
+    fixture.detectChanges();
+    expect(boxes.some(b => b.hasAttribute('aria-required'))).toBe(false);
+    fixture.destroy();
   });
 });

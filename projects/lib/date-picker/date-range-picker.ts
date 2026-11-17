@@ -18,6 +18,7 @@ import {
   Injector,
   type Signal,
   ViewEncapsulation,
+  afterRenderEffect,
   computed,
   effect,
   inject,
@@ -470,6 +471,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     !this.inputField.outer && this.shownErrors()[0] ? 'true' : null
   );
   protected readonly endAriaInvalid = computed<'true' | null>(() => (this.shownErrors()[1] ? 'true' : null));
+  /**
+   * The end input is hidden from the field, so the picker carries the field's `required` to it.
+   * Written after render: a template binding loses to the `wrInput` host binding on the first pass.
+   */
+  protected readonly endAriaRequired = computed<'true' | null>(() =>
+    this.inputField.outer?.required?.() ? 'true' : null
+  );
   protected readonly startDescribedBy = computed(() =>
     !this.inputField.outer && this.shownErrors()[0]?.message && this.announcement() ? this.statusId : null
   );
@@ -505,6 +513,13 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     this.destroyRef.onDestroy(() => {
       this.dispose();
       clearTimeout(this.silenceTimer);
+    });
+
+    afterRenderEffect(() => {
+      const end = this.endEl().nativeElement;
+      const required = this.endAriaRequired();
+      if (required) end.setAttribute('aria-required', required);
+      else end.removeAttribute('aria-required');
     });
 
     // The start input's field (see `WrDateInputField`) marks it invalid for the
