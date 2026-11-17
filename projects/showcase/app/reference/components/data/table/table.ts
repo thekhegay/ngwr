@@ -1,9 +1,11 @@
 import { Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { Pencil, Trash2 } from 'lucide';
 import { WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { WrCopyValue } from 'ngwr/copy-value';
+import { provideWrIcons, wrLucideIcons } from 'ngwr/icon';
 import { WrInput } from 'ngwr/input';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrPopover } from 'ngwr/popover';
@@ -170,6 +172,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     DocCodeComponent,
     DocApiComponent,
   ],
+  providers: [provideWrIcons(wrLucideIcons({ pencil: Pencil, trash: Trash2 }))],
 })
 export default class TablePageComponent {
   protected readonly columns: WrTableColumns = {
