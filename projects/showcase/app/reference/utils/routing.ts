@@ -42,6 +42,10 @@ export default [
     path: utils.wrFocusFirstInvalid.path,
     loadComponent: () => import('./wr-focus-first-invalid/wr-focus-first-invalid'),
   },
+  {
+    path: utils.wrHttpErrorText.path,
+    loadComponent: () => import('./wr-http-error-text/wr-http-error-text'),
+  },
   { path: utils.wrAction.path, loadComponent: () => import('./wr-action/wr-action') },
   { path: utils.wrDecimal.path, loadComponent: () => import('./wr-decimal/wr-decimal') },
   { path: utils.wrDownloadBlob.path, loadComponent: () => import('./wr-download-blob/wr-download-blob') },
