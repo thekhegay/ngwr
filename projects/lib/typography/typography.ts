@@ -67,6 +67,9 @@ export class WrTypography {
   /** Render with monospace font. @default false (auto-true for `code`) */
   readonly mono = input(false, { transform: coerceBooleanProperty });
 
+  /** Tabular digits: every digit takes the same width, so amounts line up in a column. @default false */
+  readonly numeric = input(false, { transform: coerceBooleanProperty });
+
   protected readonly classes = computed(() => {
     const parts = [`wr-typography--${this.variant()}`];
     const tone = this.tone();
@@ -75,6 +78,7 @@ export class WrTypography {
     if (align) parts.push(`wr-typography--align-${align}`);
     if (this.truncate()) parts.push('wr-typography--truncate');
     if (this.mono() || this.variant() === 'code') parts.push('wr-typography--mono');
+    if (this.numeric()) parts.push('wr-typography--numeric');
     return parts.join(' ');
   });
 }

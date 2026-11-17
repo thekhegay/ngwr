@@ -55,6 +55,12 @@ export default class DirectivesTypographyPage {
       default: 'false',
       description: 'Monospace font. On by default for `variant="code"`.',
     },
+    {
+      name: 'numeric',
+      type: 'boolean',
+      default: 'false',
+      description: 'Tabular digits: every digit takes the same width, so amounts line up.',
+    },
   ];
 
   protected readonly variants: readonly DocApiRow[] = [
@@ -105,6 +111,7 @@ export default class DirectivesTypographyPage {
       type: 'when `mono` or `variant="code"`',
       description: 'Monospace font.',
     },
+    { name: 'wr-typography--numeric', type: 'when `numeric`', description: 'Tabular digits.' },
   ];
 
   protected readonly related: readonly DocSeeAlsoLink[] = [
