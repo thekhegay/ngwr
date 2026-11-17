@@ -139,7 +139,7 @@ export const UPDATED = {
   "reference/components/context-menu": "16.5.0",
   "reference/components/date-picker": "16.6.0",
   "reference/components/date-stamp": "16.2.0",
-  "reference/components/dialog": "16.5.0",
+  "reference/components/dialog": "16.6.0",
   "reference/components/drawer": "16.5.0",
   "reference/components/dropdown": "16.5.0",
   "reference/components/editor": "15.0.0",
