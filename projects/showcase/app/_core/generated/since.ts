@@ -117,7 +117,7 @@ export const UPDATED = {
   "guides/ssr": "15.0.0",
   "guides/testing": "16.4.0",
   "guides/theming": "16.6.0",
-  "guides/tokens/colors": "15.0.0",
+  "guides/tokens/colors": "16.6.0",
   "guides/tokens/density": "15.0.0",
   "guides/tokens/sizing": "15.0.0",
   "guides/tokens/typography": "15.0.0",
