@@ -189,6 +189,9 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
    */
   readonly size = input<WrDatePickerSize>('md');
 
+  /** Stretch the field to fill its parent's width. The panel keeps its size. @default false */
+  readonly block = input(false, { transform: coerceBooleanProperty });
+
   /** Pill-shaped corners on the field. The panel keeps its shape. @default false */
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
@@ -490,6 +493,7 @@ export class WrDateRangePicker implements FormValueControl<WrDateRange | null> {
     const size = this.size();
     if (size !== 'md') parts.push(`wr-date-range-picker--${size}`);
     if (this.rounded()) parts.push('wr-date-range-picker--rounded');
+    if (this.block()) parts.push('wr-date-range-picker--block');
     if (this.disabled()) parts.push('wr-date-range-picker--disabled');
     if (this.shownErrors().some(Boolean)) parts.push('wr-date-range-picker--invalid');
     return parts.join(' ');

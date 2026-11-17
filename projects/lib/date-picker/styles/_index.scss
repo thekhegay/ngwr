@@ -32,6 +32,13 @@
     width: 100%;
   }
 
+  // Layout
+  &--block,
+  &:where([block]:not([block='false'])) {
+    display: block;
+    width: 100%;
+  }
+
   // Inner button — same affix sizing rules as wr-input-group's toggle.
   &__trigger {
     // Box of the calendar / clock glyph. It follows the control's font size, the
@@ -173,6 +180,13 @@
 
   // As `.wr-date-picker` above.
   > .wr-input-group {
+    width: 100%;
+  }
+
+  // Layout
+  &--block,
+  &:where([block]:not([block='false'])) {
+    display: block;
     width: 100%;
   }
 
