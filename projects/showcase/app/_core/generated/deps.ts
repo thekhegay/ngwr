@@ -303,6 +303,7 @@ export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
   "reference/components/load-state": ["alert","empty","list","spinner"],
   "reference/components/mention": ["input"],
   "reference/components/page-header": ["badge","breadcrumbs","input","select"],
+  "reference/components/popover": ["icon"],
   "reference/components/qrcode": ["input"],
   "reference/components/schema-form": ["form"],
   "reference/components/segmented": ["icon"],

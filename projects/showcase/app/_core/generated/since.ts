@@ -109,7 +109,7 @@ export const UPDATED = {
   "docs/installation": "16.3.0",
   "docs/mcp-server": "15.1.0",
   "guides/csp": "15.0.0",
-  "guides/forms": "16.3.0",
+  "guides/forms": "16.6.0",
   "guides/mobile": "15.0.0",
   "guides/overlay": "15.0.0",
   "guides/ssr": "15.0.0",
