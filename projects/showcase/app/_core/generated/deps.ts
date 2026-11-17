@@ -537,6 +537,7 @@ export const DOC_ROUTES: Readonly<
   "reference/utils/wr-get-focusable-elements": {"title":"wrGetFocusableElements","kind":"Util","labels":["Util"],"description":"Lists the focusable descendants of an element, in DOM order."},
   "reference/utils/wr-get-root-font-size": {"title":"wrGetRootFontSize","kind":"Util","labels":["Util"],"description":"Reads the root font size in pixels, for converting `rem` to `px`."},
   "reference/utils/wr-has-modifier": {"title":"wrHasModifier","kind":"Util","labels":["Util"],"description":"True when Ctrl, Cmd, Alt, Shift or Meta is held during a `KeyboardEvent`."},
+  "reference/utils/wr-http-error-text": {"title":"wrHttpErrorText","kind":"Util","labels":["Util"],"description":"A sentence for a failed request, in the active language. `wrHttpStatus` reads the status alone."},
   "reference/utils/wr-initials": {"title":"wrInitials","kind":"Util","labels":["Util"],"description":"Up to two initials of a name, one grapheme each, or the family name with initials. What `wr-avatar` draws for its `name`."},
   "reference/utils/wr-is-composing": {"title":"wrIsComposing","kind":"Util","labels":["Util"],"description":"True while an input method (IME) is composing, so the key belongs to it and not to your handler."},
   "reference/utils/wr-is-defined": {"title":"wrIsDefined","kind":"Util","labels":["Util"],"description":"Type guard that drops `null` and `undefined`, for use with `Array.filter`."},

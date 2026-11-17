@@ -78,6 +78,7 @@ export const SINCE = {
   "reference/utils/wr-download-blob": "15.5.0",
   "reference/utils/wr-feature": "15.0.0",
   "reference/utils/wr-focus-first-invalid": "16.6.0",
+  "reference/utils/wr-http-error-text": "16.6.0",
   "reference/utils/wr-initials": "15.6.0",
   "reference/utils/wr-live-locale": "16.1.0",
   "reference/utils/wr-poll": "15.5.0",
