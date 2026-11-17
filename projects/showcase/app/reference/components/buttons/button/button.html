@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Button"
-  updated="15.0.0"
+  updated="16.6.0"
   description="A button for an action or a link."
   [keywords]="['button', 'wr-btn']"
   [labels]="['Component']"
@@ -38,7 +38,10 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="Sizes">
+  <ngwr-doc-section
+    title="Sizes"
+    description="With no `size`, a button takes the one its container provides through `WR_BUTTON_SIZE`, as a sized dialog does, and `md` otherwise."
+  >
     <ngwr-doc-snippet [code]="snippets.sizes">
       <wr-btn size="sm" color="primary">Small</wr-btn>
       <wr-btn size="md" color="primary">Medium</wr-btn>
