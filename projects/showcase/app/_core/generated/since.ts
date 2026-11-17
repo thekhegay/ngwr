@@ -178,7 +178,7 @@ export const UPDATED = {
   "reference/components/tree": "16.5.0",
   "reference/components/window": "16.5.0",
   "reference/directives/copy-to-clipboard": "16.1.0",
-  "reference/directives/typography": "15.0.0",
+  "reference/directives/typography": "16.6.0",
   "reference/interfaces/catalog": "15.1.0",
   "reference/interfaces/common": "16.0.0",
   "reference/interfaces/theme": "15.0.0",

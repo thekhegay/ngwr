@@ -1851,6 +1851,7 @@ export const API = {
     { name: "align", description: "Horizontal alignment.", type: "WrTypographyAlign | null", default: "null" },
     { name: "truncate", description: "Truncate to single line with ellipsis.", type: "boolean", default: "false" },
     { name: "mono", description: "Render with monospace font.", type: "boolean", default: "false (auto-true for `code`)" },
+    { name: "numeric", description: "Tabular digits: every digit takes the same width, so amounts line up in a column.", type: "boolean", default: "false" },
   ],
   // <wr-virtual-scroll>
   WrVirtualScroll: [
