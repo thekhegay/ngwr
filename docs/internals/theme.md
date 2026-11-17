@@ -95,7 +95,7 @@ Part of [AGENTS.md](../../AGENTS.md). Read this before changing tokens, colours,
   file declares itself — so the mixins and functions a consumer reaches for in
   a COMPONENT stylesheet are re-declared there as one-line wrappers, the
   forward's `hide` list being the source for which ones (`smooth-br`,
-  `touch-target`, `focus-ring`, `rebrand` and `contrast` today). In a component
+  `touch-target`, `focus-ring`, `scrollbar`, `visually-hidden`, `rebrand` and `contrast` today). In a component
   stylesheet that `@use` still brings a second, shimmed-dead copy of the token
   layer along, because a component stylesheet is its own Sass compilation.
   Three rules hold it together and each one is a build error or a silent loss if
