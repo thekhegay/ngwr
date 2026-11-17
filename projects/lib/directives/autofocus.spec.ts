@@ -1,7 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { WrCheckbox } from 'ngwr/checkbox';
+import { WrOption, WrSelect } from 'ngwr/select';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrAutofocus } from './autofocus';
 
@@ -9,18 +11,12 @@ import { WrAutofocus } from './autofocus';
  * This directive has no rendered surface — its whole output is where DOM focus
  * ends up — so every assertion reads `document.activeElement`.
  *
- * The focus call is DEFERRED on both paths (`afterNextRender` for the first
- * render, a microtask for the reactive one), so each case settles with
+ * The focus call is DEFERRED to `afterNextRender` on both paths, the first
+ * render and a later flip, so each case settles with
  * `await fixture.whenStable()`. Under zoneless CD the scheduler runs change
  * detection in a macrotask; a synchronous `detectChanges()` after an action
  * would update the DOM ahead of the deferred call and could report a pass the
  * browser never gives.
- *
- * What no case below pins is the microtask hop itself: focusing straight out of
- * the effect instead of deferring passes every assertion here. jsdom focuses an
- * element whether or not it is displayed — a `hidden` input takes focus happily —
- * so "the focus would have been dropped because the DOM had not caught up" has no
- * observable form in this environment.
  */
 @Component({
   imports: [WrAutofocus],
@@ -176,5 +172,146 @@ describe('WrAutofocus on a non-control host', () => {
 
     expect(document.activeElement).toBe(el('wrapper'));
     expect(document.activeElement).not.toBe(el('inner'));
+  });
+});
+
+/**
+ * `first` looks for a rendered element, and jsdom lays nothing out: every
+ * `getClientRects()` is empty. The stub gives each element a box, which leaves
+ * the selector and the disabled filter under test.
+ */
+describe('WrAutofocus with "first"', () => {
+  const settle = async <T>(type: new () => T): Promise<HTMLElement> => {
+    const fixture = TestBed.createComponent(type);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    return fixture.nativeElement as HTMLElement;
+  };
+
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('focuses the first field inside the host, not the host', async () => {
+    @Component({
+      imports: [WrAutofocus],
+      template: `
+        <form id="form" wrAutofocus="first" tabindex="-1">
+          <p>Intro</p>
+          <input id="name" />
+          <input id="email" />
+        </form>
+      `,
+    })
+    class FirstHost {}
+
+    const root = await settle(FirstHost);
+
+    expect(document.activeElement).toBe(root.querySelector('#name'));
+  });
+
+  it('skips a disabled field and one that is not rendered', async () => {
+    @Component({
+      imports: [WrAutofocus],
+      template: `
+        <div wrAutofocus="first">
+          <input id="off" disabled />
+          <input id="secret" type="hidden" />
+          <input id="gone" />
+          <input id="name" />
+        </div>
+      `,
+    })
+    class SkipHost {}
+
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(function (this: HTMLElement) {
+      return (this.id === 'gone' ? [] : [{}]) as unknown as DOMRectList;
+    });
+    const root = await settle(SkipHost);
+
+    expect(document.activeElement).toBe(root.querySelector('#name'));
+  });
+
+  it('reaches the trigger inside a wr-select', async () => {
+    @Component({
+      imports: [WrAutofocus, WrSelect, WrOption],
+      template: `
+        <div wrAutofocus="first">
+          <wr-select ariaLabel="Size">
+            <wr-option value="sm">Small</wr-option>
+          </wr-select>
+          <input id="after" />
+        </div>
+      `,
+    })
+    class SelectHost {}
+
+    const root = await settle(SelectHost);
+
+    expect(document.activeElement).toBe(root.querySelector('wr-select [aria-haspopup="listbox"]'));
+  });
+
+  it('reaches the input inside a wr-checkbox, past a disabled one', async () => {
+    @Component({
+      imports: [WrAutofocus, WrCheckbox],
+      template: `
+        <div wrAutofocus="first">
+          <wr-checkbox [disabled]="true">Locked</wr-checkbox>
+          <wr-checkbox>Terms</wr-checkbox>
+        </div>
+      `,
+    })
+    class CheckboxHost {}
+
+    const root = await settle(CheckboxHost);
+
+    const inputs = root.querySelectorAll('input');
+    expect(inputs[0].disabled).toBe(true);
+    expect(document.activeElement).toBe(inputs[1]);
+  });
+
+  it('focuses the first field each time the expression turns to it', async () => {
+    @Component({
+      imports: [WrAutofocus],
+      template: `
+        <input id="outside" />
+        <div [wrAutofocus]="open() && 'first'">
+          @if (open()) {
+            <input id="name" />
+          }
+        </div>
+      `,
+    })
+    class ToggleHost {
+      readonly open = signal(false);
+    }
+
+    const fixture = TestBed.createComponent(ToggleHost);
+    const root = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    await fixture.whenStable();
+    root.querySelector<HTMLElement>('#outside')!.focus();
+
+    // The field is drawn by the same change that asks for the focus.
+    fixture.componentInstance.open.set(true);
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(root.querySelector('#name'));
+  });
+
+  it('moves no focus when nothing inside can take it', async () => {
+    @Component({
+      imports: [WrAutofocus],
+      template: `<div id="empty" wrAutofocus="first" tabindex="-1"><p>Text</p></div>`,
+    })
+    class EmptyHost {}
+
+    await settle(EmptyHost);
+
+    expect(document.activeElement).toBe(document.body);
   });
 });
