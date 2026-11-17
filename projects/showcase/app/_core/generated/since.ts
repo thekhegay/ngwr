@@ -130,7 +130,7 @@ export const UPDATED = {
   "reference/components/avatar": "15.6.0",
   "reference/components/badge": "16.3.0",
   "reference/components/breadcrumbs": "16.6.0",
-  "reference/components/button": "15.0.0",
+  "reference/components/button": "16.6.0",
   "reference/components/calendar": "16.3.0",
   "reference/components/carousel": "16.4.0",
   "reference/components/cascader": "16.6.0",
