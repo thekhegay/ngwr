@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1887 hook(s) across 115 page(s). A property is here only when the
+ * 1891 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -790,9 +790,11 @@ export const CSS_VARS = {
       { name: "--wr-breadcrumbs-current-color", default: "var(--wr-color-on-surface)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-current-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-current-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
+      { name: "--wr-breadcrumbs-current-max-width", default: "none", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-font-family", default: "var(--wr-font-family-base)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-font-size", default: "var(--wr-text-sm)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
+      { name: "--wr-breadcrumbs-item-max-width", default: "16rem", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-link-color", default: "var(--wr-color-primary-ink)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-link-gap", default: "var(--wr-space-sm)", scope: ".wr-breadcrumbs" },
       { name: "--wr-breadcrumbs-link-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-breadcrumbs" },
@@ -1578,6 +1580,12 @@ export const CSS_VARS = {
       { name: "--wr-knob-text-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-knob__text" },
     ],
   },
+  "reference/components/layout": {
+    subpath: "ngwr/layout",
+    vars: [
+      { name: "--wr-layout-content-padding", default: "var(--wr-space-xl)", scope: ".wr-layout-content" },
+    ],
+  },
   "reference/components/lightbox": {
     subpath: "ngwr/lightbox",
     vars: [
@@ -1635,6 +1643,7 @@ export const CSS_VARS = {
     subpath: "ngwr/page-header",
     vars: [
       { name: "--wr-page-header-actions-gap", default: "var(--wr-space-sm)", scope: ".wr-page-header" },
+      { name: "--wr-page-header-bleed", default: "var(--wr-layout-content-padding, 0px)", scope: ".wr-page-header" },
       { name: "--wr-page-header-border", default: "var(--wr-border-base)", scope: ".wr-page-header" },
       { name: "--wr-page-header-breadcrumbs-font-size", default: "var(--wr-text-sm)", scope: ".wr-page-header" },
       { name: "--wr-page-header-compact-gap", default: "var(--wr-space-md)", scope: ".wr-page-header" },
