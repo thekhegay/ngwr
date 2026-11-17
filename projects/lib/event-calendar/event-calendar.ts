@@ -241,7 +241,7 @@ export class WrEventCalendar {
   /** A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do. */
   readonly eventChange = output<WrCalendarEventChange>();
 
-  private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter);
+  private readonly adapter = inject<WrDateAdapter<Date>>(WrDateAdapter).zoned();
   private readonly document = inject(DOCUMENT);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
