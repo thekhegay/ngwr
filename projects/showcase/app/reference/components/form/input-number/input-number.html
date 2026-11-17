@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Number Input"
-  updated="16.3.0"
+  updated="16.6.0"
   description="A number field with stepper buttons and locale formatting."
   [keywords]="['number', 'input', 'stepper', 'numeric', 'wr-input-number']"
   [labels]="['Signal Forms']"
@@ -102,6 +102,18 @@
     <ngwr-doc-code [code]="snippets.noSteppers" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-input-number ariaLabel="Value" [(value)]="noSteppers" [showSteppers]="false" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Block"
+    description="`block` fills the parent's width. Inside a `<wr-form-field>` it fills the field without it."
+  >
+    <ngwr-doc-code [code]="snippets.block" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-input-number block ariaLabel="Full-width quantity" [(value)]="blockValue" />
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

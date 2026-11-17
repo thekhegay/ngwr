@@ -194,6 +194,9 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
    */
   readonly size = input<WrInputSize>('md');
 
+  /** Stretch the field to fill its parent's width. @default false */
+  readonly block = input(false, { transform: coerceBooleanProperty });
+
   /** Pill-shaped corners — forwarded to the group AND the field. @default false */
   readonly rounded = input(false, { transform: coerceBooleanProperty });
 
@@ -330,6 +333,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     const size = this.size();
     if (size !== 'md') parts.push(`wr-input-number--${size}`);
     if (this.rounded()) parts.push('wr-input-number--rounded');
+    if (this.block()) parts.push('wr-input-number--block');
     if (this.disabled()) parts.push('wr-input-number--disabled');
     return parts.join(' ');
   });
