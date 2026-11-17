@@ -23,6 +23,9 @@
   --wr-breadcrumbs-link-radius: var(--wr-border-radius-sm);
   --wr-breadcrumbs-current-gap: var(--wr-space-sm);
   --wr-breadcrumbs-current-font-weight: var(--wr-font-weight-semibold);
+  // Read only under `truncate`.
+  --wr-breadcrumbs-item-max-width: 16rem;
+  --wr-breadcrumbs-current-max-width: none;
 
   display: block;
   font-family: var(--wr-breadcrumbs-font-family);
@@ -89,5 +92,36 @@
   &__icon {
     --wr-icon-size: 1rem;
     flex: 0 0 auto;
+  }
+
+  // No box until `truncate`: what is projected stays a flex item of the anchor.
+  &__label {
+    display: contents;
+  }
+
+  // Opt-in (`truncate`): one line per item, cut inside the anchor so the
+  // separator and the focus ring stay whole.
+  &--truncate {
+    .wr-breadcrumbs__item,
+    .wr-breadcrumbs__link,
+    .wr-breadcrumbs__current {
+      min-inline-size: 0;
+    }
+
+    .wr-breadcrumbs__link {
+      max-inline-size: var(--wr-breadcrumbs-item-max-width);
+    }
+
+    .wr-breadcrumbs__current {
+      max-inline-size: var(--wr-breadcrumbs-current-max-width);
+    }
+
+    .wr-breadcrumbs__label {
+      display: block;
+      min-inline-size: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }

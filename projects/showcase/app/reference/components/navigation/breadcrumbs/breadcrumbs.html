@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Breadcrumbs"
-  updated="15.3.0"
+  updated="16.6.0"
   description="Shows where the current page sits in the site."
   [keywords]="['breadcrumbs', 'wr-breadcrumbs', 'navigation', 'a11y']"
   [labels]="['Component']"
@@ -21,6 +21,46 @@
     description="`[queryParams]` adds them to a `routerLink` crumb. A `?` written into `routerLink` is escaped as part of the path."
   >
     <ngwr-doc-code [code]="querySnippet" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Truncation"
+    description="`truncate` keeps each item on one line and ends a long one in an ellipsis. A cut item shows its full text on hover, and a screen reader reads the whole name."
+  >
+    <ngwr-doc-code [code]="truncateSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-breadcrumbs truncate style="--wr-breadcrumbs-item-max-width: 10rem">
+        <wr-breadcrumbs-item routerLink="/">Workspace</wr-breadcrumbs-item>
+        <wr-breadcrumbs-item routerLink="/reference/components">
+          Quarterly revenue forecast for the northern region
+        </wr-breadcrumbs-item>
+        <wr-breadcrumbs-item>Task 12</wr-breadcrumbs-item>
+      </wr-breadcrumbs>
+    </ngwr-doc-snippet>
+
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Item</th>
+            <th scope="col">Cut at</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">A link</th>
+            <td><code>--wr-breadcrumbs-item-max-width</code>, <code>16rem</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">The current page</th>
+            <td>
+              <code>--wr-breadcrumbs-current-max-width</code>, <code>none</code>: cut only where it is wider than the
+              trail.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

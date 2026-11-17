@@ -12,6 +12,7 @@ import {
   DocPageComponent,
   DocPlaygroundComponent,
   DocSectionComponent,
+  DocSnippetComponent,
 } from '#core/components';
 
 @Component({
@@ -24,6 +25,7 @@ import {
     DocSectionComponent,
     DocPlaygroundComponent,
     DocCodeComponent,
+    DocSnippetComponent,
     DocApiComponent,
   ],
   providers: [provideWrIcons(wrLucideIcons({ home: HomeIcon, folder: Folder }))],
@@ -45,6 +47,12 @@ export default class BreadcrumbsPage {
   protected readonly querySnippet = `<wr-breadcrumbs>
   <wr-breadcrumbs-item routerLink="/debts" [queryParams]="{ date: '2026-11-01' }">Debts</wr-breadcrumbs-item>
   <wr-breadcrumbs-item>November 1</wr-breadcrumbs-item>
+</wr-breadcrumbs>`;
+
+  protected readonly truncateSnippet = `<wr-breadcrumbs truncate style="--wr-breadcrumbs-item-max-width: 10rem">
+  <wr-breadcrumbs-item routerLink="/">Workspace</wr-breadcrumbs-item>
+  <wr-breadcrumbs-item routerLink="/boards/7">Quarterly revenue forecast for the northern region</wr-breadcrumbs-item>
+  <wr-breadcrumbs-item>Task 12</wr-breadcrumbs-item>
 </wr-breadcrumbs>`;
 
   protected readonly controls: readonly DocControl[] = [
@@ -72,6 +80,13 @@ export default class BreadcrumbsPage {
       description: 'Name of the `nav` landmark. Falls back to `breadcrumbs.label`.',
       type: 'string | null',
       default: 'null',
+    },
+    {
+      name: 'truncate',
+      sub: true,
+      description: 'One line per item, a long one ends in an ellipsis. A cut item shows its full text on hover.',
+      type: 'boolean',
+      default: 'false',
     },
     {
       name: '<wr-breadcrumbs-item>',
