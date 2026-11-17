@@ -533,6 +533,7 @@ export const DOC_ROUTES: Readonly<
   "reference/utils/wr-decimal": {"title":"wrDecimal","kind":"Util","labels":["Util"],"description":"Exact decimal arithmetic on strings, with no float on the way. Built on `BigInt`, no dependency."},
   "reference/utils/wr-download-blob": {"title":"wrDownloadBlob","kind":"Util","labels":["Util"],"description":"Saves a `Blob` under a file name in one call. Beside it, `wrContentDispositionFileName()` reads the name a server sent."},
   "reference/utils/wr-feature": {"title":"wrFeature","kind":"Util","labels":["Util"],"description":"Builds a `provideWr()` feature: what every `withX()` function returns. For a library that adds its own app-wide setting."},
+  "reference/utils/wr-focus-first-invalid": {"title":"wrFocusFirstInvalid","kind":"Util","labels":["Util"],"description":"After a refused submit, focuses the first invalid control and scrolls its field into view."},
   "reference/utils/wr-get-focusable-elements": {"title":"wrGetFocusableElements","kind":"Util","labels":["Util"],"description":"Lists the focusable descendants of an element, in DOM order."},
   "reference/utils/wr-get-root-font-size": {"title":"wrGetRootFontSize","kind":"Util","labels":["Util"],"description":"Reads the root font size in pixels, for converting `rem` to `px`."},
   "reference/utils/wr-has-modifier": {"title":"wrHasModifier","kind":"Util","labels":["Util"],"description":"True when Ctrl, Cmd, Alt, Shift or Meta is held during a `KeyboardEvent`."},
