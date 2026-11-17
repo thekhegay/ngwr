@@ -294,6 +294,28 @@ export default class TablePageComponent {
     alarm: { title: '', width: 56, sortable: true, headerHint: 'Needs attention' },
   };
 
+  protected readonly layoutColumns: WrTableColumns = {
+    name: { title: 'Name', width: 120 },
+    note: { title: 'Note' },
+    role: { title: 'Role on the team', width: 140, truncate: 'tooltip' },
+    seats: { title: 'Seats', align: 'end', width: 80 },
+  };
+  protected readonly layoutRows: readonly Record<string, unknown>[] = [
+    {
+      name: 'Roman',
+      note: 'Owns the release train and signs off every publish to npm',
+      role: 'Maintainer and release manager',
+      seats: 12,
+    },
+    { name: 'Alice', note: 'Design', role: 'Designer', seats: 3 },
+    {
+      name: 'Bob',
+      note: 'Answers the support queue on weekdays, escalates billing to finance',
+      role: 'Support engineer, first line',
+      seats: 5,
+    },
+  ];
+
   protected readonly wideRows = WIDE_ROWS;
   protected readonly wideColumns: WrTableColumns = {
     name: { title: 'Name', pin: 'left', sortable: true },
@@ -536,6 +558,16 @@ const columns: WrTableColumns<Invoice> = {
   seats: { title: 'Seats', align: 'end', sortable: true, headerHint: 'Paid seats on the current plan' },
   // No title: the hint names the column and its sort button.
   alarm: { title: '', width: 56, sortable: true, headerHint: 'Needs attention' },
+};`,
+    layout: `<wr-table layout="fixed" [columns]="columns" [items]="rows" />
+
+protected readonly columns: WrTableColumns = {
+  name: { title: 'Name', width: 120 },
+  // No width: takes what is left, and wraps.
+  note: { title: 'Note' },
+  // Still one line behind an ellipsis.
+  role: { title: 'Role on the team', width: 140, truncate: 'tooltip' },
+  seats: { title: 'Seats', align: 'end', width: 80 },
 };`,
     loadingModes: `<!-- 'auto': a spinner over an empty table, a bar over a filled one. -->
 <wr-table [columns]="columns" [items]="rows()" [loading]="refreshing()" />

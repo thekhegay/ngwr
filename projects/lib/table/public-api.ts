@@ -22,6 +22,7 @@ export type {
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableGroupContext,
+  WrTableLayout,
   WrTableLoadingMode,
   WrTableRow,
   WrTableRowClass,

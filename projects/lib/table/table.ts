@@ -85,6 +85,7 @@ import type {
   WrTableFilterChange,
   WrTableFilterItem,
   WrTableGroupContext,
+  WrTableLayout,
   WrTableLoadingMode,
   WrTableRow,
   WrTableRowClass,
@@ -1617,11 +1618,22 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * cut cell's full text in a tooltip on hover and focus; a cell that fits
    * shows none. A column's own `truncate` wins, and `null` there turns it off
    * for that column. A cell is cut only where its column cannot grow: give the
-   * column a `width`, or the table a fixed layout (a resized or virtualized
-   * one has it).
+   * column a `width`, or the table a fixed layout (`layout="fixed"`, and a
+   * resized or virtualized one has it).
    * @default null
    */
   readonly truncate = input<WrTableTruncate | null>(null);
+
+  /**
+   * How the columns are sized. `'auto'` lets the browser size each column to
+   * its content. `'fixed'` keeps every column at its `width`, shares what is
+   * left between the columns without one, and wraps the text of the header and
+   * body cells: sorting or paging never moves a column. A column's
+   * `truncate` still cuts its cells to one line. Resizing works in both; a
+   * virtualized table keeps its one-line rows.
+   * @default 'auto'
+   */
+  readonly layout = input<WrTableLayout>('auto');
 
   /**
    * A column's name for its controls: the title, the hint after it, or the hint
@@ -1860,9 +1872,18 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     return this.renderRows().slice(start, end);
   });
 
-  /** Fixed layout is on when a resize drag latched it OR virtualization forces it. */
+  /** Whether the columns hold their widths: `layout="fixed"`, a resize latch, virtualization or an edit hold. */
   protected readonly fixedLayoutActive = computed<boolean>(
-    () => this.fixedLayout() || this.virtualFixed() || this.editHeld()
+    () => this.layout() === 'fixed' || this.fixedLayout() || this.virtualFixed() || this.editHeld()
+  );
+
+  /**
+   * The fixed layout that also cuts every cell to one line, `.wr-table__table--fixed`.
+   * A virtualized body needs it for its row height. A resize or an edit hold
+   * takes it only over `layout="auto"`, where the cells did not wrap before.
+   */
+  protected readonly clippedLayout = computed<boolean>(
+    () => this.virtualFixed() || (this.layout() !== 'fixed' && (this.fixedLayout() || this.editHeld()))
   );
 
   /** Scroll a flat row index to the top of the virtual viewport. No-op on the server / when not virtual. */

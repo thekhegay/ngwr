@@ -72,7 +72,8 @@
 >
   <table
     class="wr-table__table"
-    [class.wr-table__table--fixed]="fixedLayoutActive()"
+    [class.wr-table__table--fixed]="clippedLayout()"
+    [class.wr-table__table--layout-fixed]="layout() === 'fixed'"
     [style.--wr-table-row-h.px]="virtualized() ? effRowH() : null"
     [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
     [attr.role]="treeMode() ? 'treegrid' : editGrid() ? 'grid' : null"
