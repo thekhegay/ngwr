@@ -147,6 +147,7 @@ export const API = {
   WrBreadcrumbs: [
     { name: "separator", description: "Separator glyph between items. Any short string.", type: "string", default: "'/'" },
     { name: "ariaLabel", description: "Accessible label for the `nav` landmark. Falls back to `breadcrumbs.label`, then `'Breadcrumbs'`.", type: "string | null", default: "null" },
+    { name: "truncate", description: "Keep every item on one line and end a long one in an ellipsis. A linked item is cut at `--wr-breadcrumbs-item-max-width` (16rem). The current item is cut at `--wr-breadcrumbs-current-max-width`, `none` by default, so it is cut only where it is wider than the trail. A cut item shows its full text as a `title` on hover.", type: "boolean", default: "false" },
   ],
   // <wr-breadcrumbs-item>
   WrBreadcrumbsItem: [
@@ -1165,6 +1166,7 @@ export const API = {
     { name: "responsive", description: "Stack the title and actions vertically when the header's own box is too narrow to sit them side by side (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
     { name: "compact", description: "One-line head: the breadcrumbs beside the title instead of above it, the subtitle after the title, a smaller title. Wraps when there is no room.", type: "boolean", default: "false" },
     { name: "sticky", description: "Keep the header in view while the page scrolls (`position: sticky` at `--wr-page-header-sticky-top`, under `--wr-page-header-sticky-z`).", type: "boolean", default: "false" },
+    { name: "bleed", description: "Run over the padding of the box the header tops, to the top and both side edges, by `--wr-page-header-bleed` (the content padding inside `wr-layout-content`, zero elsewhere until set).", type: "boolean", default: "false" },
   ],
   // <wr-pagination>
   WrPagination: [
