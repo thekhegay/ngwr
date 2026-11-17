@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Segmented"
+  updated="16.6.0"
   description="Pick one option from a row of buttons."
   [keywords]="['segmented', 'wr-segmented', 'signal forms']"
   [labels]="['Signal Forms']"
@@ -18,6 +19,17 @@
     <ngwr-doc-snippet [code]="snippets.icons">
       <wr-segmented [options]="modeOptions" [(value)]="mode" />
       <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">Value: {{ mode() }}</span>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Block"
+    description="`block` fills the parent's width, shared equally by the segments. Inside a `<wr-form-field>` it fills the field without it."
+  >
+    <ngwr-doc-snippet [code]="snippets.block">
+      <div style="width: 100%">
+        <wr-segmented block [options]="rangeOptions" [(value)]="blockRange" />
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

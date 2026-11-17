@@ -23,6 +23,7 @@ import { API } from '#core/generated/api';
 export default class SegmentedPageComponent {
   protected readonly range = signal<string>('week');
   protected readonly mode = signal<string>('light');
+  protected readonly blockRange = signal<string>('week');
 
   protected readonly rangeOptions: readonly WrSegmentedOption<string>[] = [
     { value: 'day', label: 'Day' },
@@ -46,6 +47,7 @@ export default class SegmentedPageComponent {
   ]"
   [(value)]="mode"
 />`,
+    block: `<wr-segmented block [options]="options" [(value)]="range" />`,
     signalForms: `import { Component, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
 import { WrFormField } from 'ngwr/form';
