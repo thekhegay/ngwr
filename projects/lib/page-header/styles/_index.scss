@@ -227,3 +227,10 @@
     align-items: flex-start;
   }
 }
+
+// Nothing scrolls on paper, and a pinned bar would sit over the first lines.
+@media print {
+  .wr-page-header--sticky {
+    position: static;
+  }
+}

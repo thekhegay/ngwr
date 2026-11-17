@@ -1,0 +1,17 @@
+// Print utilities, emitted with the token layer so every app has them.
+//
+// `!important` for the reason `_motion.scss` gives: the theme loads first, so a
+// component's own `display` at the same specificity would win on source order,
+// and a class put on a `wr-btn` or a flex row would hide nothing.
+
+@media print {
+  .wr-no-print {
+    display: none !important;
+  }
+}
+
+@media not print {
+  .wr-print-only {
+    display: none !important;
+  }
+}

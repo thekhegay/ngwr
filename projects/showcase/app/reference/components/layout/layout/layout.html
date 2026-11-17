@@ -41,6 +41,62 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Print"
+    description="On paper the header and the sider are hidden and the content takes the full width. The footer prints."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Hidden in print</th>
+            <th scope="col">By the sheet of</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code>wr-layout-header</code>, <code>wr-layout-sider</code></th>
+            <td><code>ngwr/layout</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-sidebar</code></th>
+            <td><code>ngwr/sidebar</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-back-top</code></th>
+            <td><code>ngwr/back-top</code></td>
+          </tr>
+          <tr>
+            <th scope="row"><code>wr-speed-dial</code></th>
+            <td><code>ngwr/speed-dial</code></td>
+          </tr>
+          <tr>
+            <th scope="row">Toasts</th>
+            <td><code>ngwr/toast</code></td>
+          </tr>
+          <tr>
+            <th scope="row">The loading bar</th>
+            <td><code>ngwr/loading-bar</code></td>
+          </tr>
+          <tr>
+            <th scope="row">A running tour</th>
+            <td><code>ngwr/tour</code></td>
+          </tr>
+          <tr>
+            <th scope="row">An open tooltip</th>
+            <td><code>ngwr/popover</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A sticky <code>wr-page-header</code> prints in the flow. Dialogs, drawers, popovers and menus print as they are.
+      Hide anything else with <code>class="wr-no-print"</code>, and show a block on paper only with
+      <code>class="wr-print-only"</code>; both come with <code>ngwr/theme</code>.
+    </p>
+    <ngwr-doc-code [code]="snippets.print" language="angular-html" />
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
   </ngwr-doc-section>

@@ -156,6 +156,13 @@ stylesheet sets either property; `theme/scrollbar.spec.ts` holds that. The
 showcase includes it at its root; `wr-virtual-scroll` and `wr-marquee` include
 it on their own viewport, so they look the same without the page-wide opt-in.
 `forced-colors` keeps the system scrollbar. The docs page is `/guides/scrollbar`.
+**Print.** Each piece of app chrome hides itself in its own sheet's
+`@media print` (layout header and sider, sidebar, back-top, speed-dial, toasts,
+loading bar, tour, tooltip pane), with no `!important`, so an app's own rule
+wins. Dialogs, drawers, popovers and menus print: an open one may be the thing
+being printed. `.wr-no-print` and `.wr-print-only` come with the theme
+(`theme/styles/_print.scss`) and are `!important` for the reason `_motion.scss`
+gives: the theme loads first. `print.spec.ts` holds all of it.
 
 A component paints with the ROLE, never with a ramp step: the step is the
 substrate, and reaching past the role is how a component ends up right in one

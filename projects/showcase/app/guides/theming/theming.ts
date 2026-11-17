@@ -127,6 +127,9 @@ readonly rowClass: WrTableRowClass = row => (row['overdue'] ? 'bg-danger-soft' :
 
 this.dialog.open(EditCard, { panelClass: 'max-w-3xl' });
 this.toast.show({ message: 'Saved', class: 'w-96' });`,
+
+    print: `<p class="wr-print-only">Printed from the back office</p>
+<button wr-btn class="wr-no-print" (click)="print()">Print</button>`,
   };
 
   protected readonly related: readonly DocSeeAlsoLink[] = [

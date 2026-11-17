@@ -522,3 +522,10 @@ $toast-colors: (
     --wr-toast-host-close-all-padding-y: var(--wr-space-md);
   }
 }
+
+@media print {
+  .wr-toast-host,
+  .wr-toast-outlet {
+    display: none;
+  }
+}
