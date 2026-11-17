@@ -6,34 +6,49 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Directive, ElementRef, afterNextRender, effect, inject, input } from '@angular/core';
+import { Directive, ElementRef, Injector, afterNextRender, effect, inject, input } from '@angular/core';
+
+import { wrGetFocusableElements } from 'ngwr/utils';
 
 /**
- * Focus the host element after the first render — or whenever the bound
- * expression transitions to truthy.
+ * Focus the host element after the first render, or whenever the bound
+ * expression turns truthy. `"first"` focuses the first focusable element
+ * inside the host instead: the control of a form, a card or a dialog body.
+ * Disabled and hidden elements are skipped.
  *
  * @example
  * ```html
  * <input wrAutofocus />
  * <input [wrAutofocus]="shouldFocus()" />
+ * <form wrAutofocus="first">…</form>
+ * <form [wrAutofocus]="editing() && 'first'">…</form>
  * ```
  */
 @Directive({ selector: '[wrAutofocus]' })
 export class WrAutofocus {
-  /** Truthy = focus. Defaults to `true` so bare `wrAutofocus` works. */
-  readonly wrAutofocus = input(true, { transform: coerceBooleanProperty });
+  /**
+   * Truthy = focus the host, `'first'` = focus the first focusable element
+   * inside it. Defaults to `true` so bare `wrAutofocus` works.
+   */
+  readonly wrAutofocus = input(true, {
+    transform: (value: unknown): boolean | 'first' => (value === 'first' ? value : coerceBooleanProperty(value)),
+  });
 
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
 
   constructor() {
-    afterNextRender(() => {
-      if (this.wrAutofocus()) this.el.nativeElement.focus();
-    });
     effect(() => {
-      if (this.wrAutofocus()) {
-        // Microtask defer so view updates that flip the expression land first.
-        queueMicrotask(() => this.el.nativeElement.focus());
-      }
+      const mode = this.wrAutofocus();
+      if (!mode) return;
+      // After the render, so what the same change drew is there to take focus.
+      afterNextRender(
+        () => {
+          const host = this.el.nativeElement;
+          (mode === 'first' ? wrGetFocusableElements(host)[0] : host)?.focus();
+        },
+        { injector: this.injector }
+      );
     });
   }
 }
