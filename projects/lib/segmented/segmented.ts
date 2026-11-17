@@ -140,6 +140,9 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
   /** Control size — shares the `--wr-control-*` contract. @default 'md' */
   readonly size = input<WrSegmentedSize>('md');
 
+  /** Stretch the strip to fill its parent's width, shared equally by the segments. @default false */
+  readonly block = input(false, { transform: coerceBooleanProperty });
+
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly field = inject(WR_FORM_FIELD, { optional: true });
 
@@ -257,6 +260,7 @@ export class WrSegmented<T = unknown> implements FormValueControl<T | null> {
     const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-segmented--${size}`);
+    if (this.block()) parts.push('wr-segmented--block');
     if (this.disabled()) parts.push('wr-segmented--disabled');
     else if (this.readonly()) parts.push('wr-segmented--readonly');
     if (this.selectedIndex() < 0) parts.push('wr-segmented--unselected');
