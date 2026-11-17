@@ -8,12 +8,6 @@ Effects ship as `ngwr/animations/*` entry points, written from scratch in librar
 
 ## Medium
 
-- **HTTP error text**: `wrHttpStatus(error)` and `wrHttpErrorText(error, overrides)`, texts from the i18n catalog.
-- **Form layout**: a column with a gap, `inline`, and rows of N equal columns.
-- **Print rules**: sider, header, back-top, speed-dial and toasts hidden in print, plus a `.wr-no-print` class.
-- **Page shell**: a `--wr-layout-content-padding` hook, truncation on breadcrumb items, a second row inside a sticky `wr-page-header`.
-- **Canvas colour**: `--wr-color-canvas`, the page background one step behind `surface`.
-
 ## Low
 
 - **One intent name**: alert and toast say `type`, result and load-state say `status`, button and tag say `color`; a rename waits for a major.
