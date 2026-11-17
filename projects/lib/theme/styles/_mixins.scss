@@ -142,3 +142,28 @@
   white-space: nowrap;
   border: 0;
 }
+
+/// Paints with `--wr-color-canvas`, the page background one step behind
+/// `--wr-color-surface`: `body` when included at the stylesheet root, that
+/// element when included inside a rule. Opt-in: loading the theme paints
+/// nothing with the token.
+///
+/// At the root the selector is `:where(body)`, zero specificity, so any rule of
+/// a consumer wins.
+///
+/// @example scss
+///   @include theme.canvas;
+///
+///   // `wr-layout` paints its own background over `body`.
+///   .wr-layout-content {
+///     @include theme.canvas;
+///   }
+@mixin canvas {
+  @if & {
+    background-color: var(--wr-color-canvas);
+  } @else {
+    :where(body) {
+      background-color: var(--wr-color-canvas);
+    }
+  }
+}

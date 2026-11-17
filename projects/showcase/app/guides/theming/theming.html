@@ -80,6 +80,17 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Canvas"
+    description="A page background one step behind the surface, so cards and tables read as raised. Opt-in."
+  >
+    <ngwr-doc-code [code]="snippets.canvas" language="scss" />
+    <p>
+      Cards, tables and panels keep <code>--wr-color-surface</code>. The token is on the
+      <a class="ngwr-doc-link" routerLink="/guides/tokens/colors" fragment="canvas">Colors</a> page.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Per-component tokens"
     description="Each component has its own `--wr-<name>-*` hooks, listed on its page."
   >

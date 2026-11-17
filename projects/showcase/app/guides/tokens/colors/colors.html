@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Colors"
-  updated="15.0.0"
+  updated="16.6.0"
   description="The `--wr-color-*` tokens, and which one to use for fills, text and borders."
   [keywords]="['colors', 'tokens', 'palette', 'theme', 'dark mode', 'css variables', 'soft', 'contrast']"
   [labels]="['Tokens', 'Reference']"
@@ -98,6 +98,28 @@
         </div>
       }
     </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Canvas"
+    description="`--wr-color-canvas` is a page background one step behind the surface, so a card or a table reads as raised."
+  >
+    <div class="ngwr-demo-pair">
+      @for (scheme of schemes; track scheme) {
+        <div>
+          <p class="ngwr-demo-pair__caption">{{ scheme }}</p>
+          <div class="ngwr-palette__canvas" [style.color-scheme]="scheme">
+            <wr-card compact>Card on <code>surface</code></wr-card>
+            <span>Text on <code>canvas</code></span>
+          </div>
+        </div>
+      }
+    </div>
+    <p>
+      No component paints with it, and loading the theme does not repaint the page:
+      <a class="ngwr-doc-link" routerLink="/guides/theming" fragment="canvas">opt in</a> with <code>theme.canvas</code>.
+      Under <code>prefers-contrast: more</code> it equals the surface, and borders carry the separation.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Usage">

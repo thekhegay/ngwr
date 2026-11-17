@@ -618,6 +618,17 @@ $ink-mix-more: (
   // into the background. Paint with `--wr-color-surface`, the role over it; a
   // colour that has to stay white in both schemes is a literal, never this.
   --wr-color-white: light-dark(#ffffff, #0b1120);
+
+  // The page background, one step behind `--wr-color-surface`, so a card or a
+  // table on it reads as raised. Nothing paints with it until an app opts in
+  // through the `canvas` mixin. Both sides are steps of the fixed scale: 1.10:1
+  // against the surface in light and 1.07:1 in dark. Body text reads 16.12:1 on
+  // it in light and muted text 6.87:1; an `-ink` on its own `-soft` tint drops
+  // to 4.64:1 at worst (`warning`), above AA and under the 5.0 target, and dark
+  // only gains. Declared here and not in `derived()`: a `:root` rebrand would
+  // re-declare it after the `prefers-contrast: more` override and switch that
+  // off.
+  --wr-color-canvas: light-dark(var(--wr-color-gray-100), var(--wr-color-gray-950));
   // The flat primitive, the same in both schemes. A scrim built on it is a mix
   // toward `transparent`: `color-mix(in srgb, var(--wr-color-black) 45%,
   // transparent)`.

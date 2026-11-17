@@ -59,6 +59,12 @@
     // contrast that trade flips — the reader has said which side they want.
     --wr-color-gray-4: light-dark(#718cad, #566b9b);
 
+    // The step behind the surface closes. On the light canvas an `-ink` at its
+    // high-contrast share reads 6.41:1 to 6.97:1 on a `-soft` tint for three
+    // intents, under the 7:1 this block promises, and the deepened hairline
+    // above already separates a card from the page.
+    --wr-color-canvas: var(--wr-color-surface);
+
     @each $name, $share in colors.$ink-mix-more {
       --wr-color-#{$name}-ink: color-mix(in srgb, var(--wr-color-#{$name}) #{$share}, var(--wr-color-gray-6));
     }

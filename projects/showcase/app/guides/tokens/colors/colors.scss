@@ -37,6 +37,19 @@
     box-shadow: var(--ngwr-doc-swatch-ring);
   }
 
+  // Sets `color` too: under a forced scheme the inherited one is the page's.
+  &__canvas {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wr-space-md);
+    padding: var(--wr-space-lg);
+    border-radius: var(--wr-border-radius-base);
+    background: var(--wr-color-canvas);
+    box-shadow: var(--ngwr-doc-swatch-ring);
+    color: var(--wr-color-on-surface);
+    font-size: var(--wr-text-sm);
+  }
+
   &__label {
     font-size: 0.6875rem;
     color: var(--wr-color-on-surface-muted);
