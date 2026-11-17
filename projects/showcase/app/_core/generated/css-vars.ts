@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1883 hook(s) across 115 page(s). A property is here only when the
+ * 1887 hook(s) across 115 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1430,6 +1430,7 @@ export const CSS_VARS = {
   "reference/components/form": {
     subpath: "ngwr/form",
     vars: [
+      { name: "--wr-form-columns", default: "1", scope: ".wr-form", host: true },
       { name: "--wr-form-error-font-size", default: "var(--wr-text-xs)", scope: ".wr-form-error" },
       { name: "--wr-form-error-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-form-error" },
       { name: "--wr-form-field-error-font-size", default: "var(--wr-text-sm)", scope: ".wr-form-field" },
@@ -1445,10 +1446,13 @@ export const CSS_VARS = {
       { name: "--wr-form-field-label-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-form-field" },
       { name: "--wr-form-field-optional-font-size", default: "var(--wr-text-sm)", scope: ".wr-form-field" },
       { name: "--wr-form-field-optional-font-weight", default: "var(--wr-font-weight-regular)", scope: ".wr-form-field" },
+      { name: "--wr-form-gap", default: "var(--wr-space-lg)", scope: ".wr-form" },
+      { name: "--wr-form-inline-align", default: "flex-end", scope: ".wr-form" },
       { name: "--wr-form-item-gap", default: "var(--wr-space-sm)", scope: ".wr-form-item" },
       { name: "--wr-form-item-label-font-size", default: "var(--wr-text-sm)", scope: ".wr-form-item" },
       { name: "--wr-form-item-label-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-form-item" },
       { name: "--wr-form-item-label-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-form-item" },
+      { name: "--wr-form-span", default: "1 / -1", scope: ".wr-form__span", host: true },
     ],
   },
   "reference/components/graph": {

@@ -266,7 +266,7 @@ export const INSTALL = {
       { path: "ngwr/file-upload", symbols: ["WrFileUpload"], declarables: ["WrFileUpload"], styled: true },
   ],
   "reference/components/form": [
-      { path: "ngwr/form", symbols: ["WrFormError", "WrFormItem"], declarables: ["WrFormError", "WrFormItem"], styled: true },
+      { path: "ngwr/form", symbols: ["WrForm", "WrFormError", "WrFormField", "WrFormItem", "WrFormSpan"], declarables: ["WrForm", "WrFormError", "WrFormField", "WrFormItem", "WrFormSpan"], styled: true },
   ],
   "reference/components/form-field": [
       { path: "ngwr/button", symbols: ["WrButton"], declarables: ["WrButton"], styled: true },
