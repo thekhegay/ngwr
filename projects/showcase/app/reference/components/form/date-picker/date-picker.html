@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  updated="16.5.0"
+  updated="16.6.0"
   description="A text field with a popup for picking a date, a time, both, or a week, month, quarter or year."
   [keywords]="['date', 'time', 'datetime', 'month', 'quarter', 'year', 'week', 'period', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -348,6 +348,19 @@
       <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap">
         <wr-date-picker rounded [(value)]="roundedDate" placeholder="Pick a date" />
         <wr-date-range-picker rounded [(value)]="roundedPeriod" startPlaceholder="From" endPlaceholder="To" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Block"
+    description="`block` fills the parent's width, on both pickers. Inside a `<wr-form-field>` it fills the field without it. The panel keeps its size."
+  >
+    <ngwr-doc-code [code]="snippets.block" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; width: 100%">
+        <wr-date-picker block [(value)]="blockDate" placeholder="Pick a date" />
+        <wr-date-range-picker block [(value)]="blockPeriod" startPlaceholder="From" endPlaceholder="To" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
