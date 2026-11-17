@@ -142,6 +142,11 @@ protected readonly planId = (plan: Plan): string => plan.id;
   <wr-option value="lg">Large</wr-option>
 </wr-select>`,
     disabled: `<wr-select placeholder="Disabled" disabled />`,
+    block: `<wr-select block placeholder="Full width" [(value)]="size">
+  <wr-option value="sm">Small</wr-option>
+  <wr-option value="md">Medium</wr-option>
+  <wr-option value="lg">Large</wr-option>
+</wr-select>`,
     multi: `<wr-select mode="multi" clearable placeholder="Pick tags" [(value)]="tags">
   <wr-option value="typescript">TypeScript</wr-option>
   <wr-option value="angular">Angular</wr-option>
