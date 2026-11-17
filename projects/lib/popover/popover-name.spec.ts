@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { WrButton } from 'ngwr/button';
@@ -155,5 +155,70 @@ describe('WrPopover tooltip naming its host', () => {
     hover('plain');
 
     expect(el('plain').getAttribute('aria-describedby')).toBe(pane()?.id);
+  });
+});
+
+/**
+ * Render hooks are no-ops under `ngServerMode`, the global Angular branches on,
+ * so a name that reaches this markup did not come from one.
+ */
+describe('WrPopover tooltip naming its host on the server', () => {
+  const globals = globalThis as Record<string, unknown>;
+  let fixture: ComponentFixture<Host>;
+
+  const el = (cls: string): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`.${cls}`)!;
+
+  beforeEach(() => {
+    globals['ngServerMode'] = true;
+    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    globals['ngServerMode'] = false;
+  });
+
+  it('names an icon-only button and the wr-btn element in the markup it emits', () => {
+    expect(el('icon-only').getAttribute('aria-label')).toBe('Edit');
+    expect(el('element').getAttribute('aria-label')).toBe('Edit');
+    expect(el('element').hasAttribute('data-wr-named')).toBe(true);
+  });
+
+  it('keeps the rules: no name over text, a consumer name, or on a plain element', () => {
+    expect(el('with-text').hasAttribute('aria-label')).toBe(false);
+    expect(el('own-name').getAttribute('aria-label')).toBe('Rename file');
+    expect(el('own-name').hasAttribute('data-wr-named')).toBe(false);
+    expect(el('labelled').hasAttribute('aria-label')).toBe(false);
+    expect(el('plain').hasAttribute('aria-label')).toBe(false);
+  });
+});
+
+@Component({
+  imports: [WrPopover],
+  template: `<button type="button" aria-label="Edit" data-wr-named [wrPopover]="text()" mode="tooltip"></button>`,
+})
+class HydratedHost {
+  readonly text = signal('Edit');
+}
+
+describe('WrPopover taking over the name the server wrote', () => {
+  it('follows the string again and drops the mark', () => {
+    const fixture = TestBed.createComponent(HydratedHost);
+    fixture.detectChanges();
+    const button = (fixture.nativeElement as HTMLElement).querySelector('button')!;
+
+    expect(button.hasAttribute('data-wr-named')).toBe(false);
+
+    fixture.componentInstance.text.set('Rename');
+    fixture.detectChanges();
+    expect(button.getAttribute('aria-label')).toBe('Rename');
+
+    fixture.componentInstance.text.set('');
+    fixture.detectChanges();
+    expect(button.hasAttribute('aria-label')).toBe(false);
+    fixture.destroy();
   });
 });
