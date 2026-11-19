@@ -690,6 +690,8 @@ export const API = {
   WrDropdownItem: [
     { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
     { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
+    { name: "checked", description: "Checked state. `null` (default) is a plain `menuitem` with no check column; `true` / `false` turn it into a `menuitemcheckbox` (or `menuitemradio` with `radio`) that shows a check mark while `true`. The item does not toggle itself: flip the state you bind here from `(click)`.", type: "boolean | null", default: "null" },
+    { name: "radio", description: "With `checked` set, announce as `menuitemradio` instead of `menuitemcheckbox`.", type: "boolean", default: "false" },
   ],
   // <[wrDropdownSubmenu]>
   WrDropdownSubmenu: [

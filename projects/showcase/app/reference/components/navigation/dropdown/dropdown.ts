@@ -47,6 +47,8 @@ export default class DropdownComponent {
   protected readonly rows = ['Ada', 'Grace', 'Linus'];
   protected picked = '';
   protected readonly off = signal(true);
+  protected readonly grid = signal(true);
+  protected readonly view = signal<'list' | 'cards'>('list');
 
   protected readonly snippets = {
     basic: `<!-- Items do not close the menu: d.close() does. -->
@@ -74,6 +76,13 @@ export default class DropdownComponent {
 
 <wr-dropdown-menu #menu>
   <wr-dropdown-item icon="trash" (click)="remove(picked)">Delete</wr-dropdown-item>
+</wr-dropdown-menu>`,
+    checked: `<button wr-btn type="button" [wrDropdown]="menu">View</button>
+
+<wr-dropdown-menu #menu>
+  <wr-dropdown-item [checked]="grid()" (click)="grid.set(!grid())">Show grid</wr-dropdown-item>
+  <wr-dropdown-item radio [checked]="view() === 'list'" (click)="view.set('list')">List</wr-dropdown-item>
+  <wr-dropdown-item radio [checked]="view() === 'cards'" (click)="view.set('cards')">Cards</wr-dropdown-item>
 </wr-dropdown-menu>`,
     submenu: `<button wr-btn type="button" [wrDropdown]="fileMenu" #file="wrDropdown">File</button>
 

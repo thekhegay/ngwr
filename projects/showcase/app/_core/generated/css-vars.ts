@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1897 hook(s) across 116 page(s). A property is here only when the
+ * 1899 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1276,6 +1276,8 @@ export const CSS_VARS = {
       { name: "--wr-dropdown-border", default: "var(--wr-border-base)", scope: ".wr-dropdown-menu" },
       { name: "--wr-dropdown-font-family", default: "var(--wr-font-family-base)", scope: ".wr-dropdown-menu" },
       { name: "--wr-dropdown-item-bg-hover", default: "var(--wr-color-hover)", scope: ".wr-dropdown-item" },
+      { name: "--wr-dropdown-item-check-color", default: "var(--wr-dropdown-item-color)", scope: ".wr-dropdown-item" },
+      { name: "--wr-dropdown-item-check-size", default: "1rem", scope: ".wr-dropdown-item" },
       { name: "--wr-dropdown-item-chevron-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-dropdown-item" },
       { name: "--wr-dropdown-item-chevron-size", default: "0.375rem", scope: ".wr-dropdown-item" },
       { name: "--wr-dropdown-item-color", default: "var(--wr-color-on-surface)", scope: ".wr-dropdown-item" },

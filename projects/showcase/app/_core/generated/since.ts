@@ -144,7 +144,7 @@ export const UPDATED = {
   "reference/components/date-stamp": "16.2.0",
   "reference/components/dialog": "16.6.0",
   "reference/components/drawer": "16.5.0",
-  "reference/components/dropdown": "16.5.0",
+  "reference/components/dropdown": "16.7.0",
   "reference/components/editor": "15.0.0",
   "reference/components/event-calendar": "16.3.0",
   "reference/components/file-upload": "16.7.0",

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Dropdown"
-  updated="16.5.0"
+  updated="16.7.0"
   description="A menu that opens from any trigger."
   [keywords]="['dropdown', 'menu', 'wr-dropdown', 'overlay']"
   [labels]="['Directive', 'Components', 'CDK Overlay']"
@@ -113,6 +113,20 @@
         <wr-dropdown-item icon="copy-outline">Copy</wr-dropdown-item>
         <wr-dropdown-item icon="cog" disabled>Disabled item</wr-dropdown-item>
         <wr-dropdown-item icon="trash">Delete</wr-dropdown-item>
+      </wr-dropdown-menu>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Checked items"
+    description="Bind `checked` to show a check mark and announce `menuitemcheckbox`; add `radio` for `menuitemradio` in a single-choice group. The item never flips itself: update the state in `(click)`. The menu stays open."
+  >
+    <ngwr-doc-snippet [code]="snippets.checked">
+      <button type="button" wr-btn [wrDropdown]="viewMenu">View</button>
+      <wr-dropdown-menu #viewMenu>
+        <wr-dropdown-item [checked]="grid()" (click)="grid.set(!grid())">Show grid</wr-dropdown-item>
+        <wr-dropdown-item radio [checked]="view() === 'list'" (click)="view.set('list')">List</wr-dropdown-item>
+        <wr-dropdown-item radio [checked]="view() === 'cards'" (click)="view.set('cards')">Cards</wr-dropdown-item>
       </wr-dropdown-menu>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

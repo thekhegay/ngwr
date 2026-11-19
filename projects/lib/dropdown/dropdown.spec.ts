@@ -1530,3 +1530,82 @@ describe('WrDropdown while disabled', () => {
     expect(trigger().getAttribute('aria-expanded')).toBe('true');
   });
 });
+
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [wrDropdown]="menu">View</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Plain</wr-dropdown-item>
+      <wr-dropdown-item [checked]="grid()" (click)="grid.set(!grid())">Show grid</wr-dropdown-item>
+      <wr-dropdown-item radio [checked]="view() === 'list'" (click)="view.set('list')">List</wr-dropdown-item>
+      <wr-dropdown-item radio [checked]="view() === 'cards'" (click)="view.set('cards')">Cards</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class CheckedHost {
+  readonly grid = signal(false);
+  readonly view = signal<'list' | 'cards'>('list');
+}
+
+describe('WrDropdownItem checked state', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<CheckedHost>>;
+
+  const items = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('.wr-dropdown-item')];
+  const mark = (el: HTMLElement): SVGElement | null => el.querySelector('.wr-dropdown-item__check svg');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(CheckedHost);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector('button')!.click();
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('stays a plain menuitem with no check column while checked is unset', () => {
+    const [plain] = items();
+    expect(plain.getAttribute('role')).toBe('menuitem');
+    expect(plain.hasAttribute('aria-checked')).toBe(false);
+    expect(plain.querySelector('.wr-dropdown-item__check')).toBeNull();
+  });
+
+  it('announces a checkbox and a radio with aria-checked', () => {
+    const [, grid, list, cards] = items();
+    expect(grid.getAttribute('role')).toBe('menuitemcheckbox');
+    expect(grid.getAttribute('aria-checked')).toBe('false');
+    expect(list.getAttribute('role')).toBe('menuitemradio');
+    expect(list.getAttribute('aria-checked')).toBe('true');
+    expect(cards.getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('draws the mark only while checked and keeps the column either way', () => {
+    const [, grid, list, cards] = items();
+    expect(grid.querySelector('.wr-dropdown-item__check')).not.toBeNull();
+    expect(mark(grid)).toBeNull();
+    expect(mark(list)).not.toBeNull();
+    expect(mark(cards)).toBeNull();
+    expect(list.classList.contains('wr-dropdown-item--checked')).toBe(true);
+  });
+
+  it('follows the bound state, and a click leaves the menu open', () => {
+    const [, grid, , cards] = items();
+    grid.click();
+    cards.click();
+    fixture.detectChanges();
+
+    expect(grid.getAttribute('aria-checked')).toBe('true');
+    expect(mark(grid)).not.toBeNull();
+    expect(items()[2].getAttribute('aria-checked')).toBe('false');
+    expect(cards.getAttribute('aria-checked')).toBe('true');
+    expect(document.querySelector('.wr-dropdown-menu')).not.toBeNull();
+  });
+
+  it('activates from the keyboard like any item', () => {
+    const [, grid] = items();
+    grid.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.grid()).toBe(true);
+  });
+});

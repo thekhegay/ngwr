@@ -157,6 +157,8 @@ $arrow-gap: 0.5rem;
   --wr-dropdown-item-line-height: var(--wr-text-sm-leading);
   --wr-dropdown-item-chevron-size: 0.375rem;
   --wr-dropdown-item-chevron-color: var(--wr-color-on-surface-muted);
+  --wr-dropdown-item-check-size: 1rem;
+  --wr-dropdown-item-check-color: var(--wr-dropdown-item-color);
 
   display: flex;
   align-items: center;
@@ -186,6 +188,21 @@ $arrow-gap: 0.5rem;
     --wr-icon-size: 1rem;
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);
+  }
+
+  // The check column of a `checked` item. Reserved while `checked` is `false`
+  // too, so the labels of a mixed group stay aligned.
+  &__check {
+    display: inline-flex;
+    flex: 0 0 auto;
+    inline-size: var(--wr-dropdown-item-check-size);
+    block-size: var(--wr-dropdown-item-check-size);
+    color: var(--wr-dropdown-item-check-color);
+
+    svg {
+      inline-size: 100%;
+      block-size: 100%;
+    }
   }
 
   &__label {
