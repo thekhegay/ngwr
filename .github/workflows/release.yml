@@ -22,10 +22,10 @@ permissions: {}
 
 # main cuts every release; `next` cuts the next major's release candidates.
 jobs:
-  checks:
-    name: Full check
+  lint:
+    name: Lint and generated docs
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 20
     permissions:
       contents: read
     if: github.ref == 'refs/heads/main' || (github.ref == 'refs/heads/next' && inputs.bump == 'rc')
@@ -43,26 +43,49 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - id: playwright
-        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+      - run: pnpm lint
 
-      - id: browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - run: pnpm check:api-docs
+
+      - run: pnpm check:css-vars
+
+  test:
+    name: Test and package
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    if: github.ref == 'refs/heads/main' || (github.ref == 'refs/heads/next' && inputs.bump == 'rc')
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+          persist-credentials: false
 
-      - if: steps.browsers.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
-      - if: steps.browsers.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
 
-      - run: pnpm check:release
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm test
+
+      - run: pnpm build:lib
+
+      - run: pnpm check:package
+
+  site:
+    name: Site checks
+    permissions:
+      contents: read
+    if: github.ref == 'refs/heads/main' || (github.ref == 'refs/heads/next' && inputs.bump == 'rc')
+    uses: $/.github/workflows/site-checks.yml
 
   release-pr:
     name: Cut release PR
-    needs: checks
+    needs: [lint, test, site]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

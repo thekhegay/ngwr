@@ -1,0 +1,277 @@
+name: Site checks
+
+on:
+  workflow_call:
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build the showcase
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build:showcase
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+          if-no-files-found: error
+          retention-days: 1
+
+  a11y:
+    name: Structural a11y
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - run: pnpm check:a11y
+
+  contrast:
+    name: Contrast & target size (${{ matrix.theme }}, ${{ matrix.mode }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        theme: [light, dark]
+        mode: [no-preference, more]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - id: playwright
+        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      # shell: bash adds pipefail, so tee cannot hide a failing check.
+      - run: pnpm check:contrast --verbose "--theme=$THEME" "--contrast=$MODE" 2>&1 | tee contrast-report.txt
+        shell: bash
+        env:
+          THEME: ${{ matrix.theme }}
+          MODE: ${{ matrix.mode }}
+
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: contrast-report-${{ matrix.theme }}-${{ matrix.mode }}
+          path: contrast-report.txt
+          retention-days: 30
+
+  state-a11y:
+    name: Interactive-state a11y
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - id: playwright
+        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - run: pnpm check:state-a11y --verbose --probe 2>&1 | tee state-a11y-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: state-a11y-report
+          path: state-a11y-report.txt
+          retention-days: 30
+
+  layout:
+    name: Layout geometry
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - id: playwright
+        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - run: pnpm check:layout 2>&1 | tee layout-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: layout-report
+          path: layout-report.txt
+          retention-days: 30
+
+  rtl-layout:
+    name: RTL layout
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - id: playwright
+        run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - run: pnpm check:rtl-layout --verbose 2>&1 | tee rtl-layout-report.txt
+        shell: bash
+
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rtl-layout-report
+          path: rtl-layout-report.txt
+          retention-days: 30
