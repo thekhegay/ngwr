@@ -95,11 +95,17 @@ protected readonly message = computed(() => {
 })
 class Avatar {
   private readonly cropper = viewChild.required<WrImageCropper>('cropper');
+  private readonly http = inject(HttpClient);
+
+  /** The picked image, from a file input or \`wr-file-upload\`. */
+  readonly file = signal<File | null>(null);
 
   async save() {
     // 'avatar.jpg' if the browser encoded JPEG, 'avatar.png' after a PNG fallback
     const file = await this.cropper().toFile('avatar', 'image/jpeg');
-    upload(file);
+    const body = new FormData();
+    body.append('avatar', file);
+    this.http.post('/api/avatar', body).subscribe();
   }
 }`,
   };
