@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1896 hook(s) across 116 page(s). A property is here only when the
+ * 1897 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1417,6 +1417,7 @@ export const CSS_VARS = {
       { name: "--wr-file-upload-item-padding-y", default: "var(--wr-space-sm)", scope: ".wr-file-upload__item", overrides: 2 },
       { name: "--wr-file-upload-item-radius", default: "var(--wr-border-radius-base)", scope: ".wr-file-upload__item" },
       { name: "--wr-file-upload-item-row-gap", default: "var(--wr-space-xs)", scope: ".wr-file-upload__item" },
+      { name: "--wr-file-upload-link-color", default: "var(--wr-color-primary-ink)", scope: ".wr-file-upload__link" },
       { name: "--wr-file-upload-list-gap", default: "var(--wr-space-sm)", scope: ".wr-file-upload__list", overrides: 1 },
       { name: "--wr-file-upload-list-margin-top", default: "var(--wr-space-md)", scope: ".wr-file-upload__list", overrides: 2 },
       { name: "--wr-file-upload-preview-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-file-upload__preview" },

@@ -7,6 +7,7 @@ import {
   type WrFileUploadSize,
   type WrFileUploadStatus,
   type WrFileUploadStatusMap,
+  type WrStoredFile,
 } from 'ngwr/file-upload';
 
 import {
@@ -53,6 +54,16 @@ export default class FileUploadPageComponent {
   private started = 0;
 
   protected readonly previewed = signal<readonly File[] | null>(null);
+  protected readonly added = signal<readonly File[] | null>(null);
+  protected readonly stored = signal<readonly WrStoredFile[]>([
+    { name: 'contract.pdf', size: 184_320, url: 'https://ngwr.dev/' },
+    { name: 'notes.txt', size: 1_240 },
+  ]);
+
+  protected onStoredRemove(file: WrStoredFile): void {
+    this.stored.update(list => list.filter(item => item !== file));
+  }
+
   protected readonly pasted = signal<readonly File[] | null>(null);
 
   constructor() {
@@ -156,12 +167,35 @@ private setStatus(file: File, status: WrFileUploadStatus): void {
 
     previews: `<wr-file-upload [(value)]="files" multiple previews accept="image/*" />`,
 
+    stored: `<wr-file-upload
+  multiple
+  [(value)]="files"
+  [stored]="stored()"
+  (storedRemove)="onStoredRemove($event)"
+/>`,
+
+    storedTs: `readonly stored = signal<readonly WrStoredFile[]>([
+  { name: 'contract.pdf', size: 184_320, url: '/files/42/contract.pdf' },
+  { name: 'notes.txt' },
+]);
+
+onStoredRemove(file: WrStoredFile): void {
+  this.api.delete(file.name).subscribe();
+  this.stored.update(list => list.filter(item => item !== file));
+}`,
+
     paste: `<wr-file-upload [(value)]="files" multiple acceptPaste />`,
   };
 
   protected readonly api = API.WrFileUpload;
 
-  protected readonly typeSnippet = `interface WrFileUploadRejection {
+  protected readonly typeSnippet = `interface WrStoredFile {
+  name: string;
+  size?: number | null;
+  url?: string | null;
+}
+
+interface WrFileUploadRejection {
   file: File;
   reason: WrFileUploadRejectionReason;
 }
@@ -205,6 +239,15 @@ type WrFileUploadState = 'pending' | 'uploading' | 'done' | 'error';`;
     {
       name: 'message',
       description: 'error only: what went wrong, in your words. Without it the row says "Upload failed".',
+      type: 'string | null',
+      sub: true,
+    },
+    { name: 'WrStoredFile', description: 'A file already on a server, listed through [stored].', type: 'interface' },
+    { name: 'name', description: 'The name shown in the row.', type: 'string', required: true, sub: true },
+    { name: 'size', description: 'Size in bytes. Without it the row shows no size.', type: 'number | null', sub: true },
+    {
+      name: 'url',
+      description: 'Where the file opens, in a new tab. Without it the name is plain text.',
       type: 'string | null',
       sub: true,
     },
