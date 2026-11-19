@@ -70,6 +70,7 @@ export const SINCE = {
   "reference/components/load-state": "15.6.0",
   "reference/components/resizable": "16.1.0",
   "reference/directives/fit-text": "16.0.0",
+  "reference/directives/in-view": "16.7.0",
   "reference/pipes/wr-duration": "15.4.0",
   "reference/pipes/wr-initials": "15.6.0",
   "reference/utils/with-render-on-navigation": "16.1.0",

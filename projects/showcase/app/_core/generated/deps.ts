@@ -501,6 +501,7 @@ export const DOC_ROUTES: Readonly<
   "reference/directives/click-outside": {"title":"wrClickOutside","kind":"Directive","labels":["Directive"],"description":"Emit when a mousedown lands outside the element, to close a popup or an inline edit."},
   "reference/directives/copy-to-clipboard": {"title":"wrCopyToClipboard","kind":"Directive","labels":["Directive"],"description":"Copy a string to the clipboard when the element is clicked, and say so."},
   "reference/directives/fit-text": {"title":"wrFitText","kind":"Directive","labels":["Directive"],"description":"Shrink a block whose text wraps to the width of its longest line."},
+  "reference/directives/in-view": {"title":"wrInView","kind":"Directive","labels":["Directive"],"description":"Emit when an element enters or leaves the viewport."},
   "reference/directives/typography": {"title":"wrTypography","kind":"Directive","labels":["Directive"],"description":"Style any text element with a shared text role."},
   "reference/interfaces/catalog": {"title":"Catalog","kind":"Type","labels":["Type"],"description":"The public types you use most, grouped by area and linked to the page that uses them."},
   "reference/interfaces/common": {"title":"Common types","kind":"Type","labels":["Type"],"description":"Shared type aliases from `ngwr/utils`."},
