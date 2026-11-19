@@ -17,8 +17,9 @@ A pnpm + Angular CLI monorepo with three projects:
   (`ngwr/charts/<name>`) — among them the public
   legend `ngwr/charts/chart-legend` and `ngwr/charts/core`, whose exports are all
   `@internal` (see Shared code below) — the twenty-two
-  `ngwr/i18n/<locale>`, the two opt-in router adapters
-  `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14 added, and the CDK
+  `ngwr/i18n/<locale>`, the opt-in router adapters
+  `ngwr/loading-bar/router` and `ngwr/tabs/router` that v14 added and
+  `ngwr/table/router`, and the CDK
   test harnesses (`testingEntryPoints` in the same file), which cover the form
   controls (`button`, `input`, `textarea`,
   `checkbox`, `switch`, `radio`, `select`, `input-number`, `input-otp`, `slider`,

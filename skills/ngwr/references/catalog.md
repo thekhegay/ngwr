@@ -222,6 +222,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/switch` | `import { WrSwitch } from 'ngwr/switch'` | `wr-switch` |
 | `ngwr/switch/testing` | `import { WrSwitchHarness } from 'ngwr/switch/testing'` | — |
 | `ngwr/table` | `import { WrTable } from 'ngwr/table'` | `[wrTableCell]` `wr-table-column-chooser` `[wrTableEditCell]` `ng-template[wrTableExpand]` `wr-table-filter` `ng-template[wrTableGroupHeader]` `ng-template[wrTableSelectionBar]` `wr-table-sort` `wr-table` |
+| `ngwr/table/router` | `import { WrTableRouting } from 'ngwr/table/router'` | `[wrTableRouting]` |
 | `ngwr/table/testing` | `import { WrTableCellHarness } from 'ngwr/table/testing'` | — |
 | `ngwr/tabs` | `import { WrTabs } from 'ngwr/tabs'` | `wr-tab` `wr-tabs` |
 | `ngwr/tabs/router` | `import { WrTabsRouting } from 'ngwr/tabs/router'` | `[wrTabsRouting]` |

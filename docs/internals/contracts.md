@@ -290,3 +290,4 @@ because it is guidance rather than a plan.
   highlights nothing. A dimmed node that holds the focus is drawn at full
   strength, so its ring is too.
 - `wr-table` selection survives a `search`: rows the search hides stay selected, and the bar's count, its `$implicit` and `toCsv({ selectedOnly })` all use the whole selection, never only the visible part.
+- `wr-table` rows tint on hover only when they lead somewhere: a row with a `rowLink`, or every row while `rowClick` is bound. A plain table has no row hover, and `--wr-table-row-hover` only colours those two.

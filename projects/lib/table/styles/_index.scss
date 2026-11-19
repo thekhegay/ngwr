@@ -20,6 +20,12 @@
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('table');
 
+// A row whose link has the focus ring, which the row draws for it.
+$row-link-focused: ':has(> td > .wr-table__row-link:focus-visible)';
+
+// The controls in a linked row that keep the pointer, see `&__tr--link`.
+$row-controls: "a[href], button, input, select, textarea, label, [role='button'], [contenteditable]:not([contenteditable='false']), [wrTableIgnoreRowClick], .wr-table__actions";
+
 .wr-table {
   --wr-table-bg: var(--wr-color-surface);
   --wr-table-border: var(--wr-border-base);
@@ -477,8 +483,10 @@
   }
 
   // Keep the row-hover tint on pinned body cells.
-  &__tr:hover &__td--pin-left,
-  &__tr:hover &__td--pin-right {
+  &__tr--link:hover &__td--pin-left,
+  &__tr--link:hover &__td--pin-right,
+  &__tr--clickable:hover &__td--pin-left,
+  &__tr--clickable:hover &__td--pin-right {
     background-image: linear-gradient(var(--wr-table-row-hover), var(--wr-table-row-hover));
   }
 
@@ -642,45 +650,93 @@
   &__tr {
     transition: background var(--wr-transition-base);
 
-    &:hover {
+    // Only a row that leads somewhere tints: one with a link, or any row while
+    // `rowClick` is bound. A tint on a row that does nothing promises a click.
+    &--link:hover,
+    &--clickable:hover {
       background: var(--wr-table-row-hover);
     }
 
     // A tree row holds the treegrid's roving tab stop (the APG's row focus), so
-    // it needs the ring every other focusable part of the table has. Inset: the
+    // it needs the ring every other focusable part of the table has. A row's
+    // link lies under the whole row, so its focus draws the same ring. Inset: the
     // host is `overflow: hidden`, and the first and last rows run flush to its
     // border, where an outset ring is clipped away.
-    &:focus-visible {
+    &:focus-visible,
+    &#{$row-link-focused} {
       @include theme.focus-ring;
       outline-offset: -2px;
-    }
 
-    // A pinned cell is sticky, stacked above the row and opaque, so it paints
-    // over the row's outline. It draws its own stretch of the ring instead:
-    // the block edges always, an inline edge only where it ends the row. A
-    // border rather than a shadow, since `forced-colors` drops shadows.
-    &:focus-visible .wr-table__td--pin-left::after,
-    &:focus-visible .wr-table__td--pin-right::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-block: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-      pointer-events: none;
-    }
+      // A pinned cell is sticky, stacked above the row and opaque, so it paints
+      // over the row's outline. It draws its own stretch of the ring instead:
+      // the block edges always, an inline edge only where it ends the row. A
+      // border rather than a shadow, since `forced-colors` drops shadows.
+      .wr-table__td--pin-left::after,
+      .wr-table__td--pin-right::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-block: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+        pointer-events: none;
+      }
 
-    &:focus-visible .wr-table__td--pin-left:first-child::after,
-    &:focus-visible .wr-table__td--pin-right:first-child::after {
-      border-inline-start: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-    }
+      .wr-table__td--pin-left:first-child::after,
+      .wr-table__td--pin-right:first-child::after {
+        border-inline-start: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      }
 
-    &:focus-visible .wr-table__td--pin-left:last-child::after,
-    &:focus-visible .wr-table__td--pin-right:last-child::after {
-      border-inline-end: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      .wr-table__td--pin-left:last-child::after,
+      .wr-table__td--pin-right:last-child::after {
+        border-inline-end: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      }
     }
 
     &:last-child .wr-table__td {
       border-bottom: 0;
     }
+  }
+
+  // --- Row links (`rowLink`) --------------------------------------------------
+  // One empty anchor per row, stretched under the cells. The row is its own
+  // stacking context, so the link sits below every cell and the cells let the
+  // pointer through to it; a control in a cell takes the pointer back. Nothing
+  // is raised or repositioned, so a cell template lays out as it did.
+  &__tr--link {
+    position: relative;
+    z-index: 0;
+  }
+
+  &__row-link {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    // The focused link rings the row (see `&__tr` above).
+    outline: none;
+    pointer-events: auto;
+  }
+
+  &__tr--link > &__td {
+    pointer-events: none;
+  }
+
+  // The cells that are controls themselves. A cut cell is one for its tooltip,
+  // and the component hands its clicks to the link.
+  &__tr--link > &__td--select,
+  &__tr--link > &__td--expand,
+  &__tr--link > &__td--editable,
+  &__tr--link > &__td--editing,
+  &__tr--link > &__td--truncate {
+    pointer-events: auto;
+  }
+
+  &__tr--link > &__td--truncate {
+    cursor: pointer;
+  }
+
+  // What `rowClick` skips (`ROW_CLICK_IGNORE` in table.ts), at no specificity:
+  // a disabled control that turns its own pointer events off keeps them off.
+  @at-root :where(.wr-table__tr--link) > :where(.wr-table__td) :where(#{$row-controls}) {
+    pointer-events: auto;
   }
 
   &__empty {
@@ -1160,7 +1216,9 @@
   // An unfrozen cell no longer covers the row's ring, so it draws no stretch of
   // its own (and, being static, would anchor one to the wrong box).
   .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-left::after,
-  .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-right::after {
+  .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-right::after,
+  .wr-table--responsive .wr-table__tr#{$row-link-focused} .wr-table__td--pin-left::after,
+  .wr-table--responsive .wr-table__tr#{$row-link-focused} .wr-table__td--pin-right::after {
     content: none;
   }
 

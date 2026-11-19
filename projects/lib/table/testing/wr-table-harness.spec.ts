@@ -907,3 +907,30 @@ describe('WrTableHarness — a multi-column sort', () => {
     expect(await table.getSortDirection('Name')).toBe('none');
   });
 });
+
+@Component({
+  imports: [WrTable],
+  template: `<wr-table rowKey="id" [columns]="columns" [items]="rows" [rowLink]="link" />`,
+})
+class LinkHost {
+  readonly columns: WrTableColumns = { name: { title: 'Name' } };
+  readonly rows = [
+    { id: 1, name: 'Ada' },
+    { id: 2, name: 'Linus' },
+  ];
+  readonly link = (row: object): string | null => ((row as { id: number }).id === 1 ? '/users/1' : null);
+}
+
+describe('WrTableHarness — row links', () => {
+  it('reads the href of a linked row, and null for a row that leads nowhere', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(LinkHost);
+    fixture.detectChanges();
+    const table = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrTableHarness);
+    const [ada, linus] = await table.getRows();
+
+    expect(await ada.getLink()).toBe('/users/1');
+    expect(await linus.getLink()).toBeNull();
+    fixture.destroy();
+  });
+});

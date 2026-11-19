@@ -186,9 +186,51 @@
       </li>
       <li>
         It is pointer only: a row takes no focus. Keep a button or a link in the row for the same action, as the Open
-        button here, and style <code>.wr-table__tr</code> yourself if you want a pointer cursor.
+        button here, or use <code>rowLink</code> when the row leads to a URL.
+      </li>
+      <li>
+        While it is bound the rows wear <code>.wr-table__tr--clickable</code> and tint on hover. Style that class if you
+        want a pointer cursor.
       </li>
       <li>Group bands, summary rows and detail rows do not fire it. A child row in tree mode has index -1.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Row links"
+    description="`rowLink` maps a row to its href and makes the row a real link: Enter, middle click, ctrl / cmd click and copy link work anywhere on it, and each row is one tab stop. Return `null` for a row that leads nowhere."
+  >
+    <ngwr-doc-snippet [code]="snippets.rowLink">
+      <div style="width: 100%">
+        <wr-table wrTableRouting [columns]="linkColumns" [items]="linkRows" [rowLink]="pageLink">
+          <ng-template wrTableCell="selector" let-value>
+            <wr-copy-value [value]="value" />
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The link is one empty <code>&lt;a&gt;</code> laid under the row's cells and named by the row's first cell, or by
+        the tree column in tree mode. A focused link rings the whole row.
+      </li>
+      <li>
+        Controls in the row stay their own: buttons, links, form fields, labels, the selection and expand cells,
+        editable cells and an <code>actions</code> column. Mark anything else with <code>wrTableIgnoreRowClick</code>.
+        Here the copy button copies and the row does not open.
+      </li>
+      <li>
+        A plain href loads the page. In a routed app add <code>wrTableRouting</code> from
+        <code>ngwr/table/router</code>: <code>rowLink</code> then returns what <code>routerLink</code> takes, a URL
+        string or an array of commands, and a plain click navigates in the app.
+      </li>
+      <li>
+        Only rows that link, or any row while <code>rowClick</code> is bound, tint on hover. The last row here is this
+        page: no link and no tint.
+      </li>
+      <li>
+        Text under the link cannot be selected with the pointer. A virtualized table links its rendered rows only.
+      </li>
     </ul>
   </ngwr-doc-section>
 
