@@ -206,6 +206,28 @@ describe('wrFocusFirstInvalid', () => {
     expect(document.activeElement?.id).toBe('one');
   });
 
+  it('skips a control Tab cannot reach and lands on the tab stop of a radio group', async () => {
+    const root = render(`
+      <div id="field" class="wr-form-field wr-form-field--invalid">
+        <button id="peek" type="button" tabindex="-1">Show</button>
+        <input id="text" />
+      </div>
+      <div id="group" role="radiogroup" aria-invalid="true">
+        <input id="one" type="radio" name="g" />
+        <input id="two" type="radio" name="g" checked />
+        <input id="three" type="radio" name="g" />
+      </div>
+    `);
+    field(root, 'text');
+
+    await wrFocusFirstInvalid(root);
+    expect(document.activeElement?.id).toBe('text');
+
+    root.querySelector('#field')!.classList.remove('wr-form-field--invalid');
+    await wrFocusFirstInvalid(root);
+    expect(document.activeElement?.id).toBe('two');
+  });
+
   it('reads an invalid wr-form-field whose control carries no mark', async () => {
     const root = render(`
       <div id="ok" class="wr-form-field"><input id="fine" /></div>

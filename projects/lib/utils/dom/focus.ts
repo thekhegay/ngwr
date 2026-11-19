@@ -48,12 +48,28 @@ function isRendered(el: HTMLElement): boolean {
 const INVALID_CONTROL = '[aria-invalid="true"]';
 const INVALID_SELECTOR = `${INVALID_CONTROL}, .wr-form-field--invalid`;
 
+/**
+ * Can Tab land on `el`? A negative `tabindex` cannot, and a radio only when it
+ * is its group's one stop: the checked one, or the first enabled one while
+ * nothing is checked. The browser applies that rule itself, so no `tabindex`
+ * is written down to read.
+ */
+function isTabStop(el: HTMLElement): boolean {
+  if (el.tabIndex < 0) return false;
+  if (!(el instanceof HTMLInputElement) || el.type !== 'radio' || !el.name) return true;
+  const group = Array.from(el.ownerDocument.querySelectorAll<HTMLInputElement>('input[type="radio"]')).filter(
+    radio => radio.name === el.name && radio.form === el.form && !radio.disabled
+  );
+  return el === (group.find(radio => radio.checked) ?? group[0]);
+}
+
 function findFirstInvalid(root: HTMLElement): HTMLElement | undefined {
   for (const mark of root.querySelectorAll<HTMLElement>(INVALID_SELECTOR)) {
     // An invalid field whose control carries the mark itself is reached through
     // the control, the next match, and not through whatever its label holds.
     if (!mark.matches(INVALID_CONTROL) && mark.querySelector(INVALID_CONTROL)) continue;
-    const target = mark.matches(FOCUSABLE_SELECTOR) && isRendered(mark) ? mark : wrGetFocusableElements(mark)[0];
+    const target =
+      mark.matches(FOCUSABLE_SELECTOR) && isRendered(mark) ? mark : wrGetFocusableElements(mark).find(isTabStop);
     if (target) return target;
   }
   return undefined;
