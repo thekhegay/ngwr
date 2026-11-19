@@ -4,11 +4,12 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
+      day: 'monday'
       time: '08:00'
       timezone: 'Asia/Almaty'
     cooldown:
-      default-days: 1
+      default-days: 7
     open-pull-requests-limit: 10
     # typescript and vitest are held to the peer ranges Angular declares.
     ignore:
@@ -53,7 +54,7 @@ updates:
       time: '08:00'
       timezone: 'Asia/Almaty'
     cooldown:
-      default-days: 1
+      default-days: 7
     ignore:
       - dependency-name: 'typescript'
         versions: ['>=6.1']
@@ -70,9 +71,12 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
+      day: 'monday'
       time: '08:00'
       timezone: 'Asia/Almaty'
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns:
