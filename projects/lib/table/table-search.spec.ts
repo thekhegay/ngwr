@@ -32,11 +32,13 @@ const COLUMNS: WrTableColumns = {
       [items]="items()"
       [search]="search()"
       [pageSize]="pageSize()"
+      [total]="total()"
       [(page)]="page"
     />
   `,
 })
 class Host {
+  readonly total = signal<number | null>(null);
   readonly columns: WrTableColumns = COLUMNS;
   readonly items = signal<readonly Row[]>(PEOPLE);
   readonly search = signal('');
@@ -201,5 +203,52 @@ describe('WrTable tree search', () => {
   it('restores the whole forest on an empty query', async () => {
     await find('legal');
     expect(await find('')).toHaveLength(7);
+  });
+});
+
+describe('WrTable search page reset', () => {
+  const many = Array.from({ length: 30 }, (_, i) => ({ id: i, name: `${i % 2 ? 'odd' : 'even'} ${i}` }));
+  let fixture: ComponentFixture<Host>;
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({ imports: [Host] }).compileComponents();
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.items.set(many);
+    fixture.componentInstance.pageSize.set(5);
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('keeps a restored page on the first render with a query', async () => {
+    fixture.componentInstance.search.set('even');
+    fixture.componentInstance.page.set(3);
+    await settle();
+    expect(fixture.componentInstance.page()).toBe(3);
+  });
+
+  it('does not reset the page for a query that differs only by blanks', async () => {
+    fixture.componentInstance.search.set('even');
+    await settle();
+    fixture.componentInstance.page.set(3);
+    await settle();
+    fixture.componentInstance.search.set('even ');
+    await settle();
+    expect(fixture.componentInstance.page()).toBe(3);
+  });
+
+  it('leaves the page alone in server mode, where search is ignored', async () => {
+    fixture.componentInstance.total.set(30);
+    await settle();
+    fixture.componentInstance.page.set(3);
+    await settle();
+    fixture.componentInstance.search.set('zzz');
+    await settle();
+    expect(fixture.componentInstance.page()).toBe(3);
   });
 });
