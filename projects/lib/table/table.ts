@@ -1361,14 +1361,19 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       });
     }
 
-    // A new query starts at the first page; the first run keeps a restored page.
-    let lastSearch = untracked(() => this.search());
+    // A new query starts at the first page; the first run keeps a restored page,
+    // and server mode, where `search` is ignored, never resets it.
+    let lastSearch: string | null = null;
     effect(() => {
-      const query = this.search();
+      const query = (this.search() ?? '').trim();
+      if (lastSearch === null) {
+        lastSearch = query;
+        return;
+      }
       if (query === lastSearch) return;
       lastSearch = query;
       untracked(() => {
-        if (this.page() !== 1) this.page.set(1);
+        if (this.total() === null && this.page() !== 1) this.page.set(1);
       });
     });
 
