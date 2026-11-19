@@ -252,3 +252,47 @@ describe('WrTable search page reset', () => {
     expect(fixture.componentInstance.page()).toBe(3);
   });
 });
+
+describe('WrTable search cost', () => {
+  let calls = 0;
+
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table rowKey="id" [columns]="columns()" [items]="items" [search]="search()" />`,
+  })
+  class CostHost {
+    readonly columns = signal<WrTableColumns>({
+      name: {
+        title: 'Name',
+        format: value => {
+          calls++;
+          return String(value);
+        },
+      },
+    });
+    readonly items = PEOPLE;
+    readonly search = signal('');
+  }
+
+  it('folds each cell once, so a longer query only re-runs the match', async () => {
+    const fixture = TestBed.createComponent(CostHost);
+    const settle = async (): Promise<void> => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+    calls = 0;
+    fixture.componentInstance.search.set('zz');
+    await settle();
+    const first = calls;
+    expect(first).toBeGreaterThan(0);
+    fixture.componentInstance.search.set('zzz');
+    await settle();
+    expect(calls).toBe(first);
+    fixture.componentInstance.columns.set({ name: { title: 'Name', format: v => `${String(v)}!` } });
+    fixture.componentInstance.search.set('bob');
+    await settle();
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('tbody .wr-table__tr')).toHaveLength(1);
+    fixture.destroy();
+  });
+});
