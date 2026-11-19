@@ -1,3 +1,12 @@
+@if (checked() !== null) {
+  <span class="wr-dropdown-item__check" aria-hidden="true">
+    @if (checked()) {
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="m4 8.5 3 3 5-6" stroke-linejoin="round" />
+      </svg>
+    }
+  </span>
+}
 @if (icon(); as name) {
   <wr-icon class="wr-dropdown-item__icon" [name]="name" />
 }
