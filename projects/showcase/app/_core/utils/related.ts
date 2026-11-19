@@ -733,6 +733,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/button',
   ],
   'reference/directives/fit-text': ['reference/components/badge', 'reference/directives/typography'],
+  'reference/directives/in-view': ['animations/reveal', 'reference/components/counter'],
   'reference/directives/typography': [
     'guides/typography/overview',
     'guides/typography/styles',

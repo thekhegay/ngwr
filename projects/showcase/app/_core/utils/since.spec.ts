@@ -298,6 +298,7 @@ describe('the surfaces that draw it', () => {
       'Editor',
       'Resizable',
       'wrFitText',
+      'wrInView',
       'wrDuration',
       'wrInitials',
       'wrFocusFirstInvalid',

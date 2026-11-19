@@ -437,6 +437,9 @@ export const INSTALL = {
       { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
       { path: "ngwr/directives", symbols: ["WrFitText"], declarables: ["WrFitText"], styled: false },
   ],
+  "reference/directives/in-view": [
+      { path: "ngwr/directives", symbols: ["WrInView"], declarables: ["WrInView"], styled: false },
+  ],
   "reference/directives/typography": [
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
