@@ -10,14 +10,13 @@ on:
 
 concurrency:
   group: deploy-ngwr-next
-  cancel-in-progress: true
+  cancel-in-progress: false
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
-  deploy:
-    name: Build & deploy next.ngwr.dev
+  build:
+    name: Build next.ngwr.dev
     # A stable release commit reaches next only when next syncs with main after
     # the release, which changes nothing next.ngwr.dev shows; ngwr.dev is that
     # release's site. A dispatch always runs.
@@ -27,23 +26,23 @@ jobs:
       !(startsWith(github.event.head_commit.message, 'chore(release): v') &&
       !contains(github.event.head_commit.message, '-rc.')))
     runs-on: ubuntu-latest
-    environment:
-      name: next
-      url: https://next.ngwr.dev
+    timeout-minutes: 15
+    permissions:
+      contents: read
 
     steps:
       # The branch tip, not the pushed SHA: a push event delivered late would
       # otherwise deploy an older build over a newer one.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: next
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -83,7 +82,31 @@ jobs:
           SCRIPT
           find dist/showcase -name '*.html' -print0 | xargs -0 node "$RUNNER_TEMP/mark-next.mjs"
 
-      - uses: easingthemes/ssh-deploy@v6.0.3
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Deploy next.ngwr.dev
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {}
+    environment:
+      name: next
+      url: https://next.ngwr.dev
+
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: showcase
+          path: dist/showcase
+
+      - uses: easingthemes/ssh-deploy@2cc5b27bf3029d0455dd5e09fe02633904031447 # v6.0.3
         with:
           ARGS: '-rlgoDzvc -i --delete'
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
