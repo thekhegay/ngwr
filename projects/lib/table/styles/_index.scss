@@ -326,8 +326,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  // --- Row selection --------------------------------------------------------
-  &__th--select,
   // --- Row actions ----------------------------------------------------------
   // `column.actions`. `width: 1%` shrinks the column to its buttons under auto
   // layout; a fixed layout would read it literally, so there the column takes
@@ -353,6 +351,8 @@
     vertical-align: middle;
   }
 
+  // --- Row selection --------------------------------------------------------
+  &__th--select,
   &__td--select {
     width: 1%;
     white-space: nowrap;
