@@ -90,7 +90,7 @@ export const QUALITY = {
     { name: "build:showcase", command: "tsx scripts/build/showcase.ts" },
   ],
 
-  /** The same, from `.github/workflows/nightly.yml`, which runs only on a night `main` moved. `build:showcase` is on the list because the workflow runs it once and the four site checks read its `dist/showcase`; they are off the PR path, so a green PR says nothing about a11y, painted contrast or geometry. `test` and `build:lib` are not a second opinion on the PR gates of the same name: they re-run on Node 24, an older LTS line `engines` still accepts, which nothing else exercises. */
+  /** The same, from `.github/workflows/nightly.yml` and the `site-checks.yml` it calls, which runs only on a night `main` moved. `build:showcase` is on the list because the workflow runs it once and the four site checks read its `dist/showcase`; they are off the PR path, so a green PR says nothing about a11y, painted contrast or geometry. `test` and `build:lib` are not a second opinion on the PR gates of the same name: they re-run on Node 24, an older LTS line `engines` still accepts, which nothing else exercises. */
   nightlyGates: [
     { name: "build:showcase", command: "tsx scripts/build/showcase.ts" },
     { name: "check:a11y", command: "tsx scripts/check/a11y.ts" },
