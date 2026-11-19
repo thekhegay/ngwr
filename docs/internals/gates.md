@@ -81,8 +81,8 @@ are value-set identities, and no binding changes.
 | Tier    | Workflow                                     | Runs                                                                                              |
 | ------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | PR      | `ci.yml`, PRs into and pushes to `main`      | `lint`, `test`, `check:api-docs`, `check:css-vars`, `build:lib`, `check:package`, `build:showcase` |
-| Nightly | `nightly.yml`, 20:00 UTC                     | `build:showcase` once, then `check:a11y`, `check:contrast`, `check:state-a11y`, `check:layout` and `check:rtl-layout` on its `dist/showcase`; `test` + `build:lib` on Node 22 and 24 |
-| Release | `release.yml`, before it cuts the release PR | `pnpm check:release`: the PR set plus the five site checks                                        |
+| Nightly | `nightly.yml`, 20:00 UTC                     | `site-checks.yml`: `build:showcase` once, then `check:a11y`, `check:contrast` (four jobs, one per theme and `prefers-contrast` mode), `check:state-a11y`, `check:layout` and `check:rtl-layout` in parallel on its `dist/showcase`; `test` + `build:lib` on Node 22 and 24 |
+| Release | `release.yml`, before it cuts the release PR | the same `check:release` set as parallel jobs: lint and docs checks, test and package checks, and the same `site-checks.yml` as the nightly |
 
 **`check:nav` is the last step of `build:showcase`** (`scripts/check/nav.ts`),
 so it runs in every tier that builds the site, `check:release` included, with no
@@ -101,7 +101,7 @@ finished nightly checked; a manual dispatch always runs. A failed job opens one
 `Nightly failed` issue (or comments on the open one) with the date, the SHA,
 the run and the failed jobs, and the next green nightly closes it. The lists
 are parsed into `prGates` / `nightlyGates` in `#core/generated/quality`.
-`pnpm check:nightly` and `pnpm check:release` run a tier by hand (Playwright's
+The release and the nightly call one reusable workflow, so the site checks run the same way in both. `pnpm check:nightly` and `pnpm check:release` run a tier by hand in one chain (Playwright's
 Chromium needed; the Node 22 / 24 job has no local twin) — not to be confused with
 `release:check`, the CHANGELOG guard in `publish.yml`, which also re-runs
 `pnpm lint` + `pnpm build:lib` before it ships. Commit subjects are checked by

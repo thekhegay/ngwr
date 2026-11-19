@@ -46,7 +46,7 @@ site's printed counts bind to — and it shipped stale on two consecutive releas
 because `release:prepare` did not run `gen:quality`. `release.yml` runs it now,
 in its own step after the bump. Don't bump the
 version by hand either — releases are cut from Actions, by running the "Release
-PR" workflow with its `bump` input, which runs `pnpm check:release`, then
+PR" workflow with its `bump` input, which runs the `check:release` gates as parallel jobs, then
 `release:prepare` / `release:body`, and opens a `chore(release)` PR. Merging it does not put the
 version on npm: `publish.yml` runs `npm stage publish`, and the version is
 installable once the maintainer approves it with 2FA (`npm stage approve` or
