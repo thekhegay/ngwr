@@ -213,7 +213,8 @@ major follows the same flow against `next` instead (see Versioning).
 **No assistant artifacts in the repo.** `.claude/` is gitignored; keep AI
 tooling files and AI mentions out of committed content. (`AGENTS.md` plus the
 `CLAUDE.md` / `GEMINI.md` pointers are the sanctioned exception — they're the
-cross-tool instruction standard, one source of truth in `AGENTS.md`.)
+cross-tool instruction standard, one source of truth in `AGENTS.md`. So is
+`.coderabbit.yaml`, the pull request reviewer's settings.)
 
 **Scope discipline.** Do exactly what's asked — don't restructure, standardize
 CI, bump versions, or touch adjacent areas unprompted. If a broader change
