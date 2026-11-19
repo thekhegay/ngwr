@@ -1068,6 +1068,52 @@ describe('WrImageCropper', () => {
     });
   });
 
+  describe('exporting to a file', () => {
+    const encodeAs = (type: string): void => {
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+        () => ({ drawImage: () => undefined }) as unknown as CanvasRenderingContext2D
+      );
+      vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((callback: BlobCallback) =>
+        callback(new Blob([''], { type }))
+      );
+      load();
+    };
+
+    afterEach(() => vi.restoreAllMocks());
+
+    it('appends the extension of the encoded type to a bare name', async () => {
+      encodeAs('image/jpeg');
+
+      const file = await cropper().toFile('avatar', 'image/jpeg');
+
+      expect(file).toBeInstanceOf(File);
+      expect(file.name).toBe('avatar.jpg');
+      expect(file.type).toBe('image/jpeg');
+    });
+
+    it('replaces the extension the caller passed', async () => {
+      encodeAs('image/webp');
+
+      expect((await cropper().toFile('avatar.png', 'image/webp')).name).toBe('avatar.webp');
+    });
+
+    it('names the file after the type the browser fell back to, not the one asked for', async () => {
+      encodeAs('image/png');
+
+      const file = await cropper().toFile('avatar.webp', 'image/webp');
+
+      expect(file.name).toBe('avatar.png');
+      expect(file.type).toBe('image/png');
+    });
+
+    it('rejects with no image, like toBlob', async () => {
+      fixture.componentInstance.src.set(null);
+      fixture.detectChanges();
+
+      await expect(cropper().toFile('a')).rejects.toThrow(/no loaded image to export/);
+    });
+  });
+
   /**
    * `[maxOutputSize]`. jsdom has no 2D context, so the canvas is given a recording one:
    * the assertions are the canvas's pixel SIZE and the `drawImage` call, which together

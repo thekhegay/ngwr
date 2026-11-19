@@ -87,6 +87,21 @@ protected readonly message = computed(() => {
 });`,
 
     maxOutputSize: `<wr-image-cropper [src]="file()" [aspectRatio]="1" [maxOutputSize]="512" (cropped)="upload($event)" />`,
+    toFile: `@Component({
+  template: \`
+    <wr-image-cropper #cropper [src]="file()" />
+    <button type="button" (click)="save()">Save</button>
+  \`,
+})
+class Avatar {
+  private readonly cropper = viewChild.required<WrImageCropper>('cropper');
+
+  async save() {
+    // 'avatar.jpg' if the browser encoded JPEG, 'avatar.png' after a PNG fallback
+    const file = await this.cropper().toFile('avatar', 'image/jpeg');
+    upload(file);
+  }
+}`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -154,6 +169,13 @@ protected readonly message = computed(() => {
       name: 'toBlob() / toDataUrl()',
       description: 'Read the current crop programmatically.',
       type: 'method',
+      default: '—',
+    },
+    {
+      name: 'toFile(name, type?, quality?)',
+      description:
+        'The crop as a `File`. A trailing extension of `name` is replaced by that of the encoded type, or one is appended.',
+      type: '(name: string, type?: WrImageOutputType, quality?: number) => Promise<File>',
       default: '—',
     },
   ];

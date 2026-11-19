@@ -1,5 +1,6 @@
 <ngwr-doc-page
   title="Image Cropper"
+  updated="16.7.0"
   description="Crop an image and get the result as a `Blob`."
   [keywords]="['image', 'cropper', 'crop', 'wr-image-cropper']"
   [labels]="['Composite']"
@@ -69,6 +70,13 @@
     description="`maxOutputSize` caps the longest side of the exported image; a smaller crop is not upscaled."
   >
     <ngwr-doc-code [code]="snippets.maxOutputSize" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="To a file"
+    description="`toFile(name)` returns a `File` named with the extension of the type the browser encoded, which is PNG when it cannot encode the one asked for."
+  >
+    <ngwr-doc-code [code]="snippets.toFile" language="angular-ts" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Keyboard" description="Focus the crop box to move and resize it from the keyboard.">
