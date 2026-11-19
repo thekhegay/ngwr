@@ -8,14 +8,15 @@ concurrency:
   group: publish-${{ github.ref }}
   cancel-in-progress: false
 
-permissions:
-  contents: read
+permissions: {}
 
-# SHA-pinned because this workflow can publish to npm; keep the version comments.
 jobs:
   detect:
     name: Detect release commit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
     outputs:
       is_release: ${{ steps.check.outputs.is_release }}
       version: ${{ steps.check.outputs.version }}
@@ -23,6 +24,8 @@ jobs:
       is_rc: ${{ steps.check.outputs.is_rc }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - id: check
         name: Inspect head commit
@@ -57,6 +60,7 @@ jobs:
     needs: detect
     if: needs.detect.outputs.is_release == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     permissions:
       contents: write
@@ -65,15 +69,15 @@ jobs:
       pull-requests: read
 
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 # zizmor: ignore[artipacked] the tag is pushed with git below
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
       # No dependency cache: this job holds the npm OIDC token.
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
           package-manager-cache: false
@@ -96,8 +100,10 @@ jobs:
         run: pnpm release:body --output=.release-body.md
 
       - name: Create git tag
+        env:
+          TAG: ${{ needs.detect.outputs.tag }}
         run: |
-          tag="${{ needs.detect.outputs.tag }}"
+          tag="$TAG"
           if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
             echo "Tag $tag already exists on origin — skipping"
           else
@@ -108,14 +114,17 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
-        with:
-          tag_name: ${{ needs.detect.outputs.tag }}
-          name: ${{ needs.detect.outputs.tag }}
-          body_path: .release-body.md
-          prerelease: ${{ needs.detect.outputs.is_rc == 'true' }}
-          make_latest: ${{ needs.detect.outputs.is_rc == 'false' }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.detect.outputs.tag }}
+          IS_RC: ${{ needs.detect.outputs.is_rc }}
+        run: |
+          if [[ "$IS_RC" == "true" ]]; then
+            flags=(--prerelease --latest=false)
+          else
+            flags=(--latest)
+          fi
+          gh release create "$TAG" --title "$TAG" --notes-file .release-body.md "${flags[@]}"
 
       - name: Assert npm supports staged publishing
         run: |
@@ -132,8 +141,10 @@ jobs:
       # Staged: the version goes live once a maintainer approves it with 2FA.
       - name: Stage on npm (Trusted Publisher)
         working-directory: dist/lib
+        env:
+          IS_RC: ${{ needs.detect.outputs.is_rc }}
         run: |
-          tag=$([[ "${{ needs.detect.outputs.is_rc }}" == "true" ]] && echo "next" || echo "latest")
+          tag=$([[ "$IS_RC" == "true" ]] && echo "next" || echo "latest")
           npm stage publish --access public --provenance --tag "$tag"
 
   find-superseded-major:
@@ -141,17 +152,23 @@ jobs:
     needs: [detect, publish]
     if: needs.detect.outputs.is_rc == 'false'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
     outputs:
       tag: ${{ steps.pick.outputs.tag }}
       path: ${{ steps.pick.outputs.path }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - id: pick
+        env:
+          VERSION: ${{ needs.detect.outputs.version }}
         run: |
-          version="${{ needs.detect.outputs.version }}"
+          version="$VERSION"
           if [[ ! "$version" =~ ^([0-9]+)\.0\.0$ ]]; then
             echo "$version is not a major release — nothing to archive"
             exit 0
@@ -173,8 +190,13 @@ jobs:
     name: Archive the superseded major
     needs: find-superseded-major
     if: needs.find-superseded-major.outputs.tag != ''
+    permissions:
+      contents: read
     uses: ./.github/workflows/archive-docs.yml
     with:
       tag: ${{ needs.find-superseded-major.outputs.tag }}
       path: ${{ needs.find-superseded-major.outputs.path }}
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_REMOTE_HOST: ${{ secrets.SSH_REMOTE_HOST }}
+      SSH_REMOTE_USER: ${{ secrets.SSH_REMOTE_USER }}

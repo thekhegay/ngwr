@@ -21,9 +21,15 @@ on:
         description: 'Versioned URL path / target subdir (e.g. v9)'
         required: true
         type: string
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      SSH_REMOTE_HOST:
+        required: true
+      SSH_REMOTE_USER:
+        required: true
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: archive-docs-${{ inputs.path }}
@@ -33,21 +39,24 @@ jobs:
   archive:
     name: Build ${{ inputs.tag }} → /${{ inputs.path }}/
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
     environment:
       name: production
       url: https://ngwr.dev/${{ inputs.path }}/
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          persist-credentials: false
           ref: ${{ inputs.tag }}
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
-          cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
@@ -59,13 +68,15 @@ jobs:
             pnpm exec tsx scripts/gen-ai-assets.ts
           fi
 
-      - run: |
+      - env:
+          ARCHIVED_PATH: ${{ inputs.path }}
+        run: |
           if [[ -f scripts/build/showcase-app.ts ]]; then
-            pnpm exec tsx scripts/build/showcase-app.ts --base-href=/${{ inputs.path }}/
+            pnpm exec tsx scripts/build/showcase-app.ts --base-href="/$ARCHIVED_PATH/"
           elif [[ -f scripts/build-showcase-app.ts ]]; then
-            pnpm exec tsx scripts/build-showcase-app.ts --base-href=/${{ inputs.path }}/
+            pnpm exec tsx scripts/build-showcase-app.ts --base-href="/$ARCHIVED_PATH/"
           else
-            pnpm exec ng build showcase --base-href=/${{ inputs.path }}/
+            pnpm exec ng build showcase --base-href="/$ARCHIVED_PATH/"
           fi
 
       - name: Mark the snapshot noindex
@@ -116,7 +127,7 @@ jobs:
           find dist/showcase -name '*.html' -print0 \
             | xargs -0 node "$RUNNER_TEMP/mark-archived.mjs"
 
-      - uses: easingthemes/ssh-deploy@v6.0.3
+      - uses: easingthemes/ssh-deploy@2cc5b27bf3029d0455dd5e09fe02633904031447 # v6.0.3
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: '-rlgoDzvc -i'
