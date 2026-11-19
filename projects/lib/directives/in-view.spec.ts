@@ -85,6 +85,8 @@ describe('WrInView', () => {
     expect(fixture.componentInstance.a).toEqual([]);
     half.fire(el(fixture, 'a'), true, 0.5);
     expect(fixture.componentInstance.a).toEqual([true]);
+    half.fire(el(fixture, 'a'), true, 0.4995);
+    expect(fixture.componentInstance.a).toEqual([true, false]);
   });
 
   it('stops after the first entry with once', async () => {

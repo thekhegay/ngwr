@@ -67,7 +67,8 @@ function isTabStop(el: HTMLElement, reachable: readonly HTMLElement[]): boolean 
       radio.type === 'radio' &&
       radio.name === el.name &&
       radio.form === el.form &&
-      !radio.disabled
+      !radio.disabled &&
+      Number(radio.getAttribute('tabindex') ?? 0) >= 0
   );
   return el === (group.find(radio => radio.checked) ?? group[0]);
 }
