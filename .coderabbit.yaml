@@ -13,6 +13,10 @@ reviews:
   related_prs: false
   suggested_labels: false
   suggested_reviewers: false
+  review_info: false
+  enable_prompt_for_ai_agents: false
+  auto_approvals:
+    enabled: true
   pre_merge_checks:
     docstrings:
       mode: 'off'
@@ -26,6 +30,12 @@ reviews:
     docstrings:
       enabled: false
     unit_tests:
+      enabled: false
+    autofix:
+      enabled: false
+    fix_ci:
+      enabled: false
+    resolve_merge_conflict:
       enabled: false
   auto_review:
     enabled: true
