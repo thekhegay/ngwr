@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1902 hook(s) across 116 page(s). A property is here only when the
+ * 1907 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -742,7 +742,12 @@ export const CSS_VARS = {
   "reference/components/avatar": {
     subpath: "ngwr/avatar",
     vars: [
-      { name: "--wr-avatar-bg", default: "transparent", scope: ".wr-avatar", overrides: 1 },
+      { name: "--wr-avatar-bg", default: "transparent", scope: ".wr-avatar", overrides: 2 },
+      { name: "--wr-avatar-group-more-bg", default: "var(--wr-color-fill-subtle)", scope: ".wr-avatar-group" },
+      { name: "--wr-avatar-group-more-color", default: "var(--wr-color-on-surface)", scope: ".wr-avatar-group" },
+      { name: "--wr-avatar-group-overlap", default: "0.25", scope: ".wr-avatar-group" },
+      { name: "--wr-avatar-group-ring-color", default: "var(--wr-color-surface)", scope: ".wr-avatar-group" },
+      { name: "--wr-avatar-group-ring-width", default: "var(--wr-space-xs)", scope: ".wr-avatar-group" },
       { name: "--wr-avatar-img-opacity", default: "0", scope: ".wr-avatar", overrides: 1 },
       { name: "--wr-avatar-initials-color", default: "var(--wr-color-on-surface)", scope: ".wr-avatar", overrides: 1 },
       { name: "--wr-avatar-initials-scale", default: "0.375", scope: ".wr-avatar" },

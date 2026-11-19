@@ -75,6 +75,11 @@ export const API = {
     { name: "shape", description: "Corner treatment. `rounded` (default) is a soft rounded square, `circle` is the classic profile avatar, `squircle` is the iOS look.", type: "WrAvatarShape", default: "'rounded'" },
     { name: "size", description: "Box size. See {@link WrAvatarSize} for accepted values. The resolved value is published on the host as `--wr-avatar-size`.", type: "WrAvatarSize", default: "'6rem'" },
   ],
+  // <wr-avatar-group>
+  WrAvatarGroup: [
+    { name: "max", description: "The most avatars drawn. Past it the rest are hidden and a \"+N\" avatar counts them. Unset, negative or not a number: no limit.", type: "number | null", default: "null" },
+    { name: "label", description: "The group's accessible name, for example \"Assignees\". Without one the group has no role.", type: "string | null", default: "null" },
+  ],
   // <wr-back-top>
   WrBackTop: [
     { name: "visibilityThreshold", description: "Show the button once `window.scrollY` exceeds this many pixels.", type: "number", default: "400" },

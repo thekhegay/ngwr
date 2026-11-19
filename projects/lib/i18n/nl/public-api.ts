@@ -194,6 +194,7 @@ export const wrNl: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} meer',
   },
   backTop: {
     label: 'Terug naar boven',

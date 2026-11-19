@@ -194,6 +194,7 @@ export const wrIt: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: 'Altri {{count}}',
   },
   backTop: {
     label: 'Torna su',

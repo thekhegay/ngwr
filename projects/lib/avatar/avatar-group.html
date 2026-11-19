@@ -1,0 +1,13 @@
+<ng-content />
+
+@if (hiddenCount() > 0) {
+  <!-- `role="img"` makes the "+N" text presentational: the name says it once. -->
+  <wr-avatar
+    class="wr-avatar-group__more"
+    role="img"
+    [attr.aria-label]="moreName()"
+    [size]="moreSize()"
+    [shape]="moreShape()"
+    >+{{ hiddenCount() }}</wr-avatar
+  >
+}

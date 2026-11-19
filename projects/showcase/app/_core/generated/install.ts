@@ -173,7 +173,7 @@ export const INSTALL = {
       { path: "ngwr/anchor", symbols: ["WrAnchor"], declarables: ["WrAnchor"], styled: true },
   ],
   "reference/components/avatar": [
-      { path: "ngwr/avatar", symbols: ["WrAvatar"], declarables: ["WrAvatar"], styled: true },
+      { path: "ngwr/avatar", symbols: ["WrAvatar", "WrAvatarGroup"], declarables: ["WrAvatar", "WrAvatarGroup"], styled: true },
   ],
   "reference/components/back-top": [
       { path: "ngwr/back-top", symbols: ["WrBackTop"], declarables: ["WrBackTop"], styled: true },

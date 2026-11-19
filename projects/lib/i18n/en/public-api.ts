@@ -261,6 +261,7 @@ export const wrEn: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} more',
   },
   backTop: {
     label: 'Back to top',

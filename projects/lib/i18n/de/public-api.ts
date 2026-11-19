@@ -196,6 +196,7 @@ export const wrDe: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: 'Weitere: {{count}}',
   },
   backTop: {
     label: 'Nach oben',

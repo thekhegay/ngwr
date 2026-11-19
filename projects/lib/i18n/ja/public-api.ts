@@ -194,6 +194,7 @@ export const wrJa: WrI18nCatalog = {
   },
   avatar: {
     alt: 'アバター',
+    more: 'ほか{{count}}人',
   },
   backTop: {
     label: 'ページの先頭へ戻る',

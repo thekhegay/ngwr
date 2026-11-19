@@ -200,6 +200,7 @@ export const wrHe: WrI18nCatalog = {
   },
   avatar: {
     alt: 'תמונת פרופיל',
+    more: 'עוד {{count}}',
   },
   backTop: {
     label: 'חזרה למעלה',
