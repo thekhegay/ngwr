@@ -838,7 +838,7 @@ export const API = {
   ],
   // <[wrFormSpan]>
   WrFormSpan: [
-    { name: "wrFormSpan", description: "Columns to span. Empty or `'full'` takes the whole row.", type: "number | 'full'", default: "'full'" },
+    { name: "wrFormSpan", description: "Columns to span. Empty or `'full'` takes the whole row. A number above the form's `columns` spans them all.", type: "number | 'full'", default: "'full'" },
   ],
   // <wr-funnel-chart>
   WrFunnelChart: [
