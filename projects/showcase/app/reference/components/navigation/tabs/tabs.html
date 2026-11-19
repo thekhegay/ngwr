@@ -33,6 +33,13 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Exact router tabs"
+    description="A router tab is selected on its path and every path below it. Add `exact` so an overview tab stays unselected on a child route. Query params and fragment still match as before."
+  >
+    <ngwr-doc-code [code]="snippets.exact" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Count"
     description='`count` adds a small badge after the label, for unread items or results. It is part of the accessible name, "Inbox, 3". `null` hides it; `0` shows `0`.'
   >
