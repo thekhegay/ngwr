@@ -91,7 +91,8 @@
   }
 }
 
-.zoom {
+.zoom,
+.selection {
   display: flex;
   flex-direction: column;
   gap: var(--wr-space-md);

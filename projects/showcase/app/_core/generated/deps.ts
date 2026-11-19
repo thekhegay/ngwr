@@ -448,7 +448,7 @@ export const DOC_ROUTES: Readonly<
   "reference/components/file-upload": {"title":"File Upload","kind":"Component","labels":["Signal Forms"],"description":"Pick files by dropping them on a zone or browsing."},
   "reference/components/form": {"title":"Form","kind":"Component","labels":["Component"],"description":"The layout of a form's fields, and a plain wrapper for a label, a control and its error."},
   "reference/components/form-field": {"title":"Form Field","kind":"Component","labels":["Component"],"description":"Wraps a form control with a label, a hint and its error messages."},
-  "reference/components/graph": {"title":"Graph","kind":"Component","labels":["Component","SSR-safe"],"description":"Draws blocks joined parent to child, top to bottom, for display only."},
+  "reference/components/graph": {"title":"Graph","kind":"Component","labels":["Component","SSR-safe"],"description":"Draws blocks joined parent to child, top to bottom, with optional zoom and selection."},
   "reference/components/icon": {"title":"Icon","kind":"Component","labels":["Component"],"description":"Renders an SVG icon you register by name; ngwr ships none of its own."},
   "reference/components/image-cropper": {"title":"Image Cropper","kind":"Component","labels":["Composite"],"description":"Crop an image and get the result as a `Blob`."},
   "reference/components/input": {"title":"Input","kind":"Component","labels":["Directive","a11y"],"description":"A directive that styles a native `<input>` or `<textarea>`."},

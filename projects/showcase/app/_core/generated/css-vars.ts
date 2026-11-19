@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1891 hook(s) across 116 page(s). A property is here only when the
+ * 1896 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1476,10 +1476,15 @@ export const CSS_VARS = {
       { name: "--wr-graph-control-size", default: "1.75rem", scope: ".wr-graph" },
       { name: "--wr-graph-controls-gap", default: "var(--wr-space-xs)", scope: ".wr-graph" },
       { name: "--wr-graph-controls-offset", default: "var(--wr-space-sm)", scope: ".wr-graph" },
+      { name: "--wr-graph-dimmed-opacity", default: "0.4", scope: ".wr-graph" },
       { name: "--wr-graph-edge-color", default: "color-mix(in srgb, var(--wr-color-on-surface-muted) 60%, var(--wr-color-surface))", scope: ".wr-graph" },
       { name: "--wr-graph-edge-width", default: "1px", scope: ".wr-graph" },
       { name: "--wr-graph-font-family", default: "var(--wr-font-family-base)", scope: ".wr-graph" },
+      { name: "--wr-graph-linked-edge-color", default: "var(--wr-color-primary)", scope: ".wr-graph" },
       { name: "--wr-graph-padding", default: "var(--wr-space-lg)", scope: ".wr-graph" },
+      { name: "--wr-graph-select-radius", default: "var(--wr-graph-card-radius)", scope: ".wr-graph" },
+      { name: "--wr-graph-selected-ring-color", default: "var(--wr-color-primary)", scope: ".wr-graph" },
+      { name: "--wr-graph-selected-ring-width", default: "2px", scope: ".wr-graph" },
       { name: "--wr-graph-viewport-radius", default: "var(--wr-border-radius-base)", scope: ".wr-graph" },
     ],
   },
