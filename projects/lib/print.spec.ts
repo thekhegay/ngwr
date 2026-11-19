@@ -39,8 +39,8 @@ const HIDDEN: readonly (readonly [sheet: string, selectors: readonly string[]])[
   ['speed-dial/styles', ['.wr-speed-dial']],
   ['toast/styles', ['.wr-toast-host', '.wr-toast-outlet']],
   ['loading-bar/styles', ['.wr-loading-bar']],
-  ['tour/styles', ['.wr-tour__spotlight', '.wr-tour-overlay']],
-  ['popover/styles', ['.wr-tooltip-overlay']],
+  ['tour/styles', ['.wr-tour__spotlight', '.cdk-overlay-pane.wr-tour-overlay']],
+  ['popover/styles', ['.cdk-overlay-pane.wr-tooltip-overlay']],
 ];
 
 describe('print rules', { timeout: COMPILE_TIMEOUT }, () => {
