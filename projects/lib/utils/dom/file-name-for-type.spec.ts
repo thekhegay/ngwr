@@ -19,6 +19,17 @@ describe('wrFileNameForType', () => {
     expect(wrFileNameForType('a.b.JPG', 'image/webp')).toBe('a.b.webp');
   });
 
+  it('keeps a dot that is not an image extension as part of the name', () => {
+    expect(wrFileNameForType('photo.v2', 'image/png')).toBe('photo.v2.png');
+    expect(wrFileNameForType('John.Smith', 'image/jpeg')).toBe('John.Smith.jpg');
+    expect(wrFileNameForType('scan.tiff', 'image/png')).toBe('scan.png');
+  });
+
+  it('reads only its own table, not inherited properties', () => {
+    expect(wrFileNameForType('avatar', '__proto__')).toBe('avatar');
+    expect(wrFileNameForType('avatar', 'constructor')).toBe('avatar');
+  });
+
   it('keeps a leading dot as part of the name', () => {
     expect(wrFileNameForType('.avatar', 'image/png')).toBe('.avatar.png');
   });
