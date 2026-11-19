@@ -16,6 +16,7 @@ import { WrFormField } from './form-field';
       <div data-k="plain">plain</div>
       <wr-form-field label="Email" data-k="span" [wrFormSpan]="span()"><input /></wr-form-field>
     </form>
+    <div data-k="loose" wrFormSpan="5"></div>
     <form data-k="bare">
       <wr-form-field label="Name"><input /></wr-form-field>
     </form>
@@ -81,6 +82,7 @@ describe('[wrFormSpan]', () => {
     expect(get('span').classList.contains('wr-form__span')).toBe(true);
     expect(get('span').style.getPropertyValue('--wr-form-span')).toBe('1 / -1');
 
+    fixture.componentInstance.columns.set(3);
     fixture.componentInstance.span.set(2);
     fixture.detectChanges();
     expect(get('span').style.getPropertyValue('--wr-form-span')).toBe('span 2');
@@ -88,6 +90,21 @@ describe('[wrFormSpan]', () => {
     fixture.componentInstance.span.set('full');
     fixture.detectChanges();
     expect(get('span').style.getPropertyValue('--wr-form-span')).toBe('1 / -1');
+  });
+
+  it('never spans more columns than the form has, and is not clamped without a form', () => {
+    const { fixture, get } = setup();
+
+    fixture.componentInstance.span.set(3);
+    fixture.componentInstance.columns.set(2);
+    fixture.detectChanges();
+    expect(get('span').style.getPropertyValue('--wr-form-span')).toBe('span 2');
+
+    fixture.componentInstance.columns.set(4);
+    fixture.detectChanges();
+    expect(get('span').style.getPropertyValue('--wr-form-span')).toBe('span 3');
+
+    expect(get('loose').style.getPropertyValue('--wr-form-span')).toBe('span 5');
   });
 });
 
