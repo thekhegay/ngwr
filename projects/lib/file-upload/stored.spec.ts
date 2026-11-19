@@ -150,6 +150,22 @@ describe('WrFileUpload stored files', () => {
     expect(document.activeElement?.getAttribute('aria-label')).toBe('Remove notes.txt');
   });
 
+  it('leaves focus the user moved while a delayed delete was running', async () => {
+    await mount();
+    fixture.componentInstance.deferRemove.set(true);
+    const buttons = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-file-upload__remove')];
+    buttons()[0].focus();
+    buttons()[0].click();
+    await fixture.whenStable();
+    const zone = root().querySelector<HTMLElement>('.wr-file-upload__zone')!;
+    zone.focus();
+
+    fixture.componentInstance.finishRemove(fixture.componentInstance.removed()[0]);
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe(zone);
+  });
+
   it('refuses a remove while disabled', async () => {
     await mount();
     fixture.componentInstance.disabled.set(true);

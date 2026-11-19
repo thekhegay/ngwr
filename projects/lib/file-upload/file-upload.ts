@@ -580,7 +580,8 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
       () => {
         const doc = this.host.nativeElement.ownerDocument;
         const active = doc.activeElement;
-        if (onlyIfLost && active && active !== doc.body && !this.host.nativeElement.contains(active)) return;
+        // Focus the user put anywhere, in this component or not, stays where it is.
+        if (onlyIfLost && active && active !== doc.body) return;
         const index = at();
         const buttons = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove');
         const target = buttons[Math.min(index, buttons.length - 1)] ?? this.zone().nativeElement;
