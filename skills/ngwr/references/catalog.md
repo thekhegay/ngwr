@@ -111,7 +111,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/descriptions` | `import { WrDescriptions } from 'ngwr/descriptions'` | `wr-description-item` `wr-descriptions` |
 | `ngwr/dialog` | `import { WrDialog } from 'ngwr/dialog'` | `[wrDialogClose]` `[wrDialogContent]` `[wrDialogFooter]` `[wrDialogTitle]` |
 | `ngwr/dialog/testing` | `import { WrDialogHarness } from 'ngwr/dialog/testing'` | — |
-| `ngwr/directives` | `import { WrAutofocus } from 'ngwr/directives'` | `[wrAutofocus]` `textarea[wrAutosize]` `[wrClickOutside]` `[wrCopyToClipboard]` `[wrFitText]` |
+| `ngwr/directives` | `import { WrAutofocus } from 'ngwr/directives'` | `[wrAutofocus]` `textarea[wrAutosize]` `[wrClickOutside]` `[wrCopyToClipboard]` `[wrFitText]` `[wrInView]` |
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
