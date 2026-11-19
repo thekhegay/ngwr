@@ -72,7 +72,8 @@ export const LAYOUT_TARGETS: readonly LayoutTarget[] = [
   { id: 'table/row', route: `${REF}/table`, selector: demo('.wr-table tbody tr'), all: false },
   { id: 'tabs/tab', route: `${REF}/tabs`, selector: demo('.wr-tabs__tab'), all: true },
   { id: 'badge/tag', route: `${REF}/badge`, selector: demo('.wr-tag') },
-  { id: 'avatar/circle', route: `${REF}/avatar`, selector: demo('.wr-avatar'), all: true, width: true },
+  // A group hides the avatars past its `max`; those have no box to measure.
+  { id: 'avatar/circle', route: `${REF}/avatar`, selector: demo('.wr-avatar:not([hidden])'), all: true, width: true },
   { id: 'spinner/svg', route: `${REF}/spinner`, selector: demo('.wr-spinner'), width: true },
   { id: 'alert/box', route: `${REF}/alert`, selector: demo('.wr-alert') },
   { id: 'card/box', route: `${REF}/card`, selector: demo('.wr-card') },

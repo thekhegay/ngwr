@@ -33,7 +33,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/animations/thread-lines` | `import { WrThreadLines } from 'ngwr/animations/thread-lines'` | `wr-thread-lines` |
 | `ngwr/animations/tilt` | `import { WrTilt } from 'ngwr/animations/tilt'` | `[wrTilt]` |
 | `ngwr/animations/typewriter` | `import { WrTypewriter } from 'ngwr/animations/typewriter'` | `wr-typewriter` |
-| `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
+| `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar-group` `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |
 | `ngwr/breadcrumbs` | `import { WrBreadcrumbs } from 'ngwr/breadcrumbs'` | `wr-breadcrumbs-item` `wr-breadcrumbs` |
