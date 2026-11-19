@@ -408,6 +408,16 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   readonly search = input<string>('');
 
+  /**
+   * The columns the search reads, with the folded text of each cell per row.
+   * A new column list (so a new `format`) starts an empty cache, and a cell
+   * whose value changed is folded again, so a new query only re-runs `includes`.
+   */
+  private readonly searchColumns = computed(() => ({
+    cols: this.displayColumns().filter(c => !c.column.actions && c.column.searchable !== false),
+    folded: new WeakMap<object, ({ readonly value: unknown; readonly text: string } | undefined)[]>()
+  }));
+
   /** The rows after the search, plus the kept children per parent in tree mode. */
   private readonly searched = computed<{
     readonly rows: readonly Record<string, unknown>[] | null | undefined;
@@ -416,14 +426,21 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const source = this.source();
     const query = foldSearchText((this.search() ?? '').trim());
     if (!source || !query || this.total() !== null) return { rows: source, kids: null };
-    const cols = this.displayColumns().filter(c => !c.column.actions && c.column.searchable !== false);
-    const matches = (row: Record<string, unknown>): boolean =>
-      cols.some(c => {
+    const { cols, folded } = this.searchColumns();
+    const matches = (row: Record<string, unknown>): boolean => {
+      let texts = folded.get(row);
+      if (!texts) folded.set(row, (texts = []));
+      return cols.some((c, i) => {
         const value = row[c.key];
         if (noValue(value)) return false;
+        const cached = texts[i];
+        if (cached?.value === value) return cached.text.includes(query);
         const shown = c.column.format ? c.column.format(value, row as T) : plainSearchText(value);
-        return foldSearchText(shown).includes(query);
+        const text = foldSearchText(shown);
+        texts[i] = { value, text };
+        return text.includes(query);
       });
+    };
     if (!this.treeMode()) return { rows: source.filter(matches), kids: null };
     const kids = new Map<Record<string, unknown>, readonly Record<string, unknown>[]>();
     const prune = (
