@@ -1010,7 +1010,7 @@ export const API = {
   // <[wrInView]>
   WrInView: [
     { name: "(wrInView)", description: "Fires with `true` when the host enters the viewport and `false` when it leaves.", type: "boolean" },
-    { name: "wrInViewThreshold", description: "The share of the host, from 0 to 1, that must be visible to count as in view. Read once, when the host first renders.", type: "number", default: "0" },
+    { name: "wrInViewThreshold", description: "The share of the host, from 0 to 1, that must be visible to count as in view. Read once, when the host first renders. A host taller than the viewport never reaches a threshold of 1.", type: "number", default: "0" },
     { name: "wrInViewOnce", description: "Stop watching after the first entry. Bare `wrInViewOnce` is on.", type: "boolean", default: "false" },
   ],
   // <wr-kbd>

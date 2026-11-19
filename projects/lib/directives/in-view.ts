@@ -84,7 +84,11 @@ export class WrInView {
   /** Fires with `true` when the host enters the viewport and `false` when it leaves. */
   readonly wrInView = output<boolean>();
 
-  /** The share of the host, from 0 to 1, that must be visible to count as in view. Read once, when the host first renders. */
+  /**
+   * The share of the host, from 0 to 1, that must be visible to count as in view.
+   * Read once, when the host first renders. A host taller than the viewport never
+   * reaches a threshold of 1.
+   */
   readonly wrInViewThreshold = input(0, {
     transform: (value: unknown) => Math.min(1, Math.max(0, coerceNumberProperty(value, 0))),
   });
