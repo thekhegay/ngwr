@@ -289,3 +289,4 @@ because it is guidance rather than a plan.
   it selects nothing. A `selected` id no drawn node has is kept as written and
   highlights nothing. A dimmed node that holds the focus is drawn at full
   strength, so its ring is too.
+- `wr-table` selection survives a `search`: rows the search hides stay selected, and the bar's count, its `$implicit` and `toCsv({ selectedOnly })` all use the whole selection, never only the visible part.

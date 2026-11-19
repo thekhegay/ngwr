@@ -4,6 +4,7 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrTable } from './table';
+import { WrTableSelectionBar } from './table-selection-bar';
 import type { WrTableColumns } from './types';
 
 type Row = Record<string, unknown>;
@@ -293,6 +294,50 @@ describe('WrTable search cost', () => {
     fixture.componentInstance.search.set('bob');
     await settle();
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('tbody .wr-table__tr')).toHaveLength(1);
+    fixture.destroy();
+  });
+});
+
+describe('WrTable selection under a search', () => {
+  @Component({
+    imports: [WrTable, WrTableSelectionBar],
+    template: `
+      <wr-table
+        rowKey="id"
+        rowSelection="multiple"
+        [columns]="columns"
+        [items]="items"
+        [search]="search()"
+        [(selection)]="selection"
+      >
+        <ng-template wrTableSelectionBar let-rows let-count="count">
+          <span class="probe">{{ rows.length }}|{{ count }}</span>
+        </ng-template>
+      </wr-table>
+    `,
+  })
+  class SelectionHost {
+    readonly columns: WrTableColumns = { name: { title: 'Name' } };
+    readonly items = PEOPLE;
+    readonly search = signal('');
+    readonly selection = signal<readonly unknown[]>([1, 2, 3]);
+  }
+
+  it('reports the whole selection in the bar and the CSV while a search hides rows', async () => {
+    const fixture = TestBed.createComponent(SelectionHost);
+    const settle = async (): Promise<void> => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+    await settle();
+    fixture.componentInstance.search.set('bob');
+    await settle();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.probe')!.textContent).toBe('3|3');
+    const table = fixture.debugElement.children[0].componentInstance as WrTable;
+    expect(table.toCsv({ selectedOnly: true }).split('\r\n')).toHaveLength(4);
+    expect(table.toCsv().split('\r\n')).toHaveLength(2);
     fixture.destroy();
   });
 });
