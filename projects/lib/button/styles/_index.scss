@@ -383,11 +383,12 @@
   // Solid colored segments share border and background color, so adjacent
   // buttons fuse into one slab — draw a subtle divider on the inline-end edge
   // of every non-last segment. Outlined/default variants keep their own visible
-  // borders. On hover/focus the segment raises its own border (z-index above
+  // borders, and ghost ones have no slab to divide. On hover/focus the segment
+  // raises its own border (z-index above
   // neighbours), which would otherwise double-paint that edge — so drop the
   // seam there and let the raised border own it cleanly.
   @each $name in theme.$colors {
-    > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
+    > .wr-btn--#{$name}:not(.wr-btn--outlined):not(.wr-btn--ghost):not(:last-child) {
       // rtl-ok: `box-shadow` offsets are physical by spec, with no logical form,
       // so the inline-end edge is spelled once per direction. `:dir()` reads the
       // element's own direction, so no ancestor selector is involved.
