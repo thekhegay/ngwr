@@ -36,6 +36,12 @@
   // component's own box and can't collapse into the consumer's spacing.
   padding-block: var(--wr-pagination-padding-block);
 
+  // `hideOnSinglePage` with one page: the template is empty, and the host's own
+  // padding and landmark go with it.
+  &--hidden {
+    display: none;
+  }
+
   &--disabled {
     opacity: var(--wr-disabled-opacity);
     pointer-events: none;

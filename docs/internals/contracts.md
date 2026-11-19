@@ -122,6 +122,11 @@ because it is guidance rather than a plan.
   between the click and the response. Clamping there pulled every page back to 1
   and emitted a `pageChange` the host could not tell from a click. The
   LOWER bound stays unconditional, and that one does write back.
+- `wr-pagination` with `hideOnSinglePage` hides on a `total` of 0 too, so a
+  server-paged host loses the pager for the length of a request unless it keeps
+  the last good total. With `showSizeChanger` it stays while any size in
+  `pageSizeOptions` gives a second page: hidden at one page of 50, it would
+  leave no way back to 10.
 - **`withDates({ timeZone })` does not move a date-only value.** `mode="date"`
   on either picker, `wr-calendar`, and a `'2026-11-12'` string through `wrDate`
   stay browser-local days: a day is the same day in every zone, and the local
