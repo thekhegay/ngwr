@@ -24,6 +24,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { WrBadge } from 'ngwr/badge';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrTab } from './tab';
@@ -98,7 +99,7 @@ function idFragment(key: string): string {
     '[class.wr-tabs--sm]': "size() === 'sm'",
     '[class.wr-tabs--lg]': "size() === 'lg'",
   },
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, WrBadge],
   providers: [
     {
       provide: WR_TABS,
