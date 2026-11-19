@@ -194,7 +194,7 @@ jobs:
     if: needs.find-superseded-major.outputs.tag != ''
     permissions:
       contents: read
-    uses: ./.github/workflows/archive-docs.yml
+    uses: $/.github/workflows/archive-docs.yml
     with:
       tag: ${{ needs.find-superseded-major.outputs.tag }}
       path: ${{ needs.find-superseded-major.outputs.path }}
