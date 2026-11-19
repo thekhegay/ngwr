@@ -65,7 +65,8 @@ export class WrTableRowHarness extends ContentContainerComponentHarness {
    */
   private readonly disclosure = this.locatorForOptional('.wr-table__expand-btn, button.wr-table__tree-toggle');
 
-  private readonly rowLink = this.locatorForOptional('.wr-table__row-link');
+  // The row's own link, not one a nested table inside a cell draws.
+  private readonly rowLink = this.locatorForOptional(':scope > td > .wr-table__row-link');
 
   /** The row's data cells, in DOM order. The lead control cells are not cells. */
   async getCells(filters: WrTableCellHarnessFilters = {}): Promise<WrTableCellHarness[]> {

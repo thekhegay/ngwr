@@ -572,7 +572,7 @@ const columns: WrTableColumns<Invoice> = {
   <wr-alert type="danger" title="Could not load users" [message]="message" />
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
-    rowLink: `<!-- imports: [WrTable, WrTableCell, WrTableRouting] from 'ngwr/table' + 'ngwr/table/router' -->
+    rowLink: `<!-- imports: [WrTable, WrTableCell] from 'ngwr/table', WrTableRouting from 'ngwr/table/router', WrCopyValue from 'ngwr/copy-value' -->
 <wr-table wrTableRouting [columns]="columns" [items]="pages" [rowLink]="pageLink">
   <!-- A button in a cell stays a button: it copies, and the row does not open. -->
   <ng-template wrTableCell="selector" let-value>

@@ -89,6 +89,15 @@ export class WrTableRouting implements WrTableRoutingAdapter {
     // A string is a URL, query and fragment included, the way `routerLink="/a?b=1"`
     // is not: as one command its `?` would be encoded into the path.
     if (typeof link === 'string' && link.startsWith('/')) return this.router.parseUrl(link);
-    return this.router.createUrlTree(typeof link === 'string' ? [link] : [...link], { relativeTo: this.route });
+    if (typeof link !== 'string') return this.router.createUrlTree([...link], { relativeTo: this.route });
+    // A relative string keeps its query and fragment: read them off the parsed
+    // URL and resolve only the path against the route.
+    const hash = link.indexOf('#');
+    const fragment = hash >= 0 ? link.slice(hash + 1) : undefined;
+    const beforeHash = hash >= 0 ? link.slice(0, hash) : link;
+    const mark = beforeHash.indexOf('?');
+    const path = mark >= 0 ? beforeHash.slice(0, mark) : beforeHash;
+    const queryParams = mark >= 0 ? this.router.parseUrl(`/?${beforeHash.slice(mark + 1)}`).queryParams : undefined;
+    return this.router.createUrlTree([path], { relativeTo: this.route, queryParams, fragment });
   }
 }

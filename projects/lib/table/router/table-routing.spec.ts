@@ -142,6 +142,11 @@ describe('WrTableRouting', () => {
       '/team/1',
       '/team/2',
     ]);
+
+    // A relative string keeps its query and fragment instead of encoding them into the path.
+    (host.componentInstance as TableHost).rowLink.set(user => `${user.id}?tab=history#latest`);
+    fixture.detectChanges();
+    expect(links(fixture.nativeElement as HTMLElement)[0].getAttribute('href')).toBe('/team/1?tab=history#latest');
   });
 
   it('leaves a URL with a scheme of its own a plain link', () => {
