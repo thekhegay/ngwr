@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.6.0"
+  updated="16.7.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -451,6 +451,44 @@
         selection is emptied from inside it.
       </li>
       <li><code>selectedLabel</code> and <code>clearSelectionLabel</code> set its two texts.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Search"
+    description="`search` keeps the rows where a column's shown text contains the query, ignoring case and accents. The table has no search box: bind your own input."
+  >
+    <ngwr-doc-snippet [code]="snippets.search">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <input
+          wrInput
+          type="search"
+          placeholder="Try zoe, administrator or $85"
+          aria-label="Search the table"
+          [value]="query()"
+          (input)="onQuery($event)"
+        />
+        <wr-table rowKey="id" [columns]="searchColumns" [items]="searchRows" [search]="query()" [pageSize]="3" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The text is the column's <code>format</code> over the value, else the value itself. A missing value shows
+        nothing, so its <code>empty</code> is not searched, and neither is an <code>actions</code> column, a hidden
+        column or one with <code>searchable: false</code>.
+      </li>
+      <li>
+        The table does not filter or sort <code>items</code> itself: the search narrows whatever you pass. It comes
+        before paging, so the pager counts the matches and the page returns to 1 when the query changes.
+      </li>
+      <li>
+        <code>toCsv()</code>, the summary row and the select-all scope cover the matching rows only. Server mode
+        (<code>total</code>) ignores it.
+      </li>
+      <li>
+        In tree mode a parent stays while it or a descendant matches, with only the children that stay. Open state is
+        unchanged, so a parent kept for a deep match may need opening.
+      </li>
     </ul>
   </ngwr-doc-section>
 

@@ -70,6 +70,7 @@ import { WrTableEditCell } from './table-edit-cell';
 import { WrTableExpand } from './table-expand';
 import { WrTableFilter, markFilterSelectionChanged } from './table-filter';
 import { WrTableGroupHeader } from './table-group-header';
+import { foldSearchText, plainSearchText } from './table-search';
 import { WrTableSelectionBar } from './table-selection-bar';
 import { WrTableSort } from './table-sort';
 import type {
@@ -383,9 +384,68 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * One cast at the boundary: the INPUT is wide so any object shape binds, while
    * the body keeps indexing rows the way it always has.
    */
-  private readonly rows = computed<readonly Record<string, unknown>[] | null | undefined>(
+  private readonly source = computed<readonly Record<string, unknown>[] | null | undefined>(
     () => this.items() as unknown as readonly Record<string, unknown>[] | null | undefined
   );
+
+  /**
+   * Client-side text search. A row stays when the text some searchable column
+   * shows contains the query, ignoring case and accents: the column's `format`
+   * over the value, else the value as text. A missing value shows nothing, so
+   * its `empty` placeholder is not searched. Columns that take part: the ones
+   * on screen, less `actions` columns and `searchable: false`. An empty or
+   * blank query is no search.
+   *
+   * The table filters nothing else itself, so a search runs over whatever
+   * `items` holds: filter and sort `items` as before, the search narrows the
+   * result. It comes before paging, so the pager counts the matches and the
+   * page returns to 1 when the query changes, and `toCsv()`, the summary row
+   * and the select-all scope see the matching rows only. In tree mode a parent
+   * stays while it or any descendant matches and shows only the children that
+   * stay; it keeps its open state, so a parent kept for a deep match may need
+   * opening. Server mode (`total` set) holds one page and ignores it.
+   * @default ''
+   */
+  readonly search = input<string>('');
+
+  /** The rows after the search, plus the kept children per parent in tree mode. */
+  private readonly searched = computed<{
+    readonly rows: readonly Record<string, unknown>[] | null | undefined;
+    readonly kids: ReadonlyMap<Record<string, unknown>, readonly Record<string, unknown>[]> | null;
+  }>(() => {
+    const source = this.source();
+    const query = foldSearchText((this.search() ?? '').trim());
+    if (!source || !query || this.total() !== null) return { rows: source, kids: null };
+    const cols = this.displayColumns().filter(c => !c.column.actions && c.column.searchable !== false);
+    const matches = (row: Record<string, unknown>): boolean =>
+      cols.some(c => {
+        const value = row[c.key];
+        if (noValue(value)) return false;
+        const shown = c.column.format ? c.column.format(value, row as T) : plainSearchText(value);
+        return foldSearchText(shown).includes(query);
+      });
+    if (!this.treeMode()) return { rows: source.filter(matches), kids: null };
+    const kids = new Map<Record<string, unknown>, readonly Record<string, unknown>[]>();
+    const prune = (
+      rows: readonly Record<string, unknown>[],
+      seen: ReadonlySet<unknown>
+    ): readonly Record<string, unknown>[] => {
+      const kept: Record<string, unknown>[] = [];
+      for (const row of rows) {
+        const key = this.rowKeyOf(row);
+        if (seen.has(key)) continue;
+        const children = prune(this.childrenOf(row, false), new Set(seen).add(key));
+        if (children.length > 0 || matches(row)) {
+          kids.set(row, children);
+          kept.push(row);
+        }
+      }
+      return kept;
+    };
+    return { rows: prune(source, new Set()), kids };
+  });
+
+  private readonly rows = computed<readonly Record<string, unknown>[] | null | undefined>(() => this.searched().rows);
 
   /** Mark the table as loading; `loadingMode` picks how it shows. @default false */
   readonly loading = input(false, { transform: coerceBooleanProperty });
@@ -1301,6 +1361,17 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       });
     }
 
+    // A new query starts at the first page; the first run keeps a restored page.
+    let lastSearch = untracked(() => this.search());
+    effect(() => {
+      const query = this.search();
+      if (query === lastSearch) return;
+      lastSearch = query;
+      untracked(() => {
+        if (this.page() !== 1) this.page.set(1);
+      });
+    });
+
     // Write a clamped page back so `[(page)]` and the pager agree with the rows. An empty
     // dataset is left alone: a host may set the page before its rows arrive.
     effect(() => {
@@ -2191,7 +2262,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   });
 
   /** This row's children, whatever shape `childrenKey` names. */
-  private childrenOf(row: Record<string, unknown>): readonly Record<string, unknown>[] {
+  private childrenOf(row: Record<string, unknown>, searched = true): readonly Record<string, unknown>[] {
+    const kept = searched ? this.searched().kids : null;
+    if (kept) return kept.get(row) ?? [];
     const ck = this.childrenKey();
     if (ck === null) return [];
     const raw = typeof ck === 'function' ? ck(row) : row[ck];

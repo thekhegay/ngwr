@@ -204,6 +204,24 @@ export default class TablePageComponent {
     paid: { title: 'Paid', format: value => (value ? 'yes' : 'no') },
   };
 
+  protected readonly searchColumns: WrTableColumns = {
+    name: { title: 'Name' },
+    role: { title: 'Role', format: value => (value === 'admin' ? 'Administrator' : 'Member') },
+    price: { title: 'Price', align: 'end', format: value => `$${String(value)}.00` },
+  };
+  protected readonly searchRows: readonly Record<string, unknown>[] = [
+    { id: 1, name: 'Zoë Adler', role: 'admin', price: 1200 },
+    { id: 2, name: 'Bob Stone', role: 'user', price: 85 },
+    { id: 3, name: 'Cara Mills', role: 'admin', price: 3 },
+    { id: 4, name: 'Dmitri Ivanov', role: 'user', price: 40 },
+    { id: 5, name: 'Elena Petrova', role: 'user', price: 19 },
+  ];
+  protected readonly query = signal('');
+
+  protected onQuery(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+
   protected readonly visibleRows = computed<readonly Record<string, unknown>[]>(() => {
     const roles = this.roleFilter();
     return wrSortRows(roles.length === 0 ? [...RAW_ROWS] : RAW_ROWS.filter(r => roles.includes(r.role)), this.sort());
@@ -493,6 +511,8 @@ export default class TablePageComponent {
     cellContext: `<ng-template wrTableCell="role" let-value let-row="item" let-col="column">
   {{ col.title }}: {{ value }} — {{ row.email }}
 </ng-template>`,
+    search: `<input wrInput type="search" aria-label="Search the table" [value]="query()" (input)="onQuery($event)" />
+<wr-table [columns]="columns" [items]="rows" [search]="query()" [pageSize]="3" />`,
     columnKeys: `const columns: WrTableColumns<Invoice> = {
   customer: { title: 'Customer' },
   amount: {
