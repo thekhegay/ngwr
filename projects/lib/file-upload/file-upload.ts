@@ -179,7 +179,9 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
    * the descriptor and the app drops it from the list it passes in.
    *
    * In multiple mode they count toward `maxFiles`. In single mode a pick does not
-   * replace them: the app clears its own list when it takes the new file.
+   * replace them: the app clears its own list when it takes the new file. A
+   * `required` rule on the control sees `value` only, so an edit form whose file
+   * is stored validates against its own list instead.
    *
    * @default []
    */
@@ -351,7 +353,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     this.stored().map(stored => ({
       stored,
       url: stored.url ?? null,
-      size: typeof stored.size === 'number' && Number.isFinite(stored.size) ? stored.size : null,
+      size: typeof stored.size === 'number' && Number.isFinite(stored.size) && stored.size >= 0 ? stored.size : null,
     }))
   );
 
