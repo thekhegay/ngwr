@@ -36,6 +36,7 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
  * ```html
  * <button wr-btn color="primary">Save</button>
  * <a wr-btn color="primary" outlined>Cancel</a>
+ * <button wr-btn color="primary" ghost>Skip</button>
  * <wr-btn color="danger" icon="trash">Delete</wr-btn>
  * <wr-btn color="primary" shape="pill">Pill</wr-btn>
  * ```
@@ -120,6 +121,13 @@ export class WrButton {
 
   /** Outlined variant — colored text and border on a transparent background. @default false */
   readonly outlined = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Ghost variant — no fill and no border at rest, just the label in the button's
+   * color; hover and press tint the background. Quieter than `outlined`.
+   * @default false
+   */
+  readonly ghost = input(false, { transform: coerceBooleanProperty });
 
   /** Stretch the button to fill its parent's width. @default false */
   readonly block = input(false, { transform: coerceBooleanProperty });
@@ -327,6 +335,7 @@ export class WrButton {
     if (shape !== 'rounded') parts.push(`wr-btn--${shape}`);
 
     if (this.outlined()) parts.push('wr-btn--outlined');
+    if (this.ghost()) parts.push('wr-btn--ghost');
     if (this.block()) parts.push('wr-btn--block');
     if (this.loading()) parts.push('wr-btn--loading');
 

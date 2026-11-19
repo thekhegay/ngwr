@@ -190,6 +190,7 @@ export const API = {
     { name: "iconPosition", description: "Position of the icon relative to the label.", type: "WrButtonIconPosition", default: "'start'" },
     { name: "disabled", description: "Disable the button.", type: "boolean", default: "false" },
     { name: "outlined", description: "Outlined variant — colored text and border on a transparent background.", type: "boolean", default: "false" },
+    { name: "ghost", description: "Ghost variant — no fill and no border at rest, just the label in the button's color; hover and press tint the background. Quieter than `outlined`.", type: "boolean", default: "false" },
     { name: "block", description: "Stretch the button to fill its parent's width.", type: "boolean", default: "false" },
     { name: "loading", description: "Show a spinner overlaying the label. Layout is preserved.", type: "boolean", default: "false" },
     { name: "disabledWhenLoading", description: "When `loading` is `true` and this is also `true`, pointer events are suppressed and the button reports as disabled to assistive tech.", type: "boolean", default: "true" },
