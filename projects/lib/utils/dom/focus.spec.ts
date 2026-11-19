@@ -242,6 +242,19 @@ describe('wrFocusFirstInvalid', () => {
     expect(document.activeElement?.id).toBe('two');
   });
 
+  it('passes over a radio taken out of the Tab order when none is checked', async () => {
+    const root = render(`
+      <div id="field" class="wr-form-field wr-form-field--invalid">
+        <input id="one" type="radio" name="t" tabindex="-1" />
+        <input id="two" type="radio" name="t" />
+      </div>
+    `);
+
+    await wrFocusFirstInvalid(root);
+
+    expect(document.activeElement?.id).toBe('two');
+  });
+
   it('reads an invalid wr-form-field whose control carries no mark', async () => {
     const root = render(`
       <div id="ok" class="wr-form-field"><input id="fine" /></div>

@@ -36,8 +36,9 @@ export class WrInViewObserver {
         entries => {
           for (const entry of entries) {
             // A copy: a callback may stop itself while the set is walked.
-            // A ratio a hair under the threshold still counts: the browser rounds it.
-            const inView = entry.isIntersecting && entry.intersectionRatio >= threshold - 0.001;
+            // A fully shown host can report a hair under 1 from subpixel rounding;
+            // any lower threshold is compared as it is.
+            const inView = entry.isIntersecting && entry.intersectionRatio >= (threshold >= 1 ? 0.999 : threshold);
             for (const cb of [...(targets.get(entry.target) ?? [])]) cb(inView);
           }
         },
