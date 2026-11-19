@@ -695,6 +695,7 @@ describe('WrTabsHarness — under a reading direction', () => {
     <wr-tabs>
       <wr-tab title="Inbox" key="inbox" [count]="3">Mail</wr-tab>
       <wr-tab title="Sent" key="sent">Out</wr-tab>
+      <wr-tab title="Rating" key="rating" [count]="2.5">Stars</wr-tab>
     </wr-tabs>
   `,
 })
@@ -706,13 +707,14 @@ describe('WrTabHarness — count', () => {
     const fixture = TestBed.createComponent(CountHost);
     fixture.detectChanges();
     const tabs = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrTabsHarness);
-    const [inbox, sent] = await tabs.getTabs();
+    const [inbox, sent, rating] = await tabs.getTabs();
 
     expect(await inbox.getLabel()).toBe('Inbox');
     expect(await inbox.getCount()).toBe(3);
     expect(await inbox.getAccessibleName()).toBe('Inbox, 3');
     expect(await sent.getCount()).toBeNull();
     expect(await sent.getAccessibleName()).toBe('Sent');
+    expect(await rating.getCount()).toBe(2.5);
     fixture.destroy();
   });
 });

@@ -64,7 +64,7 @@ export class WrTabHarness extends ContentContainerComponentHarness {
   /** The count shown after the label, or `null` while the tab has none. */
   async getCount(): Promise<number | null> {
     const badge = await this.locatorForOptional('.wr-tabs__count')();
-    return badge ? Number.parseInt(await badge.text(), 10) : null;
+    return badge ? Number(await badge.text()) : null;
   }
 
   /** The accessible name the header announces: the label, plus the count when it has one ("Inbox, 3"). */
