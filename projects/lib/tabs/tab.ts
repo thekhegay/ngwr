@@ -58,6 +58,15 @@ export class WrTab {
   readonly routerLink = input<string | readonly string[] | null>(null);
 
   /**
+   * Router tab only: select it on its own path, not on the paths below it, so an
+   * "Overview" tab at `/project/42` is not selected on `/project/42/settings`.
+   * Query params, fragment and matrix params are matched as without it.
+   *
+   * @default false
+   */
+  readonly exact = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * A count after the label, as a small badge: unread messages, results. `null`
    * (default) shows nothing, `0` shows `0`. The tab's accessible name becomes
    * the label and the count, "Inbox, 3".
@@ -116,7 +125,7 @@ export class WrTab {
   readonly routerActive = computed(() => {
     const link = this.routerLink();
     if (link === null || this.disabled()) return false;
-    return this.routing?.isActive(link) ?? false;
+    return this.routing?.isActive(link, this.exact()) ?? false;
   });
 
   /** Hand a click on this tab's anchor to the routing adapter. @internal */

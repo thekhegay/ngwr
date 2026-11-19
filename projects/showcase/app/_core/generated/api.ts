@@ -1613,6 +1613,7 @@ export const API = {
     { name: "title", description: "Visible label on the tab strip.", type: "string", required: true },
     { name: "key", description: "Stable identifier used by the parent to track the active tab. Auto-generated if omitted.", type: "string", default: "wrRandomId('wr-tab')" },
     { name: "routerLink", description: "Router target — when set, the tab becomes a `[routerLink]` link.", type: "string | readonly string[] | null", default: "null" },
+    { name: "exact", description: "Router tab only: select it on its own path, not on the paths below it, so an \"Overview\" tab at `/project/42` is not selected on `/project/42/settings`. Query params, fragment and matrix params are matched as without it.", type: "boolean", default: "false" },
     { name: "count", description: "A count after the label, as a small badge: unread messages, results. `null` (default) shows nothing, `0` shows `0`. The tab's accessible name becomes the label and the count, \"Inbox, 3\".", type: "number | null", default: "null" },
     { name: "disabled", description: "Disable the tab.", type: "boolean", default: "false" },
   ],

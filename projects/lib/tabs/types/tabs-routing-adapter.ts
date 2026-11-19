@@ -32,8 +32,9 @@ export interface WrTabsRoutingAdapter {
   /**
    * Whether the current URL selects this tab. Matched the way `routerLinkActive`
    * matches without `[routerLinkActiveOptions]`: a path prefix, not an exact URL.
+   * With `exact`, only the tab's own path counts, not the paths below it.
    */
-  isActive(commands: string | readonly string[]): boolean;
+  isActive(commands: string | readonly string[], exact?: boolean): boolean;
 
   /**
    * Handle a click on a tab anchor. A modified or non-primary click is left to
