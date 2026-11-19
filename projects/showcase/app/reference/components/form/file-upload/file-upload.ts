@@ -180,8 +180,10 @@ private setStatus(file: File, status: WrFileUploadStatus): void {
 ]);
 
 onStoredRemove(file: WrStoredFile): void {
-  this.api.delete(file.name).subscribe();
-  this.stored.update(list => list.filter(item => item !== file));
+  // Drop the row once the server has deleted the file, so a failure keeps it.
+  this.api.delete(file.name).subscribe(() => {
+    this.stored.update(list => list.filter(item => item !== file));
+  });
 }`,
 
     paste: `<wr-file-upload [(value)]="files" multiple acceptPaste />`,

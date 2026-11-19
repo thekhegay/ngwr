@@ -57,6 +57,14 @@ describe('WrFileUpload stored files', () => {
     expect(await upload.getFileSizes()).toEqual(['2.0 KB']);
   });
 
+  it('prints a size under one byte instead of throwing', async () => {
+    await mount();
+    fixture.componentInstance.stored.set([{ name: 'tiny.bin', size: 0.5 }]);
+    await fixture.whenStable();
+
+    expect(await upload.getFileSizes()).toEqual(['1 B']);
+  });
+
   it('opens a stored file in a new tab without handing the opener over', async () => {
     await mount();
     const link = root().querySelector<HTMLAnchorElement>('a.wr-file-upload__link')!;

@@ -395,7 +395,8 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     if (!Number.isFinite(bytes) || bytes <= 0) {
       return this.sizeText({ value: this.number(0, 0), unit: this.unitTexts[0]() });
     }
-    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), this.unitTexts.length - 1);
+    // Under one byte the log is negative; a stored size can be fractional.
+    const i = Math.max(0, Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), this.unitTexts.length - 1));
     const v = bytes / 1024 ** i;
     const digits = v >= 100 || i === 0 ? 0 : 1;
     return this.sizeText({ value: this.number(v, digits), unit: this.unitTexts[i]() });
@@ -553,13 +554,18 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     const hadFocus = !!focused?.matches('.wr-file-upload__remove') && this.host.nativeElement.contains(focused);
     this.storedRemove.emit(row.stored);
     if (!hadFocus) return;
-    this.focusRemoveNear(index);
+    this.focusRemoveNear(() => index);
   }
 
-  /** Put focus on the remove button now at `index`, else the one before it, else the zone. */
-  private focusRemoveNear(index: number): void {
+  /**
+   * Put focus on the remove button at the index `at` gives after the render,
+   * else the one before it, else the zone. Read late: a handler may change
+   * `stored` in the same cycle, which moves every picked row.
+   */
+  private focusRemoveNear(at: () => number): void {
     afterNextRender(
       () => {
+        const index = at();
         const buttons = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove');
         const target = buttons[Math.min(index, buttons.length - 1)] ?? this.zone().nativeElement;
         target.focus();
@@ -581,7 +587,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     this.emit();
     if (!hadFocus) return;
     // The row that took this one's place, else the one before it, else the zone.
-    this.focusRemoveNear(this.stored().length + index);
+    this.focusRemoveNear(() => this.stored().length + index);
   }
 
   // Internals
