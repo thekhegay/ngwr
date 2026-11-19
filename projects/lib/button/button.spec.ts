@@ -725,7 +725,7 @@ describe('WrButton stylesheet', () => {
   it('draws the seam between filled group members on the inline-end edge in both directions', () => {
     // `box-shadow` offsets are physical, so one declaration put the seam on the
     // group's outer edge under RTL and left the two buttons fused.
-    const seam = '.wr-btn-group > .wr-btn--primary:not(.wr-btn--outlined):not(:last-child)';
+    const seam = '.wr-btn-group > .wr-btn--primary:not(.wr-btn--outlined):not(.wr-btn--ghost):not(:last-child)';
     expect(rule(seam)).toMatch(/box-shadow:\s*inset -1px 0 0/);
     expect(rule(`${seam}:dir(rtl)`)).toMatch(/box-shadow:\s*inset 1px 0 0/);
   });
