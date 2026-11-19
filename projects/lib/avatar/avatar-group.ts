@@ -113,7 +113,7 @@ export class WrAvatarGroup {
         const node = (el as ElementRef<HTMLElement>).nativeElement;
         const ours = node.hasAttribute(GROUP_HIDDEN);
         if (max !== null && i >= max) {
-          if (ours || node.hasAttribute('hidden')) return;
+          if (node.hasAttribute('hidden')) return;
           this.renderer.setAttribute(node, 'hidden', '');
           this.renderer.setAttribute(node, GROUP_HIDDEN, '');
         } else if (ours) {
