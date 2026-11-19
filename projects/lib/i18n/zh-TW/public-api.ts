@@ -192,6 +192,7 @@ export const wrZhTw: WrI18nCatalog = {
   },
   avatar: {
     alt: '大頭貼',
+    more: '另外 {{count}} 位',
   },
   backTop: {
     label: '回到頂端',

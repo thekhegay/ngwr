@@ -192,6 +192,7 @@ export const wrId: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} lainnya',
   },
   backTop: {
     label: 'Kembali ke atas',

@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { WrAvatar } from 'ngwr/avatar';
+import { WrAvatar, WrAvatarGroup } from 'ngwr/avatar';
 import { WrTag } from 'ngwr/badge';
 import { WrOptionLeading, WrSelect } from 'ngwr/select';
 
@@ -48,6 +48,7 @@ const PEOPLE: readonly Person[] = [
   templateUrl: './avatar.html',
   imports: [
     WrAvatar,
+    WrAvatarGroup,
     WrOptionLeading,
     WrSelect,
     WrTag,
@@ -101,6 +102,15 @@ export default class AvatarComponent {
     name: `<wr-avatar name="Roman Khegay" [size]="48" shape="circle" />
 <wr-avatar name="Roman Khegay" [size]="48" shape="circle" tint />
 <wr-avatar [url]="user.photo" [name]="user.name" [size]="48" shape="circle" tint />`,
+    group: `<wr-avatar-group [max]="3" label="Assignees">
+  @for (p of people; track p.id) {
+    <wr-avatar shape="circle" [size]="40" [name]="p.name" tint />
+  }
+</wr-avatar-group>`,
+    groupAll: `<wr-avatar-group label="Assignees">
+  <wr-avatar shape="circle" [size]="40" name="Roman Khegay" tint />
+  <wr-avatar shape="circle" [size]="40" name="Ada Lovelace" tint />
+</wr-avatar-group>`,
     initialsScale: `<wr-avatar shape="circle" [size]="16">ХР</wr-avatar>
 <wr-avatar shape="circle" [size]="24">ХР</wr-avatar>
 <wr-avatar shape="circle" [size]="40">ХР</wr-avatar>
@@ -177,4 +187,5 @@ export default class AvatarComponent {
   ];
 
   protected readonly api = API.WrAvatar;
+  protected readonly groupApi = API.WrAvatarGroup;
 }

@@ -202,6 +202,7 @@ export const wrUk: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Аватар',
+    more: 'Ще: {{count}}',
   },
   backTop: {
     label: 'Нагору',

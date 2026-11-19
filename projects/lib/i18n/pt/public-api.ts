@@ -192,6 +192,7 @@ export const wrPt: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: 'Mais {{count}}',
   },
   backTop: {
     label: 'Voltar ao início',

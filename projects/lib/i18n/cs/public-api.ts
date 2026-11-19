@@ -192,6 +192,7 @@ export const wrCs: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: 'Další: {{count}}',
   },
   backTop: {
     label: 'Zpět nahoru',

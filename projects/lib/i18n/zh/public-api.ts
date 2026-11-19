@@ -190,6 +190,7 @@ export const wrZh: WrI18nCatalog = {
   },
   avatar: {
     alt: '头像',
+    more: '另外 {{count}} 位',
   },
   backTop: {
     label: '返回顶部',

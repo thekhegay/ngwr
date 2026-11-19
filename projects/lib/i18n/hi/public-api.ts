@@ -192,6 +192,7 @@ export const wrHi: WrI18nCatalog = {
   },
   avatar: {
     alt: 'अवतार',
+    more: 'और {{count}}',
   },
   backTop: {
     label: 'ऊपर जाएं',

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Avatar"
-  updated="15.6.0"
+  updated="16.7.0"
   description="A user's picture, with initials as the fallback."
   [keywords]="['avatar', 'profile', 'image', 'wr-avatar']"
   [labels]="['Component']"
@@ -172,6 +172,26 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Avatar group"
+    description="`wr-avatar-group` stacks avatars with an overlap. Past `max`, the rest are hidden and a plus-N avatar counts them."
+  >
+    <ngwr-doc-snippet [code]="snippets.group">
+      <wr-avatar-group [max]="3" label="Assignees">
+        @for (p of people; track p.id) {
+          <wr-avatar shape="circle" [size]="40" [name]="p.name" tint />
+        }
+      </wr-avatar-group>
+    </ngwr-doc-snippet>
+    <ngwr-doc-snippet [code]="snippets.groupAll">
+      <wr-avatar-group label="Assignees">
+        @for (p of people; track p.id) {
+          <wr-avatar shape="circle" [size]="40" [name]="p.name" tint />
+        }
+      </wr-avatar-group>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Gotchas">
     <ul>
       <li>
@@ -183,10 +203,18 @@
         <code>alt</code> wins when both are given.
       </li>
       <li>Projected content wins over the <code>name</code> initials, and <code>tint</code> colours nothing then.</li>
+      <li>
+        In a group, give every avatar the same <code>size</code>: the "+N" avatar copies the first one. Avatars must be
+        direct children of the group. The group is announced only with a <code>label</code>.
+      </li>
     </ul>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="API">
+  <ngwr-doc-section title="Avatar API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Avatar Group API">
+    <ngwr-doc-api [rows]="groupApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>

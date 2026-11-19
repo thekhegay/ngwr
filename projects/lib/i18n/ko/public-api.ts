@@ -194,6 +194,7 @@ export const wrKo: WrI18nCatalog = {
   },
   avatar: {
     alt: '아바타',
+    more: '외 {{count}}명',
   },
   backTop: {
     label: '맨 위로',

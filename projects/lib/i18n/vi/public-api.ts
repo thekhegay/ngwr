@@ -196,6 +196,7 @@ export const wrVi: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Ảnh đại diện',
+    more: '{{count}} người khác',
   },
   backTop: {
     label: 'Lên đầu trang',

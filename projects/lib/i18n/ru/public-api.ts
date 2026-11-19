@@ -194,6 +194,7 @@ export const wrRu: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Аватар',
+    more: 'Ещё: {{count}}',
   },
   backTop: {
     label: 'Наверх',

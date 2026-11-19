@@ -198,6 +198,7 @@ export const wrAr: WrI18nCatalog = {
   },
   avatar: {
     alt: 'الصورة الرمزية',
+    more: 'المزيد: {{count}}',
   },
   backTop: {
     label: 'العودة إلى الأعلى',

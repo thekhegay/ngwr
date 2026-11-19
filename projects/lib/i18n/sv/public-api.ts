@@ -192,6 +192,7 @@ export const wrSv: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} till',
   },
   backTop: {
     label: 'Till toppen',

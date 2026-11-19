@@ -192,6 +192,7 @@ export const wrEs: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: 'Más: {{count}}',
   },
   backTop: {
     label: 'Volver arriba',

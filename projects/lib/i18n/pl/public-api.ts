@@ -200,6 +200,7 @@ export const wrPl: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Awatar',
+    more: 'Więcej: {{count}}',
   },
   backTop: {
     label: 'Wróć na górę',

@@ -197,6 +197,7 @@ export const wrTr: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} kişi daha',
   },
   backTop: {
     label: 'Başa dön',
