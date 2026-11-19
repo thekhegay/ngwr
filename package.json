@@ -101,7 +101,7 @@
     "heroicons": "^2.2.0",
     "iconoir": "^7.12.2",
     "jsdom": "^31.0.1",
-    "lucide": "^1.73.0",
+    "lucide": "^1.74.0",
     "ngtrue": "^0.3.0",
     "playwright": "^1.65.1",
     "prettier": "^3.10.1",
