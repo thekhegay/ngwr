@@ -165,6 +165,22 @@
     color: var(--wr-color-on-surface);
   }
 
+  &__link {
+    --wr-file-upload-link-color: var(--wr-color-primary-ink);
+
+    color: var(--wr-file-upload-link-color);
+    text-decoration: underline;
+    border-radius: var(--wr-border-radius-sm);
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    &:focus-visible {
+      @include theme.focus-ring;
+    }
+  }
+
   &__size {
     flex: 0 0 auto;
     color: var(--wr-color-on-surface-muted);

@@ -156,6 +156,7 @@ export const wrVi: WrI18nCatalog = {
     failed: 'Tải lên thất bại',
     status: '{{name}}: {{status}}',
     retry: 'Thử lại',
+    openFile: '{{name}} (mở trong tab mới)',
   },
   popconfirm: {
     label: 'Xác nhận hành động',

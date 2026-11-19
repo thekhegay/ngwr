@@ -152,6 +152,7 @@ export const wrCs: WrI18nCatalog = {
     failed: 'Nahrání se nezdařilo',
     status: '{{name}}: {{status}}',
     retry: 'Zkusit znovu',
+    openFile: '{{name}} (otevře se na nové kartě)',
   },
   popconfirm: {
     label: 'Potvrzení akce',

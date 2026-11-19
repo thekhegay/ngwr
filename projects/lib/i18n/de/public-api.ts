@@ -156,6 +156,7 @@ export const wrDe: WrI18nCatalog = {
     failed: 'Hochladen fehlgeschlagen',
     status: '{{name}}: {{status}}',
     retry: 'Erneut versuchen',
+    openFile: '{{name}} (öffnet in neuem Tab)',
   },
   popconfirm: {
     label: 'Aktion bestätigen',

@@ -40,7 +40,15 @@ import type {
   WrFileUploadSize,
   WrFileUploadState,
   WrFileUploadStatusMap,
+  WrStoredFile,
 } from './types';
+
+/** One row of a stored file, listed before the picked ones. */
+interface StoredRow {
+  readonly stored: WrStoredFile;
+  readonly url: string | null;
+  readonly size: number | null;
+}
 
 /** One list row: the file, what `[status]` says about it and its thumbnail. */
 interface FileRow {
@@ -164,6 +172,20 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   readonly status = input<WrFileUploadStatusMap | null>(null);
 
   /**
+   * Files that already live on a server, listed before the picked ones with the
+   * same look: name, size when known, a link when `url` is set, and a remove
+   * button. They are not part of `value`, so a form value stays the `File`s the
+   * user picked. Removing one does not change this input: `(storedRemove)` emits
+   * the descriptor and the app drops it from the list it passes in.
+   *
+   * In multiple mode they count toward `maxFiles`. In single mode a pick does not
+   * replace them: the app clears its own list when it takes the new file.
+   *
+   * @default []
+   */
+  readonly stored = input<readonly WrStoredFile[]>([]);
+
+  /**
    * Show a thumbnail beside each image file. The thumbnail is an object URL,
    * revoked when its file leaves the list or the component is destroyed. Browser
    * only: nothing is created on the server.
@@ -250,6 +272,9 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     return given ? given.replace(/\{\{\s*name\s*\}\}/g, () => name) : this.removeText({ name });
   }
 
+  /** A link that leaves the page says so: `{{name}} (opens in a new tab)`. */
+  protected readonly openText = useI18nFormatter('fileUpload.openFile', '{{name}} (opens in a new tab)');
+
   protected readonly resolvedRetry = useI18nText(this.retryLabel, 'fileUpload.retry', 'Try again');
   protected readonly resolvedUploading = useI18nText(this.uploadingLabel, 'fileUpload.uploading', 'Uploading');
   protected readonly resolvedUploaded = useI18nText(this.uploadedLabel, 'fileUpload.uploaded', 'Uploaded');
@@ -269,6 +294,9 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   /** Emitted when files are rejected for type / size / count reasons. */
   readonly rejected = output<readonly WrFileUploadRejection[]>();
+
+  /** Emitted with the descriptor when the remove button of a stored row is pressed. */
+  readonly storedRemove = output<WrStoredFile>();
 
   /** Emitted with the file when the retry button of a failed row is pressed. */
   readonly retry = output<File>();
@@ -318,6 +346,14 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
       };
     });
   });
+
+  protected readonly storedRows = computed<readonly StoredRow[]>(() =>
+    this.stored().map(stored => ({
+      stored,
+      url: stored.url ?? null,
+      size: typeof stored.size === 'number' && Number.isFinite(stored.size) ? stored.size : null,
+    }))
+  );
 
   /** `aria-busy` on the list: at least one file is uploading. */
   protected readonly busy = computed(() => this.rows().some(row => row.state === 'uploading'));
@@ -501,7 +537,30 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     afterNextRender(
       () => {
         if (button?.isConnected) return;
-        this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove')[index]?.focus();
+        this.host.nativeElement
+          .querySelectorAll<HTMLElement>('.wr-file-upload__remove')
+          [this.stored().length + index]?.focus();
+      },
+      { injector: this.injector }
+    );
+  }
+
+  protected removeStored(row: StoredRow, index: number): void {
+    if (this.disabled() || this.readonly()) return;
+    const focused = this.host.nativeElement.ownerDocument.activeElement;
+    const hadFocus = !!focused?.matches('.wr-file-upload__remove') && this.host.nativeElement.contains(focused);
+    this.storedRemove.emit(row.stored);
+    if (!hadFocus) return;
+    this.focusRemoveNear(index);
+  }
+
+  /** Put focus on the remove button now at `index`, else the one before it, else the zone. */
+  private focusRemoveNear(index: number): void {
+    afterNextRender(
+      () => {
+        const buttons = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove');
+        const target = buttons[Math.min(index, buttons.length - 1)] ?? this.zone().nativeElement;
+        target.focus();
       },
       { injector: this.injector }
     );
@@ -519,15 +578,8 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     this.files.set(next);
     this.emit();
     if (!hadFocus) return;
-    afterNextRender(
-      () => {
-        // The row that took this one's place, else the one before it, else the zone.
-        const buttons = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove');
-        const target = buttons[Math.min(index, buttons.length - 1)] ?? this.zone().nativeElement;
-        target.focus();
-      },
-      { injector: this.injector }
-    );
+    // The row that took this one's place, else the one before it, else the zone.
+    this.focusRemoveNear(this.stored().length + index);
   }
 
   // Internals
@@ -550,7 +602,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
       const listed = this.files();
       const maxFiles = this.maxFiles();
       // The cap rejects incoming files only: a list already over it keeps what it holds.
-      const room = maxFiles > 0 ? Math.max(0, maxFiles - listed.length) : accepted.length;
+      const room = maxFiles > 0 ? Math.max(0, maxFiles - listed.length - this.stored().length) : accepted.length;
       for (const file of accepted.slice(room)) rejections.push({ file, reason: 'count' });
       next = [...listed, ...accepted.slice(0, room)];
     } else {

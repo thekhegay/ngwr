@@ -154,6 +154,7 @@ export const wrJa: WrI18nCatalog = {
     failed: 'アップロード失敗',
     status: '{{name}}: {{status}}',
     retry: '再試行',
+    openFile: '{{name}}(新しいタブで開く)',
   },
   popconfirm: {
     label: '操作の確認',

@@ -160,6 +160,7 @@ export const wrPl: WrI18nCatalog = {
     failed: 'Przesyłanie nie powiodło się',
     status: '{{name}}: {{status}}',
     retry: 'Spróbuj ponownie',
+    openFile: '{{name}} (otwiera się w nowej karcie)',
   },
   popconfirm: {
     label: 'Potwierdzenie działania',

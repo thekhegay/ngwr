@@ -218,6 +218,7 @@ export const wrEn: WrI18nCatalog = {
     failed: 'Upload failed',
     status: '{{name}}: {{status}}',
     retry: 'Try again',
+    openFile: '{{name}} (opens in a new tab)',
   },
   popconfirm: {
     label: 'Confirm action',

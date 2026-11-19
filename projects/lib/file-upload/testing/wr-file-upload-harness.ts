@@ -92,6 +92,11 @@ function setPickerFiles(input: HTMLInputElement, files: readonly File[]): void {
 /**
  * Test harness for `<wr-file-upload>`.
  *
+ * Stored files (`[stored]`) are rows like any other: they count in
+ * {@link getFileCount}, {@link getFileNames} and {@link getFileSizes}, come first,
+ * and {@link removeFile} / {@link removeFileNamed} press their remove button, which
+ * emits `(storedRemove)` rather than changing the bound value.
+ *
  * The control a user operates is the `.wr-file-upload__zone` — a `role="button"`
  * div that is the single tab stop; the `<input type="file">` behind it is
  * `aria-hidden` and `tabindex="-1"`, and exists only so a click can be forwarded
@@ -425,6 +430,18 @@ export class WrFileUploadHarness extends ComponentHarness {
       `.wr-file-upload__item:nth-child(${index + 1}) img.wr-file-upload__preview`
     )();
     return image !== null;
+  }
+
+  /**
+   * The `href` of this row's link, or `null` for a row whose name is plain text.
+   * Only a stored file (`[stored]`) with a `url` has one.
+   */
+  async getLink(name: string): Promise<string | null> {
+    const index = await this.indexNamed('getLink', name);
+    const link = await this.locatorForOptional(
+      `.wr-file-upload__item:nth-child(${index + 1}) a.wr-file-upload__link`
+    )();
+    return link === null ? null : link.getAttribute('href');
   }
 
   /** Index of the row with this name, or a throw that says what the list holds. */

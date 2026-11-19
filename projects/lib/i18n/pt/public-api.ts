@@ -152,6 +152,7 @@ export const wrPt: WrI18nCatalog = {
     failed: 'Falha no envio',
     status: '{{name}}: {{status}}',
     retry: 'Tentar novamente',
+    openFile: '{{name}} (abre em uma nova aba)',
   },
   popconfirm: {
     label: 'Confirmar ação',
