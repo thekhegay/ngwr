@@ -47,10 +47,12 @@ jobs:
               echo "::error::$version is a stable version on $GITHUB_REF_NAME; only main publishes stable releases."
               exit 1
             fi
-            echo "is_release=true"  >> "$GITHUB_OUTPUT"
-            echo "version=$version" >> "$GITHUB_OUTPUT"
-            echo "tag=$tag"         >> "$GITHUB_OUTPUT"
-            echo "is_rc=$is_rc"     >> "$GITHUB_OUTPUT"
+            {
+              echo "is_release=true"
+              echo "version=$version"
+              echo "tag=$tag"
+              echo "is_rc=$is_rc"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "is_release=false" >> "$GITHUB_OUTPUT"
           fi
@@ -174,7 +176,7 @@ jobs:
             exit 0
           fi
 
-          prev=$(( ${BASH_REMATCH[1]} - 1 ))
+          prev=$(( BASH_REMATCH[1] - 1 ))
           prev_tag=$(git tag --list "v${prev}.*" --sort=-v:refname | grep -v -- '-rc\.' | head -1)
 
           if [[ -z "$prev_tag" ]]; then
