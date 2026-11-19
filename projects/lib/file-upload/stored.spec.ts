@@ -31,8 +31,15 @@ class Host {
     { name: 'notes.txt' },
   ]);
 
+  /** Off: the row leaves at once. On: it waits for `finishRemove()`, as after a server delete. */
+  readonly deferRemove = signal(false);
+
   onRemove(file: WrStoredFile): void {
     this.removed.update(list => [...list, file]);
+    if (!this.deferRemove()) this.finishRemove(file);
+  }
+
+  finishRemove(file: WrStoredFile): void {
     this.stored.update(list => list.filter(item => item !== file));
   }
 }
@@ -125,6 +132,22 @@ describe('WrFileUpload stored files', () => {
 
     expect(document.activeElement).toBe(buttons()[0]);
     expect(buttons()[0].getAttribute('aria-label')).toBe('Remove notes.txt');
+  });
+
+  it('moves focus once a stored row leaves after a delayed delete', async () => {
+    await mount();
+    fixture.componentInstance.deferRemove.set(true);
+    const buttons = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-file-upload__remove')];
+    buttons()[0].focus();
+    buttons()[0].click();
+    await fixture.whenStable();
+
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('Remove contract.pdf');
+
+    fixture.componentInstance.finishRemove(fixture.componentInstance.removed()[0]);
+    await fixture.whenStable();
+
+    expect(document.activeElement?.getAttribute('aria-label')).toBe('Remove notes.txt');
   });
 
   it('refuses a remove while disabled', async () => {

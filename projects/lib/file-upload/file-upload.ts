@@ -434,6 +434,15 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('file-upload');
+    // A stored row whose remove button had focus has left: put focus on a
+    // neighbour, unless the user has moved it somewhere else meanwhile.
+    effect(() => {
+      const stored = this.stored();
+      const pending = this.focusAfterStored;
+      if (!pending || stored.includes(pending.stored)) return;
+      this.focusAfterStored = null;
+      untracked(() => this.focusRemoveNear(() => pending.index, true));
+    });
     // Rebuild the internal file list from an external `value` write (mirrors the
     // old `writeValue`). Skipped when the value is merely the echo of an
     // in-component edit, so re-syncing can never clobber a live selection.
@@ -552,19 +561,26 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
     if (this.disabled() || this.readonly()) return;
     const focused = this.host.nativeElement.ownerDocument.activeElement;
     const hadFocus = !!focused?.matches('.wr-file-upload__remove') && this.host.nativeElement.contains(focused);
+    // The app drops the row when it likes, after a server delete as often as not,
+    // so focus moves once the row has actually left (see the constructor).
+    this.focusAfterStored = hadFocus ? { stored: row.stored, index } : null;
     this.storedRemove.emit(row.stored);
-    if (!hadFocus) return;
-    this.focusRemoveNear(() => index);
   }
+
+  /** The stored row whose remove button held focus when it was pressed, until the row leaves. */
+  private focusAfterStored: { readonly stored: WrStoredFile; readonly index: number } | null = null;
 
   /**
    * Put focus on the remove button at the index `at` gives after the render,
    * else the one before it, else the zone. Read late: a handler may change
    * `stored` in the same cycle, which moves every picked row.
    */
-  private focusRemoveNear(at: () => number): void {
+  private focusRemoveNear(at: () => number, onlyIfLost = false): void {
     afterNextRender(
       () => {
+        const doc = this.host.nativeElement.ownerDocument;
+        const active = doc.activeElement;
+        if (onlyIfLost && active && active !== doc.body && !this.host.nativeElement.contains(active)) return;
         const index = at();
         const buttons = this.host.nativeElement.querySelectorAll<HTMLElement>('.wr-file-upload__remove');
         const target = buttons[Math.min(index, buttons.length - 1)] ?? this.zone().nativeElement;
