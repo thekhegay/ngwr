@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="File Upload"
-  updated="16.4.0"
+  updated="16.7.0"
   description="Pick files by dropping them on a zone or browsing."
   [keywords]="['file', 'upload', 'drop zone', 'wr-file-upload']"
   [labels]="['Signal Forms']"
@@ -100,12 +100,27 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Stored files"
+    description="Files already on a server go in `[stored]` as `{ name, size?, url? }`. They are listed first, with the same look, and stay out of `value`, so the form holds only what the user picked. A `url` makes the name a link that opens in a new tab. Remove emits `(storedRemove)` with the descriptor: drop it from the list you pass in. In multiple mode they count toward `maxFiles`. Since v16.7."
+  >
+    <ngwr-doc-code [code]="snippets.stored" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.storedTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <wr-file-upload [(value)]="added" [multiple]="true" [stored]="stored()" (storedRemove)="onStoredRemove($event)" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Accessibility">
     <ul>
       <li>
         Each row's remove button is named after its file, "Remove report.pdf", from the
         <code>fileUpload.removeFile</code> catalog key. <code>removeFileLabel</code> overrides it, and its
         <code ngNonBindable>{{name}}</code> is the file name.
+      </li>
+      <li>
+        A stored file's link says it opens in a new tab, from the <code>fileUpload.openFile</code> catalog key, and
+        carries <code>rel="noopener noreferrer"</code>.
       </li>
       <li>The Try again button of a failed row is described by the file name.</li>
       <li>Upload states are announced through one polite live region for the whole list.</li>
