@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 
 import { useI18nText } from 'ngwr/i18n';
-import { wrClamp, wrRandomId, wrCheckStyles } from 'ngwr/utils';
+import { wrClamp, wrFileNameForType, wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import type { WrCropHandle, WrCropRect, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './types';
 
@@ -682,6 +682,20 @@ export class WrImageCropper {
         quality
       );
     });
+  }
+
+  /**
+   * Render the current crop as a `File`. The extension of `name` is replaced by that of
+   * the type the browser actually encoded, which can differ from `type`: a browser falls
+   * back to PNG for a type it cannot encode. Rejects like `toBlob()`.
+   */
+  async toFile(
+    name: string,
+    type: WrImageOutputType = this.outputType(),
+    quality: number = this.outputQuality()
+  ): Promise<File> {
+    const blob = await this.toBlob(type, quality);
+    return new File([blob], wrFileNameForType(name, blob.type), { type: blob.type });
   }
 
   /**
