@@ -17,9 +17,9 @@ class StubObserver {
   }
   observe = (el: Element): void => void this.observed.add(el);
   unobserve = (el: Element): void => void this.observed.delete(el);
-  fire(el: Element, isIntersecting: boolean): void {
+  fire(el: Element, isIntersecting: boolean, intersectionRatio = isIntersecting ? 1 : 0): void {
     this.callback(
-      [{ target: el, isIntersecting } as IntersectionObserverEntry],
+      [{ target: el, isIntersecting, intersectionRatio } as IntersectionObserverEntry],
       this as unknown as IntersectionObserver
     );
   }
@@ -76,6 +76,15 @@ describe('WrInView', () => {
     half.fire(el(fixture, 'a'), true);
     half.fire(el(fixture, 'a'), false);
     expect(fixture.componentInstance.a).toEqual([true, false]);
+  });
+
+  it('counts as in view only once the threshold shows, not any sliver', async () => {
+    const fixture = await render();
+    const [half] = StubObserver.instances;
+    half.fire(el(fixture, 'a'), true, 0.1);
+    expect(fixture.componentInstance.a).toEqual([]);
+    half.fire(el(fixture, 'a'), true, 0.5);
+    expect(fixture.componentInstance.a).toEqual([true]);
   });
 
   it('stops after the first entry with once', async () => {

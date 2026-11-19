@@ -24,7 +24,10 @@ interface Pool {
 export class WrInViewObserver {
   private readonly pools = new Map<number, Pool>();
 
-  /** Watch `el` and call `callback` with `isIntersecting` on every change. Returns the stop function. */
+  /**
+   * Watch `el` and call `callback` on every change with whether at least `threshold`
+   * of it shows: `isIntersecting` alone is true for any sliver. Returns the stop function.
+   */
   observe(el: Element, threshold: number, callback: ViewCallback): () => void {
     let pool = this.pools.get(threshold);
     if (!pool) {
@@ -33,7 +36,9 @@ export class WrInViewObserver {
         entries => {
           for (const entry of entries) {
             // A copy: a callback may stop itself while the set is walked.
-            for (const cb of [...(targets.get(entry.target) ?? [])]) cb(entry.isIntersecting);
+            // A ratio a hair under the threshold still counts: the browser rounds it.
+            const inView = entry.isIntersecting && entry.intersectionRatio >= threshold - 0.001;
+            for (const cb of [...(targets.get(entry.target) ?? [])]) cb(inView);
           }
         },
         { threshold }

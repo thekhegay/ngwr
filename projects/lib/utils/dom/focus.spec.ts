@@ -228,6 +228,20 @@ describe('wrFocusFirstInvalid', () => {
     expect(document.activeElement?.id).toBe('two');
   });
 
+  it('lets a hidden radio decide nothing about which one takes focus', async () => {
+    const root = render(`
+      <div id="group" role="radiogroup" aria-invalid="true">
+        <input id="one" type="radio" name="h" />
+        <input id="two" type="radio" name="h" />
+      </div>
+    `);
+    boxless(root.querySelector<HTMLElement>('#one')!);
+
+    await wrFocusFirstInvalid(root);
+
+    expect(document.activeElement?.id).toBe('two');
+  });
+
   it('reads an invalid wr-form-field whose control carries no mark', async () => {
     const root = render(`
       <div id="ok" class="wr-form-field"><input id="fine" /></div>
