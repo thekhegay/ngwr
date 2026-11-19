@@ -5,6 +5,7 @@ import { By } from '@angular/platform-browser';
 
 import { Subject } from 'rxjs';
 
+import { WR_BUTTON_SIZE } from 'ngwr/button';
 import { WrFormField } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
@@ -743,6 +744,17 @@ describe('WrEditor', () => {
       expect(outer).not.toHaveBeenCalled();
       expect(panel()).not.toBeNull();
       expect(tool('Insert link').getAttribute('aria-expanded')).toBe('true');
+    });
+
+    it('keeps its buttons at their own size inside a sized container', async () => {
+      await mount(undefined, [{ provide: WR_BUTTON_SIZE, useValue: () => 'lg' }]);
+      key(surface(), { key: 'a', ctrlKey: true });
+      key(surface(), { key: 'k', ctrlKey: true });
+      await fixture.whenStable();
+
+      expect(buttons().length).toBeGreaterThan(0);
+      expect(buttons().filter(b => b.classList.contains('wr-btn--lg'))).toEqual([]);
+      expect(panel()!.querySelector('.wr-editor-link__apply')!.classList.contains('wr-btn--lg')).toBe(false);
     });
 
     it('leaves Mod-K alone when there is no link tool to open', async () => {
