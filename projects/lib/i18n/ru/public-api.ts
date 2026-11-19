@@ -154,6 +154,7 @@ export const wrRu: WrI18nCatalog = {
     failed: 'Не удалось загрузить',
     status: '{{name}}: {{status}}',
     retry: 'Повторить',
+    openFile: '{{name}} (откроется в новой вкладке)',
   },
   popconfirm: {
     label: 'Подтверждение действия',

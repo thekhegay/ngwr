@@ -152,6 +152,7 @@ export const wrZhTw: WrI18nCatalog = {
     failed: '上傳失敗',
     status: '{{name}}: {{status}}',
     retry: '重試',
+    openFile: '{{name}}(在新分頁中開啟)',
   },
   popconfirm: {
     label: '確認操作',

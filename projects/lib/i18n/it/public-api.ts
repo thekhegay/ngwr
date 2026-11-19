@@ -154,6 +154,7 @@ export const wrIt: WrI18nCatalog = {
     failed: 'Caricamento non riuscito',
     status: '{{name}}: {{status}}',
     retry: 'Riprova',
+    openFile: '{{name}} (si apre in una nuova scheda)',
   },
   popconfirm: {
     label: 'Conferma azione',

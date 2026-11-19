@@ -162,6 +162,7 @@ export const wrUk: WrI18nCatalog = {
     failed: 'Не вдалося завантажити',
     status: '{{name}}: {{status}}',
     retry: 'Повторити',
+    openFile: '{{name}} (відкриється в новій вкладці)',
   },
   popconfirm: {
     label: 'Підтвердження дії',

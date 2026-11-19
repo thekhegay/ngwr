@@ -152,6 +152,7 @@ export const wrId: WrI18nCatalog = {
     failed: 'Gagal mengunggah',
     status: '{{name}}: {{status}}',
     retry: 'Coba lagi',
+    openFile: '{{name}} (terbuka di tab baru)',
   },
   popconfirm: {
     label: 'Konfirmasi tindakan',

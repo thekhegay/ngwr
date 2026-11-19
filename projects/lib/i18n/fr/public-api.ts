@@ -154,6 +154,7 @@ export const wrFr: WrI18nCatalog = {
     failed: 'Envoi échoué',
     status: '{{name}}: {{status}}',
     retry: 'Réessayer',
+    openFile: '{{name}} (s’ouvre dans un nouvel onglet)',
   },
   popconfirm: {
     label: "Confirmer l'action",

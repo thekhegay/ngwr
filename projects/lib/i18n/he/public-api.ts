@@ -160,6 +160,7 @@ export const wrHe: WrI18nCatalog = {
     failed: 'ההעלאה נכשלה',
     status: '{{name}}: {{status}}',
     retry: 'ניסיון חוזר',
+    openFile: '{{name}} (נפתח בכרטיסייה חדשה)',
   },
   popconfirm: {
     label: 'אישור פעולה',

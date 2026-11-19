@@ -154,6 +154,7 @@ export const wrNl: WrI18nCatalog = {
     failed: 'Uploaden mislukt',
     status: '{{name}}: {{status}}',
     retry: 'Opnieuw proberen',
+    openFile: '{{name}} (opent in een nieuw tabblad)',
   },
   popconfirm: {
     label: 'Actie bevestigen',

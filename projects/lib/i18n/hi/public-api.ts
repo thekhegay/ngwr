@@ -152,6 +152,7 @@ export const wrHi: WrI18nCatalog = {
     failed: 'अपलोड विफल',
     status: '{{name}}: {{status}}',
     retry: 'फिर से कोशिश करें',
+    openFile: '{{name}} (नए टैब में खुलता है)',
   },
   popconfirm: {
     label: 'कार्रवाई की पुष्टि',
