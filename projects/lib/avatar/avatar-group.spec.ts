@@ -40,6 +40,17 @@ class ConsumerHiddenHost {
   readonly max = signal<number | null>(null);
 }
 
+@Component({
+  imports: [WrAvatar, WrAvatarGroup],
+  template: `
+    <wr-avatar-group [max]="null">
+      <wr-avatar name="Ada Lovelace" />
+      <wr-avatar name="Bob Marley" hidden data-wr-group-hidden />
+    </wr-avatar-group>
+  `,
+})
+class ServerHiddenHost {}
+
 describe('WrAvatarGroup', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -138,6 +149,17 @@ describe('WrAvatarGroup', () => {
     host.componentInstance.max.set(null);
     await host.whenStable();
     expect(list()).toEqual([false, true, false]);
+    host.destroy();
+  });
+
+  it('shows again an avatar the server hid for the group, once max lets it in', async () => {
+    TestBed.resetTestingModule();
+    const host = TestBed.createComponent(ServerHiddenHost);
+    await host.whenStable();
+    const bob = (host.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('wr-avatar-group > wr-avatar')[1];
+
+    expect(bob.hasAttribute('hidden')).toBe(false);
+    expect(bob.hasAttribute('data-wr-group-hidden')).toBe(false);
     host.destroy();
   });
 

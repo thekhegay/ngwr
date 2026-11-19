@@ -55,6 +55,9 @@ function toMax(value: unknown): number | null {
  *
  * @see https://ngwr.dev/reference/components/avatar
  */
+/** Marks a `hidden` the group set, as opposed to one the consumer wrote. */
+const GROUP_HIDDEN = 'data-wr-group-hidden';
+
 @Component({
   selector: 'wr-avatar-group',
   templateUrl: './avatar-group.html',
@@ -102,18 +105,20 @@ export class WrAvatarGroup {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('avatar');
 
     // Only the `hidden` the group set comes off again: one a consumer put on an
-    // avatar is theirs.
-    const hiddenByGroup = new WeakSet<HTMLElement>();
+    // avatar is theirs. The mark lives on the element, so an avatar the server
+    // hid is still the group's after hydration.
     effect(() => {
       const max = this.max();
       this.elements().forEach((el, i) => {
         const node = (el as ElementRef<HTMLElement>).nativeElement;
+        const ours = node.hasAttribute(GROUP_HIDDEN);
         if (max !== null && i >= max) {
-          if (node.hasAttribute('hidden')) return;
+          if (ours || node.hasAttribute('hidden')) return;
           this.renderer.setAttribute(node, 'hidden', '');
-          hiddenByGroup.add(node);
-        } else if (hiddenByGroup.delete(node)) {
+          this.renderer.setAttribute(node, GROUP_HIDDEN, '');
+        } else if (ours) {
           this.renderer.removeAttribute(node, 'hidden');
+          this.renderer.removeAttribute(node, GROUP_HIDDEN);
         }
       });
     });
