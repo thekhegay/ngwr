@@ -404,6 +404,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * stays while it or any descendant matches and shows only the children that
    * stay; it keeps its open state, so a parent kept for a deep match may need
    * opening. Server mode (`total` set) holds one page and ignores it.
+   * A selection survives a search: rows it hides stay selected, and the count,
+   * the bar's `$implicit` and `toCsv({ selectedOnly })` all use the whole selection.
    * @default ''
    */
   readonly search = input<string>('');
@@ -2334,18 +2336,18 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /** Every node in the forest, depth-first — what selection and CSV must see. */
-  private allTreeRows(): readonly Record<string, unknown>[] {
+  private allTreeRows(searched = true): readonly Record<string, unknown>[] {
     const out: Record<string, unknown>[] = [];
     const walk = (rows: readonly Record<string, unknown>[], seen: ReadonlySet<unknown>): void => {
       for (const row of rows) {
         const key = this.rowKeyOf(row);
         if (seen.has(key)) continue;
         out.push(row);
-        const children = this.childrenOf(row);
+        const children = this.childrenOf(row, searched);
         if (children.length > 0) walk(children, new Set(seen).add(key));
       }
     };
-    walk(this.rows() ?? [], new Set());
+    walk((searched ? this.rows() : this.source()) ?? [], new Set());
     return out;
   }
 
@@ -3061,8 +3063,10 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   private selectedRows(): readonly Record<string, unknown>[] {
+    // The whole selection, rows a search hides included: the bar counts them too.
     const keys = new Set(this.selection());
-    return this.datasetRows().filter(row => keys.has(this.rowKeyOf(row)));
+    const all = this.treeMode() ? this.allTreeRows(false) : (this.source() ?? []);
+    return all.filter(row => keys.has(this.rowKeyOf(row)));
   }
 
   private computeSummary(
