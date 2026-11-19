@@ -417,7 +417,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    */
   private readonly searchColumns = computed(() => ({
     cols: this.displayColumns().filter(c => !c.column.actions && c.column.searchable !== false),
-    folded: new WeakMap<object, ({ readonly value: unknown; readonly text: string } | undefined)[]>()
+    folded: new WeakMap<object, ({ readonly value: unknown; readonly text: string } | undefined)[]>(),
   }));
 
   /** The rows after the search, plus the kept children per parent in tree mode. */
@@ -1677,7 +1677,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const treeKey = this.treeColumnKey();
     return this.displayColumns().map(({ key, column }) => {
       const { align, pin } = column;
-      const truncates = (column.truncate === undefined ? tableTruncate : column.truncate) === 'tooltip';
+      // The table-wide cut never reaches an actions cell: it would clip the buttons and their rings.
+      const truncates =
+        (column.truncate === undefined ? (column.actions ? null : tableTruncate) : column.truncate) === 'tooltip';
       const tdClass = cellClasses('wr-table__td', column);
       return {
         key,
