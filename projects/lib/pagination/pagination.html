@@ -1,120 +1,122 @@
-<div class="wr-pagination__inner">
-  @if (showTotal()) {
-    <span class="wr-pagination__total">{{ rangeLabel() }}</span>
-  }
-
-  <div class="wr-pagination__nav">
-    <!--
-      `wr-pagination__nav-btn` exists so the stylesheet can mirror the arrow
-      glyph under `dir="rtl"`. A class rather than `:first-child` /
-      `:last-child` on the row: those two positions do hold today — which is why
-      the `--square` end caps use them — but only while the prev button, the
-      compact label and the next button all stay unconditional and in this
-      order. A mirror keyed to position would follow a reorder, or land on a
-      page cell, without a word.
-
-      The two `[disabled]` bindings compare against the RANGE (`<= 1`,
-      `>= totalPages()`) rather than for equality with its ends. While `total`
-      is 0 the guard effect stops enforcing the upper bound, so the page can
-      legitimately sit past `totalPages()` — and `=== totalPages()` reported
-      next as enabled there while `goTo` refused the step. Prev is still
-      enabled in that state, correctly: `prevPage()` walks it back into range.
-    -->
-    <wr-btn
-      class="wr-pagination__nav-btn"
-      [size]="size()"
-      outlined
-      [attr.aria-label]="resolvedPrev()"
-      [disabled]="disabled() || page() <= 1"
-      (click)="goTo(prevPage())"
-    >
-      <svg
-        class="wr-icon__svg"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m12 19-7-7 7-7" />
-        <path d="M19 12H5" />
-      </svg>
-    </wr-btn>
-
-    <!-- Tracked by page, not by slot: the window slides on every move, and the
-         focused button has to stay the page it was. The two ellipses are
-         different items, and the leading one is always the second entry. -->
-    @for (page of pages(); track page === ellipsis ? ($index === 1 ? 'before' : 'after') : page) {
-      @if (page === ellipsis) {
-        <span class="wr-pagination__ellipsis">{{ ellipsis }}</span>
-      } @else {
-        <wr-btn
-          class="wr-pagination__page"
-          [size]="size()"
-          [outlined]="!isCurrent(page)"
-          [color]="isCurrent(page) ? 'primary' : null"
-          [attr.aria-current]="isCurrent(page) ? 'page' : null"
-          [attr.aria-label]="goToPage({ page })"
-          [disabled]="disabled()"
-          (click)="goTo(page)"
-        >
-          {{ page }}
-        </wr-btn>
-      }
+@if (!hidden()) {
+  <div class="wr-pagination__inner">
+    @if (showTotal()) {
+      <span class="wr-pagination__total">{{ rangeLabel() }}</span>
     }
 
-    <!-- Compact pager — shown only in responsive mode on a narrow box (CSS). Not
-         `aria-hidden`: `display: none` already keeps whichever of the two is
-         hidden out of the accessibility tree, and on a narrow box this label is
-         the only position on screen. -->
-    <span class="wr-pagination__current">{{ compactLabel() }}</span>
+    <div class="wr-pagination__nav">
+      <!--
+        `wr-pagination__nav-btn` exists so the stylesheet can mirror the arrow
+        glyph under `dir="rtl"`. A class rather than `:first-child` /
+        `:last-child` on the row: those two positions do hold today — which is why
+        the `--square` end caps use them — but only while the prev button, the
+        compact label and the next button all stay unconditional and in this
+        order. A mirror keyed to position would follow a reorder, or land on a
+        page cell, without a word.
 
-    <wr-btn
-      class="wr-pagination__nav-btn"
-      [size]="size()"
-      outlined
-      [attr.aria-label]="resolvedNext()"
-      [disabled]="disabled() || page() >= totalPages()"
-      (click)="goTo(page() + 1)"
-    >
-      <svg
-        class="wr-icon__svg"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
+        The two `[disabled]` bindings compare against the RANGE (`<= 1`,
+        `>= totalPages()`) rather than for equality with its ends. While `total`
+        is 0 the guard effect stops enforcing the upper bound, so the page can
+        legitimately sit past `totalPages()` — and `=== totalPages()` reported
+        next as enabled there while `goTo` refused the step. Prev is still
+        enabled in that state, correctly: `prevPage()` walks it back into range.
+      -->
+      <wr-btn
+        class="wr-pagination__nav-btn"
+        [size]="size()"
+        outlined
+        [attr.aria-label]="resolvedPrev()"
+        [disabled]="disabled() || page() <= 1"
+        (click)="goTo(prevPage())"
       >
-        <path d="M5 12h14" />
-        <path d="m12 5 7 7-7 7" />
-      </svg>
-    </wr-btn>
-  </div>
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
+        </svg>
+      </wr-btn>
 
-  @if (showSizeChanger()) {
-    <!--
-      `ariaLabel`, not `[attr.aria-label]`: `<wr-select>`'s host carries no role,
-      so an attribute there names nothing and never reaches the `role="combobox"`
-      button inside — the size changer announced itself as the catalog's generic
-      "Select".
-    -->
-    <wr-select
-      class="wr-pagination__size"
-      [ariaLabel]="resolvedItemsPerPage()"
-      [size]="size()"
-      [disabled]="disabled()"
-      [value]="pageSize()"
-      (valueChange)="onSizeChange($event)"
-    >
-      @for (option of pageSizeOptions(); track option) {
-        <wr-option [value]="option">{{ perPage({ size: option }) }}</wr-option>
+      <!-- Tracked by page, not by slot: the window slides on every move, and the
+           focused button has to stay the page it was. The two ellipses are
+           different items, and the leading one is always the second entry. -->
+      @for (page of pages(); track page === ellipsis ? ($index === 1 ? 'before' : 'after') : page) {
+        @if (page === ellipsis) {
+          <span class="wr-pagination__ellipsis">{{ ellipsis }}</span>
+        } @else {
+          <wr-btn
+            class="wr-pagination__page"
+            [size]="size()"
+            [outlined]="!isCurrent(page)"
+            [color]="isCurrent(page) ? 'primary' : null"
+            [attr.aria-current]="isCurrent(page) ? 'page' : null"
+            [attr.aria-label]="goToPage({ page })"
+            [disabled]="disabled()"
+            (click)="goTo(page)"
+          >
+            {{ page }}
+          </wr-btn>
+        }
       }
-    </wr-select>
-  }
-</div>
+
+      <!-- Compact pager — shown only in responsive mode on a narrow box (CSS). Not
+           `aria-hidden`: `display: none` already keeps whichever of the two is
+           hidden out of the accessibility tree, and on a narrow box this label is
+           the only position on screen. -->
+      <span class="wr-pagination__current">{{ compactLabel() }}</span>
+
+      <wr-btn
+        class="wr-pagination__nav-btn"
+        [size]="size()"
+        outlined
+        [attr.aria-label]="resolvedNext()"
+        [disabled]="disabled() || page() >= totalPages()"
+        (click)="goTo(page() + 1)"
+      >
+        <svg
+          class="wr-icon__svg"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14" />
+          <path d="m12 5 7 7-7 7" />
+        </svg>
+      </wr-btn>
+    </div>
+
+    @if (showSizeChanger()) {
+      <!--
+        `ariaLabel`, not `[attr.aria-label]`: `<wr-select>`'s host carries no role,
+        so an attribute there names nothing and never reaches the `role="combobox"`
+        button inside — the size changer announced itself as the catalog's generic
+        "Select".
+      -->
+      <wr-select
+        class="wr-pagination__size"
+        [ariaLabel]="resolvedItemsPerPage()"
+        [size]="size()"
+        [disabled]="disabled()"
+        [value]="pageSize()"
+        (valueChange)="onSizeChange($event)"
+      >
+        @for (option of pageSizeOptions(); track option) {
+          <wr-option [value]="option">{{ perPage({ size: option }) }}</wr-option>
+        }
+      </wr-select>
+    }
+  </div>
+}
