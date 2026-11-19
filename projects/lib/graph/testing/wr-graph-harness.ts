@@ -46,7 +46,7 @@ function describeFilters(filters: WrGraphNodeHarnessFilters): string {
 
 /**
  * Test harness for `<wr-graph>` — blocks joined by parent-child lines, laid out in
- * layers, display only.
+ * layers.
  *
  * The graph is read the way assistive technology reads it: the viewport's name, the
  * nodes as a list in READING order (layer, then inline position — which is DOM order),
@@ -188,6 +188,22 @@ export class WrGraphHarness extends ComponentHarness {
         return { from, to };
       })
     );
+  }
+
+  /** Whether a node can be selected, from the host's `wr-graph--selectable`. */
+  async isSelectable(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-graph--selectable');
+  }
+
+  /**
+   * The selected node, or `null` while none is — which is also the answer on a graph
+   * that is not `selectable`, and for a `selected` id no drawn node has.
+   */
+  async getSelectedNode(): Promise<WrGraphNodeHarness | null> {
+    for (const node of await this.getNodes()) {
+      if (await node.isSelected()) return node;
+    }
+    return null;
   }
 
   /** Whether the graph zooms and pans, from the host's `wr-graph--zoomable`. */
