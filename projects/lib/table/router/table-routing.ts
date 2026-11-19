@@ -90,14 +90,18 @@ export class WrTableRouting implements WrTableRoutingAdapter {
     // is not: as one command its `?` would be encoded into the path.
     if (typeof link === 'string' && link.startsWith('/')) return this.router.parseUrl(link);
     if (typeof link !== 'string') return this.router.createUrlTree([...link], { relativeTo: this.route });
-    // A relative string keeps its query and fragment: read them off the parsed
-    // URL and resolve only the path against the route.
-    const hash = link.indexOf('#');
-    const fragment = hash >= 0 ? link.slice(hash + 1) : undefined;
-    const beforeHash = hash >= 0 ? link.slice(0, hash) : link;
-    const mark = beforeHash.indexOf('?');
-    const path = mark >= 0 ? beforeHash.slice(0, mark) : beforeHash;
-    const queryParams = mark >= 0 ? this.router.parseUrl(`/?${beforeHash.slice(mark + 1)}`).queryParams : undefined;
-    return this.router.createUrlTree([path], { relativeTo: this.route, queryParams, fragment });
+    // A relative string keeps its query and fragment: the router parses them
+    // (decoded, as it stores them) and only the path resolves against the route.
+    const cut = link.search(/[?#]/);
+    const path = cut >= 0 ? link.slice(0, cut) : link;
+    const rest = cut >= 0 ? this.router.parseUrl(`/${link.slice(cut)}`) : null;
+    const queryParams = rest && Object.keys(rest.queryParams).length > 0 ? rest.queryParams : undefined;
+    return this.router.createUrlTree([path], {
+      relativeTo: this.route,
+      queryParams,
+      fragment: rest?.fragment ?? undefined,
+      // The link's own query wins over an app-wide `defaultQueryParamsHandling`.
+      queryParamsHandling: queryParams ? 'replace' : undefined,
+    });
   }
 }
