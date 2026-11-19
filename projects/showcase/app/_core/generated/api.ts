@@ -889,6 +889,8 @@ export const API = {
     { name: "zoom", description: "The zoom, where `1` is 100%. Two-way: it follows every gesture, and a value written to it zooms around the middle of the viewport, kept inside `minZoom` and `maxZoom`. Ignored unless `zoomable`.", type: "number", default: "1" },
     { name: "minZoom", description: "The smallest zoom.", type: "number", default: "0.25" },
     { name: "maxZoom", description: "The largest zoom. Never below `minZoom`.", type: "number", default: "4" },
+    { name: "selectable", description: "Lets a node be selected: each node becomes a button, pressed while it is the selected one. A click, `Enter` or `Space` selects it, the same again or `Escape` clears the selection. While a node is selected, its edges and the nodes at their other ends stay lit and everything else is dimmed. A node template should hold no control of its own while this is on: the whole node is one button.", type: "boolean", default: "false" },
+    { name: "selected", description: "The id of the selected node, or `null`. Two-way: it follows every pick, and a value written to it selects that node. An id no drawn node has highlights nothing. Ignored unless `selectable`.", type: "string | null", default: "null" },
     { name: "zoomInLabel", description: "Accessible name of the zoom-in button. Falls back to `graph.zoomIn`, then `'Zoom in'`.", type: "string | null", default: "null" },
     { name: "zoomOutLabel", description: "Accessible name of the zoom-out button. Falls back to `graph.zoomOut`, then `'Zoom out'`.", type: "string | null", default: "null" },
     { name: "fitLabel", description: "Accessible name of the fit button. Falls back to `graph.fit`, then `'Fit to view'`.", type: "string | null", default: "null" },

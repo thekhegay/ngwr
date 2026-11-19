@@ -272,3 +272,15 @@ because it is guidance rather than a plan.
   they do not flip under RTL. A press becomes a drag only after three pixels,
   and only then takes pointer capture, so a click inside a node still reaches
   it.
+- `wr-graph` with `selectable` wraps each node's content in a
+  `div[role=button]` INSIDE the list item, so the node's DOM differs from a
+  plain graph's and the list keeps its items. The whole node is that one
+  button: a link or a control in a node template is nested-interactive, which
+  is the consumer's to avoid, though a click on one is left to it and selects
+  nothing. Every node is a tab stop, with no roving focus and no arrow keys
+  between nodes. `Escape` is stopped from propagating only when it cleared a
+  selection, so a dialog around the graph closes on the next press. In a
+  zoomable graph a drag that starts on a node pans, and the click that follows
+  it selects nothing. A `selected` id no drawn node has is kept as written and
+  highlights nothing. A dimmed node that holds the focus is drawn at full
+  strength, so its ring is too.
