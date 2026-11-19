@@ -745,3 +745,56 @@ describe('WrTabs in router mode with no routing adapter', () => {
     expect(() => fixture.detectChanges()).toThrowError(/ngwr\/tabs\/router/);
   });
 });
+
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs>
+      <wr-tab title="Inbox" key="inbox" [count]="unread()">Mail</wr-tab>
+      <wr-tab title="Sent" key="sent">Out</wr-tab>
+    </wr-tabs>
+  `,
+})
+class CountHost {
+  readonly unread = signal<number | null>(3);
+}
+
+describe('WrTab count', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<CountHost>>;
+
+  const header = (i: number): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]')[i];
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(CountHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders a badge after the label and folds it into the name', () => {
+    const inbox = header(0);
+    expect(inbox.querySelector('.wr-tabs__tab-label')?.textContent?.trim()).toBe('Inbox');
+    expect(inbox.querySelector('.wr-tabs__count')?.textContent?.trim()).toBe('3');
+    expect(inbox.getAttribute('aria-label')).toBe('Inbox, 3');
+  });
+
+  it('draws nothing, and keeps the visible text as the name, without a count', () => {
+    const sent = header(1);
+    expect(sent.querySelector('.wr-tabs__count')).toBeNull();
+    expect(sent.hasAttribute('aria-label')).toBe(false);
+  });
+
+  it('follows the bound value, shows zero, and hides on null', () => {
+    fixture.componentInstance.unread.set(0);
+    fixture.detectChanges();
+    expect(header(0).querySelector('.wr-tabs__count')?.textContent?.trim()).toBe('0');
+    expect(header(0).getAttribute('aria-label')).toBe('Inbox, 0');
+
+    fixture.componentInstance.unread.set(null);
+    fixture.detectChanges();
+    expect(header(0).querySelector('.wr-tabs__count')).toBeNull();
+    expect(header(0).hasAttribute('aria-label')).toBe(false);
+  });
+});

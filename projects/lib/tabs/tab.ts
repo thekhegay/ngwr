@@ -57,6 +57,15 @@ export class WrTab {
   /** Router target — when set, the tab becomes a `[routerLink]` link. */
   readonly routerLink = input<string | readonly string[] | null>(null);
 
+  /**
+   * A count after the label, as a small badge: unread messages, results. `null`
+   * (default) shows nothing, `0` shows `0`. The tab's accessible name becomes
+   * the label and the count, "Inbox, 3".
+   *
+   * @default null
+   */
+  readonly count = input<number | null>(null);
+
   /** Disable the tab. */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
@@ -74,6 +83,16 @@ export class WrTab {
    * resolves `WR_TABS` above.
    */
   private readonly routing = inject(WR_TABS_ROUTING, { optional: true });
+
+  /**
+   * The header's `aria-label`: the title with the count after it, or `null` while
+   * there is no count and the visible label is the name already.
+   * @internal
+   */
+  readonly accessibleName = computed(() => {
+    const count = this.count();
+    return count === null ? null : `${this.title()}, ${count}`;
+  });
 
   protected readonly isRouter = computed(() => this.routerLink() !== null);
 

@@ -40,6 +40,10 @@ export default class TabsPageComponent {
   <wr-tab title="Logs"     routerLink="logs" />
 </wr-tabs>
 <router-outlet />`,
+    count: `<wr-tabs>
+  <wr-tab title="Inbox" [count]="unread()">…</wr-tab>
+  <wr-tab title="Sent">…</wr-tab>
+</wr-tabs>`,
     disabled: `<wr-tab title="WIP" disabled>…</wr-tab>`,
     exportAs: `<wr-tabs wrTabsRouting #routing="wrTabsRouting">
   <wr-tab title="Overview" routerLink="overview" />
@@ -62,6 +66,12 @@ export default class TabsPageComponent {
       name: 'routerLink',
       description: 'Makes the tab a link; the strip renders no panel.',
       type: 'string | readonly string[] | null',
+      default: 'null',
+    },
+    {
+      name: 'count',
+      description: 'A count badge after the label; part of the accessible name. `null` hides it.',
+      type: 'number | null',
       default: 'null',
     },
     { name: 'disabled', description: 'Disable the tab.', type: 'boolean', default: 'false' },

@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Tabs"
   description="Switch between panels, or between routes."
-  updated="16.0.0"
+  updated="16.7.0"
   [keywords]="['tabs', 'wr-tabs', 'wr-tab']"
   [labels]="['Component']"
 >
@@ -30,6 +30,21 @@
     description="Give tabs a `routerLink` and add `wrTabsRouting` from `ngwr/tabs/router`, or the strip throws. Put a `<router-outlet>` below."
   >
     <ngwr-doc-code [code]="snippets.router" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Count"
+    description='`count` adds a small badge after the label, for unread items or results. It is part of the accessible name, "Inbox, 3". `null` hides it; `0` shows `0`.'
+  >
+    <ngwr-doc-snippet [code]="snippets.count">
+      <div style="width: 100%">
+        <wr-tabs>
+          <wr-tab key="inbox" title="Inbox" [count]="3">Inbox</wr-tab>
+          <wr-tab key="drafts" title="Drafts" [count]="12">Drafts</wr-tab>
+          <wr-tab key="sent" title="Sent">Sent</wr-tab>
+        </wr-tabs>
+      </div>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Disabled tab">
