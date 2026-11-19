@@ -273,9 +273,11 @@
   }
 }
 
-// A hint that was open under the pointer. A popover is content and prints.
+// A hint that was open under the pointer. A popover is content and prints. The pane
+// class is paired with `.cdk-overlay-pane`, whose `display: flex` the CDK sheet adds
+// after this one, so the rule wins in either order.
 @media print {
-  .wr-tooltip-overlay {
+  .cdk-overlay-pane.wr-tooltip-overlay {
     display: none;
   }
 }
