@@ -45,7 +45,7 @@ export class WrAutofocus {
       afterNextRender(
         () => {
           const host = this.el.nativeElement;
-          (mode === 'first' ? wrGetFocusableElements(host)[0] : host)?.focus();
+          (mode === 'first' ? wrGetFocusableElements(host).find(el => el.tabIndex >= 0) : host)?.focus();
         },
         { injector: this.injector }
       );

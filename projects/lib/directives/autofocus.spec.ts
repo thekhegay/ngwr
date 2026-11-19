@@ -315,3 +315,27 @@ describe('WrAutofocus with "first"', () => {
     expect(document.activeElement).toBe(document.body);
   });
 });
+
+@Component({
+  imports: [WrAutofocus],
+  template: `
+    <div id="box" wrAutofocus="first">
+      <button id="peek" type="button" tabindex="-1">Show</button>
+      <input id="field" />
+    </div>
+  `,
+})
+class FirstHost {}
+
+describe('WrAutofocus first', () => {
+  it('skips a control Tab cannot reach', async () => {
+    const fixture = TestBed.createComponent(FirstHost);
+    // jsdom lays nothing out, so every element reads as unrendered.
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.activeElement).toBe((fixture.nativeElement as HTMLElement).querySelector('#field'));
+    vi.restoreAllMocks();
+  });
+});
