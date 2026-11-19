@@ -26,6 +26,20 @@ class Host {
   readonly names = signal(['Ada Lovelace', 'Bob Marley', 'Carl Sagan', 'Dana Scully', 'Eve Polastri']);
 }
 
+@Component({
+  imports: [WrAvatar, WrAvatarGroup],
+  template: `
+    <wr-avatar-group [max]="max()">
+      <wr-avatar name="Ada Lovelace" />
+      <wr-avatar name="Bob Marley" hidden />
+      <wr-avatar name="Carl Sagan" />
+    </wr-avatar-group>
+  `,
+})
+class ConsumerHiddenHost {
+  readonly max = signal<number | null>(null);
+}
+
 describe('WrAvatarGroup', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
 
@@ -103,6 +117,28 @@ describe('WrAvatarGroup', () => {
       expect(more(), String(value)).toBeNull();
       expect(visible().length).toBe(5);
     }
+  });
+
+  it('leaves a hidden the consumer set on an avatar alone', async () => {
+    TestBed.resetTestingModule();
+    const host = TestBed.createComponent(ConsumerHiddenHost);
+    await host.whenStable();
+    const list = (): boolean[] =>
+      Array.from(
+        (host.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+          'wr-avatar-group > wr-avatar:not(.wr-avatar-group__more)'
+        )
+      ).map(a => a.hasAttribute('hidden'));
+    expect(list()).toEqual([false, true, false]);
+
+    host.componentInstance.max.set(1);
+    await host.whenStable();
+    expect(list()).toEqual([false, true, true]);
+
+    host.componentInstance.max.set(null);
+    await host.whenStable();
+    expect(list()).toEqual([false, true, false]);
+    host.destroy();
   });
 
   it('draws only the "+N" avatar at max 0', async () => {
