@@ -411,14 +411,18 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   readonly search = input<string>('');
 
   /**
-   * The columns the search reads, with the folded text of each cell per row.
-   * A new column list (so a new `format`) starts an empty cache, and a cell
-   * whose value changed is folded again, so a new query only re-runs `includes`.
+   * The columns the search reads, with the folded text of each cell per row,
+   * so a new query only re-runs `includes`. A new `items` array or column list
+   * starts an empty cache: `format` may read any field of its row, so only a
+   * new list says what a cell shows may have changed.
    */
-  private readonly searchColumns = computed(() => ({
-    cols: this.displayColumns().filter(c => !c.column.actions && c.column.searchable !== false),
-    folded: new WeakMap<object, ({ readonly value: unknown; readonly text: string } | undefined)[]>(),
-  }));
+  private readonly searchColumns = computed(() => {
+    this.source();
+    return {
+      cols: this.displayColumns().filter(c => !c.column.actions && c.column.searchable !== false),
+      folded: new WeakMap<object, (string | undefined)[]>(),
+    };
+  });
 
   /** The rows after the search, plus the kept children per parent in tree mode. */
   private readonly searched = computed<{
@@ -436,10 +440,10 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         const value = row[c.key];
         if (noValue(value)) return false;
         const cached = texts[i];
-        if (cached?.value === value) return cached.text.includes(query);
+        if (cached !== undefined) return cached.includes(query);
         const shown = c.column.format ? c.column.format(value, row as T) : plainSearchText(value);
         const text = foldSearchText(shown);
-        texts[i] = { value, text };
+        texts[i] = text;
         return text.includes(query);
       });
     };

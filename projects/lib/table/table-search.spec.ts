@@ -298,6 +298,36 @@ describe('WrTable search cost', () => {
   });
 });
 
+describe('WrTable search over a format that reads the row', () => {
+  @Component({
+    imports: [WrTable],
+    template: `<wr-table rowKey="id" [columns]="columns" [items]="items()" [search]="search()" />`,
+  })
+  class RowFormatHost {
+    readonly columns: WrTableColumns<{ id: number; name: string; surname: string }> = {
+      name: { title: 'Name', format: (_value, row) => row.surname },
+    };
+    readonly items = signal([{ id: 1, name: 'Ada', surname: 'Lovelace' }]);
+    readonly search = signal('lovelace');
+  }
+
+  it('reads the shown text again when a new items array arrives', async () => {
+    const fixture = TestBed.createComponent(RowFormatHost);
+    await fixture.whenStable();
+    const rows = (): number => (fixture.nativeElement as HTMLElement).querySelectorAll('tbody .wr-table__tr').length;
+    expect(rows()).toBe(1);
+
+    const [row] = fixture.componentInstance.items();
+    row.surname = 'Byron';
+    fixture.componentInstance.items.set([row]);
+    fixture.componentInstance.search.set('byron');
+    await fixture.whenStable();
+
+    expect(rows()).toBe(1);
+    fixture.destroy();
+  });
+});
+
 describe('WrTable selection under a search', () => {
   @Component({
     imports: [WrTable, WrTableSelectionBar],
