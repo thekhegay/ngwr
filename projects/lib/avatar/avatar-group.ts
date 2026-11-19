@@ -101,12 +101,20 @@ export class WrAvatarGroup {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('avatar');
 
+    // Only the `hidden` the group set comes off again: one a consumer put on an
+    // avatar is theirs.
+    const hiddenByGroup = new WeakSet<HTMLElement>();
     effect(() => {
       const max = this.max();
       this.elements().forEach((el, i) => {
         const node = (el as ElementRef<HTMLElement>).nativeElement;
-        if (max !== null && i >= max) this.renderer.setAttribute(node, 'hidden', '');
-        else this.renderer.removeAttribute(node, 'hidden');
+        if (max !== null && i >= max) {
+          if (node.hasAttribute('hidden')) return;
+          this.renderer.setAttribute(node, 'hidden', '');
+          hiddenByGroup.add(node);
+        } else if (hiddenByGroup.delete(node)) {
+          this.renderer.removeAttribute(node, 'hidden');
+        }
       });
     });
   }
