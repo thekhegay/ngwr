@@ -59,7 +59,10 @@ import { stripTs } from '../lib/ts-lex';
 const OUT_FILE = join(GENERATED_DIR, 'quality.ts');
 
 const CI_WORKFLOW = resolve(ROOT_PATH, '.github/workflows/ci.yml');
-const NIGHTLY_WORKFLOW = resolve(ROOT_PATH, '.github/workflows/nightly.yml');
+const NIGHTLY_WORKFLOWS = [
+  resolve(ROOT_PATH, '.github/workflows/site-checks.yml'),
+  resolve(ROOT_PATH, '.github/workflows/nightly.yml'),
+];
 const CHANGELOG = resolve(ROOT_PATH, 'CHANGELOG.md');
 
 interface Gate {
@@ -328,8 +331,11 @@ function implementationOf(entry: string, exportedAs: string, local: string, from
  * the run like any other, and `build:showcase` prerenders every route in Node,
  * which is the library's only SSR test.
  */
-function workflowGates(file: string, scripts: Record<string, string>): Gate[] {
-  const yaml = readFileSync(file, 'utf8')
+function workflowGates(files: string | readonly string[], scripts: Record<string, string>): Gate[] {
+  const yaml = [files]
+    .flat()
+    .map(file => readFileSync(file, 'utf8'))
+    .join('\n')
     .split('\n')
     .filter(line => !/^\s*#/.test(line))
     .join('\n');
@@ -505,7 +511,7 @@ ${gates(f.lintStages)}
 ${gates(f.prGates)}
   ],
 
-  /** The same, from \`.github/workflows/nightly.yml\`, which runs only on a night \`main\` moved. \`build:showcase\` is on the list because the workflow runs it once and the four site checks read its \`dist/showcase\`; they are off the PR path, so a green PR says nothing about a11y, painted contrast or geometry. \`test\` and \`build:lib\` are not a second opinion on the PR gates of the same name: they re-run on Node 24, an older LTS line \`engines\` still accepts, which nothing else exercises. */
+  /** The same, from \`.github/workflows/nightly.yml\` and the \`site-checks.yml\` it calls, which runs only on a night \`main\` moved. \`build:showcase\` is on the list because the workflow runs it once and the four site checks read its \`dist/showcase\`; they are off the PR path, so a green PR says nothing about a11y, painted contrast or geometry. \`test\` and \`build:lib\` are not a second opinion on the PR gates of the same name: they re-run on Node 24, an older LTS line \`engines\` still accepts, which nothing else exercises. */
   nightlyGates: [
 ${gates(f.nightlyGates)}
   ],
@@ -579,7 +585,7 @@ async function main(): Promise<void> {
     },
     lintStages: stagesOf(lintScript, scripts),
     prGates: workflowGates(CI_WORKFLOW, scripts),
-    nightlyGates: workflowGates(NIGHTLY_WORKFLOW, scripts),
+    nightlyGates: workflowGates(NIGHTLY_WORKFLOWS, scripts),
   };
 
   atLeast(facts.lintStages.length, 2, 'lint stages');
