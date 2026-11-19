@@ -27,6 +27,7 @@ import {
   type WrTableState,
   wrSortRows,
 } from 'ngwr/table';
+import { WrTableRouting } from 'ngwr/table/router';
 
 import {
   DocApiComponent,
@@ -42,6 +43,13 @@ interface Row extends Record<string, unknown> {
   name: string;
   email: string;
   role: 'admin' | 'editor' | 'viewer';
+}
+
+interface PageRow {
+  name: string;
+  selector: string;
+  group: string;
+  path: string | null;
 }
 
 interface Invoice {
@@ -157,6 +165,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     WrTableEditCell,
     WrTableExpand,
     WrTableGroupHeader,
+    WrTableRouting,
     WrTableSelectionBar,
     WrInput,
     WrInputNumber,
@@ -302,6 +311,20 @@ export default class TablePageComponent {
     role: { title: 'Role' },
     open: { title: '', width: 96 },
   };
+
+  protected readonly linkColumns: WrTableColumns<PageRow> = {
+    name: { title: 'Component' },
+    selector: { title: 'Selector' },
+    group: { title: 'Group' },
+  };
+  protected readonly linkRows: readonly PageRow[] = [
+    { name: 'Pagination', selector: 'wr-pagination', group: 'Navigation', path: 'pagination' },
+    { name: 'Tree', selector: 'wr-tree', group: 'Data', path: 'tree' },
+    { name: 'Select', selector: 'wr-select', group: 'Form', path: 'select' },
+    { name: 'Table', selector: 'wr-table', group: 'Data', path: null },
+  ];
+  protected readonly pageLink = (row: PageRow): string | null =>
+    row.path ? `/reference/components/${row.path}` : null;
 
   protected readonly hintRows: readonly Record<string, unknown>[] = [
     { name: 'Roman', note: 'Owns the release train and signs off every publish to npm', seats: 12, alarm: '!' },
@@ -549,6 +572,17 @@ const columns: WrTableColumns<Invoice> = {
   <wr-alert type="danger" title="Could not load users" [message]="message" />
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
+    rowLink: `<!-- imports: [WrTable, WrTableCell, WrTableRouting] from 'ngwr/table' + 'ngwr/table/router' -->
+<wr-table wrTableRouting [columns]="columns" [items]="pages" [rowLink]="pageLink">
+  <!-- A button in a cell stays a button: it copies, and the row does not open. -->
+  <ng-template wrTableCell="selector" let-value>
+    <wr-copy-value [value]="value" />
+  </ng-template>
+</wr-table>
+
+// A string is a URL, an array is router commands, null is a row with no link.
+protected readonly pageLink = (page: Page) =>
+  page.path ? \`/reference/components/\${page.path}\` : null;`,
     rowClick: `<wr-table [columns]="columns" [items]="rows" (rowClick)="open($event.row)">
   <!-- The copy button is a button: it copies, and the row does not open. -->
   <ng-template wrTableCell="email" let-value>
@@ -915,6 +949,13 @@ const columns: WrTableColumns = {
       default: '—',
     },
     {
+      name: '[wrTableRouting]',
+      description:
+        'On `<wr-table>`: sends `rowLink` through the router, so it takes a URL string or an array of commands and a plain click navigates in the app. Import `WrTableRouting` from `ngwr/table/router`. Since v16.7.',
+      type: 'directive',
+      default: '—',
+    },
+    {
       name: '[wrTableCell]',
       description: 'Per-column cell template. The attribute value is the column key; import `WrTableCell`.',
       type: 'directive',
@@ -1105,6 +1146,8 @@ interface WrTableCellEdit<T = object> {
 }
 
 type WrTableEditable<T = object> = (row: T, key: string) => boolean;
+
+type WrTableRowLink<T = object> = (row: T) => string | readonly unknown[] | null | undefined;
 
 interface WrTableEditCellContext<T, K extends string> {
   $implicit: T[K];

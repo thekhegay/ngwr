@@ -198,8 +198,9 @@
 
     <!-- One delegated listener for `rowClick`, which is pointer only by contract:
          the body is no control, and a row's keyboard path is the consumer's own
-         button or link in a cell. The other three serve inline editing and
-         return at once in a table with no edit template. -->
+         button or link in a cell, or the row's own link under `rowLink`. The
+         other three serve inline editing and return at once in a table with
+         no edit template. -->
     <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
     <tbody
       (click)="onBodyClick($event)"
@@ -214,6 +215,7 @@
           </tr>
         }
         @let edit = editing();
+        @let links = rowLinks();
         @for (entry of windowRows(); track entry.id; let i = $index) {
           @if (entry.kind === 'group') {
             <tr class="wr-table__group-row" [class.wr-table__group-row--collapsed]="entry.group.collapsed">
@@ -314,9 +316,10 @@
               }
             </tr>
           } @else {
+            @let link = links.get(entry.row) ?? null;
             <tr
               #rowEl
-              [class]="rowClasses(entry.row, i)"
+              [class]="rowClasses(entry.row, i, link !== null)"
               [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)"
               [class.wr-table__tr--child]="entry.depth > 0"
               [attr.aria-rowindex]="virtualized() ? windowStart() + i + 2 : null"
@@ -381,6 +384,18 @@
                   [class.wr-table__td--editable]="col.editTemplate ? cellEditable(entry.row, col) : false"
                   [class.wr-table__td--editing]="cellEdit !== null"
                 >
+                  <!-- Empty, and laid under the whole row by the stylesheet: the
+                       cell's content is the consumer's and may hold controls,
+                       which an anchor cannot wrap. Gone while its cell is edited,
+                       where the editor is sized as the cell's only child. -->
+                  @if (link && col.link && !cellEdit) {
+                    <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+                    <a
+                      class="wr-table__row-link"
+                      [attr.href]="link.href"
+                      [attr.aria-labelledby]="rowLabelId(entry.id)"
+                    ></a>
+                  }
                   @if (col.tree) {
                     <span class="wr-table__tree-lead">
                       @if (entry.parent) {

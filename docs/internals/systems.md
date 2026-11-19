@@ -329,6 +329,18 @@ one component folder. Reach for them instead of hand-rolling:
   the bar over a filled one. `(rowClick)` is one delegated listener on the
   body and pointer only; a click on a control in the row, or under
   `wrTableIgnoreRowClick` (an attribute, no directive), is not a row click.
+  `rowLink` gives a row one EMPTY `<a class="wr-table__row-link">`, absolute
+  over the row at `z-index: -1` inside the row's own stacking context, named by
+  the label cell through `aria-labelledby`. The cells of a linked row are
+  `pointer-events: none` and the controls `rowClick` skips take the pointer
+  back, in a `:where()` so a disabled control keeps its own `none`: nothing is
+  raised or repositioned. The anchor sits in the first unpinned cell, since a
+  sticky cell would hold it inside its own box. A cut cell keeps the pointer
+  for its tooltip and the body listener replays its click on the link. A row
+  tints on hover only as `wr-table__tr--link` or `--clickable` (`rowClick`
+  bound, read off the emitter's private `listeners`, which
+  `table-row-link.spec.ts` pins). Router commands go through `WR_TABLE_ROUTING`,
+  provided by `WrTableRouting` in `ngwr/table/router`.
   Header hints (`headerHint`) and cut cells (`truncate: 'tooltip'`) share ONE
   `WrPopover` per table, created on first use and pointed at the hovered or
   focused cell through `wrPopoverOrigin`; the table listens natively, so a

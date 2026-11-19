@@ -867,6 +867,9 @@
       "sass": "./table/styles/_index.scss",
       "default": "./table/public-api.ts"
     },
+    "./table/router": {
+      "default": "./table/router/public-api.ts"
+    },
     "./table/testing": {
       "default": "./table/testing/public-api.ts"
     },

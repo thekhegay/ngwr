@@ -191,8 +191,8 @@ export const STATES: readonly State[] = [
   {
     id: 'table/row-hover',
     route: `${REF}/table`,
-    steps: [{ hover: demo('.wr-table tbody tr') }],
-    target: demo('.wr-table tbody tr'),
+    steps: [{ hover: demo('.wr-table__tr--link') }],
+    target: demo('.wr-table__tr--link'),
     scope: demo('.wr-table'),
   },
   {

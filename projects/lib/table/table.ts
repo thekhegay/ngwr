@@ -73,6 +73,7 @@ import { WrTableGroupHeader } from './table-group-header';
 import { foldSearchText, plainSearchText } from './table-search';
 import { WrTableSelectionBar } from './table-selection-bar';
 import { WrTableSort } from './table-sort';
+import { WR_TABLE_ROUTING } from './tokens';
 import type {
   WrTableCellContext,
   WrTableCellEdit,
@@ -91,6 +92,7 @@ import type {
   WrTableRow,
   WrTableRowClass,
   WrTableRowClick,
+  WrTableRowLink,
   WrTableSelectionContext,
   WrTableSortState,
   WrTableSortDirection,
@@ -150,6 +152,8 @@ interface CellColumn<T extends WrTableRow> {
   readonly actions: boolean;
   /** Whether its cell names the row (see `labelColumnKey`). */
   readonly label: boolean;
+  /** Whether its cell holds the row's link (see `linkColumnKey`). */
+  readonly link: boolean;
   /** Whether its cell carries the tree indent and toggle. */
   readonly tree: boolean;
   readonly template: TemplateRef<WrTableCellContext> | undefined;
@@ -217,6 +221,7 @@ const CSV_FIGURE = /^[+-]?[\d\s.,]+%?$/;
  * What a click inside a row belongs to instead of the row. `label` is here
  * because a click on one is replayed on its control.
  */
+// `&__tr--link` in the stylesheet lists the same elements: keep the two in step.
 const ROW_CLICK_IGNORE = [
   'button',
   'a[href]',
@@ -232,6 +237,15 @@ const ROW_CLICK_IGNORE = [
   '.wr-table__td--select',
   '.wr-table__td--expand',
 ].join(', ');
+
+/** A URL with a scheme or a host of its own, which no router serves. */
+const EXTERNAL_URL = /^(?:[a-z][a-z\d+.-]*:|\/\/)/i;
+
+/** A row's link as rendered, and the `rowLink` value a routed one came from. */
+interface RowLink {
+  readonly href: string;
+  readonly routed: string | readonly unknown[] | null;
+}
 
 function sameList(a: readonly unknown[], b: readonly unknown[]): boolean {
   return a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
@@ -918,20 +932,111 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    *
    * Pointer only: a row takes no focus and no key for it, so give the same
    * action a control of its own in the row (a link or a button in a cell) for
-   * keyboard and screen reader users. The table adds no cursor either: style
-   * `.wr-table__tr` when the rows are clickable.
+   * keyboard and screen reader users, or use `rowLink` when the row leads to a
+   * URL. The table adds no cursor either: style `.wr-table__tr--clickable`.
+   *
+   * While it is bound the rows wear `wr-table__tr--clickable` and tint on
+   * hover. A row with a `rowLink` does not fire it for a click that follows
+   * the link.
    */
   readonly rowClick = output<WrTableRowClick<T>>();
+
+  /**
+   * Whether anything listens to `rowClick`. Angular has no public read for
+   * it, so this looks at the emitter's own list, and `table-row-link.spec.ts`
+   * holds it across Angular bumps.
+   */
+  protected rowClickBound(): boolean {
+    return !!(this.rowClick as unknown as { listeners?: readonly unknown[] | null }).listeners?.length;
+  }
+
+  /**
+   * Makes a row a link: a function from the row to its href, or to `null` for
+   * a row that leads nowhere. Each linked row renders one real `<a>` laid
+   * under its cells, so Enter, middle click, ctrl / cmd click and "copy link"
+   * work anywhere on the row, and the row is one tab stop.
+   *
+   * The link is named by the row's label cell: the tree column in tree mode,
+   * else the first column. Controls in the row stay their own: the same list
+   * `rowClick` skips, with `wrTableIgnoreRowClick` for anything else.
+   *
+   * A plain href loads the page. In a routed app add `WrTableRouting` from
+   * `ngwr/table/router` to the table, and the value becomes a router link: a
+   * URL string or an array of commands.
+   *
+   * Linked rows wear `wr-table__tr--link` and tint on hover.
+   *
+   * @example
+   * ```html
+   * <wr-table [columns]="columns" [items]="orders" [rowLink]="orderLink" />
+   * ```
+   * ```ts
+   * protected readonly orderLink = (order: Order) => `/orders/${order.id}`;
+   * ```
+   * @default null
+   */
+  readonly rowLink = input<WrTableRowLink<T> | null>(null);
+
+  /** The routing adapter, when `WrTableRouting` from `ngwr/table/router` is on the table. */
+  private readonly routing = inject(WR_TABLE_ROUTING, { optional: true });
+
+  /** The link of every rendered row that has one, so a virtualized body resolves its window only. */
+  protected readonly rowLinks = computed<ReadonlyMap<Record<string, unknown>, RowLink>>(() => {
+    const links = new Map<Record<string, unknown>, RowLink>();
+    const rowLink = this.rowLink();
+    if (!rowLink) return links;
+    const routing = this.routing;
+    for (const { row } of this.dataRows()) {
+      const link = rowLink(row as T);
+      if (link == null || link === '') continue;
+      if (typeof link === 'string' && (!routing || EXTERNAL_URL.test(link))) {
+        links.set(row, { href: link, routed: null });
+      } else if (routing) {
+        links.set(row, { href: routing.href(link), routed: link });
+      } else if (typeof ngDevMode === 'undefined' || ngDevMode) {
+        // eslint-disable-next-line no-console -- dev-mode validation
+        console.error(
+          '[NGWR] <wr-table>: `rowLink` returned router commands, but no routing adapter is provided. ' +
+            'Add `WrTableRouting` from `ngwr/table/router` to the table, or return an href string.'
+        );
+      }
+    }
+    return links;
+  });
+
+  /**
+   * The column whose cell holds the row's link: the first one that is not
+   * pinned, since a pinned cell is sticky and would hold the stretched link
+   * inside its own box. The label column when every column is pinned.
+   */
+  protected readonly linkColumnKey = computed<string | null>(() => {
+    if (!this.rowLink()) return null;
+    return this.displayColumns().find(c => !c.column.pin)?.key ?? this.labelColumnKey();
+  });
 
   protected onBodyClick(event: MouseEvent): void {
     const target = event.target as Element;
     const index = this.rowEls().findIndex(el => el.nativeElement.contains(target));
     if (index < 0) return;
     const tr = this.rowEls()[index].nativeElement;
+    const row = this.dataRows()[index];
+    if (!row) return;
+    const link = this.rowLinks().get(row.row);
+    if (link && target.closest('.wr-table__row-link')?.closest('tr') === tr) {
+      if (link.routed !== null) this.routing?.navigate(link.routed, event);
+      return;
+    }
     const control = target.closest(ROW_CLICK_IGNORE);
     if (control && control !== tr && tr.contains(control)) return;
-    const row = this.windowRows().filter(entry => entry.kind === 'row')[index];
-    if (row?.kind !== 'row') return;
+    // A cut cell stays above the link so that its tooltip can open, and hands
+    // its clicks down to it.
+    if (link && target.closest('.wr-table__td--truncate')?.parentElement === tr) {
+      const { ctrlKey, shiftKey, altKey, metaKey } = event;
+      tr.querySelector(':scope > td > .wr-table__row-link')?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey, shiftKey, altKey, metaKey })
+      );
+      return;
+    }
     const item = row.row;
     this.rowClick.emit({ row: item as unknown as T, index: this.rows()?.indexOf(item) ?? -1, event });
   }
@@ -1678,6 +1783,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const editors = this.editMap();
     const tableTruncate = this.truncate();
     const labelKey = this.labelColumnKey();
+    const linkKey = this.linkColumnKey();
     const treeKey = this.treeColumnKey();
     return this.displayColumns().map(({ key, column }) => {
       const { align, pin } = column;
@@ -1702,6 +1808,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         maxWidth: truncates ? (column.width ?? null) : null,
         actions: !!column.actions,
         label: key === labelKey,
+        link: key === linkKey,
         tree: key === treeKey,
         template: templates.get(key),
         editTemplate: column.editable === false ? undefined : editors.get(key),
@@ -1793,9 +1900,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /** The row's class with the consumer's own, resolved through the `rowClass` predicate. */
-  protected rowClasses(row: Record<string, unknown>, index: number): string {
+  protected rowClasses(row: Record<string, unknown>, index: number, linked: boolean): string {
     const extra = this.rowClass()?.(row, index);
-    return extra ? wrToClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
+    let own = 'wr-table__tr';
+    if (linked) own += ' wr-table__tr--link';
+    if (this.rowClickBound()) own += ' wr-table__tr--clickable';
+    return extra ? wrToClassList(own, extra).join(' ') : own;
   }
 
   // --- Column resizing ------------------------------------------------------
