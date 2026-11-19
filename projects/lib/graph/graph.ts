@@ -297,9 +297,9 @@ function layoutProblems(graph: PreparedGraph<unknown>, result: WrGraphLayoutResu
 
 /**
  * A graph of blocks joined by parent-child links, laid out in layers from top to
- * bottom. Display only: nothing is selectable, and the graph scrolls inside its
- * own viewport rather than the page. With `zoomable` the viewport zooms and pans
- * instead of scrolling.
+ * bottom. The graph scrolls inside its own viewport rather than the page. With
+ * `zoomable` the viewport zooms and pans instead of scrolling. With `selectable`
+ * a node can be picked, which lights up its links and dims the rest.
  *
  * The layout runs in a `computed` with no DOM and no measuring, so the sizes are
  * the consumer's: `nodeWidth` / `nodeHeight` for every node, or `width` /
@@ -332,6 +332,8 @@ function layoutProblems(graph: PreparedGraph<unknown>, result: WrGraphLayoutResu
     '[class.wr-graph--pending]': 'layoutPending()',
     '[class.wr-graph--zoomable]': 'zoomable()',
     '[class.wr-graph--panning]': 'panning()',
+    '[class.wr-graph--selectable]': 'selectable()',
+    '(keydown.escape)': 'onEscape($event)',
   },
 })
 export class WrGraph<TData = unknown> {
@@ -412,6 +414,28 @@ export class WrGraph<TData = unknown> {
    */
   readonly maxZoom = input(DEFAULT_MAX_ZOOM, { transform: wrNumAttr(DEFAULT_MAX_ZOOM) });
 
+  /**
+   * Lets a node be selected: each node becomes a button, pressed while it is
+   * the selected one. A click, `Enter` or `Space` selects it, the same again or
+   * `Escape` clears the selection. While a node is selected, its edges and the
+   * nodes at their other ends stay lit and everything else is dimmed.
+   *
+   * A node template should hold no control of its own while this is on: the
+   * whole node is one button.
+   *
+   * @default false
+   */
+  readonly selectable = input(false, { transform: booleanAttribute });
+
+  /**
+   * The id of the selected node, or `null`. Two-way: it follows every pick, and
+   * a value written to it selects that node. An id no drawn node has highlights
+   * nothing. Ignored unless `selectable`.
+   *
+   * @default null
+   */
+  readonly selected = model<string | null>(null);
+
   /** Accessible name of the zoom-in button. Falls back to `graph.zoomIn`, then `'Zoom in'`. */
   readonly zoomInLabel = input<string | null>(null);
 
@@ -444,6 +468,9 @@ export class WrGraph<TData = unknown> {
   /** `url(#…)` for every edge's `marker-end`. */
   protected readonly markerId = `wr-graph-${graphUid++}-arrow`;
   protected readonly markerUrl = `url(#${this.markerId})`;
+  /** The arrowhead of a highlighted edge: a marker takes no colour from the path that uses it. */
+  protected readonly linkedMarkerId = `${this.markerId}-linked`;
+  protected readonly linkedMarkerUrl = `url(#${this.linkedMarkerId})`;
   protected readonly arrowSize = ARROW_SIZE;
 
   private readonly engine: WrGraphLayout = inject(WrGraphLayout, { optional: true }) ?? new WrLayeredGraphLayout();
@@ -667,6 +694,8 @@ export class WrGraph<TData = unknown> {
   private frameId: number | null = null;
   private readonly pointers = new Map<number, { x: number; y: number }>();
   private dragging = false;
+  /** The last press became a drag, so the click that may follow it selects nothing. */
+  private dragged = false;
   /** The zoom a Safari pinch started from, while one is under way. */
   private pinchFrom: number | null = null;
 
@@ -711,6 +740,27 @@ export class WrGraph<TData = unknown> {
       if (sentences.length) text.set(node.id, sentences.join(' '));
     }
     return text;
+  });
+
+  /**
+   * What the selection lights up: the selected node, the nodes at the other end
+   * of its edges, and those edges. `null` while nothing drawn is selected, and
+   * then no node or edge carries a highlight class at all.
+   */
+  protected readonly highlight = computed(() => {
+    const id = this.selectable() ? this.selected() : null;
+    const { nodes, edges } = this.placed();
+    if (id === null || !nodes.some(placed => placed.node.id === id)) return null;
+    const marks = new Map<string, 'selected' | 'linked'>();
+    const lit = new Set<string>();
+    for (const { edge } of edges) {
+      if (edge.from !== id && edge.to !== id) continue;
+      lit.add(edge.id);
+      marks.set(edge.from, 'linked');
+      marks.set(edge.to, 'linked');
+    }
+    marks.set(id, 'selected');
+    return { nodes: marks, edges: lit };
   });
 
   constructor() {
@@ -866,6 +916,36 @@ export class WrGraph<TData = unknown> {
     if (!this.zoomable()) return;
     this.moved = true;
     this.commit(IDENTITY);
+  }
+
+  protected onNodeClick(event: Event, id: string): void {
+    const dragged = this.dragged;
+    this.dragged = false;
+    if (dragged) return;
+    // A link or a field inside the node keeps its own click.
+    const target = event.target instanceof Element ? event.target.closest(INTERACTIVE) : null;
+    if (target !== event.currentTarget) return;
+    this.toggle(id);
+  }
+
+  protected onNodeKeydown(event: KeyboardEvent, id: string): void {
+    if (event.target !== event.currentTarget || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    // Taken, or `Space` would scroll the viewport.
+    event.preventDefault();
+    this.toggle(id);
+  }
+
+  /** Stopped only when it cleared something, so a dialog around the graph still closes on the next press. */
+  protected onEscape(event: Event): void {
+    if (!this.selectable() || this.selected() === null) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.selected.set(null);
+  }
+
+  private toggle(id: string): void {
+    this.selected.update(selected => (selected === id ? null : id));
   }
 
   protected zoomIn(): void {
@@ -1096,8 +1176,10 @@ export class WrGraph<TData = unknown> {
 
   private onPointerDown(event: PointerEvent, viewport: HTMLElement): void {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
+    this.dragged = false;
     const target = event.target instanceof Element ? event.target.closest(INTERACTIVE) : null;
-    if (target && target !== viewport) return;
+    // A selectable node is a button and still a place to drag the field from.
+    if (target && target !== viewport && !target.classList.contains('wr-graph__select')) return;
     this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     // A second finger makes it a pinch at once; one pointer waits for the threshold.
     if (this.pointers.size === 2) this.startDrag(viewport);
@@ -1152,6 +1234,7 @@ export class WrGraph<TData = unknown> {
   /** Capture goes to the viewport only now, so a press that never moved still clicks what it pressed. */
   private startDrag(viewport: HTMLElement): void {
     this.dragging = true;
+    this.dragged = true;
     this.panning.set(true);
     this.animated.set(false);
     for (const id of this.pointers.keys()) viewport.setPointerCapture?.(id);

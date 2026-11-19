@@ -1,4 +1,5 @@
 @let graph = view();
+@let lit = highlight();
 <!-- The scroller is the one tab stop: a named group, so its label is allowed, and focusable so a keyboard can scroll it — or, when zoomable, zoom and pan it. -->
 <div
   #viewport
@@ -38,14 +39,32 @@
         >
           <polygon points="0,1 10,5 0,9" />
         </marker>
+        @if (selectable()) {
+          <marker
+            class="wr-graph__arrow wr-graph__arrow--linked"
+            [attr.id]="linkedMarkerId"
+            viewBox="0 0 10 10"
+            refX="0"
+            refY="5"
+            markerUnits="userSpaceOnUse"
+            [attr.markerWidth]="arrowSize"
+            [attr.markerHeight]="arrowSize"
+            orient="auto"
+          >
+            <polygon points="0,1 10,5 0,9" />
+          </marker>
+        }
       </defs>
       @for (edge of graph.edges; track edge.id) {
+        @let linked = !!lit?.edges.has(edge.id);
         <path
           class="wr-graph__edge"
+          [class.wr-graph__edge--linked]="linked"
+          [class.wr-graph__edge--dimmed]="lit && !linked"
           [attr.d]="edge.d"
           [attr.data-from]="edge.from"
           [attr.data-to]="edge.to"
-          [attr.marker-end]="markerUrl"
+          [attr.marker-end]="linked ? linkedMarkerUrl : markerUrl"
         />
       }
     </svg>
@@ -53,17 +72,41 @@
     <div class="wr-graph__nodes" [attr.role]="graph.nodes.length ? 'list' : null">
       @for (entry of graph.nodes; track entry.node.id) {
         @let relation = relations().get(entry.node.id);
+        @let mark = lit?.nodes.get(entry.node.id);
         <div
           class="wr-graph__node"
           role="listitem"
+          [class.wr-graph__node--selected]="mark === 'selected'"
+          [class.wr-graph__node--linked]="mark === 'linked'"
+          [class.wr-graph__node--dimmed]="lit && !mark"
           [style.width.px]="entry.width"
           [style.height.px]="entry.height"
           [style.transform]="entry.transform"
         >
-          @if (nodeTemplate(); as custom) {
-            <ng-container [ngTemplateOutlet]="custom.template" [ngTemplateOutletContext]="{ $implicit: entry.node }" />
+          <ng-template #content>
+            @if (nodeTemplate(); as custom) {
+              <ng-container
+                [ngTemplateOutlet]="custom.template"
+                [ngTemplateOutletContext]="{ $implicit: entry.node }"
+              />
+            } @else {
+              <div class="wr-graph__card">{{ entry.node.label }}</div>
+            }
+          </ng-template>
+          <!-- The button sits INSIDE the item, which keeps the list's ownership, and the relation sentence stays beside it. -->
+          @if (selectable()) {
+            <div
+              class="wr-graph__select"
+              role="button"
+              tabindex="0"
+              [attr.aria-pressed]="mark === 'selected'"
+              (click)="onNodeClick($event, entry.node.id)"
+              (keydown)="onNodeKeydown($event, entry.node.id)"
+            >
+              <ng-container [ngTemplateOutlet]="content" />
+            </div>
           } @else {
-            <div class="wr-graph__card">{{ entry.node.label }}</div>
+            <ng-container [ngTemplateOutlet]="content" />
           }
           @if (relation) {
             <span class="wr-graph__sr-only">{{ relation }}</span>
