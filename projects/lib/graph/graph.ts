@@ -1229,6 +1229,9 @@ export class WrGraph<TData = unknown> {
     if (this.pointers.size) return;
     this.dragging = false;
     this.panning.set(false);
+    // The click a drag ends with arrives right after this event, and on the viewport, which holds
+    // the capture, not on the node. Clear the flag once it had its chance, so a later click selects.
+    if (this.dragged) setTimeout(() => (this.dragged = false));
   }
 
   /** Capture goes to the viewport only now, so a press that never moved still clicks what it pressed. */

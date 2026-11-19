@@ -365,6 +365,24 @@ describe('WrGraph selection', () => {
       click(pick);
       expect(fixture.componentInstance.selected()).toBe('birch');
     });
+
+    it('selects on a click that comes without a press after a drag', async () => {
+      const frames: FrameRequestCallback[] = [];
+      vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback): number => frames.push(callback));
+      vi.stubGlobal('cancelAnimationFrame', (): void => undefined);
+      create(h => h.zoomable.set(true));
+      fixture.detectChanges();
+      const pick = button('Birch');
+
+      pointer('pointerdown', 400, 300, pick);
+      pointer('pointermove', 460, 340, pick);
+      pointer('pointerup', 460, 340, pick);
+      // The viewport holds the capture, so the node never sees the click that follows; a
+      // screen reader activates it later, with no press of its own.
+      await new Promise<void>(resolve => setTimeout(resolve));
+      click(pick);
+      expect(fixture.componentInstance.selected()).toBe('birch');
+    });
   });
 });
 
