@@ -3,3 +3,4 @@ export { WrAutosize } from './autosize';
 export { WrClickOutside } from './click-outside';
 export { WrCopyToClipboard } from './copy-to-clipboard';
 export { WrFitText } from './fit-text';
+export { WrInView, WrInViewObserver } from './in-view';
