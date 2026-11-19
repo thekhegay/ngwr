@@ -265,6 +265,25 @@
     }
   }
 
+  // Ghost: no fill and no border at rest, only the label. The border stays as a
+  // transparent 1px so the box matches every other variant, and the tint on
+  // hover / press comes from two hooks the intent loop below re-points.
+  &--ghost,
+  &:where([ghost]:not([ghost='false'])) {
+    --wr-btn-ghost-bg-hover: var(--wr-color-hover);
+    --wr-btn-ghost-bg-active: var(--wr-color-fill-strong);
+    --wr-btn-bg: transparent;
+    --wr-btn-border: transparent;
+
+    &:hover {
+      --wr-btn-bg: var(--wr-btn-ghost-bg-hover);
+    }
+
+    &:active {
+      --wr-btn-bg: var(--wr-btn-ghost-bg-active);
+    }
+  }
+
   // Color variants
   @each $name in theme.$colors {
     &--#{$name},
@@ -306,6 +325,29 @@
           --wr-btn-color: var(--wr-color-#{$name}-contrast);
           --wr-btn-bg: var(--wr-color-#{$name}-darker);
           --wr-btn-border: var(--wr-color-#{$name}-darker);
+        }
+      }
+
+      // Ghost: the label in `-ink` like outlined, a transparent fill and border, and a
+      // tint of the intent for hover and press. The label keeps its colour on the tint.
+      &.wr-btn--ghost,
+      &:where([ghost]:not([ghost='false'])) {
+        --wr-btn-ghost-bg-hover: color-mix(in srgb, var(--wr-color-#{$name}) 12%, transparent);
+        --wr-btn-ghost-bg-active: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
+        --wr-btn-color: var(--wr-color-#{$name}-ink);
+        --wr-btn-bg: transparent;
+        --wr-btn-border: transparent;
+
+        &:hover {
+          --wr-btn-color: var(--wr-color-#{$name}-ink);
+          --wr-btn-bg: var(--wr-btn-ghost-bg-hover);
+          --wr-btn-border: transparent;
+        }
+
+        &:active {
+          --wr-btn-color: var(--wr-color-#{$name}-ink);
+          --wr-btn-bg: var(--wr-btn-ghost-bg-active);
+          --wr-btn-border: transparent;
         }
       }
     }

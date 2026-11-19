@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Button"
-  updated="16.6.0"
+  updated="16.7.0"
   description="A button for an action or a link."
   [keywords]="['button', 'wr-btn']"
   [labels]="['Component']"
@@ -118,6 +118,19 @@
       <div style="width: 100%">
         <wr-btn color="primary" block icon="checkmark">Full width</wr-btn>
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Ghost"
+    description="`ghost` has no fill and no border at rest: just the label. Hover and press tint the background with the colour. Use it for the quiet action beside a primary one."
+  >
+    <ngwr-doc-snippet [code]="snippets.ghost">
+      <wr-btn ghost>default</wr-btn>
+      @for (c of colors; track c) {
+        <wr-btn [color]="c" ghost>{{ c }}</wr-btn>
+      }
+      <wr-btn ghost icon="add" aria-label="Add" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
