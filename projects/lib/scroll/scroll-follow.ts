@@ -171,14 +171,15 @@ export class WrScrollFollow {
 
   /**
    * Any move up stops the following, so a reader can leave while text streams
-   * in; within a pixel of the end it is the browser clamping to shorter content.
-   * Only a move down resumes it: the directive's own writes are never read as one.
+   * in; one that lands within a pixel of the end is the browser clamping to
+   * shorter content, and it follows again, since nothing is left to scroll back
+   * to. Only a move down resumes it: the directive's own writes are never read as one.
    */
   private read(scrolled: boolean): void {
     const top = this.el.nativeElement.scrollTop;
     const distance = this.distance();
 
-    if (top < this.lastTop && distance > 1) this.atEnd.set(false);
+    if (top < this.lastTop) this.atEnd.set(distance <= 1);
     else if (scrolled && top > this.lastTop && distance <= this.wrScrollFollowThreshold()) this.atEnd.set(true);
 
     this.lastTop = top;
