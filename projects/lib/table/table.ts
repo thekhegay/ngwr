@@ -995,6 +995,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** The routing adapter, when `WrTableRouting` from `ngwr/table/router` is on the table. */
   private readonly routing = inject(WR_TABLE_ROUTING, { optional: true });
 
+  private warnedNoRouting = false;
+
   /** The link of every rendered row that has one, so a virtualized body resolves its window only. */
   protected readonly rowLinks = computed<ReadonlyMap<Record<string, unknown>, RowLink>>(() => {
     const links = new Map<Record<string, unknown>, RowLink>();
@@ -1008,7 +1010,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         links.set(row, { href: link, routed: null });
       } else if (routing) {
         links.set(row, { href: routing.href(link), routed: link });
-      } else if (typeof ngDevMode === 'undefined' || ngDevMode) {
+      } else if (!this.warnedNoRouting && (typeof ngDevMode === 'undefined' || ngDevMode)) {
+        this.warnedNoRouting = true;
         // eslint-disable-next-line no-console -- dev-mode validation
         console.error(
           '[NGWR] <wr-table>: `rowLink` returned router commands, but no routing adapter is provided. ' +
