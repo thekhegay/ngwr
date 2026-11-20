@@ -62,6 +62,16 @@
         >
           <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: node }" />
         </a>
+      } @else if (node.action; as action) {
+        <button
+          type="button"
+          [class]="node.rowClass"
+          [attr.aria-describedby]="node.subtitleId"
+          [attr.aria-keyshortcuts]="node.keyShortcuts"
+          (click)="action()"
+        >
+          <ng-container [ngTemplateOutlet]="row" [ngTemplateOutletContext]="{ $implicit: node }" />
+        </button>
       } @else {
         <!-- A span, not a greyed anchor: `pointer-events: none` stops a mouse and
              never the keyboard, so a disabled link stayed a tab stop and Enter
@@ -103,14 +113,14 @@
       @if (node.subtitle) {
         <span
           class="wr-sidebar__subtitle"
-          [attr.aria-hidden]="node.url || node.children ? 'true' : null"
+          [attr.aria-hidden]="node.url || node.children || node.action ? 'true' : null"
           [attr.id]="node.subtitleId"
           >{{ node.subtitle }}</span
         >
       }
     </span>
   }
-  @if (node.count !== null || node.holdsActive || (node.children && !node.url)) {
+  @if (node.count !== null || node.holdsActive || node.shortcut || (node.children && !node.url)) {
     <span class="wr-sidebar__end">
       @if (node.count !== null) {
         @if (node.countLabel) {
@@ -121,6 +131,10 @@
             >{{ node.count }}<span class="wr-sidebar__comma">{{ node.countTail }}</span></small
           >
         }
+      }
+      @if (node.shortcut; as chord) {
+        <!-- Out of the name: `aria-keyshortcuts` on the button says it once. -->
+        <wr-kbd class="wr-sidebar__shortcut" size="sm" aria-hidden="true" [chord]="chord" />
       }
       @if (node.holdsActive) {
         <span class="wr-sidebar__dot" aria-hidden="true"></span>

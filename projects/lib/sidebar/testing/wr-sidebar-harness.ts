@@ -53,7 +53,7 @@ export class WrSidebarHarness extends ComponentHarness {
     return (await this.host()).getAttribute('aria-label');
   }
 
-  /** The reachable rows, in order: pages, disabled pages and group titles, outside every closed group. */
+  /** The reachable rows, in order: pages, actions, disabled rows and group titles, outside every closed group. */
   async getItems(filters: WrSidebarItemHarnessFilters = {}): Promise<WrSidebarItemHarness[]> {
     return this.locatorForAll(WrSidebarItemHarness.with({ ...filters, selector: REACHABLE }))();
   }
@@ -105,7 +105,7 @@ export class WrSidebarHarness extends ComponentHarness {
     return Promise.all(current.map(item => item.getTitle()));
   }
 
-  /** Click the first reachable row with this title. Throws when it is out of reach, or disabled. */
+  /** Click the first reachable row with this title: a link navigates, an action runs. Throws when it is out of reach, or disabled. */
   async clickItem(title: string | RegExp): Promise<void> {
     await (await this.getItem(title)).click();
   }

@@ -536,6 +536,111 @@ describe('WrSidebar', () => {
     });
   });
 
+  describe('an action row', () => {
+    const run = vi.fn();
+    const ACTIONS: readonly WrSidebarEntry[] = [
+      { title: 'Search', icon: 'folder', shortcut: 'mod+k', action: run },
+      { title: 'New page', subtitle: 'From a template', count: 3, action: run },
+      { title: 'Import', disabled: true, shortcut: 'mod+i', badge: { text: 'Soon' }, action: run },
+      { title: 'Table', url: ['/table'] },
+      { title: 'Tools', defaultOpen: true, children: [{ title: 'Export', action: run }] },
+    ];
+
+    beforeEach(async () => {
+      run.mockClear();
+      await show(ACTIONS);
+    });
+
+    it('is a button in the row look, not a link', () => {
+      const row = rowFor('Search');
+
+      expect(row.tagName).toBe('BUTTON');
+      expect(row.getAttribute('type')).toBe('button');
+      expect([...row.classList].sort()).toEqual([
+        'wr-sidebar__row',
+        'wr-sidebar__row--action',
+        'wr-sidebar__row--level-1',
+      ]);
+      expect(row.hasAttribute('aria-expanded')).toBe(false);
+      expect(row.querySelector('wr-icon.wr-sidebar__icon')).not.toBeNull();
+      expect(rowFor('Export').className).toContain('wr-sidebar__row--level-2');
+    });
+
+    it('calls its action on click, once per click', () => {
+      rowFor('Search').click();
+      expect(run).toHaveBeenCalledTimes(1);
+
+      rowFor('Export').click();
+      expect(run).toHaveBeenCalledTimes(2);
+    });
+
+    it('is never the current page, on any route', async () => {
+      for (const url of ['/', '/table']) {
+        await navigate(url);
+        for (const title of ['Search', 'New page', 'Export']) {
+          expect(rowFor(title).hasAttribute('aria-current')).toBe(false);
+          expect(rowFor(title).classList).not.toContain('wr-sidebar__row--active');
+        }
+      }
+      expect(isCurrent('Table')).toBe(true);
+    });
+
+    it('opens no group for itself and gives its group no dot', async () => {
+      toggleFor('Tools').click();
+      await navigate('/table');
+
+      expect(isOpen('Tools')).toBe(false);
+      expect(rowFor('Tools').querySelector('.wr-sidebar__dot')).toBeNull();
+    });
+
+    it('draws its chord as a keycap out of the name and says it through aria-keyshortcuts', () => {
+      const row = rowFor('Search');
+      const cap = row.querySelector('.wr-sidebar__end > wr-kbd.wr-sidebar__shortcut')!;
+
+      // jsdom is not a Mac, so `mod` prints as Ctrl; both spellings are announced.
+      expect(cap.textContent.trim()).toBe('Ctrl+K');
+      expect(cap.classList).toContain('wr-kbd--sm');
+      expect(cap.getAttribute('aria-hidden')).toBe('true');
+      expect(row.getAttribute('aria-keyshortcuts')).toBe('Control+K Meta+K');
+      expect(spoken(row)).toBe('Search');
+      expect(rowFor('New page').hasAttribute('aria-keyshortcuts')).toBe(false);
+    });
+
+    it('spells a chord with no platform modifier once, with ARIA key names', async () => {
+      await show([
+        { title: 'Help', shortcut: 'shift+/', action: run },
+        { title: 'Close', shortcut: 'esc', action: run },
+        { title: 'Play', shortcut: 'ctrl+alt+space', action: run },
+      ]);
+
+      expect(rowFor('Help').getAttribute('aria-keyshortcuts')).toBe('Shift+/');
+      expect(rowFor('Close').getAttribute('aria-keyshortcuts')).toBe('Escape');
+      expect(rowFor('Play').getAttribute('aria-keyshortcuts')).toBe('Control+Alt+Space');
+    });
+
+    it('carries a subtitle as its description and a count in its name, like a link row', () => {
+      const row = rowFor('New page');
+      const subtitle = row.querySelector('.wr-sidebar__subtitle')!;
+
+      expect(row.getAttribute('aria-describedby')).toBe(subtitle.id);
+      expect(subtitle.getAttribute('aria-hidden')).toBe('true');
+      expect(spoken(row)).toBe('New page, 3');
+    });
+
+    it('is plain text when disabled: no button, no chord, and the action is not called', () => {
+      const row = rowFor('Import');
+
+      expect(row.tagName).toBe('SPAN');
+      expect(row.classList).toContain('wr-sidebar__row--action');
+      expect(row.classList).toContain('wr-sidebar__row--disabled');
+      expect(row.querySelector('wr-kbd')).toBeNull();
+      expect(row.hasAttribute('aria-keyshortcuts')).toBe(false);
+
+      row.click();
+      expect(run).not.toHaveBeenCalled();
+    });
+  });
+
   describe('the current page', () => {
     it('marks an entry current by path PREFIX when it says nothing, so `/` is current everywhere', async () => {
       // The router's own default, and the reason `activeOptions` exists.

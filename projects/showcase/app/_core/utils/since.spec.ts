@@ -330,6 +330,7 @@ describe('the surfaces that draw it', () => {
     const visit = (entries: readonly WrSidebarEntry[]): void => {
       for (const entry of entries) {
         if ('children' in entry) visit(entry.children);
+        else if ('action' in entry) continue;
         else if (entry.badge?.text === 'New') titles.set(entry.url.join('/'), entry.title);
       }
     };
@@ -371,6 +372,7 @@ describe('the surfaces that draw it', () => {
     const visit = (entries: readonly WrSidebarEntry[]): void => {
       for (const entry of entries) {
         if ('children' in entry) visit(entry.children);
+        else if ('action' in entry) continue;
         else if (entry.badge && entry.url.length > 0) badges.set(routeKey(String(entry.url[0])), entry.badge.text);
       }
     };
@@ -412,6 +414,7 @@ describe('the surfaces that draw it', () => {
     const visit = (entries: readonly WrSidebarEntry[]): void => {
       for (const entry of entries) {
         if ('children' in entry) visit(entry.children);
+        else if ('action' in entry) continue;
         else if (entry.badge?.text === 'New' || entry.badge?.text === 'Updated') badges.push(String(entry.url[0]));
         else if (entry.badge?.text === 'Optional') optional.push(String(entry.url[0]));
       }

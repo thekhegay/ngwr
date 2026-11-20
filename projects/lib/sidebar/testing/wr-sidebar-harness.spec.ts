@@ -142,6 +142,30 @@ describe('WrSidebarHarness', () => {
     expect([await guides.holdsCurrent(), await guides.isContentHidden()]).toEqual([true, true]);
   });
 
+  it('runs an action row, reads its chord, and never finds it current', async () => {
+    let ran = 0;
+    fixture.componentInstance.entries.set([
+      { title: 'Search', shortcut: 'mod+k', action: () => ran++ },
+      { title: 'Import', disabled: true, action: () => ran++ },
+      ...ENTRIES,
+    ]);
+    await fixture.whenStable();
+
+    const search = await nav.getItem('Search');
+    expect(await search.isAction()).toBe(true);
+    expect(await search.getShortcut()).toBe('Control+K Meta+K');
+    expect(await (await nav.getItem('Home')).isAction()).toBe(false);
+    expect(await (await nav.getItem('Home')).getShortcut()).toBeNull();
+
+    await nav.clickItem('Search');
+    expect(ran).toBe(1);
+    expect(await search.isCurrent()).toBe(false);
+    expect(await nav.getCurrentTitles()).toEqual(['Home']);
+
+    await expect(nav.clickItem('Import')).rejects.toThrow(/"Import" is disabled/);
+    expect(ran).toBe(1);
+  });
+
   it('refuses to click a disabled page', async () => {
     const archive = await nav.getItem('Archive');
 
