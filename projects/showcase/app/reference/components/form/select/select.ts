@@ -493,7 +493,7 @@ categoryId.setValue(2);`,
     {
       name: 'item',
       description:
-        'The `[options]` item behind the value, so under `[valueWith]` a template reads its picture without a lookup. Equals the value without `[valueWith]` and on a hand-written `<wr-option>`.',
+        'The `[options]` item behind the value, so under `[valueWith]` a template reads its picture without a lookup. Equals the value without `[valueWith]`, on a hand-written `<wr-option>`, and for a value no item carries.',
       type: 'T',
     },
     {
