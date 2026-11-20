@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 
-import { WrProgress, type WrProgressSize } from 'ngwr/progress';
+import { WrProgress, type WrProgressMark, type WrProgressSize } from 'ngwr/progress';
 import { WrSlider } from 'ngwr/slider';
 import { WR_COLORS } from 'ngwr/theme';
 
@@ -30,6 +30,13 @@ export default class ProgressComponent {
   protected readonly colors = WR_COLORS;
   protected readonly sizes: readonly WrProgressSize[] = ['sm', 'md', 'lg'];
   protected readonly demoValue = signal(35);
+  protected readonly marks: readonly WrProgressMark[] = [
+    { value: 0, label: '1 Jan' },
+    { value: 25, label: 'Rent review' },
+    { value: 50 },
+    { value: 75, label: 'Rent review' },
+    { value: 100, label: '31 Dec' },
+  ];
 
   protected readonly snippets = {
     basic: `<wr-progress [value]="42" />`,
@@ -40,6 +47,15 @@ export default class ProgressComponent {
     indeterminate: `<wr-progress indeterminate />`,
     interactive: `<wr-progress [value]="value()" />
 <wr-slider [(value)]="value" />`,
+    marks: `<wr-progress size="sm" ariaLabel="Lease term" [value]="62" [marks]="marks" />
+
+marks: readonly WrProgressMark[] = [
+  { value: 0, label: '1 Jan' },
+  { value: 25, label: 'Rent review' },
+  { value: 50 },
+  { value: 75, label: 'Rent review' },
+  { value: 100, label: '31 Dec' },
+];`,
   };
 
   protected readonly api = API.WrProgress;

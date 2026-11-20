@@ -12,6 +12,13 @@
   --wr-progress-track: var(--wr-color-fill);
   --wr-progress-bar: var(--wr-color-primary);
   --wr-progress-indeterminate-duration: 1.4s;
+  --wr-progress-mark-color: var(--wr-color-on-surface);
+  --wr-progress-mark-width: 2px;
+  --wr-progress-mark-height: calc(var(--wr-progress-height) + 0.5rem);
+  --wr-progress-mark-gap: var(--wr-space-xs);
+  --wr-progress-mark-label-color: var(--wr-color-on-surface-muted);
+  --wr-progress-mark-label-font-size: var(--wr-text-xs);
+  --wr-progress-mark-label-line-height: var(--wr-text-xs-leading);
 
   // `flex: 1 1 100%` here would claim 100% basis on the flex MAIN axis —
   // fine in a row wrapper (=full width), broken in a column wrapper
@@ -42,6 +49,57 @@
     transition: width var(--wr-transition-base);
   }
 
+  // Ticks stand taller than the track and labels sit under it, so the host stops
+  // clipping and keeps the room they take: both are out of flow.
+  &--marks {
+    overflow: visible;
+    margin-block: calc((var(--wr-progress-mark-height) - var(--wr-progress-height)) / 2);
+  }
+
+  &--mark-labels {
+    margin-block-end: calc(
+      (var(--wr-progress-mark-height) - var(--wr-progress-height)) / 2 + var(--wr-progress-mark-gap) +
+        var(--wr-progress-mark-label-line-height)
+    );
+  }
+
+  &__mark {
+    position: absolute;
+    inset-block-start: calc((var(--wr-progress-height) - var(--wr-progress-mark-height)) / 2);
+    width: var(--wr-progress-mark-width);
+    height: var(--wr-progress-mark-height);
+    margin-inline-start: calc(var(--wr-progress-mark-width) / -2);
+    border-radius: var(--wr-progress-radius);
+    background: var(--wr-progress-mark-color);
+  }
+
+  // A row as wide as the track whose free space is shared out on both sides of
+  // the text in the mark's own ratio (the columns come from the component): the
+  // text is centred on its tick mid-track and flush with the track at the ends,
+  // in either direction, and never hangs outside the bar.
+  &__mark-label {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: calc(
+      100% + (var(--wr-progress-mark-height) - var(--wr-progress-height)) / 2 + var(--wr-progress-mark-gap)
+    );
+    display: grid;
+    color: var(--wr-progress-mark-label-color);
+    font-size: var(--wr-progress-mark-label-font-size);
+    line-height: var(--wr-progress-mark-label-line-height);
+    white-space: nowrap;
+    pointer-events: none;
+
+    &--hidden {
+      visibility: hidden;
+    }
+  }
+
+  &__mark-text {
+    grid-column: 2;
+    pointer-events: auto;
+  }
+
   // No value to draw: a segment sweeps the track instead.
   &--indeterminate &__bar {
     position: absolute;
@@ -61,6 +119,12 @@
     outline: 1px solid CanvasText;
 
     &__bar {
+      background: CanvasText;
+    }
+
+    // Over the bar a `CanvasText` tick is the bar's own colour: the part that
+    // stands clear of the track is what shows it.
+    &__mark {
       background: CanvasText;
     }
   }

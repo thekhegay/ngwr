@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1915 hook(s) across 116 page(s). A property is here only when the
+ * 1922 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1741,6 +1741,13 @@ export const CSS_VARS = {
       { name: "--wr-progress-bar", default: "var(--wr-color-primary)", scope: ".wr-progress", overrides: 1 },
       { name: "--wr-progress-height", default: "0.5rem", scope: ".wr-progress", overrides: 2 },
       { name: "--wr-progress-indeterminate-duration", default: "1.4s", scope: ".wr-progress" },
+      { name: "--wr-progress-mark-color", default: "var(--wr-color-on-surface)", scope: ".wr-progress" },
+      { name: "--wr-progress-mark-gap", default: "var(--wr-space-xs)", scope: ".wr-progress" },
+      { name: "--wr-progress-mark-height", default: "calc(var(--wr-progress-height) + 0.5rem)", scope: ".wr-progress" },
+      { name: "--wr-progress-mark-label-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-progress" },
+      { name: "--wr-progress-mark-label-font-size", default: "var(--wr-text-xs)", scope: ".wr-progress" },
+      { name: "--wr-progress-mark-label-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-progress" },
+      { name: "--wr-progress-mark-width", default: "2px", scope: ".wr-progress" },
       { name: "--wr-progress-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-progress" },
       { name: "--wr-progress-track", default: "var(--wr-color-fill)", scope: ".wr-progress", overrides: 1 },
     ],
