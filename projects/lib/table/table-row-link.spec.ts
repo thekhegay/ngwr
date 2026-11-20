@@ -240,6 +240,17 @@ describe('WrTable rowLink', () => {
     expect(seen).toEqual(['/users/2']);
   });
 
+  it('logs the missing routing adapter once per table, not once per row', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      set(h => h.rowLink.set(user => ['/users', user.id]));
+      set(h => h.items.set([...ROWS]));
+      expect(error).toHaveBeenCalledTimes(1);
+    } finally {
+      error.mockRestore();
+    }
+  });
+
   it('keeps the link out of a pinned cell, which would hold it inside its own box', () => {
     set(h =>
       h.columns.set({
