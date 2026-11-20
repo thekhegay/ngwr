@@ -410,7 +410,7 @@ describe('WrScrollFollow', () => {
     expect(follow().following()).toBe(true);
 
     follow().toEnd({ smooth: false });
-    expect(moves.at(-1)?.behavior).toBe('auto');
+    expect(moves.at(-1)?.behavior).toBe('instant');
   });
 
   it('jumps instantly for someone who asked for less motion', async () => {
@@ -427,7 +427,7 @@ describe('WrScrollFollow', () => {
 
     follow().toEnd();
 
-    expect(moves.at(-1)).toEqual({ top: 400, behavior: 'auto' });
+    expect(moves.at(-1)).toEqual({ top: 400, behavior: 'instant' });
   });
 
   it('does nothing while switched off, and picks up where the reader is when switched on', async () => {

@@ -92,9 +92,10 @@ export class WrScroll {
     }
   }
 
+  /** `instant`, not `auto`: `auto` follows the container's `scroll-behavior`, which may be smooth. */
   private behavior(requested: boolean | undefined): ScrollBehavior {
-    if (requested === false) return 'auto';
-    if (this.platform.prefersReducedMotion()) return 'auto';
+    if (requested === false) return 'instant';
+    if (this.platform.prefersReducedMotion()) return 'instant';
     return 'smooth';
   }
 

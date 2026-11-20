@@ -157,8 +157,16 @@ export class WrScrollFollow {
 
   private onScroll(): void {
     this.read(true);
-    if (this.following()) this.anchors = [];
-    else if (this.wrScrollFollow()) this.capture();
+    if (this.following()) {
+      this.anchors = [];
+      return;
+    }
+    if (!this.wrScrollFollow()) return;
+    // A row above may have changed size with its resize callback still to come
+    // (scroll events run first): correct for it before the anchor is replaced.
+    this.restore();
+    this.lastTop = this.el.nativeElement.scrollTop;
+    this.capture();
   }
 
   /**
@@ -179,8 +187,10 @@ export class WrScrollFollow {
   /** Content or the container changed size: hold the end, or hold the reader's place. */
   private sync(): void {
     const host = this.el.nativeElement;
-    // A scroll whose event is still on its way must not be pinned over.
-    this.read(false);
+    // A scroll whose event is still on its way must not be pinned over, and a
+    // move down into the threshold resumes following here, before `lastTop`
+    // moves past it and the scroll event finds nothing to read.
+    this.read(true);
 
     if (!this.wrScrollFollow()) {
       this.anchors = [];
