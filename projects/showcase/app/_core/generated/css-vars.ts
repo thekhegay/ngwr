@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1907 hook(s) across 116 page(s). A property is here only when the
+ * 1910 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -2084,6 +2084,8 @@ export const CSS_VARS = {
       { name: "--wr-table-card-cell-padding-x", default: "var(--wr-space-lg)", scope: ".wr-table" },
       { name: "--wr-table-card-cell-padding-y", default: "var(--wr-space-xs)", scope: ".wr-table" },
       { name: "--wr-table-card-row-padding-y", default: "var(--wr-space-sm)", scope: ".wr-table" },
+      { name: "--wr-table-cell-padding-x", default: "0.875rem", scope: ".wr-table", overrides: 1 },
+      { name: "--wr-table-cell-padding-y", default: "0.625rem", scope: ".wr-table", overrides: 1 },
       { name: "--wr-table-column-chooser-divider", default: "var(--wr-border-base)", scope: ".wr-table-column-chooser" },
       { name: "--wr-table-column-chooser-gap", default: "var(--wr-space-sm)", scope: ".wr-table-column-chooser", overrides: 1 },
       { name: "--wr-table-columns-gap", default: "var(--wr-space-sm)", scope: ".wr-table__columns" },
@@ -2127,6 +2129,7 @@ export const CSS_VARS = {
       { name: "--wr-table-group-count-padding-x", default: "var(--wr-space-sm)", scope: ".wr-table" },
       { name: "--wr-table-group-count-radius", default: "var(--wr-border-radius-pill)", scope: ".wr-table" },
       { name: "--wr-table-group-inner-gap", default: "var(--wr-space-sm)", scope: ".wr-table" },
+      { name: "--wr-table-group-inner-padding-y", default: "var(--wr-space-sm)", scope: ".wr-table", overrides: 1 },
       { name: "--wr-table-group-toggle-font-weight", default: "var(--wr-font-weight-semibold)", scope: ".wr-table" },
       { name: "--wr-table-group-toggle-gap", default: "var(--wr-space-sm)", scope: ".wr-table" },
       { name: "--wr-table-head-bg", default: "var(--wr-color-fill)", scope: ".wr-table" },

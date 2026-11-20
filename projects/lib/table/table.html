@@ -126,8 +126,11 @@
         <!-- `inert` under the selection bar: a control the bar covers takes no
              focus and no click. The select-all cell stays out from under it. -->
         @for (col of cellColumns(); track col.key) {
+          <!-- The click is a pointer shortcut for the sort button, which stays
+               the one control and the keyboard path. -->
           <th
             #thCell
+            (click)="onHeaderClick($event, col.key, col.column.sortable)"
             cdkDrag
             [attr.inert]="selectionBar() ? '' : null"
             [cdkDragDisabled]="!reorderable() || col.pinned"
@@ -137,6 +140,7 @@
             [class]="col.thClass"
             [attr.aria-sort]="ariaSortFor(col.key, col.column.sortable)"
             [attr.aria-label]="col.column.title ? null : (col.column.headerHint ?? null)"
+            [class.wr-table__th--sortable]="col.column.sortable"
             [class.wr-table__th--draggable]="reorderable() && !col.pinned"
             [class.wr-table__th--pin-left]="col.pinLeft"
             [class.wr-table__th--pin-right]="col.pinRight"
