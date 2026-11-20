@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Sidebar"
-  updated="15.0.0"
+  updated="16.7.0"
   description="Navigation drawn from data: pages and groups, three levels deep."
   [keywords]="['sidebar', 'navigation', 'nav', 'wr-sidebar']"
   [labels]="['Component']"
@@ -32,6 +32,59 @@
     description="Pages match by URL prefix, so give `['/']` `activeOptions: { exact: true }`, or it is the current page everywhere."
   >
     <ngwr-doc-code [code]="snippets.activeOptions" language="angular-ts" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Action rows"
+    description="An entry with `action` instead of `url` is a button that calls it and is never the current page. `shortcut` draws the chord and announces it; the app binds the chord itself."
+  >
+    <ngwr-doc-snippet [files]="actionFiles">
+      <div class="demo-sidebar">
+        <wr-sidebar ariaLabel="Actions demo" [entries]="actionEntries" />
+      </div>
+      <p class="demo-sidebar__note" aria-live="polite">Last action: {{ lastAction() }}</p>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Header and footer"
+    description="Mark any element `wrSidebarHeader` or `wrSidebarFooter`. The footer sits at the end of the host: the bottom of a full-height sider. An unfilled slot takes no room."
+  >
+    <ngwr-doc-snippet [code]="snippets.slots" language="angular-html">
+      <div class="demo-sidebar demo-sidebar--tall">
+        <wr-sidebar ariaLabel="Slots demo" [entries]="slotEntries">
+          <button wr-btn wrSidebarHeader block color="primary" type="button">New page</button>
+          <button wr-btn wrSidebarFooter block outlined type="button">Sign out</button>
+        </wr-sidebar>
+      </div>
+    </ngwr-doc-snippet>
+    <p>
+      Behind <code>&#64;if</code>, give each slot element a block of its own: Angular projects a block into a slot only
+      when it has one root element.
+    </p>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Neutral current row"
+    description="`activeTone` set to `neutral` paints the current page grey and leaves the primary to the actions on the page. For any other colour, set the four hooks on `.wr-sidebar`."
+  >
+    <ngwr-doc-snippet [code]="snippets.tone" language="angular-html">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Primary (default)</p>
+          <div class="demo-sidebar">
+            <wr-sidebar ariaLabel="Primary tone demo" [entries]="toneEntries" />
+          </div>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption"><code>activeTone="neutral"</code></p>
+          <div class="demo-sidebar">
+            <wr-sidebar ariaLabel="Neutral tone demo" activeTone="neutral" [entries]="toneEntries" />
+          </div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ngwr-doc-code [code]="snippets.toneHooks" language="scss" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

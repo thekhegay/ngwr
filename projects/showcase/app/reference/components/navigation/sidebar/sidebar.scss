@@ -7,3 +7,21 @@
   // repainting it in that colour said nothing.
   background: var(--wr-color-fill-subtle);
 }
+
+// Taller than its rows, so the footer slot has an end of the host to go to. A
+// flex row stretches the sidebar to the box's height.
+.demo-sidebar--tall {
+  display: flex;
+  height: 20rem;
+
+  > wr-sidebar {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+.demo-sidebar__note {
+  margin: var(--wr-space-sm) 0 0;
+  color: var(--wr-color-on-surface-muted);
+  font-size: var(--wr-text-sm);
+}
