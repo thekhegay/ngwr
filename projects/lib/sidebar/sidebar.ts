@@ -34,14 +34,46 @@ import {
 
 import { filter, map, startWith } from 'rxjs';
 
+import { wrParseHotkeySpec } from 'ngwr/hotkey';
 import { wrReadI18nText, useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
-import { wrCheckStyles } from 'ngwr/utils';
+import { WrKbd } from 'ngwr/keyboard';
+import { WR_KEYS, wrCheckStyles } from 'ngwr/utils';
 
-import type { WrSidebarActiveOptions, WrSidebarBadgeTone, WrSidebarEntry, WrSidebarGroup } from './types';
+import type {
+  WrSidebarAction,
+  WrSidebarActiveOptions,
+  WrSidebarBadgeTone,
+  WrSidebarEntry,
+  WrSidebarGroup,
+} from './types';
 
 function isGroup(entry: WrSidebarEntry): entry is WrSidebarGroup {
   return 'children' in entry;
+}
+
+function isAction(entry: WrSidebarEntry): entry is WrSidebarAction {
+  return 'action' in entry;
+}
+
+/** The ARIA name of every named key, by the lowercase form a parsed chord holds. */
+const ARIA_KEYS: ReadonlyMap<string, string> = new Map(
+  Object.values(WR_KEYS).map(key => [key.toLowerCase(), key === WR_KEYS.SPACE ? 'Space' : key])
+);
+
+/**
+ * `aria-keyshortcuts` for a chord: key names from the ARIA spec, never localised.
+ * `mod` is Control off a Mac and Meta on one, and the server cannot tell which
+ * it prints for, so a chord that differs between the two lists both.
+ */
+function ariaKeyShortcuts(chord: string): string {
+  const spell = (mac: boolean): string => {
+    const parsed = wrParseHotkeySpec(chord, mac);
+    const key = ARIA_KEYS.get(parsed.key) ?? (parsed.key.length === 1 ? parsed.key.toUpperCase() : parsed.key);
+    const parts = [parsed.ctrl && 'Control', parsed.alt && 'Alt', parsed.shift && 'Shift', parsed.meta && 'Meta', key];
+    return parts.filter(Boolean).join('+');
+  };
+  return [...new Set([spell(false), spell(true)])].join(' ');
 }
 
 /** How deep the design goes. Deeper entries still render, with a dev-mode warning. */
@@ -90,6 +122,7 @@ function filled(value: string | null | undefined): string | null {
 /** The commands an entry links to, or `null` when it renders as text or as a plain toggle. */
 function linkOf(entry: WrSidebarEntry): readonly (string | number)[] | null {
   if (isGroup(entry)) return entry.url?.length ? entry.url : null;
+  if (isAction(entry)) return null;
   return !entry.disabled && entry.url.length ? entry.url : null;
 }
 
@@ -131,6 +164,11 @@ interface SidebarNode {
   readonly countTail: string;
   /** Where the row links to. `null` is plain text for a page, a whole-row toggle for a group. */
   readonly url: readonly (string | number)[] | null;
+  /** What an action row runs. `null` on every other row, and on a disabled action. */
+  readonly action: (() => void) | null;
+  /** An action's chord as `wr-kbd` takes it and as `aria-keyshortcuts` spells it. */
+  readonly shortcut: string | null;
+  readonly keyShortcuts: string | null;
   readonly children: readonly SidebarNode[] | null;
   readonly open: boolean;
   readonly active: boolean;
@@ -150,6 +188,10 @@ interface SidebarNode {
  * of its own, a link with a separate arrow button beside it. The current page
  * gets `aria-current="page"`, and a collapsed group holding it shows a dot and
  * says so (`sidebar.containsCurrent`).
+ *
+ * An entry with an `action` instead of a `url` is a `<button>` that calls it: the
+ * row for Search or New, with an optional `shortcut` chord at its end. It is
+ * never the current page.
  *
  * Rows are 32px. Under a coarse pointer (a phone, a tablet) they grow to 44px,
  * and the split arrow to 44 by 44, with no input: the size follows the pointer
@@ -186,7 +228,7 @@ interface SidebarNode {
   templateUrl: './sidebar.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-sidebar', role: 'navigation', '[attr.aria-label]': 'resolvedAriaLabel()' },
-  imports: [NgTemplateOutlet, RouterLink, WrIcon],
+  imports: [NgTemplateOutlet, RouterLink, WrIcon, WrKbd],
 })
 export class WrSidebar {
   /**
@@ -267,7 +309,8 @@ export class WrSidebar {
         const url = linkOf(entry);
         if (url) {
           const tree = this.router.createUrlTree([...url], { relativeTo: this.route });
-          const options = isGroup(entry) ? GROUP_MATCH : matchOptions(entry.activeOptions);
+          // An action has no link, so it never gets here; the check is for the type.
+          const options = isGroup(entry) || isAction(entry) ? GROUP_MATCH : matchOptions(entry.activeOptions);
           if (containsTree(current, tree, options)) out.add(key);
         }
         if (isGroup(entry)) visit(entry.children, key);
@@ -306,9 +349,12 @@ export class WrSidebar {
         const holdsActive = group && !open && below && visible;
         const ancestor = group && open && below;
         const url = linkOf(entry);
+        const action = isAction(entry) && !entry.disabled ? entry.action : null;
+        const shortcut = action && isAction(entry) ? filled(entry.shortcut) : null;
         const classes = ['wr-sidebar__row', `wr-sidebar__row--level-${Math.min(level, MAX_LEVEL)}`];
         if (group) classes.push('wr-sidebar__row--group');
-        if (!group && !url) classes.push('wr-sidebar__row--disabled');
+        if (isAction(entry)) classes.push('wr-sidebar__row--action');
+        if (!group && !url && !action) classes.push('wr-sidebar__row--disabled');
         if (isActive) classes.push('wr-sidebar__row--active');
         if (ancestor) classes.push('wr-sidebar__row--ancestor');
         if (holdsActive) classes.push('wr-sidebar__row--holds-active');
@@ -331,6 +377,9 @@ export class WrSidebar {
           badgeTail: badge && (count !== null || holdsActive) ? sep : '',
           countTail: count !== null && holdsActive ? sep : '',
           url,
+          action,
+          shortcut,
+          keyShortcuts: shortcut === null ? null : ariaKeyShortcuts(shortcut),
           children: sub?.nodes ?? null,
           open,
           active: isActive,

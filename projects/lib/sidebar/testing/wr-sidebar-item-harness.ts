@@ -13,8 +13,8 @@ import type { WrSidebarItemHarnessFilters } from './types';
 const SEPARATOR = '.wr-sidebar__comma';
 
 /**
- * Test harness for one row of a `<wr-sidebar>`: a page link, a disabled page,
- * or the title row of a group.
+ * Test harness for one row of a `<wr-sidebar>`: a page link, an action, a
+ * disabled row, or the title row of a group.
  *
  * A row's accessible name is its title, badge and count joined by a hidden
  * separator. Each reader here answers one piece without that separator, so
@@ -67,7 +67,7 @@ export class WrSidebarItemHarness extends ComponentHarness {
     return (await (await this.host()).getAttribute('aria-current')) === 'page';
   }
 
-  /** Whether the row is a disabled page: plain text, out of the tab order. */
+  /** Whether the row is a disabled page or action: plain text, out of the tab order. */
   async isDisabled(): Promise<boolean> {
     return (await this.host()).hasClass('wr-sidebar__row--disabled');
   }
@@ -77,13 +77,29 @@ export class WrSidebarItemHarness extends ComponentHarness {
     return (await this.host()).hasClass('wr-sidebar__row--group');
   }
 
+  /** Whether the row is an action: a button that calls the entry's `action`, never the current page. */
+  async isAction(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-sidebar__row--action');
+  }
+
   /**
-   * Click the row: a link navigates, and a group with no page of its own
-   * toggles. Throws for a disabled page, which is text and does nothing.
+   * The chord an action announces, as `aria-keyshortcuts` spells it
+   * (`'Control+K Meta+K'` for `'mod+k'`), or `null`. Not the keycap's text: that
+   * follows the platform, and jsdom is never a Mac.
+   */
+  async getShortcut(): Promise<string | null> {
+    return (await this.host()).getAttribute('aria-keyshortcuts');
+  }
+
+  /**
+   * Click the row: a link navigates, an action runs, and a group with no page
+   * of its own toggles. Throws for a disabled row, which is text and does nothing.
    */
   async click(): Promise<void> {
     if (await this.isDisabled()) {
-      throw new Error(`WrSidebarItemHarness.click(): "${await this.getTitle()}" is disabled, so it is not a link.`);
+      throw new Error(
+        `WrSidebarItemHarness.click(): "${await this.getTitle()}" is disabled, so it is text and not a control.`
+      );
     }
     await (await this.host()).click();
   }
