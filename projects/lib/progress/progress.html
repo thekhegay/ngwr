@@ -1,0 +1,12 @@
+<div class="wr-progress__bar" [style.width.%]="indeterminate() ? null : clamped()"></div>
+@for (mark of drawnMarks(); track $index) {
+  <span class="wr-progress__mark" aria-hidden="true" [style.inset-inline-start.%]="mark.value"></span>
+}
+@for (mark of labelledMarks(); track $index) {
+  <span
+    class="wr-progress__mark-label"
+    [class.wr-progress__mark-label--hidden]="crowded().has($index)"
+    [style.grid-template-columns]="mark.columns"
+    ><span class="wr-progress__mark-text">{{ mark.label }}</span></span
+  >
+}
