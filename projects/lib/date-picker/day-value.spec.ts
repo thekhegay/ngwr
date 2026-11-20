@@ -159,6 +159,18 @@ describe('WrDatePicker valueFormat="day"', () => {
     expect(document.querySelector('wr-calendar')).toBeNull();
   });
 
+  it('holds null for a calendar pick past year 9999, which a day string cannot write', async () => {
+    const host = await render(DayHost, h => h.day.set('9999-12-14'));
+
+    await open();
+    document.querySelector<HTMLButtonElement>('.wr-calendar__nav--next')!.click();
+    await settle();
+    panelDay(14).click();
+    await settle();
+
+    expect(host.day()).toBeNull();
+  });
+
   it('follows a write from outside', async () => {
     const host = await render(DayHost);
 
