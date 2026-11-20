@@ -525,7 +525,7 @@ export const DOC_ROUTES: Readonly<
   "reference/services/loading-bar": {"title":"WrLoadingBar","kind":"Service","labels":["Service"],"description":"A progress bar at the top of the page for requests and other long tasks."},
   "reference/services/meta": {"title":"WrMeta","kind":"Service","labels":["Service"],"description":"Set the page title, description and social tags, and restore them when a page leaves."},
   "reference/services/platform": {"title":"WrPlatform","kind":"Service","labels":["Service"],"description":"SSR-safe browser checks, user-preference and page-state signals, a return callback and haptics."},
-  "reference/services/scroll": {"title":"WrScroll","kind":"Service","labels":["Service"],"description":"Scroll to an element, id, selector or position, with an offset for sticky headers."},
+  "reference/services/scroll": {"title":"WrScroll","kind":"Service","labels":["Service"],"description":"Scroll to an element, id, selector or position, with an offset for sticky headers. Keep a chat or a log at its end."},
   "reference/services/storage": {"title":"WrStorage","kind":"Service","labels":["Service"],"description":"Typed key-value storage over localStorage or any engine, read as a signal or written through one, safe under SSR."},
   "reference/services/theme": {"title":"WrTheme","kind":"Service","labels":["Service"],"description":"Switch between light, dark and auto, and keep the choice."},
   "reference/services/tour": {"title":"WrTour","kind":"Service","labels":["Service"],"description":"A guided tour that highlights one element at a time and explains it."},
