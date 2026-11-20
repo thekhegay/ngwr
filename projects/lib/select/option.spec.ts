@@ -173,6 +173,40 @@ class VirtualLeadingHost {
   readonly city = signal<unknown>(null);
 }
 
+/** `[options]` items with `valueWith`, and a select-wide template that reads both `$implicit` and `item`. */
+@Component({
+  imports: [WrSelect, WrOptionLeading, Probe],
+  template: `
+    <wr-select ariaLabel="Assignee" [options]="people" [displayWith]="nameOf" [valueWith]="idOf" [(value)]="value">
+      <ng-template wrOptionLeading let-id let-item="item" let-placement="placement">
+        <wr-test-probe [initials]="id + ':' + item.initials" [placement]="placement" />
+      </ng-template>
+    </wr-select>
+  `,
+})
+class ItemLeadingHost {
+  readonly people = PEOPLE;
+  readonly value = signal<unknown>(2);
+  readonly nameOf = (p: Person): string => p.name;
+  readonly idOf = (p: Person): number => p.id;
+}
+
+/** No `valueWith`: the item is the value. */
+@Component({
+  imports: [WrSelect, WrOptionLeading, Probe],
+  template: `
+    <wr-select ariaLabel="City" [options]="cities" [(value)]="value">
+      <ng-template wrOptionLeading let-city let-item="item">
+        <wr-test-probe [initials]="city === item ? 'same:' + item : 'diff'" />
+      </ng-template>
+    </wr-select>
+  `,
+})
+class PlainItemLeadingHost {
+  readonly cities = ['Almaty', 'Astana'];
+  readonly value = signal<unknown>('Astana');
+}
+
 const probes = (scope: ParentNode = document): HTMLElement[] => [...scope.querySelectorAll<HTMLElement>('.probe')];
 
 /** The option's accessible name, as far as text goes: its text minus every `aria-hidden` subtree. */
@@ -796,5 +830,40 @@ describe('WrSelect leading visual under virtual scroll', () => {
 
     expect(rows()).toEqual([]);
     expect(live).toBe(0);
+  });
+});
+
+describe('WrOptionLeading item', () => {
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('reads the item under valueWith while $implicit stays the id', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(ItemLeadingHost);
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(probes(root).map(p => p.textContent)).toEqual(['2:AL']);
+
+    root.querySelector<HTMLElement>('.wr-select__trigger')!.click();
+    await fixture.whenStable();
+
+    const rows = [...document.querySelectorAll<HTMLElement>('wr-option')];
+    expect(rows.map(r => r.querySelector('.probe')?.textContent)).toEqual(['1:ХР', '2:AL', '3:GH']);
+    fixture.destroy();
+  });
+
+  it('keeps item equal to the value without valueWith', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(PlainItemLeadingHost);
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(probes(root).map(p => p.textContent)).toEqual(['same:Astana']);
+
+    root.querySelector<HTMLElement>('.wr-select__trigger')!.click();
+    await fixture.whenStable();
+    const rows = [...document.querySelectorAll<HTMLElement>('wr-option')];
+    expect(rows.map(r => r.querySelector('.probe')?.textContent)).toEqual(['same:Almaty', 'same:Astana']);
+    fixture.destroy();
   });
 });
