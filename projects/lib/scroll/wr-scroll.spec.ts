@@ -116,7 +116,7 @@ describe('WrScroll', () => {
   it('scrolls instantly when asked', () => {
     scroll.to({ top: 100 }, { smooth: false });
 
-    expect(calls[0].behavior).toBe('auto');
+    expect(calls[0].behavior).toBe('instant');
   });
 
   it('scrolls instantly for someone who asked for less motion', () => {
@@ -130,7 +130,7 @@ describe('WrScroll', () => {
     scroll = setup({ provide: WrPlatform, useValue: platform });
 
     scroll.to({ top: 100 });
-    expect(calls[0].behavior).toBe('auto');
+    expect(calls[0].behavior).toBe('instant');
   });
 
   it('scrolls a container instead of the page when given one', () => {
