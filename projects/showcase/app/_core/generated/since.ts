@@ -163,7 +163,7 @@ export const UPDATED = {
   "reference/components/page-header": "16.6.0",
   "reference/components/pagination": "16.7.0",
   "reference/components/popconfirm": "16.5.0",
-  "reference/components/popover": "16.5.0",
+  "reference/components/popover": "16.7.0",
   "reference/components/progress": "16.7.0",
   "reference/components/radio": "16.6.0",
   "reference/components/schema-form": "16.3.0",
