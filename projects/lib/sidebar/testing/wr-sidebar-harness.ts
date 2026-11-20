@@ -53,6 +53,16 @@ export class WrSidebarHarness extends ComponentHarness {
     return (await this.host()).getAttribute('aria-label');
   }
 
+  /** The text projected into `[wrSidebarHeader]`, or `null` when the slot is unfilled. */
+  async getHeaderText(): Promise<string | null> {
+    return this.slotText('header');
+  }
+
+  /** The text projected into `[wrSidebarFooter]`, or `null` when the slot is unfilled. */
+  async getFooterText(): Promise<string | null> {
+    return this.slotText('footer');
+  }
+
   /** The reachable rows, in order: pages, actions, disabled rows and group titles, outside every closed group. */
   async getItems(filters: WrSidebarItemHarnessFilters = {}): Promise<WrSidebarItemHarness[]> {
     return this.locatorForAll(WrSidebarItemHarness.with({ ...filters, selector: REACHABLE }))();
@@ -123,5 +133,11 @@ export class WrSidebarHarness extends ComponentHarness {
   /** Close the first reachable group with this title. */
   async closeGroup(title: string | RegExp): Promise<void> {
     await (await this.getGroup(title)).close();
+  }
+
+  /** An unfilled slot holds no element and no text, which is what its `:empty` rule hides it by. */
+  private async slotText(slot: 'header' | 'footer'): Promise<string | null> {
+    const wrapper = await this.locatorFor(`.wr-sidebar__${slot}`)();
+    return (await wrapper.matchesSelector(':empty')) ? null : wrapper.text();
   }
 }
