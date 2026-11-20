@@ -1107,6 +1107,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string> | Promise<void>',
     },
     {
+      name: 'getDayValue() / setDayValue(day)',
+      description:
+        'The value as `YYYY-MM-DD`. `getDayValue` needs `valueFormat="day"`; `setDayValue` picks the day out of the calendar in any day or period mode.',
+      type: 'Promise<string | null> | Promise<void>',
+    },
+    {
       name: 'getPanelHeader() / getView() / getWeekdayLabels()',
       description: '`getView()` is `day`, `month` or `year`.',
       type: 'Promise<string> | Promise<string[]>',

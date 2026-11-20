@@ -5,6 +5,8 @@ export type {
   WrDateInputError,
   WrDatePickerMode,
   WrDatePickerSize,
+  WrDatePickerValue,
+  WrDatePickerValueFormat,
   WrDateRange,
   WrDateRangeInputError,
   WrDateRangePickerMode,

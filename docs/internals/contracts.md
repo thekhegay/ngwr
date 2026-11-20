@@ -136,6 +136,14 @@ because it is guidance rather than a plan.
   read in the BROWSER's zone, as before, and then shown in the display zone,
   unless `withDates({ zonelessIn })` says `'display'` or `'utc'` (16.2). The
   default must stay `'browser'`, and `epochUnit` must stay `'ms'`.
+- **`valueFormat="day"` is ignored in `time` and `datetime` modes**, with a
+  dev-mode warning: a day string cannot hold a time, so those modes keep a
+  `Date` whatever the type parameter says. It applies in `date` and the period
+  modes. A model string that is not a valid `YYYY-MM-DD` reads as empty and is
+  left in the model. In a Signal Form the bounds of a day field are limits of
+  its own type (a `LimitKey<string>` selected by `MIN` / `MAX`): Angular's
+  `minDate()` takes a `Date` path only and `[min]` beside `[formField]` is
+  NG8022.
 - **`epochUnit: 'auto'` is a guess with stated limits**: seconds under `1e10`,
   milliseconds under `1e13`, microseconds from there. A date before 26 April
   1970 in milliseconds or microseconds, or after 20 November 2286, reads in the
