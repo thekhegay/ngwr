@@ -41,11 +41,13 @@ import { WrCheckbox } from './checkbox';
   template: `
     <wr-checkbox [(ngModel)]="agreed">Template-driven</wr-checkbox>
     <wr-checkbox [formControl]="reactive">Reactive</wr-checkbox>
+    <wr-checkbox [formControl]="onBlur">On blur</wr-checkbox>
   `,
 })
 class CheckboxHost {
   readonly agreed = signal(false);
   readonly reactive = new FormControl(false, { nonNullable: true });
+  readonly onBlur = new FormControl(false, { nonNullable: true, updateOn: 'blur' });
 }
 
 @Component({
@@ -151,6 +153,25 @@ describe('WrCheckbox under the classic forms bridge (a `checked` model)', () => 
     expect(control.value).toBe(false);
     expect(control.dirty).toBe(true);
     expect(boxes()[1].checked).toBe(false);
+  });
+
+  it('holds an edit until blur under `updateOn: blur`', async () => {
+    const control = fixture.componentInstance.onBlur;
+
+    boxes()[2].click();
+    await fixture.whenStable();
+    expect(control.value).toBe(false);
+
+    boxes()[2].dispatchEvent(new FocusEvent('blur'));
+    await fixture.whenStable();
+    expect(control.value).toBe(true);
+    expect(control.touched).toBe(true);
+  });
+
+  it('repaints after a write with `emitEvent: false`', async () => {
+    fixture.componentInstance.reactive.setValue(true, { emitEvent: false });
+    await fixture.whenStable();
+    expect(boxes()[1].checked).toBe(true);
   });
 });
 

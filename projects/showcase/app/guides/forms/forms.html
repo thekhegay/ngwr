@@ -91,17 +91,8 @@
         </thead>
         <tbody>
           <tr>
-            <th scope="row">
-              <code>updateOn: 'blur'</code> or <code>'submit'</code> is ignored: the value and its errors update on
-              every edit.
-            </th>
-            <td>Debounce expensive checks in an async validator.</td>
-          </tr>
-          <tr>
-            <th scope="row">
-              A write with <code>{{ '{' }} emitEvent: false {{ '}' }}</code> does not repaint the control.
-            </th>
-            <td>Call <code>markForCheck()</code> after the write.</td>
+            <th scope="row"><code>required</code> on <code>&lt;wr-checkbox&gt;</code> accepts an unchecked box.</th>
+            <td>Put <code>Validators.requiredTrue</code> on the FormControl.</td>
           </tr>
           <tr>
             <th scope="row"><code>Validators.required</code> does not mark the field as required.</th>
