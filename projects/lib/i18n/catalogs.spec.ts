@@ -18,6 +18,7 @@ import { wrHi } from 'ngwr/i18n/hi';
 import { wrId } from 'ngwr/i18n/id';
 import { wrIt } from 'ngwr/i18n/it';
 import { wrJa } from 'ngwr/i18n/ja';
+import { wrKk } from 'ngwr/i18n/kk';
 import { wrKo } from 'ngwr/i18n/ko';
 import { wrNl } from 'ngwr/i18n/nl';
 import { wrPl } from 'ngwr/i18n/pl';
@@ -356,6 +357,34 @@ const LOCALES: Record<string, Row> = {
       'fileUpload.unitMb',
       'fileUpload.unitGb',
       'fileUpload.unitTb',
+      'statistic.delta',
+      'editor.keyCtrl',
+      'editor.keyShift',
+      'kbd.ctrl',
+      'kbd.shift',
+      'kbd.enter',
+      'kbd.esc',
+      'kbd.backspace',
+      'kbd.delete',
+      'kbd.home',
+      'kbd.end',
+      'kbd.pageUp',
+      'kbd.pageDown',
+    ],
+  },
+  kk: {
+    catalog: wrKk,
+    script: ['Cyrillic'],
+    shared: [
+      'common.ok',
+      'eventCalendar.header',
+      'eventCalendar.range',
+      'eventCalendar.chipLabel',
+      'eventCalendar.slotLabel',
+      'eventCalendar.allDayCellLabel',
+      'calendar.header',
+      'calendar.yearRange',
+      'calendar.dayLabel',
       'statistic.delta',
       'editor.keyCtrl',
       'editor.keyShift',
