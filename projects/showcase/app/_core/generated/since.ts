@@ -199,6 +199,7 @@ export const UPDATED = {
   "reference/services/i18n": "16.1.0",
   "reference/services/meta": "16.0.0",
   "reference/services/platform": "15.5.0",
+  "reference/services/scroll": "16.7.0",
   "reference/services/storage": "16.0.0",
   "reference/services/theme": "15.0.0",
   "reference/services/tour": "16.5.0",

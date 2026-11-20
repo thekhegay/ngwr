@@ -500,7 +500,7 @@ export const INSTALL = {
       { path: "ngwr/platform", symbols: ["WrHaptics", "WrPlatform"], declarables: [], styled: false },
   ],
   "reference/services/scroll": [
-      { path: "ngwr/scroll", symbols: ["WrScroll"], declarables: [], styled: false },
+      { path: "ngwr/scroll", symbols: ["WrScroll", "WrScrollFollow"], declarables: ["WrScrollFollow"], styled: false },
   ],
   "reference/services/storage": [
       { path: "ngwr/storage", symbols: ["WrStorage"], declarables: [], styled: false },

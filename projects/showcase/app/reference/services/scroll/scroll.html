@@ -1,7 +1,8 @@
 <ngwr-doc-page
   title="WrScroll"
-  description="Scroll to an element, id, selector or position, with an offset for sticky headers."
-  [keywords]="['service', 'scroll', 'WrScroll']"
+  updated="16.7.0"
+  description="Scroll to an element, id, selector or position, with an offset for sticky headers. Keep a chat or a log at its end."
+  [keywords]="['service', 'scroll', 'WrScroll', 'wrScrollFollow', 'stick to bottom', 'chat', 'log']"
   [labels]="['Service']"
 >
   <ngwr-doc-section title="Usage" description="Pass `container` to scroll an element instead of the window.">
@@ -27,7 +28,64 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Follow the end"
+    description="`wrScrollFollow` on a scrolling box keeps it at its end while rows are added or grow. Scrolling up stops it, scrolling back to the end resumes it."
+  >
+    <ngwr-doc-code [code]="snippets.follow" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+          <button wr-btn size="sm" outlined type="button" (click)="loadOlder()">Load older</button>
+          <button wr-btn size="sm" outlined type="button" (click)="addMessage()">Add message</button>
+          <button wr-btn size="sm" type="button" [disabled]="log.following()" (click)="log.toEnd()">
+            Jump to latest
+          </button>
+        </div>
+        <div class="ngwr-demo-scroll" tabindex="0" wrScrollFollow #log="wrScrollFollow">
+          @for (message of messages(); track message) {
+            <p class="ngwr-demo-scroll__row">Message {{ message }}</p>
+          }
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Older rows"
+    description="While it is not following, the lowest row in view keeps its place when content above it changes, so rows loaded at the top do not push the page down. The browser's own scroll anchoring is switched off on the box: it does nothing at the very top, which is where older rows load."
+  >
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Layout</th>
+            <th scope="col">Supported</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Rows as children of the box, or of its only child</th>
+            <td>Yes. A "load older" button above the rows is fine.</td>
+          </tr>
+          <tr>
+            <th scope="row">RTL</th>
+            <td>Yes. It works on the vertical axis only.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>column-reverse</code>, a horizontal log</th>
+            <td>No.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="wrScrollFollow API" description="Exported as `wrScrollFollow`.">
+    <ngwr-doc-api [rows]="followApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>
