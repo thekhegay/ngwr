@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 208 of 223 declarations are mapped: 0 carry no selector and
+ * 209 of 224 declarations are mapped: 0 carry no selector and
  * 15 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -235,6 +235,7 @@ export const SELECTORS = {
     "wrPopconfirm": { symbol: "WrPopconfirm", path: "ngwr/popconfirm" },
     "wrPopover": { symbol: "WrPopover", path: "ngwr/popover" },
     "wrResizable": { symbol: "WrResizable", path: "ngwr/resizable" },
+    "wrScrollFollow": { symbol: "WrScrollFollow", path: "ngwr/scroll" },
     "wrSelectLoadError": { symbol: "WrSelectLoadError", path: "ngwr/select" },
     "wrShimmer": { symbol: "WrShimmer", path: "ngwr/animations/shimmer" },
     "wrSpotlight": { symbol: "WrSpotlight", path: "ngwr/animations/spotlight" },

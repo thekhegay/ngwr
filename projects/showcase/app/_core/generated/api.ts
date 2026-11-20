@@ -1413,6 +1413,11 @@ export const API = {
     { name: "addLabel", description: "Text of the button that adds an item to a repeating group. Falls back to `common.add`.", type: "string | null", default: "null" },
     { name: "removeLabel", description: "Text of the button that removes one item of a repeating group. Falls back to `common.remove`.", type: "string | null", default: "null" },
   ],
+  // <[wrScrollFollow]>
+  WrScrollFollow: [
+    { name: "wrScrollFollow", description: "`false` switches it off and hands scroll anchoring back to the browser. Bare `wrScrollFollow` is on.", type: "boolean", default: "true" },
+    { name: "wrScrollFollowThreshold", description: "How close to the end, in pixels, the reader has to scroll back for the following to resume.", type: "number", default: "80" },
+  ],
   // <wr-segmented>
   WrSegmented: [
     { name: "options", description: "The segments to render.", type: "readonly WrSegmentedOption<T>[]", required: true },
