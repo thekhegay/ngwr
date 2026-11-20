@@ -586,6 +586,9 @@
     "./i18n/ja": {
       "default": "./i18n/ja/public-api.ts"
     },
+    "./i18n/kk": {
+      "default": "./i18n/kk/public-api.ts"
+    },
     "./i18n/ko": {
       "default": "./i18n/ko/public-api.ts"
     },
