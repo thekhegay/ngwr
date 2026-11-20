@@ -1232,6 +1232,7 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
   }
 
   private toModel(date: Date | null): WrDatePickerValue<F> | null {
-    return (date && this.holdsDay() ? wrToDay(date) : date) as WrDatePickerValue<F> | null;
+    if (date && this.holdsDay()) return (wrToDay(date) || null) as WrDatePickerValue<F> | null;
+    return date as WrDatePickerValue<F> | null;
   }
 }
