@@ -1639,17 +1639,18 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       });
     });
 
-    // A new `size` moves the cell padding, so a measured row height is stale:
-    // measure again once the view has the new padding. The first run only
-    // records the size the table starts with.
-    let measuredSize: WrTableSize | undefined;
+    // A measured row height goes stale when `size` moves the cell padding, when
+    // `rowHeight` returns to automatic, and is missing while the table had no
+    // rows: measure again once the view has rendered the change. The first run
+    // only records where the table starts; the activation effect measures that.
+    let measuredFor: string | undefined;
     effect(() => {
-      const size = this.size();
-      if (measuredSize === undefined || measuredSize === size) {
-        measuredSize = size;
+      const key = `${this.size()}|${this.rowHeight() === 0}|${(this.rows()?.length ?? 0) > 0}`;
+      if (measuredFor === undefined || measuredFor === key) {
+        measuredFor = key;
         return;
       }
-      measuredSize = size;
+      measuredFor = key;
       if (!isPlatformBrowser(this.platformId)) return;
       if (!untracked(() => this.virtualized()) || untracked(() => this.rowHeight()) !== 0) return;
       // The rows are held at the old height through `--wr-table-row-h`: let go of
