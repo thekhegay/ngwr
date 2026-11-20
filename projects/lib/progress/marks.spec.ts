@@ -119,8 +119,13 @@ describe('WrProgress marks', () => {
     expect(host().getAttribute('aria-valuenow')).toBe('40');
     expect(host().getAttribute('aria-label')).toBe('Progress');
     expect(host().hasAttribute('aria-valuetext')).toBe(false);
-    expect(host().hasAttribute('aria-describedby')).toBe(false);
     expect(host().querySelector<HTMLElement>('.wr-progress__bar')!.style.width).toBe('40%');
+  });
+
+  it('describes the progressbar with its mark labels, which ARIA would not read as content', () => {
+    const ids = host().getAttribute('aria-describedby')!.split(' ');
+    expect(ids).toHaveLength(labels().length);
+    expect(ids.map(id => document.getElementById(id))).toEqual(labels());
   });
 
   it('hides the ticks from assistive tech and keeps the labels as plain text', () => {
