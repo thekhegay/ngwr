@@ -78,8 +78,9 @@ guess gets backwards.
   the `value` or `checked` model directly. Template validator directives
   (`required`, `minlength`, `maxlength`, `pattern`, `email`) reach the
   `FormControl` as on an `<input>` (Angular 22.3+, ngwr's floor); `min` / `max`
-  never match an ngwr control, so put those on the `FormControl`. The bridge
-  ignores `updateOn`, and a `{ emitEvent: false }` write needs `markForCheck()`.
+  never match an ngwr control, so put those on the `FormControl`. `required`
+  on `wr-checkbox` accepts `false`: a box that must be checked needs
+  `Validators.requiredTrue`.
 - **ngwr ships no validation copy.** For an error no `<wr-form-error key>`
   claims, `<wr-form-field>` shows the validator's own message
   (`required(path.email, { message: '…' })`), else `validation.<key>` from the

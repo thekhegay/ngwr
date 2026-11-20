@@ -23,9 +23,10 @@ since Angular 22.3, which fixed
 [angular/angular#70721](https://github.com/angular/angular/issues/70721), and 22.3
 is ngwr's peer floor; `checkbox/classic-forms-bridge.spec.ts` pins it. `min` / `max`
 still never match an ngwr control: their selectors require `input[type=number]`.
-The bridge also ignores `updateOn`, and a write with `{ emitEvent: false }`
-schedules no repaint, so one from an HTTP callback or a timer needs
-`markForCheck()`. `/guides/forms` is the consumer-facing account.
+`required` on `wr-checkbox` is `Validators.required`, which counts `false` as a
+value, so a box that must be checked needs `Validators.requiredTrue` on the
+`FormControl`. `updateOn` and `{ emitEvent: false }` behave as on an `<input>`.
+`/guides/forms` is the consumer-facing account.
 Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
 New value controls: implement `FormValueControl`, expose `value` as a `model()`,
 plus a `touch` output, a `disabled` input and a **`readonly` input** — Angular
