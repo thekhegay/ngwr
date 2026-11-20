@@ -74,7 +74,7 @@
     class="wr-table__table"
     [class.wr-table__table--fixed]="clippedLayout()"
     [class.wr-table__table--layout-fixed]="layout() === 'fixed'"
-    [style.--wr-table-row-h.px]="virtualized() && !remeasuring() ? effRowH() : null"
+    [style.--wr-table-row-h.px]="rowHeightVar()"
     [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
     [attr.role]="treeMode() ? 'treegrid' : editGrid() ? 'grid' : null"
     [attr.aria-multiselectable]="treeMode() && rowSelection() === 'multiple' ? true : null"

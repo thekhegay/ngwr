@@ -2071,6 +2071,17 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   private readonly measuredRowPx = signal(0);
   /** True for the render that measures a row after a size change. */
   protected readonly remeasuring = signal(false);
+
+  /**
+   * `--wr-table-row-h` on a virtualized table, once a height is known: a given
+   * `rowHeight` or a measured one. Unset while measuring, so a row is measured at
+   * its own height and not at the fallback or at an older measure.
+   */
+  protected readonly rowHeightVar = computed(() =>
+    this.virtualized() && !this.remeasuring() && (this.rowHeight() > 0 || this.measuredRowPx() > 0)
+      ? this.effRowH()
+      : null
+  );
   /** Fixed layout forced ON by virtualization (distinct from the resize latch). */
   private readonly virtualFixed = signal(false);
 
