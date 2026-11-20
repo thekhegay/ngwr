@@ -1639,6 +1639,29 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       });
     });
 
+    // A new `size` moves the cell padding, so a measured row height is stale:
+    // measure again once the view has the new padding. The first run only
+    // records the size the table starts with.
+    let measuredSize: WrTableSize | undefined;
+    effect(() => {
+      const size = this.size();
+      if (measuredSize === undefined || measuredSize === size) {
+        measuredSize = size;
+        return;
+      }
+      measuredSize = size;
+      if (!isPlatformBrowser(this.platformId)) return;
+      afterNextRender(
+        () => {
+          if (!this.virtualized() || this.rowHeight() !== 0) return;
+          const row = this.scrollEl()?.nativeElement.querySelector<HTMLElement>('.wr-table__tr');
+          const h = row?.offsetHeight ?? 0;
+          if (h > 0) this.measuredRowPx.set(h);
+        },
+        { injector: this.injector }
+      );
+    });
+
     // (B) Scroll + viewport observer — attached ONLY when virtual + browser, so
     // a non-virtual table gets no scroll listener / no per-scroll change detection.
     effect(onCleanup => {
