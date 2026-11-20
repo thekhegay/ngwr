@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { wrFromDay, wrToDay, wrToday } from './day';
 
@@ -13,6 +13,10 @@ describe('day strings', () => {
   function inZone(zone: string): void {
     process.env['TZ'] = zone;
   }
+
+  // East of UTC unless a test says otherwise, so the local-midnight case reads
+  // the same on any runner.
+  beforeEach(() => inZone('Asia/Almaty'));
 
   afterEach(() => {
     if (runnerZone === undefined) delete process.env['TZ'];

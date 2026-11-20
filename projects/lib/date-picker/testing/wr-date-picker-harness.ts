@@ -7,6 +7,7 @@
 
 import { HarnessPredicate, type TestElement } from '@angular/cdk/testing';
 
+import { wrFromDay } from 'ngwr/date';
 import type { WrDatePickerMode } from 'ngwr/date-picker';
 
 import type { WrDatePickerHarnessFilters, WrDatePickerTimeFields } from './types';
@@ -108,7 +109,9 @@ export class WrDatePickerHarness extends WrDatePickerHarnessBase {
    */
   async setDayValue(day: string): Promise<void> {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
-    if (!match) {
+    // A day the calendar lacks fails here, before a month or year picker would
+    // stop short of the day and take it.
+    if (!match || !wrFromDay(day)) {
       throw new Error(`${this.harnessName}.setDayValue(${JSON.stringify(day)}): expected a day as YYYY-MM-DD.`);
     }
     const mode = await this.getMode();
