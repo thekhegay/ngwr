@@ -68,7 +68,7 @@ const CHECKS: readonly Check[] = [
         packageDir: LIB_PATH,
         sourceDir: '.',
         tsconfig: 'tsconfig.lib.json',
-        exclude: ['schematics', 'mcp'],
+        exclude: ['schematics'],
       }),
   },
   {
