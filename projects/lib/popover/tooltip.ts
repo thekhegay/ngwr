@@ -16,9 +16,9 @@ import { WrPopover } from './popover';
  * Short form of `[wrPopover]` with `mode="tooltip"`: the same panel, delays,
  * hover and keyboard-focus trigger, and the same naming of an icon-only button.
  *
- * It is `WrPopover` as a host directive, so `exportAs` and `isOpen()` work
- * through `#tip="wrTooltip"` and the inputs keep their `wrPopover` names. Do not
- * put `[wrPopover]` on the same element.
+ * It is `WrPopover` as a host directive, so the inputs keep their `wrPopover`
+ * names, and `#tip="wrTooltip"` reaches it as `tip.popover` (`tip.popover.isOpen()`).
+ * Do not put `[wrPopover]` on the same element.
  *
  * @example
  * ```html
