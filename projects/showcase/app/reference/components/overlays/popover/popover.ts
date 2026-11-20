@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { Pencil, Trash2 } from 'lucide';
 import { WrButton } from 'ngwr/button';
 import { provideWrIcons, wrLucideIcons } from 'ngwr/icon';
-import { WrPopover } from 'ngwr/popover';
+import { WrPopover, WrTooltip } from 'ngwr/popover';
 
 import {
   DocApiComponent,
@@ -20,6 +20,7 @@ import { API } from '#core/generated/api';
   imports: [
     WrButton,
     WrPopover,
+    WrTooltip,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -48,6 +49,8 @@ export default class PopoverPageComponent {
 
 <!-- Your own name wins; the tooltip then describes -->
 <wr-btn icon="trash" aria-label="Delete file" [wrPopover]="'Cannot be undone'" mode="tooltip" />`,
+    shortForm: `<wr-btn icon="trash" wrTooltip="Delete" />
+<wr-btn wrTooltip="Save changes" position="bottom">Save</wr-btn>`,
     tooltip: `<wr-btn [wrPopover]="'Save changes'" mode="tooltip" position="top">Save</wr-btn>`,
     origin: `@Component({
   imports: [WrPopover],

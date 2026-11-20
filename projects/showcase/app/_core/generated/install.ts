@@ -322,7 +322,7 @@ export const INSTALL = {
       { path: "ngwr/popconfirm", symbols: ["WrPopconfirm"], declarables: ["WrPopconfirm"], styled: true },
   ],
   "reference/components/popover": [
-      { path: "ngwr/popover", symbols: ["WrPopover"], declarables: ["WrPopover"], styled: true },
+      { path: "ngwr/popover", symbols: ["WrPopover", "WrTooltip"], declarables: ["WrPopover", "WrTooltip"], styled: true },
   ],
   "reference/components/progress": [
       { path: "ngwr/progress", symbols: ["WrProgress"], declarables: ["WrProgress"], styled: true },
