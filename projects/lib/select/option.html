@@ -6,7 +6,7 @@
   <span #leadingSlot class="wr-option__leading" aria-hidden="true">
     <ng-container
       [ngTemplateOutlet]="leading"
-      [ngTemplateOutletContext]="{ $implicit: value(), placement: 'option' }"
+      [ngTemplateOutletContext]="{ $implicit: value(), item: rowItem(), placement: 'option' }"
     />
   </span>
 }

@@ -120,6 +120,9 @@ export class WrOption {
     return this.leading();
   });
 
+  /** The item behind this option, for the leading template's `item`; its value when the select holds none. */
+  protected readonly rowItem = computed(() => this.parent?.itemFor(this.value()) ?? this.value());
+
   /** The wrapper the leading visual renders into — skipped when reading the text. */
   private readonly leadingSlot = viewChild<ElementRef<HTMLElement>>('leadingSlot');
 

@@ -61,6 +61,8 @@ export interface WrSelectContext {
    * cannot be added, and marks itself unavailable.
    */
   readonly atMaxItems: Signal<boolean>;
+  /** The item behind a value, for a leading template's `item`; the value itself when none carries it. */
+  itemFor(value: unknown): unknown;
   /** Is the given option value currently selected? Handles both single and multi. */
   isSelected(value: unknown): boolean;
   /**

@@ -17,7 +17,7 @@
       <span class="wr-select__value-leading" aria-hidden="true">
         <ng-container
           [ngTemplateOutlet]="leading"
-          [ngTemplateOutletContext]="{ $implicit: value(), placement: 'value' }"
+          [ngTemplateOutletContext]="{ $implicit: value(), item: itemFor(value()), placement: 'value' }"
         />
       </span>
     }
@@ -131,7 +131,7 @@
             <span class="wr-select__chip-leading" aria-hidden="true">
               <ng-container
                 [ngTemplateOutlet]="leading"
-                [ngTemplateOutletContext]="{ $implicit: chip.value, placement: 'chip' }"
+                [ngTemplateOutletContext]="{ $implicit: chip.value, item: chip.item, placement: 'chip' }"
               />
             </span>
           }
@@ -290,7 +290,7 @@
                 <span class="wr-select__chip-leading" aria-hidden="true">
                   <ng-container
                     [ngTemplateOutlet]="leading"
-                    [ngTemplateOutletContext]="{ $implicit: chip.value, placement: 'chip' }"
+                    [ngTemplateOutletContext]="{ $implicit: chip.value, item: chip.item, placement: 'chip' }"
                   />
                 </span>
               }
@@ -336,7 +336,7 @@
           <span class="wr-select__value-leading" aria-hidden="true">
             <ng-container
               [ngTemplateOutlet]="leading"
-              [ngTemplateOutletContext]="{ $implicit: value(), placement: 'value' }"
+              [ngTemplateOutletContext]="{ $implicit: value(), item: itemFor(value()), placement: 'value' }"
             />
           </span>
         }
@@ -489,7 +489,7 @@
               <span class="wr-option__leading" aria-hidden="true">
                 <ng-container
                   [ngTemplateOutlet]="leading"
-                  [ngTemplateOutletContext]="{ $implicit: entry.value, placement: 'option' }"
+                  [ngTemplateOutletContext]="{ $implicit: entry.value, item: entry.item, placement: 'option' }"
                 />
               </span>
             }

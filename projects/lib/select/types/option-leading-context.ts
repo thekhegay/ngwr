@@ -19,9 +19,17 @@
 export type WrOptionLeadingPlacement = 'option' | 'chip' | 'value';
 
 /** Template context of `<ng-template wrOptionLeading>`. */
-export interface WrOptionLeadingContext<T = unknown> {
-  /** The option's value — `let-value`. */
+export interface WrOptionLeadingContext<T = unknown, I = T> {
+  /** The option's value — `let-value`. Under `valueWith` it is the id, not the item. */
   readonly $implicit: T;
+  /**
+   * The item behind the option — `let-item="item"`. With `[options]` it is the
+   * item itself, so under `valueWith` it carries the fields the id leaves out.
+   * Without `valueWith` it equals `$implicit`. On a `<wr-option>` you declare
+   * yourself there is no item, so it is the value too; so it is for a selected
+   * value no row carries any more, such as a loader result since replaced.
+   */
+  readonly item: I;
   /** Where this copy is drawn, so one template can size itself per surface. */
   readonly placement: WrOptionLeadingPlacement;
 }
