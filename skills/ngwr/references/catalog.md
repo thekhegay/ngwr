@@ -141,6 +141,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/i18n/id` | `import { wrId } from 'ngwr/i18n/id'` | — |
 | `ngwr/i18n/it` | `import { wrIt } from 'ngwr/i18n/it'` | — |
 | `ngwr/i18n/ja` | `import { wrJa } from 'ngwr/i18n/ja'` | — |
+| `ngwr/i18n/kk` | `import { wrKk } from 'ngwr/i18n/kk'` | — |
 | `ngwr/i18n/ko` | `import { wrKo } from 'ngwr/i18n/ko'` | — |
 | `ngwr/i18n/nl` | `import { wrNl } from 'ngwr/i18n/nl'` | — |
 | `ngwr/i18n/pl` | `import { wrPl } from 'ngwr/i18n/pl'` | — |
