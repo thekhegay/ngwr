@@ -2668,7 +2668,19 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           }
         }
         break;
-      case WR_KEYS.ENTER:
+      case WR_KEYS.ENTER: {
+        // A linked row follows its link, as a click on the anchor does.
+        const anchor = this.rowLinks().has(entry.row)
+          ? els[index].nativeElement.querySelector<HTMLElement>(':scope > td > .wr-table__row-link')
+          : null;
+        if (anchor) {
+          anchor.click();
+          break;
+        }
+        if (!this.rowSelection()) return;
+        this.toggleRow(entry.row, !this.isRowSelected(entry.row));
+        break;
+      }
       case WR_KEYS.SPACE:
         // Selection is the row's own action when the table offers one. Without
         // it the keys do nothing, rather than guessing at a default.
