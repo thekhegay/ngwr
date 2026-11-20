@@ -199,6 +199,13 @@ interface SidebarNode {
  * its 32px rows. To force either size, set `--wr-sidebar-row-height`,
  * `--wr-sidebar-row-padding-y` and `--wr-sidebar-chevron-size` on `.wr-sidebar`.
  *
+ * Two slots take any content: `[wrSidebarHeader]` above the rows (a workspace
+ * switcher, a search field) and `[wrSidebarFooter]` below them (the signed-in
+ * person, a language menu). Both sit inside the navigation landmark and inside
+ * the host's padding, `--wr-sidebar-slot-gap` away from the rows. The footer
+ * goes to the end of the host, so in a full-height sider it is at the bottom.
+ * An unfilled slot takes no room.
+ *
  * The host pads its rows by `--wr-sidebar-padding` (`0.5rem`), so a hovered or
  * current row's tint stays off the edge of whatever holds the nav. Where the
  * container already supplies the inset, set the hook to `0` on `.wr-sidebar`,
@@ -219,6 +226,14 @@ interface SidebarNode {
  *     ]
  *   }
  * ]" />
+ * ```
+ *
+ * @example
+ * ```html
+ * <wr-sidebar [entries]="entries">
+ *   <button wr-btn wrSidebarHeader block (click)="create()">New page</button>
+ *   <button wr-btn wrSidebarFooter block outlined (click)="signOut()">Sign out</button>
+ * </wr-sidebar>
  * ```
  *
  * @see https://ngwr.dev/reference/components/sidebar

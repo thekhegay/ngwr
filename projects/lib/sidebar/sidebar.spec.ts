@@ -8,6 +8,8 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
+
 import type { WrSidebarActiveOptions, WrSidebarEntry } from './public-api';
 import { WrSidebar } from './sidebar';
 
@@ -980,5 +982,102 @@ describe('WrSidebar with links relative to the declaring route', () => {
     expect(el.querySelector('button[aria-controls]')!.getAttribute('aria-expanded')).toBe('true');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * Both slots, each behind a switch, so one host answers filled and unfilled. One
+ * element per `@if`: a block with two roots is not projected into a named slot.
+ */
+@Component({
+  imports: [WrSidebar],
+  template: `<wr-sidebar [entries]="entries">
+    @if (header()) {
+      <div wrSidebarHeader class="brand">Acme</div>
+    }
+    <p>Not a slot</p>
+    @if (footer()) {
+      <button wrSidebarFooter type="button">Sign out</button>
+    }
+    @if (footer()) {
+      <small wrSidebarFooter>v1</small>
+    }
+  </wr-sidebar>`,
+})
+class SlotHost {
+  readonly entries: readonly WrSidebarEntry[] = [{ title: 'Home', url: ['/'] }];
+  readonly header = signal(true);
+  readonly footer = signal(true);
+}
+
+describe('WrSidebar slots', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SlotHost>>;
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-sidebar')!;
+  const slot = (name: 'header' | 'footer'): HTMLElement =>
+    host().querySelector<HTMLElement>(`:scope > .wr-sidebar__${name}`)!;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    fixture = TestBed.createComponent(SlotHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+  afterEach(() => fixture.destroy());
+
+  it('draws the header above the rows and the footer below them, inside the landmark', () => {
+    expect([...host().children].map(el => el.className)).toEqual([
+      'wr-sidebar__header',
+      'wr-sidebar__inner',
+      'wr-sidebar__footer',
+    ]);
+    expect(slot('header').querySelector(':scope > .brand')!.textContent).toBe('Acme');
+    expect([...slot('footer').children].map(el => el.tagName)).toEqual(['BUTTON', 'SMALL']);
+    expect(host().querySelector('.wr-sidebar__inner')!.querySelectorAll('.wr-sidebar__row').length).toBe(1);
+  });
+
+  it('projects only what names a slot', () => {
+    expect(host().textContent).not.toContain('Not a slot');
+  });
+
+  it('leaves an unfilled slot empty, which is what hides it', async () => {
+    fixture.componentInstance.header.set(false);
+    fixture.componentInstance.footer.set(false);
+    await fixture.whenStable();
+
+    // What the stylesheet hides it by. A comment does not count against `:empty`,
+    // and a slot behind an `@if` leaves one; a text node would.
+    expect(slot('header').matches(':empty')).toBe(true);
+    expect(slot('footer').matches(':empty')).toBe(true);
+
+    fixture.componentInstance.footer.set(true);
+    await fixture.whenStable();
+
+    expect(slot('header').matches(':empty')).toBe(true);
+    expect(slot('footer').matches(':empty')).toBe(false);
+  });
+});
+
+/** The declarations of every rule whose selector list holds `selector`, joined. */
+function rule(css: string, selector: string): string {
+  const bodies = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(([, list]) => list.split(',').some(part => part.trim() === selector))
+    .map(([, , body]) => body.trim());
+  if (bodies.length === 0) throw new Error(`no rule for ${selector}`);
+  return bodies.join(' ');
+}
+
+/** jsdom applies no stylesheet, so what a rule does is read off the compiled sheet. */
+describe('WrSidebar stylesheet', { timeout: COMPILE_TIMEOUT }, () => {
+  const css = (): string => compileSass(`@use 'sidebar/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('hides an empty slot and sends a filled footer to the end of the host', () => {
+    expect(rule(css(), '.wr-sidebar')).toContain('flex-direction: column');
+    expect(rule(css(), '.wr-sidebar__header:empty')).toBe('display: none;');
+    expect(rule(css(), '.wr-sidebar__footer:empty')).toBe('display: none;');
+    expect(rule(css(), '.wr-sidebar__header')).toContain('padding-block-end: var(--wr-sidebar-slot-gap)');
+    expect(rule(css(), '.wr-sidebar__footer')).toContain('margin-block-start: auto');
+    expect(rule(css(), '.wr-sidebar__footer')).toContain('padding-block-start: var(--wr-sidebar-slot-gap)');
   });
 });

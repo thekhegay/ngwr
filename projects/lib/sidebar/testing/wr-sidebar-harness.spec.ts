@@ -38,11 +38,19 @@ const ENTRIES: readonly WrSidebarEntry[] = [
 
 @Component({
   imports: [WrSidebar],
-  template: `<wr-sidebar [entries]="entries()" [ariaLabel]="label()" />`,
+  template: `<wr-sidebar [entries]="entries()" [ariaLabel]="label()">
+    @if (slots()) {
+      <strong wrSidebarHeader>Acme</strong>
+    }
+    @if (slots()) {
+      <button wrSidebarFooter type="button">Sign out</button>
+    }
+  </wr-sidebar>`,
 })
 class Host {
   readonly entries = signal(ENTRIES);
   readonly label = signal<string | null>(null);
+  readonly slots = signal(false);
 }
 
 /** A real router: what marks the current row is a navigation, and a link is clicked to cause one. */
@@ -164,6 +172,17 @@ describe('WrSidebarHarness', () => {
 
     await expect(nav.clickItem('Import')).rejects.toThrow(/"Import" is disabled/);
     expect(ran).toBe(1);
+  });
+
+  it('reads a filled slot and answers null for an unfilled one', async () => {
+    expect(await nav.getHeaderText()).toBeNull();
+    expect(await nav.getFooterText()).toBeNull();
+
+    fixture.componentInstance.slots.set(true);
+    await fixture.whenStable();
+
+    expect(await nav.getHeaderText()).toBe('Acme');
+    expect(await nav.getFooterText()).toBe('Sign out');
   });
 
   it('refuses to click a disabled page', async () => {
