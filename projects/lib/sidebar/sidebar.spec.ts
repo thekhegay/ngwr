@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
 
-import type { WrSidebarActiveOptions, WrSidebarEntry } from './public-api';
+import type { WrSidebarActiveOptions, WrSidebarActiveTone, WrSidebarEntry } from './public-api';
 import { WrSidebar } from './sidebar';
 
 /** Minimal valid SVG: the registry rejects markup with no root element. */
@@ -72,6 +72,7 @@ const NESTED: readonly WrSidebarEntry[] = [
     [ariaLabel]="ariaLabel()"
     [defaultGroupIcon]="defaultGroupIcon()"
     [defaultItemIcon]="defaultItemIcon()"
+    [activeTone]="activeTone()"
   />`,
 })
 class Host {
@@ -81,6 +82,7 @@ class Host {
   readonly ariaLabel = signal<string | null>(null);
   readonly defaultGroupIcon = signal<string | null>(null);
   readonly defaultItemIcon = signal<string | null>(null);
+  readonly activeTone = signal<WrSidebarActiveTone>('primary');
 }
 
 /**
@@ -730,6 +732,28 @@ describe('WrSidebar', () => {
     });
   });
 
+  describe('the tone of the current page', () => {
+    it('is primary with no modifier, and neutral through one class on the host', async () => {
+      expect(host().className).toBe('wr-sidebar');
+
+      fixture.componentInstance.activeTone.set('neutral');
+      await settle();
+      expect(host().classList).toContain('wr-sidebar--active-neutral');
+
+      fixture.componentInstance.activeTone.set('primary');
+      await settle();
+      expect(host().className).toBe('wr-sidebar');
+    });
+
+    it('leaves which row is current alone', async () => {
+      fixture.componentInstance.activeTone.set('neutral');
+      await navigate('/table');
+
+      expect(isCurrent('Table')).toBe(true);
+      expect(rowFor('Table').classList).toContain('wr-sidebar__row--active');
+    });
+  });
+
   describe('auto-expand', () => {
     it('expands the group that owns the current route', async () => {
       await navigate('/table');
@@ -1079,5 +1103,44 @@ describe('WrSidebar stylesheet', { timeout: COMPILE_TIMEOUT }, () => {
     expect(rule(css(), '.wr-sidebar__header')).toContain('padding-block-end: var(--wr-sidebar-slot-gap)');
     expect(rule(css(), '.wr-sidebar__footer')).toContain('margin-block-start: auto');
     expect(rule(css(), '.wr-sidebar__footer')).toContain('padding-block-start: var(--wr-sidebar-slot-gap)');
+  });
+
+  it("defaults the current row's hooks to the primary roles it painted with before them", () => {
+    const base = rule(css(), '.wr-sidebar');
+
+    expect(base).toContain('--wr-sidebar-row-active-bg: var(--wr-color-primary-soft);');
+    expect(base).toContain('--wr-sidebar-row-active-color: var(--wr-color-primary-ink);');
+    expect(base).toContain('--wr-sidebar-row-active-icon: var(--wr-color-primary);');
+    expect(base).toContain('--wr-sidebar-row-active-indicator: var(--wr-color-primary);');
+  });
+
+  it('paints the current row through those hooks and nothing else', () => {
+    expect(rule(css(), '.wr-sidebar__row--active')).toContain('color: var(--wr-sidebar-row-active-color);');
+    expect(rule(css(), '.wr-sidebar__row--active .wr-sidebar__icon')).toBe('color: var(--wr-sidebar-row-active-icon);');
+    expect(rule(css(), '.wr-sidebar__row--active.wr-sidebar__row--level-1')).toBe(
+      'background: var(--wr-sidebar-row-active-bg);'
+    );
+    expect(rule(css(), '.wr-sidebar__list .wr-sidebar__row--active::before')).toContain(
+      'background: var(--wr-sidebar-row-active-indicator);'
+    );
+    expect(rule(css(), '.wr-sidebar__dot')).toContain('background: var(--wr-sidebar-row-active-indicator);');
+  });
+
+  it('turns all four neutral under the modifier, and under the static attribute without specificity', () => {
+    const neutral = rule(css(), '.wr-sidebar--active-neutral');
+
+    expect(neutral).toBe(rule(css(), '.wr-sidebar:where([activeTone=neutral])'));
+    expect(neutral).toContain('--wr-sidebar-row-active-bg: var(--wr-color-fill-strong);');
+    for (const hook of ['color', 'icon', 'indicator']) {
+      expect(neutral).toContain(`--wr-sidebar-row-active-${hook}: var(--wr-color-on-surface);`);
+    }
+  });
+
+  it('matches a host born with the static attribute, before any class is bound', () => {
+    const el = document.createElement('wr-sidebar');
+    el.className = 'wr-sidebar';
+    el.setAttribute('activeTone', 'neutral');
+
+    expect(el.matches('.wr-sidebar:where([activeTone=neutral])')).toBe(true);
   });
 });

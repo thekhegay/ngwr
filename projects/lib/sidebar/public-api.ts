@@ -8,4 +8,5 @@ export type {
   WrSidebarBadge,
   WrSidebarBadgeTone,
   WrSidebarActiveOptions,
+  WrSidebarActiveTone,
 } from './types';

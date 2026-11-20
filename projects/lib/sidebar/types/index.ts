@@ -21,6 +21,12 @@ export type WrSidebarActiveOptions = { readonly exact: boolean } | Partial<IsAct
  */
 export type WrSidebarBadgeTone = 'neutral' | 'primary' | 'danger';
 
+/**
+ * How the current page is painted: `primary` is the brand tint, `neutral` a grey
+ * one, for a shell that keeps its primary for the page's own actions.
+ */
+export type WrSidebarActiveTone = 'primary' | 'neutral';
+
 /** A word on the line under the title (`New`, `Optional`, `Deprecated`). */
 export interface WrSidebarBadge {
   readonly text: string;

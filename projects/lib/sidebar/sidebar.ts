@@ -43,6 +43,7 @@ import { WR_KEYS, wrCheckStyles } from 'ngwr/utils';
 import type {
   WrSidebarAction,
   WrSidebarActiveOptions,
+  WrSidebarActiveTone,
   WrSidebarBadgeTone,
   WrSidebarEntry,
   WrSidebarGroup,
@@ -199,6 +200,11 @@ interface SidebarNode {
  * its 32px rows. To force either size, set `--wr-sidebar-row-height`,
  * `--wr-sidebar-row-padding-y` and `--wr-sidebar-chevron-size` on `.wr-sidebar`.
  *
+ * The current page is painted through four hooks, `--wr-sidebar-row-active-bg`,
+ * `-color`, `-icon` and `-indicator` (the bar on the guide and the dot on a
+ * collapsed group), primary by default. `activeTone="neutral"` sets all four to
+ * the neutral roles.
+ *
  * Two slots take any content: `[wrSidebarHeader]` above the rows (a workspace
  * switcher, a search field) and `[wrSidebarFooter]` below them (the signed-in
  * person, a language menu). Both sit inside the navigation landmark and inside
@@ -242,7 +248,12 @@ interface SidebarNode {
   selector: 'wr-sidebar',
   templateUrl: './sidebar.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-sidebar', role: 'navigation', '[attr.aria-label]': 'resolvedAriaLabel()' },
+  host: {
+    class: 'wr-sidebar',
+    role: 'navigation',
+    '[attr.aria-label]': 'resolvedAriaLabel()',
+    '[class.wr-sidebar--active-neutral]': "activeTone() === 'neutral'",
+  },
   imports: [NgTemplateOutlet, RouterLink, WrIcon, WrKbd],
 })
 export class WrSidebar {
@@ -280,6 +291,13 @@ export class WrSidebar {
    * `autoExpand`. @default false
    */
   readonly autoCollapse = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * How the current page is painted: the primary tint, or with `'neutral'` a
+   * grey one that leaves the primary to the page's own actions. Either way the
+   * four `--wr-sidebar-row-active-*` hooks take any colour. @default 'primary'
+   */
+  readonly activeTone = input<WrSidebarActiveTone>('primary');
 
   /** Spoken after a collapsed group that holds the current page. */
   protected readonly containsCurrentLabel = wrReadI18nText('sidebar.containsCurrent', 'contains the current page');
