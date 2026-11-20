@@ -17,19 +17,15 @@ and `formControlName` still bind, but **no accessor is created**: `NgModel`,
 `checked` model directly. Core finds that model BY NAME — an input plus its
 `…Change` output (`initializeCustomControlStatus` in `@angular/core`) — so a
 control whose model is called anything else gets `NG01203` from all three. The
-bridge has limits no ngwr code can lift, and the first is the dangerous one:
-**template validator directives are not applied.** `required`, `minlength`,
-`maxlength`, `pattern` and `email` written on an ngwr control match their
-directives, but only the accessor path calls `setUpValidators`, so the
-`FormControl` never sees them — no error, no `ng-invalid`, and the form submits.
-Validators have to live on the `FormControl` (`min` / `max` never even match:
-their selectors require `input[type=number]`). The bridge also ignores
-`updateOn`, and a write with `{ emitEvent: false }` schedules no repaint, so
-one from an HTTP callback or a timer needs `markForCheck()`. `checkbox/classic-forms-bridge.spec.ts` pins the drop as
-Angular's current behaviour — reported upstream as
-[angular/angular#70721](https://github.com/angular/angular/issues/70721), which reproduces it without ngwr,
-so when that closes the pinned cases flip and every doc naming the limit moves with them;
-`/guides/forms` is the consumer-facing account.
+bridge has limits no ngwr code can lift. Template validator directives
+(`required`, `minlength`, `maxlength`, `pattern`, `email`) reach the `FormControl`
+since Angular 22.3, which fixed
+[angular/angular#70721](https://github.com/angular/angular/issues/70721), and 22.3
+is ngwr's peer floor; `checkbox/classic-forms-bridge.spec.ts` pins it. `min` / `max`
+still never match an ngwr control: their selectors require `input[type=number]`.
+The bridge also ignores `updateOn`, and a write with `{ emitEvent: false }`
+schedules no repaint, so one from an HTTP callback or a timer needs
+`markForCheck()`. `/guides/forms` is the consumer-facing account.
 Standalone use is the two-way model, e.g. `[(value)]` / `[(checked)]`.
 New value controls: implement `FormValueControl`, expose `value` as a `model()`,
 plus a `touch` output, a `disabled` input and a **`readonly` input** — Angular
