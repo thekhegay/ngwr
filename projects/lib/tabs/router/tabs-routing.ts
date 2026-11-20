@@ -8,7 +8,14 @@
 import { LocationStrategy } from '@angular/common';
 import { Directive, forwardRef, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, type IsActiveMatchOptions, NavigationEnd, Router, type UrlTree } from '@angular/router';
+import {
+  ActivatedRoute,
+  containsTree,
+  type IsActiveMatchOptions,
+  NavigationEnd,
+  Router,
+  type UrlTree,
+} from '@angular/router';
 
 import { filter, map, startWith } from 'rxjs';
 
@@ -126,11 +133,7 @@ export class WrTabsRouting implements WrTabsRoutingAdapter {
   }
 
   isActive(commands: string | readonly string[], exact = false): boolean {
-    // Read for the dependency, not for the value: `isActive` asks the router,
-    // which is not a signal, so without this the computed that calls it would
-    // never recompute and the strip would announce its first selection forever.
-    this.url();
-    return this.router.isActive(this.tree(commands), exact ? MATCH_EXACT : MATCH);
+    return containsTree(this.router.parseUrl(this.url()), this.tree(commands), exact ? MATCH_EXACT : MATCH);
   }
 
   navigate(commands: string | readonly string[], event: MouseEvent): void {

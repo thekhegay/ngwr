@@ -82,9 +82,6 @@ minor of the current line, and its `@angular/compiler-cli` peer is that line.
 one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 `@angular-devkit/*`, `@schematics/angular`) patches independently of the
 **framework** (`@angular/core` et al.) — bump only the train that moved.
-**`@angular/build` is held on the 22.3 prerelease on purpose**, because
-`@angular/build:library` ships there: move it to `^22.3.0` once that is stable,
-and do not align it with the framework train before then.
 Dependabot (grouped, checked daily) handles the PRs — one per group, and `groups` does NOT cross ecosystems, so the npm groups say nothing about GitHub Actions bumps (those have their own group, minor/patch only; a major action bump still arrives alone so it cannot be merged unread). **TypeScript is pinned on purpose** to
 the 6.0 line (a tilde range in `devDependencies`) — Angular 22's peer range is
 `typescript >=6.0 <6.1`, and TypeScript 7 is out. `.github/dependabot.yml`
