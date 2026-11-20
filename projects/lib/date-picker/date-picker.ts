@@ -736,7 +736,9 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
       return;
     }
     const parsed = this.fieldText.read(raw);
-    if (!parsed) {
+    // A day string holds years 0 to 9999 only: a date it cannot write is as
+    // unreadable as text that is no date, and leaves the value alone.
+    if (!parsed || (this.holdsDay() && !wrToDay(parsed))) {
       this.refuse(this.fieldText.unreadable());
       return;
     }
