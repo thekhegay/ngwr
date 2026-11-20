@@ -96,10 +96,9 @@ export class WrTabsRouting implements WrTabsRoutingAdapter {
   private readonly route = inject(ActivatedRoute);
 
   /**
-   * The current URL, as a signal, so `href()` and `isActive()` are reactive to
-   * navigation when read from a computed. `isActive` obviously has to be; so
-   * does `href`, because a RELATIVE link is resolved against the active route
-   * and its target moves when the route does — which is why `RouterLink`
+   * The current URL, as a signal, so `href()` is reactive to navigation when
+   * read from a computed: a RELATIVE link is resolved against the active route
+   * and its target moves when the route does, which is why `RouterLink`
    * recomputes its own href on every navigation too.
    */
   private readonly url = toSignal(
@@ -133,10 +132,10 @@ export class WrTabsRouting implements WrTabsRoutingAdapter {
   }
 
   isActive(commands: string | readonly string[], exact = false): boolean {
-    // Read for the dependency only: the router's own URL is already the new one
-    // for a `NavigationEnd` subscriber that runs before this adapter's.
-    this.url();
-    return containsTree(this.router.parseUrl(this.router.url), this.tree(commands), exact ? MATCH_EXACT : MATCH);
+    // What Angular's own `isActive` function reads: a signal, already the new URL
+    // when `NavigationEnd` is emitted, and the tree as navigated, not reparsed.
+    const current = this.router.lastSuccessfulNavigation()?.finalUrl ?? this.router.parseUrl(this.router.url);
+    return containsTree(current, this.tree(commands), exact ? MATCH_EXACT : MATCH);
   }
 
   navigate(commands: string | readonly string[], event: MouseEvent): void {
