@@ -21,7 +21,7 @@ import {
 
 import { useI18nText } from 'ngwr/i18n';
 import type { WrColor } from 'ngwr/theme';
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrRandomId } from 'ngwr/utils';
 
 import type { WrProgressMark } from './types';
 
@@ -54,6 +54,7 @@ export type WrProgressSize = 'sm' | 'md' | 'lg';
     'aria-valuemax': '100',
     '[attr.aria-valuenow]': 'indeterminate() ? null : clamped()',
     '[attr.aria-label]': 'resolvedAriaLabel()',
+    '[attr.aria-describedby]': 'markLabelIds()',
     class: 'wr-progress',
     '[class]': 'classes()',
   },
@@ -84,6 +85,9 @@ export class WrProgress {
   readonly ariaLabel = input<string | null>(null);
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'progress.label', 'Progress');
+
+  /** Prefix of the mark label ids the host's `aria-describedby` lists. */
+  protected readonly markId = wrRandomId('wr-progress-mark');
 
   /**
    * Bar color.
@@ -124,9 +128,10 @@ export class WrProgress {
    * towards the ends. One that would touch the label before it is hidden and
    * its tick kept, so the earlier mark wins.
    *
-   * Marks do not change what the progressbar announces. The ticks are hidden
-   * from assistive tech and ARIA treats the content of a progressbar as
-   * presentational, so a label that matters also belongs in `ariaLabel`.
+   * Marks do not change the value the progressbar announces. The ticks are
+   * hidden from assistive tech; the labels are its description
+   * (`aria-describedby`), because ARIA treats the content of a progressbar as
+   * presentational and would not read them otherwise.
    * `indeterminate` draws no marks: it has no scale to place them on.
    *
    * @example
@@ -151,6 +156,12 @@ export class WrProgress {
           .map(mark => ({ ...mark, columns: `${mark.value}fr auto ${100 - mark.value}fr` }))
   );
   protected readonly labelledMarks = computed(() => this.drawnMarks().filter(mark => !!mark.label));
+
+  /** The label ids, in order, or nothing while no mark has a label. */
+  protected readonly markLabelIds = computed(() => {
+    const count = this.labelledMarks().length;
+    return count ? Array.from({ length: count }, (_, i) => `${this.markId}-${i}`).join(' ') : null;
+  });
 
   /** Indexes into `labelledMarks` of the labels hidden for touching the one before. */
   protected readonly crowded = signal<ReadonlySet<number>>(new Set());
