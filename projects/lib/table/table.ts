@@ -1651,12 +1651,16 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       }
       measuredSize = size;
       if (!isPlatformBrowser(this.platformId)) return;
+      if (!untracked(() => this.virtualized()) || untracked(() => this.rowHeight()) !== 0) return;
+      // The rows are held at the old height through `--wr-table-row-h`: let go of
+      // it for the render that measures, or the measure reads the old height back.
+      this.remeasuring.set(true);
       afterNextRender(
         () => {
-          if (!this.virtualized() || this.rowHeight() !== 0) return;
           const row = this.scrollEl()?.nativeElement.querySelector<HTMLElement>('.wr-table__tr');
           const h = row?.offsetHeight ?? 0;
           if (h > 0) this.measuredRowPx.set(h);
+          this.remeasuring.set(false);
         },
         { injector: this.injector }
       );
@@ -2064,6 +2068,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   private readonly viewportPx = signal(0);
   /** Measured first-row height (px) when `rowHeight` is auto; 0 until measured. */
   private readonly measuredRowPx = signal(0);
+  /** True for the render that measures a row after a size change. */
+  protected readonly remeasuring = signal(false);
   /** Fixed layout forced ON by virtualization (distinct from the resize latch). */
   private readonly virtualFixed = signal(false);
 
