@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 
+import { WrButton } from 'ngwr/button';
 import { WrPagination } from 'ngwr/pagination';
 
 import {
@@ -15,6 +16,7 @@ import { API } from '#core/generated/api';
   selector: 'ngwr-pagination-page',
   templateUrl: './pagination.html',
   imports: [
+    WrButton,
     WrPagination,
     DocPageComponent,
     DocSectionComponent,
@@ -30,6 +32,14 @@ export default class PaginationComponent {
   /** The 320-item demo needs its own page: the 120-item pagers would clamp a shared one. */
   protected readonly fullPage = signal(1);
   protected readonly size = signal(10);
+
+  /** The single-page demo: 8 items fit on one page, 45 do not. */
+  protected readonly fewTotal = signal(8);
+  protected readonly fewPage = signal(1);
+
+  protected toggleFew(): void {
+    this.fewTotal.update(total => (total === 8 ? 45 : 8));
+  }
 
   /** Server-side paging demo: picking a page drops `total` to 0 for a fake 900 ms request. */
   protected readonly serverPage = signal(1);
@@ -66,6 +76,7 @@ export default class PaginationComponent {
   showSizeChanger
   align="end"
 />`,
+    single: `<wr-pagination hideOnSinglePage [total]="total()" [(page)]="page" />`,
     serverHtml: `<wr-pagination
   [total]="total()"
   [page]="page()"

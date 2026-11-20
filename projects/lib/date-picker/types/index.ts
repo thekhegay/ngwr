@@ -1,5 +1,6 @@
 export type { WrDateInputError, WrDateRangeInputError } from './date-input-error';
 export type { WrDatePickerMode, WrDateRangePickerMode } from './date-picker-mode';
 export type { WrDatePickerSize } from './date-picker-size';
+export type { WrDatePickerValue, WrDatePickerValueFormat } from './date-picker-value';
 export type { WrDateRange } from './date-range';
 export type { WrDateRangePreset, WrDateRangePresetContext, WrDateRangePresetFn } from './date-range-preset';

@@ -1,6 +1,8 @@
 export type { WrTableRow } from './table-row';
 export type { WrTableRowClass } from './table-row-class';
 export type { WrTableRowClick } from './table-row-click';
+export type { WrTableRowLink } from './table-row-link';
+export type { WrTableRoutingAdapter } from './table-routing-adapter';
 export type { WrTableSortDirection } from './table-sort-direction';
 export type { WrTableSortState } from './table-sort';
 export type { WrTableSortAccessor } from './table-sort-accessor';
@@ -24,5 +26,6 @@ export type { WrTableGroupContext } from './table-group-context';
 export type { WrTableLayout } from './table-layout';
 export type { WrTableLoadingMode } from './table-loading-mode';
 export type { WrTableSelectionContext } from './table-selection-context';
+export type { WrTableSize } from './table-size';
 export type { WrTableState } from './table-state';
 export type { WrTableSummaryContext } from './table-summary-context';

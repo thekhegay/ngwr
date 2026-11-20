@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Progress"
-  updated="16.3.0"
+  updated="16.7.0"
   description="A bar that shows how far a task has got."
   [keywords]="['progress', 'wr-progress']"
   [labels]="['Component']"
@@ -47,6 +47,15 @@
         <wr-progress [value]="demoValue()" />
         <wr-slider [(value)]="demoValue" />
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Marks"
+    description="`marks` draws a tick at each value on the 0 to 100 scale and its label under the bar: a term strip. A mark outside the range is not drawn, a label that would touch the one before it is hidden, and the announced value stays the same. Since v16.7."
+  >
+    <ngwr-doc-snippet [code]="snippets.marks">
+      <div style="width: 100%"><wr-progress size="sm" ariaLabel="Lease term" [value]="62" [marks]="marks" /></div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

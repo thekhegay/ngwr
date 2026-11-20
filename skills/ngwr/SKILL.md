@@ -5,7 +5,7 @@ description: Build Angular UIs with the ngwr component library (standalone, sign
 
 # ngwr
 
-An Angular 22 UI library: 242 tree-shakable entry points, 129 of them shipping a selector.
+An Angular 22 UI library: 244 tree-shakable entry points, 131 of them shipping a selector.
 Standalone, signals-first, zoneless, `ViewEncapsulation.None`. No runtime
 dependencies.
 
@@ -75,11 +75,12 @@ guess gets backwards.
   `[formField]="form.x"`, or use the two-way model standalone —
   `[(value)]`, `[(checked)]`. `[(ngModel)]` and reactive forms still bind,
   with no accessor created: Angular's `NgModel` / `FormControlDirective` drive
-  the `value` or `checked` model directly. That bridge does NOT apply template
-  validator directives — `required`, `minlength`, `maxlength`, `pattern` or
-  `email` on an ngwr control is silently ignored and the form submits — so put
-  validators on the `FormControl`. It also ignores `updateOn`, and a
-  `{ emitEvent: false }` write needs `markForCheck()`.
+  the `value` or `checked` model directly. Template validator directives
+  (`required`, `minlength`, `maxlength`, `pattern`, `email`) reach the
+  `FormControl` as on an `<input>` (Angular 22.3+, ngwr's floor); `min` / `max`
+  never match an ngwr control, so put those on the `FormControl`. `required`
+  on `wr-checkbox` accepts `false`: a box that must be checked needs
+  `Validators.requiredTrue`.
 - **ngwr ships no validation copy.** For an error no `<wr-form-error key>`
   claims, `<wr-form-field>` shows the validator's own message
   (`required(path.email, { message: '…' })`), else `validation.<key>` from the

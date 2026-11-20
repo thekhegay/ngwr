@@ -568,3 +568,40 @@ describe('WrDropdownHarness — a disabled trigger', () => {
     await expect(dropdown.openByKeyboard()).rejects.toThrow(/not disabled \(isDisabled\(\)\)/);
   });
 });
+
+@Component({
+  imports: [WrDropdown, WrDropdownMenu, WrDropdownItem],
+  template: `
+    <button type="button" [wrDropdown]="menu">View</button>
+    <wr-dropdown-menu #menu>
+      <wr-dropdown-item>Plain</wr-dropdown-item>
+      <wr-dropdown-item [checked]="true">Show grid</wr-dropdown-item>
+      <wr-dropdown-item radio [checked]="false">List</wr-dropdown-item>
+    </wr-dropdown-menu>
+  `,
+})
+class CheckedHost {}
+
+describe('WrDropdownItemHarness — checked state', () => {
+  it('reads the state and narrows by it', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(CheckedHost);
+    fixture.detectChanges();
+    const dropdown = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrDropdownHarness);
+    await dropdown.open();
+
+    const items = await dropdown.getItems();
+    expect(await Promise.all(items.map(item => item.isChecked()))).toEqual([null, true, false]);
+    expect(await Promise.all(items.map(item => item.getRole()))).toEqual([
+      'menuitem',
+      'menuitemcheckbox',
+      'menuitemradio',
+    ]);
+
+    const checked = await dropdown.getItems({ checked: true });
+    expect(await Promise.all(checked.map(item => item.getText()))).toEqual(['Show grid']);
+    const unchecked = await dropdown.getItems({ checked: false });
+    expect(await Promise.all(unchecked.map(item => item.getText()))).toEqual(['List']);
+    fixture.destroy();
+  });
+});

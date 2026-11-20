@@ -53,6 +53,20 @@ class RoutedHost {}
 })
 class RelativeHost {}
 
+/** An overview tab at `/project` next to a child-route tab, with and without `exact`. */
+@Component({
+  imports: [WrTabs, WrTab, WrTabsRouting],
+  template: `
+    <wr-tabs wrTabsRouting>
+      <wr-tab title="Overview" key="overview" routerLink="/project" [exact]="exactOverview" />
+      <wr-tab title="Settings" key="settings" routerLink="/project/settings" />
+    </wr-tabs>
+  `,
+})
+class ExactHost {
+  exactOverview = false;
+}
+
 /** Nothing but an outlet, so the only tabs on the page are the routed ones. */
 @Component({ imports: [RouterOutlet], template: '<router-outlet />' })
 class Shell {}
@@ -170,6 +184,47 @@ describe('WrTabsRouting', () => {
 
     expect(event.defaultPrevented).toBe(false);
     expect(router.url).toBe('/');
+  });
+});
+
+describe('WrTabsRouting exact', () => {
+  const setup = (exact: boolean): ((url: string) => Promise<string[]>) => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideRouter([{ path: 'project', component: Page, children: [{ path: 'settings', component: Page }] }]),
+      ],
+    });
+    const fixture = TestBed.createComponent(ExactHost);
+    fixture.componentInstance.exactOverview = exact;
+    const router = TestBed.inject(Router);
+    return async url => {
+      await router.navigateByUrl(url);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      return [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('[role="tab"]')]
+        .filter(a => a.getAttribute('aria-selected') === 'true')
+        .map(a => a.textContent?.trim() ?? '');
+    };
+  };
+
+  it('keeps the exact tab unselected on a child route', async () => {
+    const at = setup(true);
+
+    expect(await at('/project/settings')).toEqual(['Settings']);
+  });
+
+  it('selects the exact tab on its own URL, query and fragment included', async () => {
+    const at = setup(true);
+
+    expect(await at('/project?q=1#frag')).toEqual(['Overview']);
+  });
+
+  it('selects the tab on a child route without exact, next to the child tab', async () => {
+    const at = setup(false);
+
+    expect(await at('/project/settings')).toEqual(['Overview', 'Settings']);
   });
 });
 

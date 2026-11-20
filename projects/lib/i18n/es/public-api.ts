@@ -152,6 +152,7 @@ export const wrEs: WrI18nCatalog = {
     failed: 'Error al subir',
     status: '{{name}}: {{status}}',
     retry: 'Reintentar',
+    openFile: '{{name}} (se abre en una pestaña nueva)',
   },
   popconfirm: {
     label: 'Confirmar la acción',
@@ -191,6 +192,7 @@ export const wrEs: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: 'Más: {{count}}',
   },
   backTop: {
     label: 'Volver arriba',

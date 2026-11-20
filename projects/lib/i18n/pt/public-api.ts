@@ -152,6 +152,7 @@ export const wrPt: WrI18nCatalog = {
     failed: 'Falha no envio',
     status: '{{name}}: {{status}}',
     retry: 'Tentar novamente',
+    openFile: '{{name}} (abre em uma nova aba)',
   },
   popconfirm: {
     label: 'Confirmar ação',
@@ -191,6 +192,7 @@ export const wrPt: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: 'Mais {{count}}',
   },
   backTop: {
     label: 'Voltar ao início',

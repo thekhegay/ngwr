@@ -134,6 +134,8 @@ function byDocumentPosition(a: WrSelectOptionRegistration, b: WrSelectOptionRegi
 interface SelectedChip {
   readonly value: unknown;
   readonly label: string;
+  /** The item behind the value, or the value itself when no row carries one. */
+  readonly item: unknown;
   /** The leading template this chip draws, or `null`. */
   readonly leading: TemplateRef<WrOptionLeadingContext> | null;
 }
@@ -940,7 +942,7 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
     const arr = this.asArray(this.value());
     if (this.isTag()) {
       // Tag values are free text with no option behind them, so no leading.
-      return arr.map<SelectedChip>(v => ({ value: v, label: String(v), leading: null }));
+      return arr.map<SelectedChip>(v => ({ value: v, item: v, label: String(v), leading: null }));
     }
     const byValue = this.registryByValue();
     const items = this.valueWith() ? this.selectedItems() : null;
@@ -952,6 +954,7 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
       // would otherwise render as "[object Object]".
       return {
         value: v,
+        item: this.itemFor(v),
         label: found?.label() ?? (items ? this.itemLabel(items, v) : this.displayWith()(v as T)),
         leading: found?.leading ? found.leading() : this.optionLeading(),
       };
@@ -1010,6 +1013,18 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
   protected valueOf(item: T): V {
     const valueWith = this.valueWith();
     return valueWith ? valueWith(item) : (item as unknown as V);
+  }
+
+  /**
+   * WrSelectContext - the item behind a value, for a leading template's `item`:
+   * the `[options]` item, else the one kept from an earlier pass, else the value.
+   */
+  itemFor(value: unknown): unknown {
+    // `has`, not `??`: an option item may itself be null.
+    const byValue = this.itemsByValue();
+    if (byValue.has(value)) return byValue.get(value);
+    const selected = this.selectedItems();
+    return selected.has(value) ? selected.get(value) : value;
   }
 
   /** The first of `dynamicOptions()` carrying each value. */

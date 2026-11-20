@@ -13,7 +13,8 @@ import type { WrTableRow } from './table-row';
  */
 export interface WrTableSelectionContext<T extends WrTableRow = WrTableRow> {
   /**
-   * The selected rows the table holds, in `items` order. In server mode
+   * The selected rows the table holds, in `items` order, including the ones a
+   * `search` hides: the same set `count` counts. In server mode
    * (`total` set) that is the selected rows of the current page: a key
    * selected on another page is counted and is not here.
    */

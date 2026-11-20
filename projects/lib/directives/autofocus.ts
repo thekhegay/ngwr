@@ -45,7 +45,10 @@ export class WrAutofocus {
       afterNextRender(
         () => {
           const host = this.el.nativeElement;
-          (mode === 'first' ? wrGetFocusableElements(host)[0] : host)?.focus();
+          // An explicit negative `tabindex` takes an element out of the Tab order;
+          // an editing host with none still reads `tabIndex` -1 and stays eligible.
+          const reachable = (el: HTMLElement): boolean => Number(el.getAttribute('tabindex') ?? 0) >= 0;
+          (mode === 'first' ? wrGetFocusableElements(host).find(reachable) : host)?.focus();
         },
         { injector: this.injector }
       );

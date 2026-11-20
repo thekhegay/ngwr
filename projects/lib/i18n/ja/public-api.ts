@@ -154,6 +154,7 @@ export const wrJa: WrI18nCatalog = {
     failed: 'アップロード失敗',
     status: '{{name}}: {{status}}',
     retry: '再試行',
+    openFile: '{{name}}(新しいタブで開く)',
   },
   popconfirm: {
     label: '操作の確認',
@@ -193,6 +194,7 @@ export const wrJa: WrI18nCatalog = {
   },
   avatar: {
     alt: 'アバター',
+    more: 'ほか{{count}}人',
   },
   backTop: {
     label: 'ページの先頭へ戻る',

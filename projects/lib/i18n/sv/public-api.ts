@@ -152,6 +152,7 @@ export const wrSv: WrI18nCatalog = {
     failed: 'Uppladdningen misslyckades',
     status: '{{name}}: {{status}}',
     retry: 'Försök igen',
+    openFile: '{{name}} (öppnas i en ny flik)',
   },
   popconfirm: {
     label: 'Bekräfta åtgärden',
@@ -191,6 +192,7 @@ export const wrSv: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} till',
   },
   backTop: {
     label: 'Till toppen',

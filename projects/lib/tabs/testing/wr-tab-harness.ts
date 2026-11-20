@@ -56,9 +56,20 @@ export class WrTabHarness extends ContentContainerComponentHarness {
       .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled);
   }
 
-  /** The tab's visible label, trimmed — the `<wr-tab>`'s `title`. */
+  /** The tab's visible label, trimmed — the `<wr-tab>`'s `title`. The count is not part of it. */
   async getLabel(): Promise<string> {
-    return (await this.host()).text();
+    return (await this.locatorFor('.wr-tabs__tab-label')()).text();
+  }
+
+  /** The count shown after the label, or `null` while the tab has none. */
+  async getCount(): Promise<number | null> {
+    const badge = await this.locatorForOptional('.wr-tabs__count')();
+    return badge ? Number(await badge.text()) : null;
+  }
+
+  /** The accessible name the header announces: the label, plus the count when it has one ("Inbox, 3"). */
+  async getAccessibleName(): Promise<string> {
+    return (await (await this.host()).getAttribute('aria-label')) ?? (await this.getLabel());
   }
 
   /**

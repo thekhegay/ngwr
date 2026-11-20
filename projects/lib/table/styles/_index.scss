@@ -20,6 +20,12 @@
 @use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('table');
 
+// A row whose link has the focus ring, which the row draws for it.
+$row-link-focused: ':has(> td > .wr-table__row-link:focus-visible)';
+
+// The controls in a linked row that keep the pointer, see `&__tr--link`.
+$row-controls: "a[href], button, input, select, textarea, label, [role='button'], [contenteditable]:not([contenteditable='false']), [wrTableIgnoreRowClick], .wr-table__actions";
+
 .wr-table {
   --wr-table-bg: var(--wr-color-surface);
   --wr-table-border: var(--wr-border-base);
@@ -31,6 +37,12 @@
   --wr-table-head-font-size: var(--wr-text-xs);
   --wr-table-head-font-weight: var(--wr-font-weight-semibold);
   --wr-table-row-hover: var(--wr-color-fill-subtle);
+  // The padding of a header, body and footer cell at density 1. Off the
+  // spacing scale: these are the lengths the table has always drawn, and each
+  // is multiplied by `--wr-density-y` / `-x` where it is read. `size="sm"`
+  // restates both (see `.wr-table--sm`).
+  --wr-table-cell-padding-y: 0.625rem;
+  --wr-table-cell-padding-x: 0.875rem;
   // Head casing. The library renders column titles as the author wrote them —
   // forcing `uppercase` mutates their content, and a header written "ID" or
   // "created at" is the consumer's decision to make, not ours. Both halves stay
@@ -136,7 +148,8 @@
 
   &__th,
   &__td {
-    padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+    padding: calc(var(--wr-table-cell-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-table-cell-padding-x) * var(--wr-density-x, 1));
     text-align: start;
     vertical-align: middle;
     border-bottom: 1px solid var(--wr-table-border);
@@ -226,6 +239,13 @@
     &:hover::after {
       opacity: 1;
     }
+  }
+
+  // A click anywhere in a sortable header cell sorts. Above `--draggable`, so
+  // a reorderable column keeps its grab cursor.
+  &__th--sortable {
+    cursor: pointer;
+    user-select: none;
   }
 
   // --- Column reordering ----------------------------------------------------
@@ -326,8 +346,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  // --- Row selection --------------------------------------------------------
-  &__th--select,
   // --- Row actions ----------------------------------------------------------
   // `column.actions`. `width: 1%` shrinks the column to its buttons under auto
   // layout; a fixed layout would read it literally, so there the column takes
@@ -353,6 +371,8 @@
     vertical-align: middle;
   }
 
+  // --- Row selection --------------------------------------------------------
+  &__th--select,
   &__td--select {
     width: 1%;
     white-space: nowrap;
@@ -436,7 +456,8 @@
   // carries no styles of its own — it exists as a public hook so consumers can
   // target those two cells without matching on position.
   &__foot-cell {
-    padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+    padding: calc(var(--wr-table-cell-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-table-cell-padding-x) * var(--wr-density-x, 1));
     background: var(--wr-table-head-bg);
     border-top: 1px solid var(--wr-table-border);
     font-weight: var(--wr-table-foot-cell-font-weight);
@@ -477,8 +498,10 @@
   }
 
   // Keep the row-hover tint on pinned body cells.
-  &__tr:hover &__td--pin-left,
-  &__tr:hover &__td--pin-right {
+  &__tr--link:hover &__td--pin-left,
+  &__tr--link:hover &__td--pin-right,
+  &__tr--clickable:hover &__td--pin-left,
+  &__tr--clickable:hover &__td--pin-right {
     background-image: linear-gradient(var(--wr-table-row-hover), var(--wr-table-row-hover));
   }
 
@@ -642,45 +665,93 @@
   &__tr {
     transition: background var(--wr-transition-base);
 
-    &:hover {
+    // Only a row that leads somewhere tints: one with a link, or any row while
+    // `rowClick` is bound. A tint on a row that does nothing promises a click.
+    &--link:hover,
+    &--clickable:hover {
       background: var(--wr-table-row-hover);
     }
 
     // A tree row holds the treegrid's roving tab stop (the APG's row focus), so
-    // it needs the ring every other focusable part of the table has. Inset: the
+    // it needs the ring every other focusable part of the table has. A row's
+    // link lies under the whole row, so its focus draws the same ring. Inset: the
     // host is `overflow: hidden`, and the first and last rows run flush to its
     // border, where an outset ring is clipped away.
-    &:focus-visible {
+    &:focus-visible,
+    &#{$row-link-focused} {
       @include theme.focus-ring;
       outline-offset: -2px;
-    }
 
-    // A pinned cell is sticky, stacked above the row and opaque, so it paints
-    // over the row's outline. It draws its own stretch of the ring instead:
-    // the block edges always, an inline edge only where it ends the row. A
-    // border rather than a shadow, since `forced-colors` drops shadows.
-    &:focus-visible .wr-table__td--pin-left::after,
-    &:focus-visible .wr-table__td--pin-right::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-block: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-      pointer-events: none;
-    }
+      // A pinned cell is sticky, stacked above the row and opaque, so it paints
+      // over the row's outline. It draws its own stretch of the ring instead:
+      // the block edges always, an inline edge only where it ends the row. A
+      // border rather than a shadow, since `forced-colors` drops shadows.
+      .wr-table__td--pin-left::after,
+      .wr-table__td--pin-right::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-block: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+        pointer-events: none;
+      }
 
-    &:focus-visible .wr-table__td--pin-left:first-child::after,
-    &:focus-visible .wr-table__td--pin-right:first-child::after {
-      border-inline-start: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
-    }
+      .wr-table__td--pin-left:first-child::after,
+      .wr-table__td--pin-right:first-child::after {
+        border-inline-start: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      }
 
-    &:focus-visible .wr-table__td--pin-left:last-child::after,
-    &:focus-visible .wr-table__td--pin-right:last-child::after {
-      border-inline-end: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      .wr-table__td--pin-left:last-child::after,
+      .wr-table__td--pin-right:last-child::after {
+        border-inline-end: var(--wr-focus-ring-width) solid var(--wr-focus-ring-color);
+      }
     }
 
     &:last-child .wr-table__td {
       border-bottom: 0;
     }
+  }
+
+  // --- Row links (`rowLink`) --------------------------------------------------
+  // One empty anchor per row, stretched under the cells. The row is its own
+  // stacking context, so the link sits below every cell and the cells let the
+  // pointer through to it; a control in a cell takes the pointer back. Nothing
+  // is raised or repositioned, so a cell template lays out as it did.
+  &__tr--link {
+    position: relative;
+    z-index: 0;
+  }
+
+  &__row-link {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    // The focused link rings the row (see `&__tr` above).
+    outline: none;
+    pointer-events: auto;
+  }
+
+  &__tr--link > &__td {
+    pointer-events: none;
+  }
+
+  // The cells that are controls themselves. A cut cell is one for its tooltip,
+  // and the component hands its clicks to the link.
+  &__tr--link > &__td--select,
+  &__tr--link > &__td--expand,
+  &__tr--link > &__td--editable,
+  &__tr--link > &__td--editing,
+  &__tr--link > &__td--truncate {
+    pointer-events: auto;
+  }
+
+  &__tr--link > &__td--truncate {
+    cursor: pointer;
+  }
+
+  // What `rowClick` skips (`ROW_CLICK_IGNORE` in table.ts), at no specificity:
+  // a disabled control that turns its own pointer events off keeps them off.
+  @at-root :where(.wr-table__tr--link) > :where(.wr-table__td) :where(#{$row-controls}) {
+    pointer-events: auto;
   }
 
   &__empty {
@@ -843,6 +914,7 @@
   // --- Row grouping ---------------------------------------------------------
   --wr-table-group-bg: var(--wr-color-fill-subtle);
   --wr-table-group-inner-gap: var(--wr-space-sm);
+  --wr-table-group-inner-padding-y: var(--wr-space-sm);
   --wr-table-group-toggle-gap: var(--wr-space-sm);
   --wr-table-group-toggle-font-weight: var(--wr-font-weight-semibold);
   --wr-table-group-count-padding-x: var(--wr-space-sm);
@@ -869,7 +941,8 @@
     align-items: center;
     gap: var(--wr-table-group-inner-gap);
     max-width: 100%;
-    padding: calc(0.5rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+    padding: calc(var(--wr-table-group-inner-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-table-cell-padding-x) * var(--wr-density-x, 1));
   }
 
   &__group-select {
@@ -958,6 +1031,19 @@
   &__group-row:last-child > &__group-cell {
     border-bottom: 0;
   }
+}
+
+// --- Compact size -----------------------------------------------------------
+// `size="sm"` restates the padding hooks one notch tighter, on the spacing
+// scale. The density multipliers still apply on top, so a compact table inside
+// a `sm` density is tighter again. After the base block, which declares the
+// group hook last. The attribute form covers the frame before the first update
+// pass (see `static-variant-selectors.spec.ts`).
+.wr-table--sm,
+.wr-table:where([size='sm']) {
+  --wr-table-cell-padding-y: var(--wr-space-xs);
+  --wr-table-cell-padding-x: var(--wr-space-sm);
+  --wr-table-group-inner-padding-y: var(--wr-space-xs);
 }
 
 // --- Own scroll area --------------------------------------------------------
@@ -1160,7 +1246,9 @@
   // An unfrozen cell no longer covers the row's ring, so it draws no stretch of
   // its own (and, being static, would anchor one to the wrong box).
   .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-left::after,
-  .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-right::after {
+  .wr-table--responsive .wr-table__tr:focus-visible .wr-table__td--pin-right::after,
+  .wr-table--responsive .wr-table__tr#{$row-link-focused} .wr-table__td--pin-left::after,
+  .wr-table--responsive .wr-table__tr#{$row-link-focused} .wr-table__td--pin-right::after {
     content: none;
   }
 
@@ -1465,7 +1553,8 @@
   // declared on `.wr-table`, which the preview has left, so they are passed with
   // the same defaults that block sets. `--wr-density-*` and `--wr-color-*` are
   // root-level and resolve as-is.
-  padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+  padding: calc(var(--wr-table-cell-padding-y, 0.625rem) * var(--wr-density-y, 1))
+    calc(var(--wr-table-cell-padding-x, 0.875rem) * var(--wr-density-x, 1));
   background: var(--wr-table-head-bg, var(--wr-color-fill));
   color: var(--wr-color-on-surface-muted);
   font-family: var(--wr-table-font-family, var(--wr-font-family-base));

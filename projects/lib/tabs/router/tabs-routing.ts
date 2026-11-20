@@ -26,6 +26,9 @@ const MATCH: IsActiveMatchOptions = {
   matrixParams: 'ignored',
 };
 
+/** `exact` on a tab: the path must match whole, everything else as in `MATCH`. */
+const MATCH_EXACT: IsActiveMatchOptions = { ...MATCH, paths: 'exact' };
+
 /**
  * Router support for `<wr-tabs>`. Add it to the `imports` of the component that
  * declares a strip whose `<wr-tab>`s carry a `routerLink`:
@@ -122,12 +125,12 @@ export class WrTabsRouting implements WrTabsRoutingAdapter {
     return this.locationStrategy.prepareExternalUrl(this.router.serializeUrl(this.tree(commands)));
   }
 
-  isActive(commands: string | readonly string[]): boolean {
+  isActive(commands: string | readonly string[], exact = false): boolean {
     // Read for the dependency, not for the value: `isActive` asks the router,
     // which is not a signal, so without this the computed that calls it would
     // never recompute and the strip would announce its first selection forever.
     this.url();
-    return this.router.isActive(this.tree(commands), MATCH);
+    return this.router.isActive(this.tree(commands), exact ? MATCH_EXACT : MATCH);
   }
 
   navigate(commands: string | readonly string[], event: MouseEvent): void {

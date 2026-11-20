@@ -8,6 +8,7 @@ export { WrTableSelectionBar } from './table-selection-bar';
 export { WrTableSort } from './table-sort';
 export { WrTableFilter } from './table-filter';
 export { wrReadField, wrSortRows } from './sort-rows';
+export { WR_TABLE_ROUTING } from './tokens';
 export type {
   WrTableCellContext,
   WrTableCellEdit,
@@ -27,7 +28,10 @@ export type {
   WrTableRow,
   WrTableRowClass,
   WrTableRowClick,
+  WrTableRowLink,
+  WrTableRoutingAdapter,
   WrTableSelectionContext,
+  WrTableSize,
   WrTableSortAccessor,
   WrTableSortState,
   WrTableSortDirection,

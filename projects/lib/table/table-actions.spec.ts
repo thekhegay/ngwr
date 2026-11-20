@@ -134,6 +134,12 @@ describe('the row actions stylesheet', () => {
     expect(body).toMatch(/text-align: end/);
   });
 
+  it.each(['wr-table__th--select', 'wr-table__td--select'])('centres .%s and leaves the actions rules off it', cls => {
+    const body = declarations(`.${cls}`);
+    expect(body).toMatch(/text-align: center/);
+    expect(body).not.toMatch(/text-align: end/);
+  });
+
   it('hands the width back to the column under a fixed layout and in card mode', () => {
     expect(declarations('.wr-table__table--layout-fixed .wr-table__td--actions')).toMatch(/width: auto/);
     expect(declarations('.wr-table--responsive .wr-table__td--actions')).toMatch(/width: auto/);

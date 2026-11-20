@@ -52,6 +52,7 @@ import {
 
 import { WrCurrentKeystroke } from './internal/keystroke';
 import { WrPopoverTextPanel } from './internal/text-panel';
+import { WR_TOOLTIP_ONLY } from './internal/tooltip-only';
 import { VIEWPORT_MARGIN } from './internal/viewport-margin';
 import { type WrPopoverPosition, wrPopoverPositions } from './types';
 
@@ -272,6 +273,7 @@ export class WrPopover implements AfterViewInit {
   readonly closed = output<void>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly tooltipOnly = inject(WR_TOOLTIP_ONLY, { optional: true, self: true }) === true;
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly focusTraps = inject(FocusTrapFactory);
   private readonly keystroke = inject(WrCurrentKeystroke);
@@ -289,7 +291,7 @@ export class WrPopover implements AfterViewInit {
   readonly isOpen = this.openState.asReadonly();
 
   /** @internal */
-  protected readonly isTooltip = computed(() => this.mode() === 'tooltip');
+  protected readonly isTooltip = computed(() => this.tooltipOnly || this.mode() === 'tooltip');
 
   /** Auto-generated id for `aria-controls` / `aria-describedby`. */
   protected readonly panelId = `wr-popover-${++popoverUid}`;

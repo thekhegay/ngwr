@@ -173,7 +173,7 @@ export const INSTALL = {
       { path: "ngwr/anchor", symbols: ["WrAnchor"], declarables: ["WrAnchor"], styled: true },
   ],
   "reference/components/avatar": [
-      { path: "ngwr/avatar", symbols: ["WrAvatar"], declarables: ["WrAvatar"], styled: true },
+      { path: "ngwr/avatar", symbols: ["WrAvatar", "WrAvatarGroup"], declarables: ["WrAvatar", "WrAvatarGroup"], styled: true },
   ],
   "reference/components/back-top": [
       { path: "ngwr/back-top", symbols: ["WrBackTop"], declarables: ["WrBackTop"], styled: true },
@@ -322,7 +322,7 @@ export const INSTALL = {
       { path: "ngwr/popconfirm", symbols: ["WrPopconfirm"], declarables: ["WrPopconfirm"], styled: true },
   ],
   "reference/components/popover": [
-      { path: "ngwr/popover", symbols: ["WrPopover"], declarables: ["WrPopover"], styled: true },
+      { path: "ngwr/popover", symbols: ["WrPopover", "WrTooltip"], declarables: ["WrPopover", "WrTooltip"], styled: true },
   ],
   "reference/components/progress": [
       { path: "ngwr/progress", symbols: ["WrProgress"], declarables: ["WrProgress"], styled: true },
@@ -437,6 +437,9 @@ export const INSTALL = {
       { path: "ngwr/badge", symbols: ["WrTag"], declarables: ["WrTag"], styled: true },
       { path: "ngwr/directives", symbols: ["WrFitText"], declarables: ["WrFitText"], styled: false },
   ],
+  "reference/directives/in-view": [
+      { path: "ngwr/directives", symbols: ["WrInView"], declarables: ["WrInView"], styled: false },
+  ],
   "reference/directives/typography": [
       { path: "ngwr/typography", symbols: ["WrTypography"], declarables: ["WrTypography"], styled: true },
   ],
@@ -497,7 +500,7 @@ export const INSTALL = {
       { path: "ngwr/platform", symbols: ["WrHaptics", "WrPlatform"], declarables: [], styled: false },
   ],
   "reference/services/scroll": [
-      { path: "ngwr/scroll", symbols: ["WrScroll"], declarables: [], styled: false },
+      { path: "ngwr/scroll", symbols: ["WrScroll", "WrScrollFollow"], declarables: ["WrScrollFollow"], styled: false },
   ],
   "reference/services/storage": [
       { path: "ngwr/storage", symbols: ["WrStorage"], declarables: [], styled: false },

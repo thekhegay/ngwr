@@ -48,7 +48,7 @@ import type { WrOptionLeadingContext } from './types';
  * <wr-select mode="multi" placeholder="Assignees" [(value)]="assignees">
  *   @for (p of people; track p.id) {
  *     <wr-option [value]="p.id">
- *       <ng-template wrOptionLeading let-placement="placement">
+ *       <ng-template wrOptionLeading let-placement="placement" let-item="item">
  *         <wr-avatar shape="circle" [size]="placement === 'chip' ? 16 : 24" [url]="p.photo">{{ p.initials }}</wr-avatar>
  *       </ng-template>
  *       {{ p.name }}
@@ -60,8 +60,8 @@ import type { WrOptionLeadingContext } from './types';
 @Directive({
   selector: 'ng-template[wrOptionLeading]',
 })
-export class WrOptionLeading<T = WrSafeAny> {
-  readonly template = inject<TemplateRef<WrOptionLeadingContext<T>>>(TemplateRef);
+export class WrOptionLeading<T = WrSafeAny, I = WrSafeAny> {
+  readonly template = inject<TemplateRef<WrOptionLeadingContext<T, I>>>(TemplateRef);
 
   /**
    * Types the template's `let-` variables under `strictTemplates`. Without it
@@ -84,8 +84,12 @@ export class WrOptionLeading<T = WrSafeAny> {
    * variable is in scope. This library's own docs page carries three helpers
    * typed `(id: unknown)` to get around it, with nothing saying why.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- a guard's parameters exist to be narrowed, never read
-  static ngTemplateContextGuard<T>(_dir: WrOptionLeading<T>, _ctx: unknown): _ctx is WrOptionLeadingContext<T> {
+  /* eslint-disable @typescript-eslint/no-unused-vars -- a guard's parameters exist to be narrowed, never read */
+  static ngTemplateContextGuard<T, I>(
+    _dir: WrOptionLeading<T, I>,
+    _ctx: unknown
+  ): _ctx is WrOptionLeadingContext<T, I> {
     return true;
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }

@@ -73,7 +73,7 @@ one. Mind the ones that do not match the selector: `<wr-btn>` and
 `ngwr/select`, `<wr-accordion>` is `ngwr/collapse`, `<wr-form-field>` is
 `ngwr/form`, `<wr-kbd>` is `ngwr/keyboard`, `<wr-count-up>` is `ngwr/counter`,
 and `[wrAutofocus]`, `[wrAutosize]`, `[wrClickOutside]`,
-`[wrCopyToClipboard]` and `[wrFitText]` are `ngwr/directives`.
+`[wrCopyToClipboard]`, `[wrFitText]` and `[wrInView]` are `ngwr/directives`.
 
 Styles: in your global SCSS, `@use 'ngwr/theme'` first, then one
 `@use 'ngwr/<name>'` per component a template renders; there is no
@@ -498,6 +498,9 @@ https://ngwr.dev/reference/utils/wr-typeahead
   strip and the loading bar take routing through opt-in adapters instead. A
   `<wr-tab routerLink>` needs `wrTabsRouting` on the strip plus `WrTabsRouting`
   (`ngwr/tabs/router`) in `imports`, and it throws if you forget.
+  `<wr-table [rowLink]>` takes an href string on its own, and router commands
+  with `wrTableRouting` on the table plus `WrTableRouting`
+  (`ngwr/table/router`).
   `<wr-loading-bar>` follows navigation only with
   `provideWrLoadingBarRouter()` (`ngwr/loading-bar/router`), and it does NOT
   throw — without the provider the bar simply never moves.

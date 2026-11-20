@@ -183,6 +183,8 @@ export default class GraphPageComponent {
   protected readonly zoom = signal(1);
   protected readonly zoomPercent = computed(() => Math.round(this.zoom() * 100));
 
+  protected readonly picked = signal<string | null>(null);
+
   /** Puts one more review between the draft and publishing. */
   protected addReview(): void {
     const count = this.reviewNodes().length - WORKFLOW_NODES.length + 1;
@@ -591,6 +593,58 @@ export class ServiceMap {
   // 1 is 100%. Follows every gesture, and a write zooms the graph.
   protected readonly zoom = signal(1);
   protected readonly percent = computed(() => Math.round(this.zoom() * 100));
+}`,
+    },
+  ];
+
+  protected readonly selectionFiles: readonly DocCodeFile[] = [
+    {
+      label: 'HTML',
+      language: 'angular-html',
+      code: `<wr-btn size="sm" (click)="picked.set('signals')">Select signals</wr-btn>
+<wr-btn size="sm" (click)="picked.set(null)">Clear</wr-btn>
+<span>Selected: {{ picked() ?? 'none' }}</span>
+
+<wr-graph selectable [nodes]="nodes" [edges]="edges" [nodeWidth]="184" ariaLabel="Dependencies" [(selected)]="picked" />`,
+    },
+    {
+      label: 'TS',
+      language: 'angular-ts',
+      code: `import { Component, signal } from '@angular/core';
+
+import { WrButton } from 'ngwr/button';
+import { WrGraph, type WrGraphEdge, type WrGraphNode } from 'ngwr/graph';
+
+@Component({
+  selector: 'app-dependencies',
+  templateUrl: './dependencies.html',
+  imports: [WrGraph, WrButton],
+})
+export class Dependencies {
+  protected readonly nodes: readonly WrGraphNode[] = [
+    { id: 'app', label: '@example/app' },
+    { id: 'router', label: '@example/router' },
+    { id: 'signals', label: '@example/signals' },
+    // …
+  ];
+
+  protected readonly edges: readonly WrGraphEdge[] = [
+    { from: 'app', to: 'router' },
+    { from: 'router', to: 'signals' },
+    // …
+  ];
+
+  // The id of the selected node, or null. Follows every pick, and a write selects.
+  protected readonly picked = signal<string | null>(null);
+}`,
+    },
+    {
+      label: 'SCSS',
+      language: 'scss',
+      code: `wr-graph {
+  --wr-graph-selected-ring-color: var(--wr-color-primary);
+  --wr-graph-linked-edge-color: var(--wr-color-primary);
+  --wr-graph-dimmed-opacity: 0.4;
 }`,
     },
   ];

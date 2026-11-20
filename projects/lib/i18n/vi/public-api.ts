@@ -156,6 +156,7 @@ export const wrVi: WrI18nCatalog = {
     failed: 'Tải lên thất bại',
     status: '{{name}}: {{status}}',
     retry: 'Thử lại',
+    openFile: '{{name}} (mở trong tab mới)',
   },
   popconfirm: {
     label: 'Xác nhận hành động',
@@ -195,6 +196,7 @@ export const wrVi: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Ảnh đại diện',
+    more: '{{count}} người khác',
   },
   backTop: {
     label: 'Lên đầu trang',

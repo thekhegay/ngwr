@@ -8,7 +8,9 @@ import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WrSidebarActiveOptions, WrSidebarEntry } from './public-api';
+import { COMPILE_TIMEOUT, compileSass } from '../spec-sass';
+
+import type { WrSidebarActiveOptions, WrSidebarActiveTone, WrSidebarEntry } from './public-api';
 import { WrSidebar } from './sidebar';
 
 /** Minimal valid SVG: the registry rejects markup with no root element. */
@@ -70,6 +72,7 @@ const NESTED: readonly WrSidebarEntry[] = [
     [ariaLabel]="ariaLabel()"
     [defaultGroupIcon]="defaultGroupIcon()"
     [defaultItemIcon]="defaultItemIcon()"
+    [activeTone]="activeTone()"
   />`,
 })
 class Host {
@@ -79,6 +82,7 @@ class Host {
   readonly ariaLabel = signal<string | null>(null);
   readonly defaultGroupIcon = signal<string | null>(null);
   readonly defaultItemIcon = signal<string | null>(null);
+  readonly activeTone = signal<WrSidebarActiveTone>('primary');
 }
 
 /**
@@ -536,6 +540,111 @@ describe('WrSidebar', () => {
     });
   });
 
+  describe('an action row', () => {
+    const run = vi.fn();
+    const ACTIONS: readonly WrSidebarEntry[] = [
+      { title: 'Search', icon: 'folder', shortcut: 'mod+k', action: run },
+      { title: 'New page', subtitle: 'From a template', count: 3, action: run },
+      { title: 'Import', disabled: true, shortcut: 'mod+i', badge: { text: 'Soon' }, action: run },
+      { title: 'Table', url: ['/table'] },
+      { title: 'Tools', defaultOpen: true, children: [{ title: 'Export', action: run }] },
+    ];
+
+    beforeEach(async () => {
+      run.mockClear();
+      await show(ACTIONS);
+    });
+
+    it('is a button in the row look, not a link', () => {
+      const row = rowFor('Search');
+
+      expect(row.tagName).toBe('BUTTON');
+      expect(row.getAttribute('type')).toBe('button');
+      expect([...row.classList].sort()).toEqual([
+        'wr-sidebar__row',
+        'wr-sidebar__row--action',
+        'wr-sidebar__row--level-1',
+      ]);
+      expect(row.hasAttribute('aria-expanded')).toBe(false);
+      expect(row.querySelector('wr-icon.wr-sidebar__icon')).not.toBeNull();
+      expect(rowFor('Export').className).toContain('wr-sidebar__row--level-2');
+    });
+
+    it('calls its action on click, once per click', () => {
+      rowFor('Search').click();
+      expect(run).toHaveBeenCalledTimes(1);
+
+      rowFor('Export').click();
+      expect(run).toHaveBeenCalledTimes(2);
+    });
+
+    it('is never the current page, on any route', async () => {
+      for (const url of ['/', '/table']) {
+        await navigate(url);
+        for (const title of ['Search', 'New page', 'Export']) {
+          expect(rowFor(title).hasAttribute('aria-current')).toBe(false);
+          expect(rowFor(title).classList).not.toContain('wr-sidebar__row--active');
+        }
+      }
+      expect(isCurrent('Table')).toBe(true);
+    });
+
+    it('opens no group for itself and gives its group no dot', async () => {
+      toggleFor('Tools').click();
+      await navigate('/table');
+
+      expect(isOpen('Tools')).toBe(false);
+      expect(rowFor('Tools').querySelector('.wr-sidebar__dot')).toBeNull();
+    });
+
+    it('draws its chord as a keycap out of the name and says it through aria-keyshortcuts', () => {
+      const row = rowFor('Search');
+      const cap = row.querySelector('.wr-sidebar__end > wr-kbd.wr-sidebar__shortcut')!;
+
+      // jsdom is not a Mac, so `mod` prints as Ctrl; both spellings are announced.
+      expect(cap.textContent.trim()).toBe('Ctrl+K');
+      expect(cap.classList).toContain('wr-kbd--sm');
+      expect(cap.getAttribute('aria-hidden')).toBe('true');
+      expect(row.getAttribute('aria-keyshortcuts')).toBe('Control+K Meta+K');
+      expect(spoken(row)).toBe('Search');
+      expect(rowFor('New page').hasAttribute('aria-keyshortcuts')).toBe(false);
+    });
+
+    it('spells a chord with no platform modifier once, with ARIA key names', async () => {
+      await show([
+        { title: 'Help', shortcut: 'shift+/', action: run },
+        { title: 'Close', shortcut: 'esc', action: run },
+        { title: 'Play', shortcut: 'ctrl+alt+space', action: run },
+      ]);
+
+      expect(rowFor('Help').getAttribute('aria-keyshortcuts')).toBe('Shift+/');
+      expect(rowFor('Close').getAttribute('aria-keyshortcuts')).toBe('Escape');
+      expect(rowFor('Play').getAttribute('aria-keyshortcuts')).toBe('Control+Alt+Space');
+    });
+
+    it('carries a subtitle as its description and a count in its name, like a link row', () => {
+      const row = rowFor('New page');
+      const subtitle = row.querySelector('.wr-sidebar__subtitle')!;
+
+      expect(row.getAttribute('aria-describedby')).toBe(subtitle.id);
+      expect(subtitle.getAttribute('aria-hidden')).toBe('true');
+      expect(spoken(row)).toBe('New page, 3');
+    });
+
+    it('is plain text when disabled: no button, no chord, and the action is not called', () => {
+      const row = rowFor('Import');
+
+      expect(row.tagName).toBe('SPAN');
+      expect(row.classList).toContain('wr-sidebar__row--action');
+      expect(row.classList).toContain('wr-sidebar__row--disabled');
+      expect(row.querySelector('wr-kbd')).toBeNull();
+      expect(row.hasAttribute('aria-keyshortcuts')).toBe(false);
+
+      row.click();
+      expect(run).not.toHaveBeenCalled();
+    });
+  });
+
   describe('the current page', () => {
     it('marks an entry current by path PREFIX when it says nothing, so `/` is current everywhere', async () => {
       // The router's own default, and the reason `activeOptions` exists.
@@ -620,6 +729,28 @@ describe('WrSidebar', () => {
       expect(rowFor('Form').classList).toContain('wr-sidebar__row--ancestor');
       expect(root().querySelector('.wr-sidebar__row--holds-active')).toBeNull();
       expect(root().querySelector('.wr-sidebar__dot')).toBeNull();
+    });
+  });
+
+  describe('the tone of the current page', () => {
+    it('is primary with no modifier, and neutral through one class on the host', async () => {
+      expect(host().className).toBe('wr-sidebar');
+
+      fixture.componentInstance.activeTone.set('neutral');
+      await settle();
+      expect(host().classList).toContain('wr-sidebar--active-neutral');
+
+      fixture.componentInstance.activeTone.set('primary');
+      await settle();
+      expect(host().className).toBe('wr-sidebar');
+    });
+
+    it('leaves which row is current alone', async () => {
+      fixture.componentInstance.activeTone.set('neutral');
+      await navigate('/table');
+
+      expect(isCurrent('Table')).toBe(true);
+      expect(rowFor('Table').classList).toContain('wr-sidebar__row--active');
     });
   });
 
@@ -875,5 +1006,141 @@ describe('WrSidebar with links relative to the declaring route', () => {
     expect(el.querySelector('button[aria-controls]')!.getAttribute('aria-expanded')).toBe('true');
 
     fixture.destroy();
+  });
+});
+
+/**
+ * Both slots, each behind a switch, so one host answers filled and unfilled. One
+ * element per `@if`: a block with two roots is not projected into a named slot.
+ */
+@Component({
+  imports: [WrSidebar],
+  template: `<wr-sidebar [entries]="entries">
+    @if (header()) {
+      <div wrSidebarHeader class="brand">Acme</div>
+    }
+    <p>Not a slot</p>
+    @if (footer()) {
+      <button wrSidebarFooter type="button">Sign out</button>
+    }
+    @if (footer()) {
+      <small wrSidebarFooter>v1</small>
+    }
+  </wr-sidebar>`,
+})
+class SlotHost {
+  readonly entries: readonly WrSidebarEntry[] = [{ title: 'Home', url: ['/'] }];
+  readonly header = signal(true);
+  readonly footer = signal(true);
+}
+
+describe('WrSidebar slots', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<SlotHost>>;
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-sidebar')!;
+  const slot = (name: 'header' | 'footer'): HTMLElement =>
+    host().querySelector<HTMLElement>(`:scope > .wr-sidebar__${name}`)!;
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    fixture = TestBed.createComponent(SlotHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  });
+  afterEach(() => fixture.destroy());
+
+  it('draws the header above the rows and the footer below them, inside the landmark', () => {
+    expect([...host().children].map(el => el.className)).toEqual([
+      'wr-sidebar__header',
+      'wr-sidebar__inner',
+      'wr-sidebar__footer',
+    ]);
+    expect(slot('header').querySelector(':scope > .brand')!.textContent).toBe('Acme');
+    expect([...slot('footer').children].map(el => el.tagName)).toEqual(['BUTTON', 'SMALL']);
+    expect(host().querySelector('.wr-sidebar__inner')!.querySelectorAll('.wr-sidebar__row').length).toBe(1);
+  });
+
+  it('projects only what names a slot', () => {
+    expect(host().textContent).not.toContain('Not a slot');
+  });
+
+  it('leaves an unfilled slot empty, which is what hides it', async () => {
+    fixture.componentInstance.header.set(false);
+    fixture.componentInstance.footer.set(false);
+    await fixture.whenStable();
+
+    // What the stylesheet hides it by. A comment does not count against `:empty`,
+    // and a slot behind an `@if` leaves one; a text node would.
+    expect(slot('header').matches(':empty')).toBe(true);
+    expect(slot('footer').matches(':empty')).toBe(true);
+
+    fixture.componentInstance.footer.set(true);
+    await fixture.whenStable();
+
+    expect(slot('header').matches(':empty')).toBe(true);
+    expect(slot('footer').matches(':empty')).toBe(false);
+  });
+});
+
+/** The declarations of every rule whose selector list holds `selector`, joined. */
+function rule(css: string, selector: string): string {
+  const bodies = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .filter(([, list]) => list.split(',').some(part => part.trim() === selector))
+    .map(([, , body]) => body.trim());
+  if (bodies.length === 0) throw new Error(`no rule for ${selector}`);
+  return bodies.join(' ');
+}
+
+/** jsdom applies no stylesheet, so what a rule does is read off the compiled sheet. */
+describe('WrSidebar stylesheet', { timeout: COMPILE_TIMEOUT }, () => {
+  const css = (): string => compileSass(`@use 'sidebar/styles';`).replace(/\/\*[\s\S]*?\*\//g, '');
+
+  it('hides an empty slot and sends a filled footer to the end of the host', () => {
+    expect(rule(css(), '.wr-sidebar')).toContain('flex-direction: column');
+    expect(rule(css(), '.wr-sidebar__header:empty')).toBe('display: none;');
+    expect(rule(css(), '.wr-sidebar__footer:empty')).toBe('display: none;');
+    expect(rule(css(), '.wr-sidebar__header')).toContain('padding-block-end: var(--wr-sidebar-slot-gap)');
+    expect(rule(css(), '.wr-sidebar__footer')).toContain('margin-block-start: auto');
+    expect(rule(css(), '.wr-sidebar__footer')).toContain('padding-block-start: var(--wr-sidebar-slot-gap)');
+  });
+
+  it("defaults the current row's hooks to the primary roles it painted with before them", () => {
+    const base = rule(css(), '.wr-sidebar');
+
+    expect(base).toContain('--wr-sidebar-row-active-bg: var(--wr-color-primary-soft);');
+    expect(base).toContain('--wr-sidebar-row-active-color: var(--wr-color-primary-ink);');
+    expect(base).toContain('--wr-sidebar-row-active-icon: var(--wr-color-primary);');
+    expect(base).toContain('--wr-sidebar-row-active-indicator: var(--wr-color-primary);');
+  });
+
+  it('paints the current row through those hooks and nothing else', () => {
+    expect(rule(css(), '.wr-sidebar__row--active')).toContain('color: var(--wr-sidebar-row-active-color);');
+    expect(rule(css(), '.wr-sidebar__row--active .wr-sidebar__icon')).toBe('color: var(--wr-sidebar-row-active-icon);');
+    expect(rule(css(), '.wr-sidebar__row--active.wr-sidebar__row--level-1')).toBe(
+      'background: var(--wr-sidebar-row-active-bg);'
+    );
+    expect(rule(css(), '.wr-sidebar__list .wr-sidebar__row--active::before')).toContain(
+      'background: var(--wr-sidebar-row-active-indicator);'
+    );
+    expect(rule(css(), '.wr-sidebar__dot')).toContain('background: var(--wr-sidebar-row-active-indicator);');
+  });
+
+  it('turns all four neutral under the modifier, and under the static attribute without specificity', () => {
+    const neutral = rule(css(), '.wr-sidebar--active-neutral');
+
+    expect(neutral).toBe(rule(css(), '.wr-sidebar:where([activeTone=neutral])'));
+    expect(neutral).toContain('--wr-sidebar-row-active-bg: var(--wr-color-fill-strong);');
+    for (const hook of ['color', 'icon', 'indicator']) {
+      expect(neutral).toContain(`--wr-sidebar-row-active-${hook}: var(--wr-color-on-surface);`);
+    }
+  });
+
+  it('matches a host born with the static attribute, before any class is bound', () => {
+    const el = document.createElement('wr-sidebar');
+    el.className = 'wr-sidebar';
+    el.setAttribute('activeTone', 'neutral');
+
+    expect(el.matches('.wr-sidebar:where([activeTone=neutral])')).toBe(true);
   });
 });

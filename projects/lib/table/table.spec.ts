@@ -153,9 +153,17 @@ class Host {
 
 @Component({
   imports: [WrTable],
-  template: ` <wr-table [columns]="columns()" [items]="items()" rowKey="id" virtualScroll [viewportHeight]="200" /> `,
+  template: ` <wr-table
+    [columns]="columns()"
+    [items]="items()"
+    [size]="size()"
+    rowKey="id"
+    virtualScroll
+    [viewportHeight]="200"
+  />`,
 })
 class VirtualHost {
+  readonly size = signal<'sm' | 'md'>('md');
   readonly columns = signal(COLUMNS);
   readonly items = signal<readonly Record<string, unknown>[]>(
     Array.from({ length: 100 }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, role: 'user' }))
@@ -610,6 +618,18 @@ describe('WrTable with virtual scrolling on from the start', () => {
 
     expect(rendered).toBeGreaterThan(0);
     expect(total + rendered * 56).toBe(100 * 56);
+  });
+
+  it('measures the row again when the size changes', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, get: () => 32 });
+    fixture.componentInstance.size.set('sm');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const total = spacers().reduce((a, b) => a + b, 0);
+    const rendered = root().querySelectorAll('tbody tr:not(.wr-table__spacer)').length;
+    expect(total + rendered * 32).toBe(100 * 32);
   });
 
   it('freezes the natural column widths before switching to fixed layout', () => {

@@ -217,6 +217,14 @@ describe('WrTable header hints and truncated cells', () => {
       expect(host().querySelector('thead .wr-table__td--truncate, tfoot .wr-table__td--truncate')).toBeNull();
     });
 
+    it('leaves an actions column out of the table-wide cut', () => {
+      fixture.componentInstance.columns.set({ ...COLUMNS, tools: { title: 'Tools', actions: true } });
+      truncateAll();
+
+      expect(cell(0, 0).classList).toContain('wr-table__td--truncate');
+      expect(cell(0, 5).classList).not.toContain('wr-table__td--truncate');
+    });
+
     it('lets the column win over the table, both ways', () => {
       fixture.componentInstance.columns.set({
         ...COLUMNS,

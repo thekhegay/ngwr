@@ -54,5 +54,12 @@ wrContentDispositionFileName('inline');
       type: '(header: string | null | undefined) => string | null',
       default: '-',
     },
+    {
+      name: 'wrFileNameForType(name, type)',
+      description:
+        '`name` with the extension of the MIME `type`: an image extension the name carries is replaced, otherwise one is appended, so `photo.v2` keeps its `.v2`. A type with no known extension leaves `name` as it is. `WrImageCropper.toFile()` names its file through it.',
+      type: '(name: string, type: string) => string',
+      default: '-',
+    },
   ];
 }

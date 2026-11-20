@@ -157,6 +157,7 @@ export const wrTr: WrI18nCatalog = {
     failed: 'Yükleme başarısız',
     status: '{{name}}: {{status}}',
     retry: 'Tekrar dene',
+    openFile: '{{name}} (yeni sekmede açılır)',
   },
   popconfirm: {
     label: 'İşlemi onayla',
@@ -196,6 +197,7 @@ export const wrTr: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} kişi daha',
   },
   backTop: {
     label: 'Başa dön',

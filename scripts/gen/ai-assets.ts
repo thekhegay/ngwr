@@ -216,7 +216,7 @@ const UNPAGED: Readonly<Record<string, string>> = {
   'ngwr/date':
     'The date adapter behind the calendar, the event calendar and every date picker. With no provider it is `WrNativeDateAdapter`, over `Date` and `Intl` in `LOCALE_ID`. `provideWr(withDates({ locale, adapter }))` pins a locale or passes your own `WrDateAdapter` subclass.',
   'ngwr/directives':
-    'Attribute directives for markup you already have: `[wrAutofocus]`, `textarea[wrAutosize]`, `[wrClickOutside]`, `[wrCopyToClipboard]` and `[wrFitText]`.',
+    'Attribute directives for markup you already have: `[wrAutofocus]`, `textarea[wrAutosize]`, `[wrClickOutside]`, `[wrCopyToClipboard]`, `[wrFitText]` and `[wrInView]`.',
   'ngwr/overlay':
     "`WrOverlayContainer`, the container every ngwr panel renders into, kept apart from the one Angular Material, NG-ZORRO and plain CDK overlays share, with no provider. Style ngwr's overlays through its `.wr-overlay-container` class; no `z-index` reaches them, since CDK renders overlays in the top layer.",
   'ngwr/pipes':
@@ -231,6 +231,8 @@ const UNPAGED: Readonly<Record<string, string>> = {
     '`provideWrLoadingBarRouter()` makes `<wr-loading-bar>` follow router navigation. Opt-in, so an app that does not route never bundles `@angular/router`. Without it the bar never moves on navigation, and nothing warns.',
   'ngwr/tabs/router':
     '`WrTabsRouting`, the `wrTabsRouting` attribute on `<wr-tabs>` that lets a `<wr-tab routerLink>` follow the active route. A tab with a `routerLink` and no adapter throws.',
+  'ngwr/table/router':
+    '`WrTableRouting`, the `wrTableRouting` attribute on `<wr-table>` that sends `rowLink` through the router: a URL string or an array of commands, with a plain click navigating in the app. Without it `rowLink` takes an href string only.',
   'ngwr/utils/router':
     '`wrQueryParam(name, options?)`, a writable signal linked to one query parameter: follows the address, writes it on `set`, one navigation per task, the default left out. A string needs no options; any other type needs `default`, `parse` and `serialize`.',
 };

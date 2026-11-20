@@ -38,11 +38,19 @@ const ENTRIES: readonly WrSidebarEntry[] = [
 
 @Component({
   imports: [WrSidebar],
-  template: `<wr-sidebar [entries]="entries()" [ariaLabel]="label()" />`,
+  template: `<wr-sidebar [entries]="entries()" [ariaLabel]="label()">
+    @if (slots()) {
+      <strong wrSidebarHeader>Acme</strong>
+    }
+    @if (slots()) {
+      <button wrSidebarFooter type="button">Sign out</button>
+    }
+  </wr-sidebar>`,
 })
 class Host {
   readonly entries = signal(ENTRIES);
   readonly label = signal<string | null>(null);
+  readonly slots = signal(false);
 }
 
 /** A real router: what marks the current row is a navigation, and a link is clicked to cause one. */
@@ -140,6 +148,41 @@ describe('WrSidebarHarness', () => {
     expect(await nav.getCurrentTitles()).toEqual(['Forms']);
     expect(await nav.getItems({ current: true })).toEqual([]);
     expect([await guides.holdsCurrent(), await guides.isContentHidden()]).toEqual([true, true]);
+  });
+
+  it('runs an action row, reads its chord, and never finds it current', async () => {
+    let ran = 0;
+    fixture.componentInstance.entries.set([
+      { title: 'Search', shortcut: 'mod+k', action: () => ran++ },
+      { title: 'Import', disabled: true, action: () => ran++ },
+      ...ENTRIES,
+    ]);
+    await fixture.whenStable();
+
+    const search = await nav.getItem('Search');
+    expect(await search.isAction()).toBe(true);
+    expect(await search.getShortcut()).toBe('Control+K Meta+K');
+    expect(await (await nav.getItem('Home')).isAction()).toBe(false);
+    expect(await (await nav.getItem('Home')).getShortcut()).toBeNull();
+
+    await nav.clickItem('Search');
+    expect(ran).toBe(1);
+    expect(await search.isCurrent()).toBe(false);
+    expect(await nav.getCurrentTitles()).toEqual(['Home']);
+
+    await expect(nav.clickItem('Import')).rejects.toThrow(/"Import" is disabled/);
+    expect(ran).toBe(1);
+  });
+
+  it('reads a filled slot and answers null for an unfilled one', async () => {
+    expect(await nav.getHeaderText()).toBeNull();
+    expect(await nav.getFooterText()).toBeNull();
+
+    fixture.componentInstance.slots.set(true);
+    await fixture.whenStable();
+
+    expect(await nav.getHeaderText()).toBe('Acme');
+    expect(await nav.getFooterText()).toBe('Sign out');
   });
 
   it('refuses to click a disabled page', async () => {

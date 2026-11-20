@@ -75,6 +75,11 @@ export const API = {
     { name: "shape", description: "Corner treatment. `rounded` (default) is a soft rounded square, `circle` is the classic profile avatar, `squircle` is the iOS look.", type: "WrAvatarShape", default: "'rounded'" },
     { name: "size", description: "Box size. See {@link WrAvatarSize} for accepted values. The resolved value is published on the host as `--wr-avatar-size`.", type: "WrAvatarSize", default: "'6rem'" },
   ],
+  // <wr-avatar-group>
+  WrAvatarGroup: [
+    { name: "max", description: "The most avatars drawn. Past it the rest are hidden and a \"+N\" avatar counts them. Unset, negative or not a number: no limit.", type: "number | null", default: "null" },
+    { name: "label", description: "The group's accessible name, for example \"Assignees\". Without one the group has no role.", type: "string | null", default: "null" },
+  ],
   // <wr-back-top>
   WrBackTop: [
     { name: "visibilityThreshold", description: "Show the button once `window.scrollY` exceeds this many pixels.", type: "number", default: "400" },
@@ -190,6 +195,7 @@ export const API = {
     { name: "iconPosition", description: "Position of the icon relative to the label.", type: "WrButtonIconPosition", default: "'start'" },
     { name: "disabled", description: "Disable the button.", type: "boolean", default: "false" },
     { name: "outlined", description: "Outlined variant — colored text and border on a transparent background.", type: "boolean", default: "false" },
+    { name: "ghost", description: "Ghost variant — no fill and no border at rest, just the label in the button's color; hover and press tint the background. Quieter than `outlined`.", type: "boolean", default: "false" },
     { name: "block", description: "Stretch the button to fill its parent's width.", type: "boolean", default: "false" },
     { name: "loading", description: "Show a spinner overlaying the label. Layout is preserved.", type: "boolean", default: "false" },
     { name: "disabledWhenLoading", description: "When `loading` is `true` and this is also `true`, pointer events are suppressed and the button reports as disabled to assistive tech.", type: "boolean", default: "true" },
@@ -514,9 +520,10 @@ export const API = {
     { name: "mode", description: "What the picker picks: `'date'`, `'time'`, `'datetime'`, or a period held as its first day: `'week'`, `'month'`, `'quarter'`, `'year'`.", type: "WrDatePickerMode", default: "'date'" },
     { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`, and with a format (`MM.yyyy`) reads the typed date as the period it is in.", type: "WrDateFormat | string | null", default: "null" },
     { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
-    { name: "min", description: "Min selectable date (forwarded to the calendar). Ignored in `time` mode. A period mode refuses a period that ends before it.", type: "Date | undefined", default: "undefined" },
-    { name: "max", description: "Max selectable date (forwarded to the calendar). Ignored in `time` mode. A period mode refuses a period that starts after it.", type: "Date | undefined", default: "undefined" },
-    { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode.", type: "((date: Date) => boolean) | null", default: "null" },
+    { name: "valueFormat", description: "What the `value` model holds. `'date'` is a `Date`. `'day'` is a `YYYY-MM-DD` string, the browser-local day `wrToDay` from `ngwr/date` writes, so a form posts what the picker holds. A string that is not a valid day in that form reads as empty. It applies where the value is a day: `mode=\"date\"` and the period modes, which hold their first day. `time` and `datetime` hold an instant, which a day string cannot carry: they ignore it, keep a `Date`, and warn in dev mode. Only the model changes. `dateFilter` is still called with a `Date`, and a refusal still carries `Date`s in its payload.", type: "F", default: "'date'" },
+    { name: "min", description: "Min selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that ends before it.", type: "Date | string | undefined", default: "undefined" },
+    { name: "max", description: "Max selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that starts after it.", type: "Date | string | undefined", default: "undefined" },
+    { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. Called with a `Date` at local midnight under either `valueFormat`.", type: "((date: Date) => boolean) | null", default: "null" },
     { name: "timeFormat", description: "12 / 24-hour clock, in the time panel and in the field, unless `format` is set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
     { name: "showSeconds", description: "Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panel.", type: "number", default: "1" },
@@ -527,7 +534,7 @@ export const API = {
     { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only — input not typeable, but the trigger icon still opens the overlay.", type: "boolean", default: "false" },
-    { name: "value", description: "The picked Date. Bound by `[formField]`, or two-way via `[(value)]`.", type: "Date | null", default: "null" },
+    { name: "value", description: "The picked value: a `Date`, or a `YYYY-MM-DD` string with `valueFormat=\"day\"`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrDatePickerValue<F> | null", default: "null" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
     { name: "(opened)", description: "Fires after the popup opens.", type: "void" },
     { name: "(closed)", description: "Fires after the popup closes.", type: "void" },
@@ -690,6 +697,8 @@ export const API = {
   WrDropdownItem: [
     { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
     { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
+    { name: "checked", description: "Checked state. `null` (default) is a plain `menuitem` with no check column; `true` / `false` turn it into a `menuitemcheckbox` (or `menuitemradio` with `radio`) that shows a check mark while `true`. The item does not toggle itself: flip the state you bind here from `(click)`.", type: "boolean | null", default: "null" },
+    { name: "radio", description: "With `checked` set, announce as `menuitemradio` instead of `menuitemcheckbox`.", type: "boolean", default: "false" },
   ],
   // <[wrDropdownSubmenu]>
   WrDropdownSubmenu: [
@@ -755,6 +764,7 @@ export const API = {
     { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse changes to the selection while the zone stays focusable and the files still submit. Bound automatically from the field's readonly state when used with `[formField]`. The zone stops opening the picker, a drop is refused and the per-file remove buttons go inert — but the list stays readable, which is the point. No `aria-readonly`: the zone is a `role=\"button\"`, and ARIA does not define the state for that role, so `aria-disabled` would be the only mirror available and it would say the wrong thing.", type: "boolean", default: "false" },
     { name: "status", description: "Where the app's upload of each file stands, keyed by the `File` objects in `value`. A row with an entry draws its state: a progress bar while `uploading` (indeterminate without a `percent`), a mark when `done`, the `message` and a retry button on `error`. A file with no entry is a plain row. Pass a new `Map` on each change: an input sees a new reference, not a `set()` on the one it already holds. `null` (the default) renders nothing extra.", type: "WrFileUploadStatusMap | null", default: "null" },
+    { name: "stored", description: "Files that already live on a server, listed before the picked ones with the same look: name, size when known, a link when `url` is set, and a remove button. They are not part of `value`, so a form value stays the `File`s the user picked. Removing one does not change this input: `(storedRemove)` emits the descriptor and the app drops it from the list it passes in. In multiple mode they count toward `maxFiles`. In single mode a pick does not replace them: the app clears its own list when it takes the new file. A `required` rule on the control sees `value` only, so an edit form whose file is stored validates against its own list instead.", type: "readonly WrStoredFile[]", default: "[]" },
     { name: "previews", description: "Show a thumbnail beside each image file. The thumbnail is an object URL, revoked when its file leaves the list or the component is destroyed. Browser only: nothing is created on the server.", type: "boolean", default: "false" },
     { name: "acceptPaste", description: "Take files pasted with Ctrl/Cmd+V while the drop zone has focus. They go through the same `accept`, `maxSize` and `maxFiles` rules as a drop. A paste that carries no file is left alone.", type: "boolean", default: "false" },
     { name: "pickLabel", description: "Primary call-to-action label. Falls back to `fileUpload.browse`.", type: "string | null", default: "null" },
@@ -768,6 +778,7 @@ export const API = {
     { name: "helperText", description: "Optional helper text shown below the labels (e.g. accepted formats).", type: "string", default: "''" },
     { name: "value", description: "Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `multiple`: a single `File` (or `null`), or a `File[]` array.", type: "File | readonly File[] | null", default: "null" },
     { name: "(rejected)", description: "Emitted when files are rejected for type / size / count reasons.", type: "readonly WrFileUploadRejection[]" },
+    { name: "(storedRemove)", description: "Emitted with the descriptor when the remove button of a stored row is pressed.", type: "WrStoredFile" },
     { name: "(retry)", description: "Emitted with the file when the retry button of a failed row is pressed.", type: "File" },
     { name: "(touch)", description: "Emitted on commit so a bound field can mark itself touched.", type: "void" },
   ],
@@ -828,7 +839,7 @@ export const API = {
   ],
   // <[wrFormSpan]>
   WrFormSpan: [
-    { name: "wrFormSpan", description: "Columns to span. Empty or `'full'` takes the whole row.", type: "number | 'full'", default: "'full'" },
+    { name: "wrFormSpan", description: "Columns to span. Empty or `'full'` takes the whole row. A number above the form's `columns` spans them all.", type: "number | 'full'", default: "'full'" },
   ],
   // <wr-funnel-chart>
   WrFunnelChart: [
@@ -889,6 +900,8 @@ export const API = {
     { name: "zoom", description: "The zoom, where `1` is 100%. Two-way: it follows every gesture, and a value written to it zooms around the middle of the viewport, kept inside `minZoom` and `maxZoom`. Ignored unless `zoomable`.", type: "number", default: "1" },
     { name: "minZoom", description: "The smallest zoom.", type: "number", default: "0.25" },
     { name: "maxZoom", description: "The largest zoom. Never below `minZoom`.", type: "number", default: "4" },
+    { name: "selectable", description: "Lets a node be selected: each node becomes a button, pressed while it is the selected one. A click, `Enter` or `Space` selects it, the same again or `Escape` clears the selection. While a node is selected, its edges and the nodes at their other ends stay lit and everything else is dimmed. A node template should hold no control of its own while this is on: the whole node is one button.", type: "boolean", default: "false" },
+    { name: "selected", description: "The id of the selected node, or `null`. Two-way: it follows every pick, and a value written to it selects that node. An id no drawn node has highlights nothing. Ignored unless `selectable`.", type: "string | null", default: "null" },
     { name: "zoomInLabel", description: "Accessible name of the zoom-in button. Falls back to `graph.zoomIn`, then `'Zoom in'`.", type: "string | null", default: "null" },
     { name: "zoomOutLabel", description: "Accessible name of the zoom-out button. Falls back to `graph.zoomOut`, then `'Zoom out'`.", type: "string | null", default: "null" },
     { name: "fitLabel", description: "Accessible name of the fit button. Falls back to `graph.fit`, then `'Fit to view'`.", type: "string | null", default: "null" },
@@ -994,6 +1007,12 @@ export const API = {
     { name: "value", description: "The entered code. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
     { name: "(completed)", description: "Fires on every change made while every cell holds a character — so correcting a digit of an already-complete code emits again. Not latched on the incomplete-to-complete transition: a host auto-submitting on it has to guard its own re-entry, and gets the corrected code for free.", type: "string" },
     { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+  ],
+  // <[wrInView]>
+  WrInView: [
+    { name: "(wrInView)", description: "Fires with `true` when the host enters the viewport and `false` when it leaves.", type: "boolean" },
+    { name: "wrInViewThreshold", description: "The share of the host, from 0 to 1, that must be visible to count as in view. Read once, when the host first renders. A host taller than the viewport never reaches a threshold of 1.", type: "number", default: "0" },
+    { name: "wrInViewOnce", description: "Stop watching after the first entry. Bare `wrInViewOnce` is on.", type: "boolean", default: "false" },
   ],
   // <wr-kbd>
   WrKbd: [
@@ -1181,6 +1200,7 @@ export const API = {
     { name: "shape", description: "Cell corner treatment.", type: "WrPaginationShape", default: "'rounded'" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "responsive", description: "Collapse to a compact `‹ page / total ›` pager when the control's own box is too narrow for the full numbered strip (a container query on its own width, not the viewport).", type: "boolean", default: "false" },
+    { name: "hideOnSinglePage", description: "Render nothing while everything fits on one page, an empty list included. The host stays in the DOM with `display: none`: no layout box, no tab stop, no landmark, and the total label goes with the strip. With `showSizeChanger` it hides only when the smallest size on offer also gives one page, so choosing a large size cannot remove the way back.", type: "boolean", default: "false" },
     { name: "prevLabel", description: "Previous-page button aria-label. Falls back to `pagination.prev`.", type: "string | null", default: "null" },
     { name: "nextLabel", description: "Next-page button aria-label. Falls back to `pagination.next`.", type: "string | null", default: "null" },
     { name: "itemsPerPageLabel", description: "\"Items per page\" label. Falls back to `pagination.itemsPerPage`.", type: "string | null", default: "null" },
@@ -1229,6 +1249,7 @@ export const API = {
     { name: "size", description: "Bar thickness: 4px, 8px or 12px, through `--wr-progress-height`.", type: "WrProgressSize", default: "'md'" },
     { name: "value", description: "Progress value, clamped to `[0, 100]`.", type: "number", default: "0" },
     { name: "indeterminate", description: "Show that work is running without saying how far it has got: the bar sweeps, `value` is ignored and `aria-valuenow` is left off, which is how a progressbar says its value is unknown.", type: "boolean", default: "false" },
+    { name: "marks", description: "Points drawn on the track: a tick at each `value`, on the 0 to 100 scale of `value`, and its `label` under the bar when it has one. A mark outside the range, or with no number, is not drawn. Positions mirror under `dir=\"rtl\"`. A label stays inside the bar: centred on its tick mid-track, leaning inward towards the ends. One that would touch the label before it is hidden and its tick kept, so the earlier mark wins. Marks do not change the value the progressbar announces. The ticks are hidden from assistive tech; the labels are its description (`aria-describedby`), because ARIA treats the content of a progressbar as presentational and would not read them otherwise. `indeterminate` draws no marks: it has no scale to place them on.", type: "readonly WrProgressMark[]", default: "[]" },
   ],
   // <wr-pull-to-refresh>
   WrPullToRefresh: [
@@ -1392,6 +1413,11 @@ export const API = {
     { name: "addLabel", description: "Text of the button that adds an item to a repeating group. Falls back to `common.add`.", type: "string | null", default: "null" },
     { name: "removeLabel", description: "Text of the button that removes one item of a repeating group. Falls back to `common.remove`.", type: "string | null", default: "null" },
   ],
+  // <[wrScrollFollow]>
+  WrScrollFollow: [
+    { name: "wrScrollFollow", description: "`false` switches it off and hands scroll anchoring back to the browser. Bare `wrScrollFollow` is on.", type: "boolean", default: "true" },
+    { name: "wrScrollFollowThreshold", description: "How close to the end, in pixels, the reader has to scroll back for the following to resume.", type: "number", default: "80" },
+  ],
   // <wr-segmented>
   WrSegmented: [
     { name: "options", description: "The segments to render.", type: "readonly WrSegmentedOption<T>[]", required: true },
@@ -1458,6 +1484,7 @@ export const API = {
     { name: "defaultItemIcon", description: "Icon for a page that names none. `null` draws no icon.", type: "string | null", default: "null" },
     { name: "autoExpand", description: "Open every group above the current route, once per navigation: a group the user closes stays closed until the route changes.", type: "boolean", default: "true" },
     { name: "autoCollapse", description: "Close the groups the previous navigation opened when the next one leaves them, so a long nav does not keep every visited section expanded. A group the user opened or closed by hand is never closed for them. Needs `autoExpand`.", type: "boolean", default: "false" },
+    { name: "activeTone", description: "How the current page is painted: the primary tint, or with `'neutral'` a grey one that leaves the primary to the page's own actions. Either way the four `--wr-sidebar-row-active-*` hooks take any colour.", type: "WrSidebarActiveTone", default: "'primary'" },
   ],
   // <wr-skeleton>
   WrSkeleton: [
@@ -1594,12 +1621,15 @@ export const API = {
     { name: "title", description: "Visible label on the tab strip.", type: "string", required: true },
     { name: "key", description: "Stable identifier used by the parent to track the active tab. Auto-generated if omitted.", type: "string", default: "wrRandomId('wr-tab')" },
     { name: "routerLink", description: "Router target — when set, the tab becomes a `[routerLink]` link.", type: "string | readonly string[] | null", default: "null" },
+    { name: "exact", description: "Router tab only: select it on its own path, not on the paths below it, so an \"Overview\" tab at `/project/42` is not selected on `/project/42/settings`. Query params, fragment and matrix params are matched as without it.", type: "boolean", default: "false" },
+    { name: "count", description: "A count after the label, as a small badge: unread messages, results. `null` (default) shows nothing, `0` shows `0`. The tab's accessible name becomes the label and the count, \"Inbox, 3\".", type: "number | null", default: "null" },
     { name: "disabled", description: "Disable the tab.", type: "boolean", default: "false" },
   ],
   // <wr-table>
   WrTable: [
     { name: "columns", description: "Column definitions, keyed by row property name. Typed against the row `[items]` carries, so a column's `format` sees it: `WrTableColumns<User>` binds to `[items]=\"users\"` and to nothing else, while a bare `WrTableColumns` still binds anywhere.", type: "WrTableColumns<T>", required: true },
     { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. `T` is inferred from here, and it is constrained to `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly T[] | null | undefined", default: "null" },
+    { name: "search", description: "Client-side text search. A row stays when the text some searchable column shows contains the query, ignoring case and accents: the column's `format` over the value, else the value as text. A missing value shows nothing, so its `empty` placeholder is not searched. Columns that take part: the ones on screen, less `actions` columns and `searchable: false`. An empty or blank query is no search. The table filters nothing else itself, so a search runs over whatever `items` holds: filter and sort `items` as before, the search narrows the result. It comes before paging, so the pager counts the matches and the page returns to 1 when the query changes, and `toCsv()`, the summary row and the select-all scope see the matching rows only. In tree mode a parent stays while it or any descendant matches and shows only the children that stay; it keeps its open state, so a parent kept for a deep match may need opening. Server mode (`total` set) holds one page and ignores it. A selection survives a search: rows it hides stay selected, and the count, the bar's `$implicit` and `toCsv({ selectedOnly })` all use the whole selection.", type: "string", default: "''" },
     { name: "loading", description: "Mark the table as loading; `loadingMode` picks how it shows.", type: "boolean", default: "false" },
     { name: "loadingMode", description: "How `loading` shows. `'overlay'` veils the table under a spinner. `'bar'` runs a thin progress bar along the top edge and leaves the rows as they are, for a table that refreshes while it is being read. `'auto'` is the overlay while no row is shown and the bar once rows are. The host carries `aria-busy` in every form.", type: "WrTableLoadingMode", default: "'auto'" },
     { name: "responsive", description: "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.", type: "boolean", default: "false" },
@@ -1635,7 +1665,8 @@ export const API = {
     { name: "(filterChange)", description: "Fires whenever a column's filter selection changes.", type: "WrTableFilterChange" },
     { name: "state", description: "Restores the table in one write: the sort, each column's filter selection, the page, the page size, the column order and the hidden columns. A saved view binds here. It is applied when the bound object changes, so hand it a new object to restore the same view a second time; a key left out keeps what the table has. The models it writes fire their own `*Change`, and `pageSizeChange` fires for a new size; `filterChange` and `stateChange` do not, since the host already holds what it restored. Pairs with `stateChange` as `[(state)]`.", type: "Partial<WrTableState> | null", default: "null" },
     { name: "(stateChange)", description: "Fires with the whole state after a change the reader makes: a sort, a filter, a page, a page size, a column drag, a column shown or hidden. One action is one event, so a new page size that also moves the page fires once. A write from the host, through `state` or a model, does not fire.", type: "WrTableState" },
-    { name: "(rowClick)", description: "Fires when a body row is clicked, with the row, its index in `items` and the click. Group bands, summary rows and detail rows do not fire it. A click on an interactive element inside the row is that element's own and does not fire: a button, a link, a form field, a label, `[role=button]`, editable content, the table's own toggles and its selection and expand cells. Mark anything else with the `wrTableIgnoreRowClick` attribute, which needs no import: `<app-menu wrTableIgnoreRowClick />`. Pointer only: a row takes no focus and no key for it, so give the same action a control of its own in the row (a link or a button in a cell) for keyboard and screen reader users. The table adds no cursor either: style `.wr-table__tr` when the rows are clickable.", type: "WrTableRowClick<T>" },
+    { name: "(rowClick)", description: "Fires when a body row is clicked, with the row, its index in `items` and the click. Group bands, summary rows and detail rows do not fire it. A click on an interactive element inside the row is that element's own and does not fire: a button, a link, a form field, a label, `[role=button]`, editable content, the table's own toggles and its selection and expand cells. Mark anything else with the `wrTableIgnoreRowClick` attribute, which needs no import: `<app-menu wrTableIgnoreRowClick />`. Pointer only: a row takes no focus and no key for it, so give the same action a control of its own in the row (a link or a button in a cell) for keyboard and screen reader users, or use `rowLink` when the row leads to a URL. The table adds no cursor either: style `.wr-table__tr--clickable`. While it is bound the rows wear `wr-table__tr--clickable` and tint on hover. A row with a `rowLink` does not fire it for a click that follows the link.", type: "WrTableRowClick<T>" },
+    { name: "rowLink", description: "Makes a row a link: a function from the row to its href, or to `null` for a row that leads nowhere. Each linked row renders one real `<a>` laid under its cells, so Enter, middle click, ctrl / cmd click and \"copy link\" work anywhere on the row, and the row is one tab stop. The link is named by the row's label cell: the tree column in tree mode, else the first column. Controls in the row stay their own: the same list `rowClick` skips, with `wrTableIgnoreRowClick` for anything else. A plain href loads the page. In a routed app add `WrTableRouting` from `ngwr/table/router` to the table, and the value becomes a router link: a URL string or an array of commands. Linked rows wear `wr-table__tr--link` and tint on hover.", type: "WrTableRowLink<T> | null", default: "null" },
     { name: "pageSize", description: "Rows per page. Set to `0` (default) to disable client-side pagination and render every row at once.", type: "number", default: "0" },
     { name: "pageSizeOptions", description: "Sizes the pager offers in a size menu. Empty (default) shows no menu. A size the reader picks pages the rows at once and fires `pageSizeChange`, so `[(pageSize)]` keeps it on the host; the page moves to keep the first visible row on screen.", type: "readonly number[]", default: "[]" },
     { name: "paginationSize", description: "Size of the pager under the table: its cells and its size menu.", type: "WrPaginationSize", default: "'sm'" },
@@ -1649,6 +1680,7 @@ export const API = {
     { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
     { name: "truncate", description: "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (`layout=\"fixed\"`, and a resized or virtualized one has it).", type: "WrTableTruncate | null", default: "null" },
     { name: "layout", description: "How the columns are sized. `'auto'` lets the browser size each column to its content. `'fixed'` keeps every column at its `width`, shares what is left between the columns without one, and wraps the text of the header and body cells: sorting or paging never moves a column. A column's `truncate` still cuts its cells to one line. Resizing works in both; a virtualized table keeps its one-line rows.", type: "WrTableLayout", default: "'auto'" },
+    { name: "size", description: "How tightly the cells are padded. `'sm'` is the compact table: it sets `--wr-table-cell-padding-y` and `-x` one notch tighter, for header, body and footer cells alike. The app's density still multiplies both, so `sm` is relative to it. Card mode keeps its own padding.", type: "WrTableSize", default: "'md'" },
     { name: "editable", description: "Vetoes the edit of single cells: called with the row and the column key, `false` keeps that cell read-only. Asked only for a column that has a `[wrTableEditCell]` template and does not say `editable: false`.", type: "WrTableEditable<T> | null", default: "null" },
     { name: "(cellEdit)", description: "Emits when a cell edit commits with a value other than the cell's own. The table does not write it: update the data behind `items` in the handler.", type: "WrTableCellEdit<T>" },
   ],

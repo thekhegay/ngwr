@@ -790,3 +790,104 @@ describe('WrPagination emits a modifier for every documented align and shape', (
     }
   });
 });
+
+describe('WrPagination hidden on a single page', () => {
+  @Component({
+    imports: [WrPagination],
+    template: `
+      <wr-pagination
+        hideOnSinglePage
+        showTotal
+        [total]="total()"
+        [(pageSize)]="pageSize"
+        [showSizeChanger]="showSizeChanger()"
+        [pageSizeOptions]="options()"
+      />
+    `,
+  })
+  class SingleHost {
+    readonly total = signal(8);
+    readonly pageSize = signal(10);
+    readonly showSizeChanger = signal(false);
+    readonly options = signal<readonly number[]>([10, 20, 50]);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<SingleHost>>;
+  const pager = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-pagination')!;
+  const isHidden = (): boolean => pager().classList.contains('wr-pagination--hidden');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(SingleHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders nothing, the total label included', () => {
+    expect(isHidden()).toBe(true);
+    expect(pager().children).toHaveLength(0);
+    expect(pager().textContent.trim()).toBe('');
+    expect(pager().querySelector('[tabindex], button, [role]')).toBeNull();
+  });
+
+  it('treats an empty list as one page', () => {
+    fixture.componentInstance.total.set(0);
+    fixture.detectChanges();
+
+    expect(isHidden()).toBe(true);
+    expect(pager().children).toHaveLength(0);
+  });
+
+  it('comes back when the total needs a second page, and goes again', () => {
+    fixture.componentInstance.total.set(11);
+    fixture.detectChanges();
+
+    expect(isHidden()).toBe(false);
+    expect(pager().querySelectorAll('.wr-pagination__page')).toHaveLength(2);
+    expect(pager().querySelector('.wr-pagination__total')).not.toBeNull();
+
+    fixture.componentInstance.total.set(10);
+    fixture.detectChanges();
+
+    expect(isHidden()).toBe(true);
+  });
+
+  it('keeps the size changer while a smaller size on offer gives more pages', () => {
+    fixture.componentInstance.total.set(30);
+    fixture.componentInstance.pageSize.set(50);
+    fixture.componentInstance.showSizeChanger.set(true);
+    fixture.detectChanges();
+
+    // One page at 50, three at 10: hiding here would leave no way back.
+    expect(isHidden()).toBe(false);
+    expect(pager().querySelector('.wr-pagination__size')).not.toBeNull();
+  });
+
+  it('hides the size changer too once no size on offer gives a second page', () => {
+    fixture.componentInstance.showSizeChanger.set(true);
+    fixture.detectChanges();
+
+    expect(isHidden()).toBe(true);
+    expect(pager().querySelector('.wr-pagination__size')).toBeNull();
+
+    fixture.componentInstance.options.set([5, 10]);
+    fixture.detectChanges();
+
+    expect(isHidden()).toBe(false);
+  });
+
+  it('stays visible by default', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    const plain = TestBed.createComponent(Host);
+    plain.componentInstance.total.set(3);
+    plain.detectChanges();
+    const el = (plain.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-pagination')!;
+
+    expect(el.classList.contains('wr-pagination--hidden')).toBe(false);
+    expect(el.querySelectorAll('.wr-pagination__page')).toHaveLength(1);
+    plain.destroy();
+  });
+});

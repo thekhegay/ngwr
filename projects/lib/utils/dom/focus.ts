@@ -48,12 +48,39 @@ function isRendered(el: HTMLElement): boolean {
 const INVALID_CONTROL = '[aria-invalid="true"]';
 const INVALID_SELECTOR = `${INVALID_CONTROL}, .wr-form-field--invalid`;
 
+/**
+ * Can Tab land on `el`? A negative `tabindex` cannot, and a radio only when it
+ * is its group's one stop: the checked one, or the first enabled one while
+ * nothing is checked. The browser applies that rule itself, so no `tabindex`
+ * is written down to read.
+ */
+function isTabStop(el: HTMLElement, reachable: readonly HTMLElement[]): boolean {
+  // An explicit negative `tabindex` is out of the Tab order; an editing host
+  // with none reads `tabIndex` -1 and still is in.
+  if (Number(el.getAttribute('tabindex') ?? 0) < 0) return false;
+  if (!(el instanceof HTMLInputElement) || el.type !== 'radio' || !el.name) return true;
+  // Only the radios that could take focus decide: a hidden first one must not
+  // stand in for the visible one after it.
+  const group = reachable.filter(
+    (radio): radio is HTMLInputElement =>
+      radio instanceof HTMLInputElement &&
+      radio.type === 'radio' &&
+      radio.name === el.name &&
+      radio.form === el.form &&
+      !radio.matches(':disabled') &&
+      Number(radio.getAttribute('tabindex') ?? 0) >= 0
+  );
+  return el === (group.find(radio => radio.checked) ?? group[0]);
+}
+
 function findFirstInvalid(root: HTMLElement): HTMLElement | undefined {
   for (const mark of root.querySelectorAll<HTMLElement>(INVALID_SELECTOR)) {
     // An invalid field whose control carries the mark itself is reached through
     // the control, the next match, and not through whatever its label holds.
     if (!mark.matches(INVALID_CONTROL) && mark.querySelector(INVALID_CONTROL)) continue;
-    const target = mark.matches(FOCUSABLE_SELECTOR) && isRendered(mark) ? mark : wrGetFocusableElements(mark)[0];
+    const reachable = wrGetFocusableElements(mark);
+    const target =
+      mark.matches(FOCUSABLE_SELECTOR) && isRendered(mark) ? mark : reachable.find(el => isTabStop(el, reachable));
     if (target) return target;
   }
   return undefined;

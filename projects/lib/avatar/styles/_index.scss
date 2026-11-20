@@ -221,3 +221,42 @@
     display: none;
   }
 }
+
+// `wr-avatar-group`: avatars stacked with a small overlap. The ring is a box
+// shadow in the surface colour, so it cuts the avatar behind it; the avatar's own
+// inset ring is kept beside it. A later avatar paints over the one before it.
+.wr-avatar-group {
+  // The overlap as a share of each avatar's own box (`--wr-avatar-size`), so one
+  // value fits every size.
+  --wr-avatar-group-overlap: 0.25;
+  --wr-avatar-group-ring-width: var(--wr-space-xs);
+  --wr-avatar-group-ring-color: var(--wr-color-surface);
+  --wr-avatar-group-more-bg: var(--wr-color-fill-subtle);
+  --wr-avatar-group-more-color: var(--wr-color-on-surface);
+
+  display: inline-flex;
+  align-items: center;
+
+  // Logical, so the stack runs from the inline start in both directions.
+  > .wr-avatar:not([hidden]) ~ .wr-avatar {
+    margin-inline-start: calc(var(--wr-avatar-size) * var(--wr-avatar-group-overlap) * -1);
+  }
+
+  > .wr-avatar {
+    box-shadow:
+      inset 0 0 0 1px var(--wr-avatar-ring),
+      0 0 0 var(--wr-avatar-group-ring-width) var(--wr-avatar-group-ring-color);
+  }
+
+  // The `hidden` attribute loses to `.wr-avatar { display: inline-flex }`.
+  > .wr-avatar[hidden] {
+    display: none;
+  }
+
+  &__more.wr-avatar {
+    --wr-avatar-bg: var(--wr-avatar-group-more-bg);
+    color: var(--wr-avatar-group-more-color);
+    font-weight: var(--wr-font-weight-semibold);
+    user-select: none;
+  }
+}

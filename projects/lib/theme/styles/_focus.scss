@@ -280,8 +280,10 @@
 // Graph — the viewport is the graph's one tab stop, the element a keyboard
 // scrolls, or zooms and pans when the graph is `zoomable`. Its own `overflow`
 // does not clip its outline, so the ring stays outset. The zoom buttons beside
-// it are bare `<button>`s.
+// it are bare `<button>`s. With `selectable` every node is a button too, and the
+// stage around the nodes clips nothing.
 .wr-graph__viewport:focus-visible,
+.wr-graph__select:focus-visible,
 .wr-graph__control:focus-visible {
   @include focus-ring;
 }

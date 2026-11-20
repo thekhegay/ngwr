@@ -42,6 +42,7 @@ export {
   wrCheckStyles,
   wrContentDispositionFileName,
   wrDownloadBlob,
+  wrFileNameForType,
   wrRestoreFocus,
   wrNoteFocusReturn,
   wrFocusFirstInvalid,

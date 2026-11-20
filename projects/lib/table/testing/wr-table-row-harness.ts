@@ -65,6 +65,9 @@ export class WrTableRowHarness extends ContentContainerComponentHarness {
    */
   private readonly disclosure = this.locatorForOptional('.wr-table__expand-btn, button.wr-table__tree-toggle');
 
+  // The row's own link, not one a nested table inside a cell draws.
+  private readonly rowLink = this.locatorForOptional(':scope > td > .wr-table__row-link');
+
   /** The row's data cells, in DOM order. The lead control cells are not cells. */
   async getCells(filters: WrTableCellHarnessFilters = {}): Promise<WrTableCellHarness[]> {
     return this.locatorForAll(WrTableCellHarness.with(filters))();
@@ -139,6 +142,16 @@ export class WrTableRowHarness extends ContentContainerComponentHarness {
       );
     }
     await toggle.click();
+  }
+
+  /**
+   * The href of the row's link, or `null` for a row that has none: the table
+   * sets no `rowLink`, or it returned `null` for this row. As rendered, so a
+   * routed link reads the way the browser would open it.
+   */
+  async getLink(): Promise<string | null> {
+    const link = await this.rowLink();
+    return link ? link.getAttribute('href') : null;
   }
 
   /**

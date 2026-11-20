@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.6.0"
+  updated="16.7.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -61,9 +61,12 @@
         the order as a number. Since v15.
       </li>
       <li>
-        Only the sort button sorts, not the whole header. In tests, <code>getSortDirection()</code> reads
-        <code>aria-sort</code>; <code>getSortIndicator()</code> and <code>getSortOrder()</code> read every sorted
-        column.
+        A click anywhere in a sortable header cell sorts; the filter and the resize handle keep their own clicks. The
+        sort button is still the keyboard control. Since v16.7.
+      </li>
+      <li>
+        In tests, <code>getSortDirection()</code> reads <code>aria-sort</code>; <code>getSortIndicator()</code> and
+        <code>getSortOrder()</code> read every sorted column.
       </li>
       <li>Sorting does not reset <code>page</code>. Reset it in your sort handler if you want.</li>
       <li>
@@ -186,9 +189,53 @@
       </li>
       <li>
         It is pointer only: a row takes no focus. Keep a button or a link in the row for the same action, as the Open
-        button here, and style <code>.wr-table__tr</code> yourself if you want a pointer cursor.
+        button here, or use <code>rowLink</code> when the row leads to a URL.
+      </li>
+      <li>
+        While it is bound the rows wear <code>.wr-table__tr--clickable</code> and tint on hover. Style that class if you
+        want a pointer cursor.
       </li>
       <li>Group bands, summary rows and detail rows do not fire it. A child row in tree mode has index -1.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Row links"
+    description="`rowLink` maps a row to its href and makes the row a real link: Enter, middle click, ctrl / cmd click and copy link work anywhere on it, and each row is one tab stop. Return `null` for a row that leads nowhere."
+  >
+    <ngwr-doc-snippet [code]="snippets.rowLink">
+      <div style="width: 100%">
+        <wr-table wrTableRouting [columns]="linkColumns" [items]="linkRows" [rowLink]="pageLink">
+          <ng-template wrTableCell="selector" let-value>
+            <wr-copy-value [value]="value" />
+          </ng-template>
+        </wr-table>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The link is one empty <code>&lt;a&gt;</code> laid under the row's cells and named by the row's first cell, or by
+        the tree column in tree mode. A focused link rings the whole row.
+      </li>
+      <li>
+        Controls in the row stay their own: buttons, links, form fields, labels, the selection and expand cells,
+        editable cells and an <code>actions</code> column. Mark anything else with <code>wrTableIgnoreRowClick</code>.
+        Here the copy button copies and the row does not open.
+      </li>
+      <li>
+        A plain href loads the page. In a routed app add <code>wrTableRouting</code> from
+        <code>ngwr/table/router</code>: <code>rowLink</code> then returns what <code>routerLink</code> takes, a URL
+        string or an array of commands, and a plain click navigates in the app.
+      </li>
+      <li>
+        Only rows that link, or any row while <code>rowClick</code> is bound, tint on hover. The last row here is this
+        page: no link and no tint.
+      </li>
+      <li>
+        Text under the link cannot be selected with the pointer. A virtualized table links its rendered rows only. A cut
+        cell with a tooltip keeps the pointer for its tooltip, so a middle click there does not open the row, and with
+        every column pinned the link covers the first cell only.
+      </li>
     </ul>
   </ngwr-doc-section>
 
@@ -234,6 +281,32 @@
         The table carries <code>.wr-table__table--layout-fixed</code>. <code>.wr-table__table--fixed</code> is the
         layout a resized <code>auto</code> table takes, which cuts every cell.
       </li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Size"
+    description='`size="sm"` is the compact table: tighter padding in header, body and footer cells. Since v16.7.'
+  >
+    <ngwr-doc-snippet [code]="snippets.size">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">Default, <code>md</code></p>
+          <wr-table [columns]="columns" [items]="visibleRows()" />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">Compact, <code>sm</code></p>
+          <wr-table size="sm" [columns]="columns" [items]="visibleRows()" />
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The padding is two hooks, <code>--wr-table-cell-padding-y</code> and <code>--wr-table-cell-padding-x</code>. Set
+        them on <code>.wr-table</code> for a size of your own.
+      </li>
+      <li>The app's density multiplies both, so a compact table in a <code>sm</code> density is tighter again.</li>
+      <li>The text size and card mode stay as they are.</li>
     </ul>
   </ngwr-doc-section>
 
@@ -451,6 +524,44 @@
         selection is emptied from inside it.
       </li>
       <li><code>selectedLabel</code> and <code>clearSelectionLabel</code> set its two texts.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Search"
+    description="`search` keeps the rows where a column's shown text contains the query, ignoring case and accents. The table has no search box: bind your own input."
+  >
+    <ngwr-doc-snippet [code]="snippets.search">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <input
+          wrInput
+          type="search"
+          placeholder="Try zoe, administrator or $85"
+          aria-label="Search the table"
+          [value]="query()"
+          (input)="onQuery($event)"
+        />
+        <wr-table rowKey="id" [columns]="searchColumns" [items]="searchRows" [search]="query()" [pageSize]="3" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        The text is the column's <code>format</code> over the value, else the value itself. A missing value shows
+        nothing, so its <code>empty</code> is not searched, and neither is an <code>actions</code> column, a hidden
+        column or one with <code>searchable: false</code>.
+      </li>
+      <li>
+        The table does not filter or sort <code>items</code> itself: the search narrows whatever you pass. It comes
+        before paging, so the pager counts the matches and the page returns to 1 when the query changes.
+      </li>
+      <li>
+        <code>toCsv()</code>, the summary row and the select-all scope cover the matching rows only. Server mode
+        (<code>total</code>) ignores it.
+      </li>
+      <li>
+        In tree mode a parent stays while it or a descendant matches, with only the children that stay. Open state is
+        unchanged, so a parent kept for a deep match may need opening.
+      </li>
     </ul>
   </ngwr-doc-section>
 

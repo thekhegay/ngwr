@@ -688,3 +688,33 @@ describe('WrTabsHarness — under a reading direction', () => {
     }
   });
 });
+
+@Component({
+  imports: [WrTab, WrTabs],
+  template: `
+    <wr-tabs>
+      <wr-tab title="Inbox" key="inbox" [count]="3">Mail</wr-tab>
+      <wr-tab title="Sent" key="sent">Out</wr-tab>
+      <wr-tab title="Rating" key="rating" [count]="2.5">Stars</wr-tab>
+    </wr-tabs>
+  `,
+})
+class CountHost {}
+
+describe('WrTabHarness — count', () => {
+  it('reads the label apart from the count, and the name with it', async () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(CountHost);
+    fixture.detectChanges();
+    const tabs = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrTabsHarness);
+    const [inbox, sent, rating] = await tabs.getTabs();
+
+    expect(await inbox.getLabel()).toBe('Inbox');
+    expect(await inbox.getCount()).toBe(3);
+    expect(await inbox.getAccessibleName()).toBe('Inbox, 3');
+    expect(await sent.getCount()).toBeNull();
+    expect(await sent.getAccessibleName()).toBe('Sent');
+    expect(await rating.getCount()).toBe(2.5);
+    fixture.destroy();
+  });
+});

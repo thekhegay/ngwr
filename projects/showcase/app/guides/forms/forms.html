@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Forms"
-  updated="16.6.0"
+  updated="16.7.0"
   description="Bind ngwr controls to any Angular form and show their errors."
   [keywords]="[
     'signal forms',
@@ -66,17 +66,17 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
-    title="Template validators are ignored"
-    description="`required`, `minlength`, `maxlength`, `pattern` and `email` on an ngwr control do nothing, and the form submits."
+    title="Template validators"
+    description="`required`, `minlength`, `maxlength`, `pattern` and `email` on an ngwr control reach the FormControl, as on an `<input>`."
   >
     <ngwr-doc-code [code]="snippets.validatorsTemplate" language="angular-html" />
-    <ngwr-doc-code [code]="snippets.validators" language="typescript" />
 
     <p>
-      <code>min</code> and <code>max</code> never attach either (<a
-        href="https://github.com/angular/angular/issues/70721"
+      Angular dropped them before 22.3 (<a href="https://github.com/angular/angular/issues/70721"
         >angular/angular#70721</a
-      >).
+      >), and 22.3 is the lowest version ngwr supports. <code>min</code> and <code>max</code> still never attach: their
+      selectors take <code>input[type=number]</code> only, so put <code>Validators.min</code> / <code>max</code> on the
+      FormControl.
     </p>
   </ngwr-doc-section>
 
@@ -91,17 +91,8 @@
         </thead>
         <tbody>
           <tr>
-            <th scope="row">
-              <code>updateOn: 'blur'</code> or <code>'submit'</code> is ignored: the value and its errors update on
-              every edit.
-            </th>
-            <td>Debounce expensive checks in an async validator.</td>
-          </tr>
-          <tr>
-            <th scope="row">
-              A write with <code>{{ '{' }} emitEvent: false {{ '}' }}</code> does not repaint the control.
-            </th>
-            <td>Call <code>markForCheck()</code> after the write.</td>
+            <th scope="row"><code>required</code> on <code>&lt;wr-checkbox&gt;</code> accepts an unchecked box.</th>
+            <td>Put <code>Validators.requiredTrue</code> on the FormControl.</td>
           </tr>
           <tr>
             <th scope="row"><code>Validators.required</code> does not mark the field as required.</th>

@@ -51,6 +51,9 @@ export default class ButtonComponent {
     basic: `<wr-btn>Default</wr-btn>
 <button wr-btn type="button">Native button</button>
 <a wr-btn href="/reference/components/button-group">Anchor</a>`,
+    ghost: `<wr-btn ghost>Default</wr-btn>
+<wr-btn color="primary" ghost>Primary</wr-btn>
+<wr-btn ghost icon="add" aria-label="Add" />`,
     submit: `<form (ngSubmit)="save()">
   <!-- Submits -->
   <button wr-btn type="submit" color="primary">Save</button>

@@ -158,6 +158,7 @@ export const wrAr: WrI18nCatalog = {
     failed: 'فشل الرفع',
     status: '{{name}}: {{status}}',
     retry: 'إعادة المحاولة',
+    openFile: '{{name}} (يفتح في علامة تبويب جديدة)',
   },
   popconfirm: {
     label: 'تأكيد الإجراء',
@@ -197,6 +198,7 @@ export const wrAr: WrI18nCatalog = {
   },
   avatar: {
     alt: 'الصورة الرمزية',
+    more: 'المزيد: {{count}}',
   },
   backTop: {
     label: 'العودة إلى الأعلى',

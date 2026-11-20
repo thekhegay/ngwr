@@ -122,6 +122,11 @@ because it is guidance rather than a plan.
   between the click and the response. Clamping there pulled every page back to 1
   and emitted a `pageChange` the host could not tell from a click. The
   LOWER bound stays unconditional, and that one does write back.
+- `wr-pagination` with `hideOnSinglePage` hides on a `total` of 0 too, so a
+  server-paged host loses the pager for the length of a request unless it keeps
+  the last good total. With `showSizeChanger` it stays while any size in
+  `pageSizeOptions` gives a second page: hidden at one page of 50, it would
+  leave no way back to 10.
 - **`withDates({ timeZone })` does not move a date-only value.** `mode="date"`
   on either picker, `wr-calendar`, and a `'2026-11-12'` string through `wrDate`
   stay browser-local days: a day is the same day in every zone, and the local
@@ -131,6 +136,14 @@ because it is guidance rather than a plan.
   read in the BROWSER's zone, as before, and then shown in the display zone,
   unless `withDates({ zonelessIn })` says `'display'` or `'utc'` (16.2). The
   default must stay `'browser'`, and `epochUnit` must stay `'ms'`.
+- **`valueFormat="day"` is ignored in `time` and `datetime` modes**, with a
+  dev-mode warning: a day string cannot hold a time, so those modes keep a
+  `Date` whatever the type parameter says. It applies in `date` and the period
+  modes. A model string that is not a valid `YYYY-MM-DD` reads as empty and is
+  left in the model. In a Signal Form the bounds of a day field are limits of
+  its own type (a `LimitKey<string>` selected by `MIN` / `MAX`): Angular's
+  `minDate()` takes a `Date` path only and `[min]` beside `[formField]` is
+  NG8022.
 - **`epochUnit: 'auto'` is a guess with stated limits**: seconds under `1e10`,
   milliseconds under `1e13`, microseconds from there. A date before 26 April
   1970 in milliseconds or microseconds, or after 20 November 2286, reads in the
@@ -272,3 +285,17 @@ because it is guidance rather than a plan.
   they do not flip under RTL. A press becomes a drag only after three pixels,
   and only then takes pointer capture, so a click inside a node still reaches
   it.
+- `wr-graph` with `selectable` wraps each node's content in a
+  `div[role=button]` INSIDE the list item, so the node's DOM differs from a
+  plain graph's and the list keeps its items. The whole node is that one
+  button: a link or a control in a node template is nested-interactive, which
+  is the consumer's to avoid, though a click on one is left to it and selects
+  nothing. Every node is a tab stop, with no roving focus and no arrow keys
+  between nodes. `Escape` is stopped from propagating only when it cleared a
+  selection, so a dialog around the graph closes on the next press. In a
+  zoomable graph a drag that starts on a node pans, and the click that follows
+  it selects nothing. A `selected` id no drawn node has is kept as written and
+  highlights nothing. A dimmed node that holds the focus is drawn at full
+  strength, so its ring is too.
+- `wr-table` selection survives a `search`: rows the search hides stay selected, and the bar's count, its `$implicit` and `toCsv({ selectedOnly })` all use the whole selection, never only the visible part.
+- `wr-table` rows tint on hover only when they lead somewhere: a row with a `rowLink`, or every row while `rowClick` is bound. A plain table has no row hover, and `--wr-table-row-hover` only colours those two.

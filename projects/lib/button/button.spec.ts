@@ -725,7 +725,7 @@ describe('WrButton stylesheet', () => {
   it('draws the seam between filled group members on the inline-end edge in both directions', () => {
     // `box-shadow` offsets are physical, so one declaration put the seam on the
     // group's outer edge under RTL and left the two buttons fused.
-    const seam = '.wr-btn-group > .wr-btn--primary:not(.wr-btn--outlined):not(:last-child)';
+    const seam = '.wr-btn-group > .wr-btn--primary:not(.wr-btn--outlined):not(.wr-btn--ghost):not(:last-child)';
     expect(rule(seam)).toMatch(/box-shadow:\s*inset -1px 0 0/);
     expect(rule(`${seam}:dir(rtl)`)).toMatch(/box-shadow:\s*inset 1px 0 0/);
   });
@@ -747,5 +747,69 @@ describe('WrButton stylesheet', () => {
     expect(properties).not.toContain('box-shadow');
     expect(properties.filter(p => p.startsWith('outline'))).toEqual([]);
     expect(entries.every(e => e.timing === 'var(--wr-transition-base)')).toBe(true);
+  });
+});
+
+describe('WrButton ghost', () => {
+  @Component({
+    imports: [WrButton],
+    template: `
+      <button type="button" wr-btn ghost>Plain</button>
+      <button type="button" wr-btn color="primary" ghost size="sm" shape="pill" [block]="true" [loading]="true">
+        Busy
+      </button>
+      <wr-btn ghost [disabled]="true">Off</wr-btn>
+      <wr-btn ghost icon="add" aria-label="Add" />
+      <button type="button" wr-btn>Solid</button>
+    `,
+  })
+  class GhostHost {}
+
+  const css = compileSass("@use 'button/styles';").replace(/\/\*[\s\S]*?\*\//g, '');
+  /** The declarations of the first rule whose selector list STARTS with `selector`. */
+  const rule = (selector: string): string =>
+    new RegExp(`(?:^|\\n)${selector.replace(/[.:]/g, m => `\\${m}`)}(?=[,\\s{])[^{]*\\{([^}]*)\\}`).exec(css)?.[1] ??
+    '';
+
+  let root: HTMLElement;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(GhostHost);
+    fixture.detectChanges();
+    root = fixture.nativeElement as HTMLElement;
+  });
+
+  it('adds one modifier and leaves the other modes alone', () => {
+    const [plain, busy, off, iconOnly, solid] = Array.from(root.querySelectorAll<HTMLElement>('.wr-btn'));
+    expect(plain.classList.contains('wr-btn--ghost')).toBe(true);
+    expect(solid.classList.contains('wr-btn--ghost')).toBe(false);
+    for (const cls of ['wr-btn--primary', 'wr-btn--sm', 'wr-btn--pill', 'wr-btn--block', 'wr-btn--loading']) {
+      expect(busy.classList.contains(cls)).toBe(true);
+    }
+    expect(busy.classList.contains('wr-btn--ghost')).toBe(true);
+    expect(busy.getAttribute('aria-busy')).toBe('true');
+    expect(off.getAttribute('aria-disabled')).toBe('true');
+    expect(off.classList.contains('wr-btn--ghost')).toBe(true);
+    expect(iconOnly.querySelector('.wr-btn__label')?.textContent?.trim()).toBe('');
+    expect(iconOnly.classList.contains('wr-btn--ghost')).toBe(true);
+  });
+
+  it('paints no fill and no border at rest, with a tint on hover and press', () => {
+    const base = rule('.wr-btn--ghost');
+    expect(base).toMatch(/--wr-btn-bg:\s*transparent/);
+    expect(base).toMatch(/--wr-btn-border:\s*transparent/);
+    expect(rule('.wr-btn--ghost:hover')).toMatch(/--wr-btn-bg:\s*var\(--wr-btn-ghost-bg-hover\)/);
+    expect(rule('.wr-btn--ghost:active')).toMatch(/--wr-btn-bg:\s*var\(--wr-btn-ghost-bg-active\)/);
+  });
+
+  it('tints from the intent and reads the label as -ink', () => {
+    const colored = rule('.wr-btn--primary.wr-btn--ghost');
+    expect(colored).toMatch(
+      /--wr-btn-ghost-bg-hover:\s*color-mix\(in srgb, var\(--wr-color-primary\) 12%, transparent\)/
+    );
+    expect(colored).toMatch(/--wr-btn-color:\s*var\(--wr-color-primary-ink\)/);
+    expect(colored).toMatch(/--wr-btn-bg:\s*transparent/);
+    expect(rule('.wr-btn--primary.wr-btn--ghost:hover')).toMatch(/--wr-btn-bg:\s*var\(--wr-btn-ghost-bg-hover\)/);
   });
 });

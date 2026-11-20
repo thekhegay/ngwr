@@ -27,6 +27,7 @@ import {
   type WrTableState,
   wrSortRows,
 } from 'ngwr/table';
+import { WrTableRouting } from 'ngwr/table/router';
 
 import {
   DocApiComponent,
@@ -42,6 +43,13 @@ interface Row extends Record<string, unknown> {
   name: string;
   email: string;
   role: 'admin' | 'editor' | 'viewer';
+}
+
+interface PageRow {
+  name: string;
+  selector: string;
+  group: string;
+  path: string | null;
 }
 
 interface Invoice {
@@ -157,6 +165,7 @@ const WIDE_ROWS: readonly Record<string, unknown>[] = [
     WrTableEditCell,
     WrTableExpand,
     WrTableGroupHeader,
+    WrTableRouting,
     WrTableSelectionBar,
     WrInput,
     WrInputNumber,
@@ -203,6 +212,24 @@ export default class TablePageComponent {
     due: { title: 'Due', align: 'center', empty: 'open' },
     paid: { title: 'Paid', format: value => (value ? 'yes' : 'no') },
   };
+
+  protected readonly searchColumns: WrTableColumns = {
+    name: { title: 'Name' },
+    role: { title: 'Role', format: value => (value === 'admin' ? 'Administrator' : 'Member') },
+    price: { title: 'Price', align: 'end', format: value => `$${String(value)}.00` },
+  };
+  protected readonly searchRows: readonly Record<string, unknown>[] = [
+    { id: 1, name: 'Zoë Adler', role: 'admin', price: 1200 },
+    { id: 2, name: 'Bob Stone', role: 'user', price: 85 },
+    { id: 3, name: 'Cara Mills', role: 'admin', price: 3 },
+    { id: 4, name: 'Dmitri Ivanov', role: 'user', price: 40 },
+    { id: 5, name: 'Elena Petrova', role: 'user', price: 19 },
+  ];
+  protected readonly query = signal('');
+
+  protected onQuery(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
 
   protected readonly visibleRows = computed<readonly Record<string, unknown>[]>(() => {
     const roles = this.roleFilter();
@@ -284,6 +311,20 @@ export default class TablePageComponent {
     role: { title: 'Role' },
     open: { title: '', width: 96 },
   };
+
+  protected readonly linkColumns: WrTableColumns<PageRow> = {
+    name: { title: 'Component' },
+    selector: { title: 'Selector' },
+    group: { title: 'Group' },
+  };
+  protected readonly linkRows: readonly PageRow[] = [
+    { name: 'Pagination', selector: 'wr-pagination', group: 'Navigation', path: 'pagination' },
+    { name: 'Tree', selector: 'wr-tree', group: 'Data', path: 'tree' },
+    { name: 'Select', selector: 'wr-select', group: 'Form', path: 'select' },
+    { name: 'Table', selector: 'wr-table', group: 'Data', path: null },
+  ];
+  protected readonly pageLink = (row: PageRow): string | null =>
+    row.path ? `/reference/components/${row.path}` : null;
 
   protected readonly hintRows: readonly Record<string, unknown>[] = [
     { name: 'Roman', note: 'Owns the release train and signs off every publish to npm', seats: 12, alarm: '!' },
@@ -493,6 +534,8 @@ export default class TablePageComponent {
     cellContext: `<ng-template wrTableCell="role" let-value let-row="item" let-col="column">
   {{ col.title }}: {{ value }} — {{ row.email }}
 </ng-template>`,
+    search: `<input wrInput type="search" aria-label="Search the table" [value]="query()" (input)="onQuery($event)" />
+<wr-table [columns]="columns" [items]="rows" [search]="query()" [pageSize]="3" />`,
     columnKeys: `const columns: WrTableColumns<Invoice> = {
   customer: { title: 'Customer' },
   amount: {
@@ -529,6 +572,17 @@ const columns: WrTableColumns<Invoice> = {
   <wr-alert type="danger" title="Could not load users" [message]="message" />
 }
 <wr-table [columns]="columns" [items]="rows()" [loading]="loading()" />`,
+    rowLink: `<!-- imports: [WrTable, WrTableCell] from 'ngwr/table', WrTableRouting from 'ngwr/table/router', WrCopyValue from 'ngwr/copy-value' -->
+<wr-table wrTableRouting [columns]="columns" [items]="pages" [rowLink]="pageLink">
+  <!-- A button in a cell stays a button: it copies, and the row does not open. -->
+  <ng-template wrTableCell="selector" let-value>
+    <wr-copy-value [value]="value" />
+  </ng-template>
+</wr-table>
+
+// A string is a URL, an array is router commands, null is a row with no link.
+protected readonly pageLink = (page: Page) =>
+  page.path ? \`/reference/components/\${page.path}\` : null;`,
     rowClick: `<wr-table [columns]="columns" [items]="rows" (rowClick)="open($event.row)">
   <!-- The copy button is a button: it copies, and the row does not open. -->
   <ng-template wrTableCell="email" let-value>
@@ -561,6 +615,13 @@ protected readonly columns: WrTableColumns = {
   role: { title: 'Role on the team', width: 140, truncate: 'tooltip' },
   seats: { title: 'Seats', align: 'end', width: 80 },
 };`,
+    size: `<wr-table size="sm" [columns]="columns" [items]="rows" />
+
+/* Or a size of your own */
+.wr-table {
+  --wr-table-cell-padding-y: var(--wr-space-xs);
+  --wr-table-cell-padding-x: var(--wr-space-md);
+}`,
     rowActions: `<wr-table [columns]="columns" [items]="rows">
   <ng-template wrTableCell="actions" let-row="item">
     <wr-btn icon="pencil" size="sm" outlined wrPopover="Edit" mode="tooltip" (click)="edit(row)" />
@@ -895,6 +956,13 @@ const columns: WrTableColumns = {
       default: '—',
     },
     {
+      name: '[wrTableRouting]',
+      description:
+        'On `<wr-table>`: sends `rowLink` through the router, so it takes a URL string or an array of commands and a plain click navigates in the app. Import `WrTableRouting` from `ngwr/table/router`. Since v16.7.',
+      type: 'directive',
+      default: '—',
+    },
+    {
       name: '[wrTableCell]',
       description: 'Per-column cell template. The attribute value is the column key; import `WrTableCell`.',
       type: 'directive',
@@ -1086,6 +1154,8 @@ interface WrTableCellEdit<T = object> {
 
 type WrTableEditable<T = object> = (row: T, key: string) => boolean;
 
+type WrTableRowLink<T = object> = (row: T) => string | readonly unknown[] | null | undefined;
+
 interface WrTableEditCellContext<T, K extends string> {
   $implicit: T[K];
   row: T;
@@ -1127,7 +1197,13 @@ type WrTableSummaryContext =
       type: 'string',
       sub: true,
     },
-    { name: 'sortable', description: 'Show a clickable sort indicator.', type: 'boolean', default: 'false', sub: true },
+    {
+      name: 'sortable',
+      description: 'Show a sort indicator; a click in the header cell sorts.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
     {
       name: 'filterItems',
       description: 'Non-empty list shows a filter dropdown.',

@@ -40,6 +40,15 @@ export default class TabsPageComponent {
   <wr-tab title="Logs"     routerLink="logs" />
 </wr-tabs>
 <router-outlet />`,
+    exact: `<wr-tabs wrTabsRouting>
+  <!-- not selected on /project/42/settings -->
+  <wr-tab title="Overview" routerLink="/project/42" exact />
+  <wr-tab title="Settings" routerLink="/project/42/settings" />
+</wr-tabs>`,
+    count: `<wr-tabs>
+  <wr-tab title="Inbox" [count]="unread()">…</wr-tab>
+  <wr-tab title="Sent">…</wr-tab>
+</wr-tabs>`,
     disabled: `<wr-tab title="WIP" disabled>…</wr-tab>`,
     exportAs: `<wr-tabs wrTabsRouting #routing="wrTabsRouting">
   <wr-tab title="Overview" routerLink="overview" />
@@ -62,6 +71,18 @@ export default class TabsPageComponent {
       name: 'routerLink',
       description: 'Makes the tab a link; the strip renders no panel.',
       type: 'string | readonly string[] | null',
+      default: 'null',
+    },
+    {
+      name: 'exact',
+      description: 'Router tab: selected on its own path only, not on the paths below it.',
+      type: 'boolean',
+      default: 'false',
+    },
+    {
+      name: 'count',
+      description: 'A count badge after the label; part of the accessible name. `null` hides it.',
+      type: 'number | null',
       default: 'null',
     },
     { name: 'disabled', description: 'Disable the tab.', type: 'boolean', default: 'false' },

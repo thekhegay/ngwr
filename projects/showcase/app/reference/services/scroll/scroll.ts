@@ -1,8 +1,8 @@
 import type { ElementRef } from '@angular/core';
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 
 import { WrButton } from 'ngwr/button';
-import { WrScroll } from 'ngwr/scroll';
+import { WrScroll, WrScrollFollow } from 'ngwr/scroll';
 
 import {
   DocApiComponent,
@@ -17,7 +17,15 @@ import {
   selector: 'ngwr-svc-scroll-page',
   templateUrl: './scroll.html',
   styleUrl: './scroll.scss',
-  imports: [WrButton, DocPageComponent, DocSectionComponent, DocSnippetComponent, DocCodeComponent, DocApiComponent],
+  imports: [
+    WrButton,
+    WrScrollFollow,
+    DocPageComponent,
+    DocSectionComponent,
+    DocSnippetComponent,
+    DocCodeComponent,
+    DocApiComponent,
+  ],
 })
 export default class ScrollServicePageComponent {
   private readonly scroll = inject(WrScroll);
@@ -49,7 +57,26 @@ export default class ScrollServicePageComponent {
     });
   }
 
+  protected readonly messages = signal(Array.from({ length: 12 }, (_, index) => 21 + index));
+
+  protected loadOlder(): void {
+    this.messages.update(list => [...Array.from({ length: 5 }, (_, index) => list[0] - 5 + index), ...list]);
+  }
+
+  protected addMessage(): void {
+    this.messages.update(list => [...list, list[list.length - 1] + 1]);
+  }
+
   protected readonly snippets = {
+    follow: `<div class="log" wrScrollFollow #log="wrScrollFollow">
+  @for (message of messages(); track message.id) {
+    <p>{{ message.text }}</p>
+  }
+</div>
+
+@if (!log.following()) {
+  <button wr-btn type="button" (click)="log.toEnd()">Jump to latest</button>
+}`,
     usage: `private readonly scroll = inject(WrScroll);
 
 this.scroll.to('#section-three', { offset: 80 });
@@ -93,6 +120,32 @@ this.scroll.intoView(myEl, { offset: 64 });`,
       description: 'The element to scroll instead of the window.',
       type: 'Window | Element',
       default: 'window',
+    },
+  ];
+  protected readonly followApi: readonly DocApiRow[] = [
+    {
+      name: '[wrScrollFollow]',
+      description: '`false` switches it off and hands scroll anchoring back to the browser.',
+      type: 'boolean',
+      default: 'true',
+    },
+    {
+      name: '[wrScrollFollowThreshold]',
+      description: 'How close to the end, in pixels, the reader has to scroll back for the following to resume.',
+      type: 'number',
+      default: '80',
+    },
+    {
+      name: 'following()',
+      description: 'A signal: whether the box is held at its end. `false` once the reader scrolls up.',
+      type: '() => boolean',
+      default: '—',
+    },
+    {
+      name: 'toEnd(options?)',
+      description: 'Scroll to the end and follow again. `{ smooth: false }` makes it instant.',
+      type: '(opts?) => void',
+      default: '—',
     },
   ];
 }

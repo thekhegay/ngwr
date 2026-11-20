@@ -65,6 +65,11 @@ export interface WrTableColumn<T extends WrTableRow = WrTableRow> {
    * `title` (an icon column) it is the column's name.
    */
   readonly headerHint?: string;
+  /**
+   * `false` keeps the column out of the table's `search`. A column takes part
+   * by default, through its `format` or its value; an `actions` column never does.
+   */
+  readonly searchable?: boolean;
   /** Show a clickable sort indicator in the header. */
   readonly sortable?: boolean;
   /** When non-empty, shows a filter dropdown in the header. */

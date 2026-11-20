@@ -6,7 +6,7 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Directive, computed, input } from '@angular/core';
+import { Directive, computed, inject, input } from '@angular/core';
 
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -77,12 +77,15 @@ export class WrForm {
   host: { class: 'wr-form__span', '[style.--wr-form-span]': 'track()' },
 })
 export class WrFormSpan {
+  private readonly form = inject(WrForm, { optional: true });
+
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('form');
   }
 
   /**
-   * Columns to span. Empty or `'full'` takes the whole row.
+   * Columns to span. Empty or `'full'` takes the whole row. A number above
+   * the form's `columns` spans them all.
    *
    * @default 'full'
    */
@@ -96,6 +99,7 @@ export class WrFormSpan {
 
   protected readonly track = computed(() => {
     const span = this.span();
-    return span === 'full' ? '1 / -1' : `span ${span}`;
+    if (span === 'full') return '1 / -1';
+    return `span ${this.form ? Math.min(span, this.form.columns()) : span}`;
   });
 }

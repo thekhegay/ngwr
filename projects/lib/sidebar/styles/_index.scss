@@ -8,6 +8,7 @@
 // within a compilation, so an app that also loads one of these by hand still
 // emits it once.
 @use '../../icon/styles' as icon-styles; // WrIcon
+@use '../../keyboard/styles' as keyboard-styles; // WrKbd
 @include theme.loaded('sidebar');
 
 .wr-sidebar {
@@ -23,6 +24,8 @@
   // literal.
   --wr-sidebar-gap: 0.125rem;
   --wr-sidebar-group-gap: 0.375rem;
+  // Between the rows and a filled header or footer slot.
+  --wr-sidebar-slot-gap: var(--wr-space-sm);
   // 6px around a 20px line is a 32px row; a second line makes it 48px. Under a
   // coarse pointer the block below makes it 44px.
   --wr-sidebar-row-height: 2rem;
@@ -45,6 +48,14 @@
   --wr-sidebar-badge-font-size: 0.5625rem;
   --wr-sidebar-badge-line-height: 0.75rem;
   --wr-sidebar-badge-font-weight: var(--wr-font-weight-semibold);
+  // The current page: the tint under a level-1 row, its text and icon, and the
+  // mark that points at it, which is the bar on the guide below level 1 and the
+  // dot on a collapsed group holding it. `activeTone="neutral"` re-declares all
+  // four below.
+  --wr-sidebar-row-active-bg: var(--wr-color-primary-soft);
+  --wr-sidebar-row-active-color: var(--wr-color-primary-ink);
+  --wr-sidebar-row-active-icon: var(--wr-color-primary);
+  --wr-sidebar-row-active-indicator: var(--wr-color-primary);
   // Quieter than the muted text and still 3:1 on the surface and on the hover
   // fill, in both schemes: 3.6:1 and 3.3:1 in light, 4.3:1 and 4.0:1 in dark.
   --wr-sidebar-chevron: color-mix(in srgb, var(--wr-color-on-surface-muted) 70%, transparent);
@@ -55,10 +66,24 @@
   --wr-sidebar-guide-width: 1px;
   --wr-sidebar-guide-gap: var(--wr-space-sm);
 
-  display: block;
+  // A column, so the footer slot can sit at the end of a host taller than its rows.
+  display: flex;
+  flex-direction: column;
   padding: var(--wr-sidebar-padding);
   font-family: var(--wr-sidebar-font-family);
   color: var(--wr-color-on-surface);
+
+  // A grey current row, for a shell that keeps its primary for the page's own
+  // actions. One step above the hover fill, so the current row and a hovered
+  // one stay apart. By attribute as well, so a static `activeTone="neutral"`
+  // paints before the first update pass and no row fades in from the primary.
+  &--active-neutral,
+  &:where([activeTone='neutral']) {
+    --wr-sidebar-row-active-bg: var(--wr-color-fill-strong);
+    --wr-sidebar-row-active-color: var(--wr-color-on-surface);
+    --wr-sidebar-row-active-icon: var(--wr-color-on-surface);
+    --wr-sidebar-row-active-indicator: var(--wr-color-on-surface);
+  }
 
   // A touch pointer gets 44px rows and a 44px split arrow. Keyed to the pointer,
   // not to a container: a drawer on a laptop keeps the 32px a mouse needs.
@@ -66,6 +91,27 @@
     --wr-sidebar-row-height: 2.75rem;
     --wr-sidebar-row-padding-y: 0.75rem;
     --wr-sidebar-chevron-size: 1rem;
+  }
+
+  // Projected content above and below the rows. Unfilled, the wrapper is empty
+  // and takes no room; filled, the footer goes to the end of the host, which is
+  // the bottom of a full-height sider and right under the rows anywhere else.
+  &__header,
+  &__footer {
+    flex: none;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__header {
+    padding-block-end: var(--wr-sidebar-slot-gap);
+  }
+
+  &__footer {
+    margin-block-start: auto;
+    padding-block-start: var(--wr-sidebar-slot-gap);
   }
 
   &__list,
@@ -163,12 +209,12 @@
     }
 
     &--active {
-      color: var(--wr-color-primary-ink);
+      color: var(--wr-sidebar-row-active-color);
       font-weight: var(--wr-font-weight-semibold);
       cursor: default;
 
       .wr-sidebar__icon {
-        color: var(--wr-color-primary);
+        color: var(--wr-sidebar-row-active-icon);
       }
 
       .wr-sidebar__subtitle {
@@ -177,7 +223,7 @@
     }
 
     &--active.wr-sidebar__row--level-1 {
-      background: var(--wr-color-primary-soft);
+      background: var(--wr-sidebar-row-active-bg);
 
       .wr-sidebar__badge,
       .wr-sidebar__count {
@@ -215,7 +261,7 @@
       inset-block: 0;
       inset-inline-start: calc(-1 * (var(--wr-sidebar-guide-gap) + var(--wr-sidebar-guide-width)));
       inline-size: var(--wr-sidebar-guide-width);
-      background: var(--wr-color-primary);
+      background: var(--wr-sidebar-row-active-indicator);
     }
   }
 
@@ -303,12 +349,18 @@
     }
   }
 
+  // An action's chord. The cap is 22px on a 20px line and centred on it, so it
+  // stays inside the 32px row.
+  &__shortcut {
+    flex: none;
+  }
+
   &__dot {
     flex: none;
     width: 0.375rem;
     height: 0.375rem;
     border-radius: 50%;
-    background: var(--wr-color-primary);
+    background: var(--wr-sidebar-row-active-indicator);
   }
 
   // Points at the inline end while closed and turns down when open. `rotate`

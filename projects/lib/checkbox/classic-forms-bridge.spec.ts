@@ -25,14 +25,10 @@ import { WrCheckbox } from './checkbox';
  * The third describe is the reason this file exists. The accessor path runs
  * `setUpValidators`, which merges the validator DIRECTIVES on the element into
  * the `FormControl`; the custom-control path (`setupCustomControl`) never does.
- * So a template `required` on an ngwr control matches its directive and is then
- * silently ignored — no error, and the form submits — while the same attribute
- * on a native `<input>` in the same template works. Validators have to live on
- * the `FormControl`.
- *
- * That is ANGULAR's current behaviour, pinned rather than endorsed, and reported
- * upstream as https://github.com/angular/angular/issues/70721 (it reproduces with
- * a plain component that has a `value` model, no ngwr involved). If a spec in
+ * Before Angular 22.3 a template `required` on an ngwr control matched its
+ * directive and was then silently ignored, while the same attribute on a native
+ * `<input>` worked: https://github.com/angular/angular/issues/70721, fixed in 22.3,
+ * which is ngwr's peer floor. The block below pins the fixed behaviour. If a spec in
  * that block starts failing after an Angular bump, the bridge moved — in either
  * direction — and the docs that describe it must move with it: AGENTS.md
  * (Forms), README.md (one clause: that ngModel and reactive forms bind, with
@@ -45,11 +41,13 @@ import { WrCheckbox } from './checkbox';
   template: `
     <wr-checkbox [(ngModel)]="agreed">Template-driven</wr-checkbox>
     <wr-checkbox [formControl]="reactive">Reactive</wr-checkbox>
+    <wr-checkbox [formControl]="onBlur">On blur</wr-checkbox>
   `,
 })
 class CheckboxHost {
   readonly agreed = signal(false);
   readonly reactive = new FormControl(false, { nonNullable: true });
+  readonly onBlur = new FormControl(false, { nonNullable: true, updateOn: 'blur' });
 }
 
 @Component({
@@ -156,6 +154,25 @@ describe('WrCheckbox under the classic forms bridge (a `checked` model)', () => 
     expect(control.dirty).toBe(true);
     expect(boxes()[1].checked).toBe(false);
   });
+
+  it('holds an edit until blur under `updateOn: blur`', async () => {
+    const control = fixture.componentInstance.onBlur;
+
+    boxes()[2].click();
+    await fixture.whenStable();
+    expect(control.value).toBe(false);
+
+    boxes()[2].dispatchEvent(new FocusEvent('blur'));
+    await fixture.whenStable();
+    expect(control.value).toBe(true);
+    expect(control.touched).toBe(true);
+  });
+
+  it('repaints after a write with `emitEvent: false`', async () => {
+    fixture.componentInstance.reactive.setValue(true, { emitEvent: false });
+    await fixture.whenStable();
+    expect(boxes()[1].checked).toBe(true);
+  });
 });
 
 describe('WrSelect under the classic forms bridge (a `value` model)', () => {
@@ -235,20 +252,22 @@ describe('template validator directives under the classic forms bridge', () => {
     expect(fixture.componentInstance.nativeDirective.errors).toEqual({ required: true });
   });
 
-  it('does NOT apply a template `required` to an ngwr control bound through [formControl]', () => {
+  // Angular dropped these before 22.3 (angular/angular#70721); ngwr's peer floor
+  // is 22.3, so a template validator now reaches the FormControl as on <input>.
+  it('applies a template `required` to an ngwr control bound through [formControl]', () => {
     const host = fixture.componentInstance;
-    expect(host.checkboxDirective.errors).toBeNull();
-    expect(host.checkboxDirective.valid).toBe(true);
-    expect(host.selectDirective.errors).toBeNull();
-    expect(host.selectDirective.valid).toBe(true);
+    expect(host.checkboxDirective.errors).toEqual({ required: true });
+    expect(host.checkboxDirective.valid).toBe(false);
+    expect(host.selectDirective.errors).toEqual({ required: true });
+    expect(host.selectDirective.valid).toBe(false);
   });
 
-  it('does NOT apply a template `required` to an ngwr control bound through [(ngModel)]', () => {
+  it('applies a template `required` to an ngwr control bound through [(ngModel)]', () => {
     const host = fixture.componentInstance;
-    expect(host.checkboxModel().errors).toBeNull();
-    expect(host.checkboxModel().valid).toBe(true);
-    expect(host.selectModel().errors).toBeNull();
-    expect(host.selectModel().valid).toBe(true);
+    expect(host.checkboxModel().errors).toEqual({ required: true });
+    expect(host.checkboxModel().valid).toBe(false);
+    expect(host.selectModel().errors).toEqual({ required: true });
+    expect(host.selectModel().valid).toBe(false);
   });
 
   it('does apply `Validators.required` set on the FormControl itself', () => {

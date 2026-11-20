@@ -237,6 +237,11 @@ export class MyComponent {
     <wr-avatar shape="circle" [size]="avatarPx[placement]">{{ person.initials }}</wr-avatar>
   </ng-template>
 </wr-select>`,
+    leadingItem: `<wr-select [options]="people" [displayWith]="personName" [valueWith]="personId" [(value)]="assigneeId">
+  <ng-template wrOptionLeading let-item="item">
+    <wr-avatar shape="circle" [url]="item.photo" />
+  </ng-template>
+</wr-select>`,
     leadingTs: `import { WrAvatar } from 'ngwr/avatar';
 import { WrOption, WrOptionLeading, type WrOptionLeadingPlacement, WrSelect } from 'ngwr/select';
 
@@ -485,6 +490,12 @@ categoryId.setValue(2);`,
       type: 'TemplateRef<WrOptionLeadingContext>',
     },
     { name: '$implicit', description: 'The option’s value — `let-value`.', type: 'T' },
+    {
+      name: 'item',
+      description:
+        'The `[options]` item behind the value, so under `[valueWith]` a template reads its picture without a lookup. Equals the value without `[valueWith]`, on a hand-written `<wr-option>`, and for a value no item carries.',
+      type: 'T',
+    },
     {
       name: 'placement',
       description: "Where it is drawn: `'option'` (a panel row), `'chip'` (a multi chip) or `'value'` (the trigger).",

@@ -3,6 +3,7 @@
   description="Page navigation for a long list."
   [keywords]="['pagination', 'wr-pagination']"
   [labels]="['Component']"
+  updated="16.7.0"
 >
   <ngwr-doc-section title="Basic usage" description="Bind `[total]` and `[(page)]`.">
     <ngwr-doc-snippet [code]="snippets.basic">
@@ -51,6 +52,29 @@
         <wr-pagination responsive [total]="120" [(page)]="page" />
       </div>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Hidden on a single page"
+    description="With `hideOnSinglePage`, the pager renders nothing while everything fits on one page."
+  >
+    <ngwr-doc-snippet [code]="snippets.single">
+      <div style="width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem">
+        <wr-btn size="sm" outlined (click)="toggleFew()">
+          {{ fewTotal() === 8 ? 'Load 45 items' : 'Back to 8 items' }}
+        </wr-btn>
+        <wr-pagination hideOnSinglePage [total]="fewTotal()" [(page)]="fewPage" />
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>The host stays in the DOM with <code>display: none</code>: no box, no tab stop, no landmark.</li>
+      <li>The <code>showTotal</code> label hides with the strip.</li>
+      <li>
+        With <code>showSizeChanger</code>, it hides only when the smallest size in <code>pageSizeOptions</code> also
+        gives one page, so a large size never removes the way back.
+      </li>
+      <li>A <code>total</code> of 0 is one page, so the pager is also hidden during a request.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section

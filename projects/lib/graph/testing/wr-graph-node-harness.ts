@@ -5,7 +5,12 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, type ComponentHarnessConstructor, HarnessPredicate } from '@angular/cdk/testing';
+import {
+  ComponentHarness,
+  type ComponentHarnessConstructor,
+  HarnessPredicate,
+  type TestElement,
+} from '@angular/cdk/testing';
 
 import type { WrGraphNodeHarnessFilters } from './types';
 
@@ -18,6 +23,9 @@ const SR_ONLY = '.wr-graph__sr-only';
  * node template would otherwise hand its first node's sentence to the outer node.
  */
 const RELATION = `:scope > ${SR_ONLY}`;
+
+/** The button a node is while the graph is `selectable`. */
+const SELECT = ':scope > .wr-graph__select';
 
 /**
  * What {@link WrGraphNodeHarness.getText} leaves out: the node's own sentence, and any
@@ -99,5 +107,51 @@ export class WrGraphNodeHarness extends ComponentHarness {
   async getRelationText(): Promise<string | null> {
     const relation = await this.locatorForOptional(RELATION)();
     return relation ? relation.text() : null;
+  }
+
+  /**
+   * Whether the node is the selected one, from its button's `aria-pressed`. `false`
+   * on a graph that is not `selectable`, where no node is ever selected.
+   */
+  async isSelected(): Promise<boolean> {
+    const button = await this.locatorForOptional(SELECT)();
+    return (await button?.getAttribute('aria-pressed')) === 'true';
+  }
+
+  /**
+   * Whether the node is lit as a neighbour of the selected one: an edge joins the
+   * two. `false` for the selected node itself, and while nothing is selected.
+   */
+  async isLinked(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-graph__node--linked');
+  }
+
+  /**
+   * Whether the node is dimmed: another node is selected and no edge joins the two.
+   * `false` while nothing is selected.
+   */
+  async isDimmed(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-graph__node--dimmed');
+  }
+
+  /** Selects the node with a click on its button; leaves a selected node as it is. Throws unless `selectable`. */
+  async select(): Promise<void> {
+    const button = await this.selectButton('select');
+    if ((await button.getAttribute('aria-pressed')) !== 'true') await button.click();
+  }
+
+  /** Clears the selection if this node holds it, with a click on its button. Throws unless `selectable`. */
+  async deselect(): Promise<void> {
+    const button = await this.selectButton('deselect');
+    if ((await button.getAttribute('aria-pressed')) === 'true') await button.click();
+  }
+
+  private async selectButton(method: string): Promise<TestElement> {
+    const button = await this.locatorForOptional(SELECT)();
+    if (button) return button;
+    throw new Error(
+      `WrGraphNodeHarness.${method}(): the graph is not selectable, so its nodes are not buttons and a click ` +
+        'selects nothing — bind `selectable` on <wr-graph> first.'
+    );
   }
 }

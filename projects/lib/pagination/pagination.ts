@@ -89,6 +89,16 @@ export class WrPagination {
    */
   readonly responsive = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Render nothing while everything fits on one page, an empty list included.
+   * The host stays in the DOM with `display: none`: no layout box, no tab stop,
+   * no landmark, and the total label goes with the strip. With
+   * `showSizeChanger` it hides only when the smallest size on offer also gives
+   * one page, so choosing a large size cannot remove the way back.
+   * @default false
+   */
+  readonly hideOnSinglePage = input(false, { transform: coerceBooleanProperty });
+
   /** Previous-page button aria-label. Falls back to `pagination.prev`. */
   readonly prevLabel = input<string | null>(null);
 
@@ -149,6 +159,14 @@ export class WrPagination {
   });
 
   protected readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.usablePageSize())));
+
+  /** Internal: whether `hideOnSinglePage` applies right now. */
+  protected readonly hidden = computed(() => {
+    if (!this.hideOnSinglePage()) return false;
+    if (!this.showSizeChanger()) return this.totalPages() <= 1;
+    const offered = this.pageSizeOptions().filter(size => Number.isFinite(size) && size >= 1);
+    return this.total() <= Math.min(this.usablePageSize(), ...offered);
+  });
 
   /**
    * Internal: where the previous arrow goes. Clamped to the end of the valid
@@ -249,6 +267,7 @@ export class WrPagination {
     const parts = [`wr-pagination--${this.align()}`, `wr-pagination--${this.size()}`, `wr-pagination--${this.shape()}`];
     if (this.disabled()) parts.push('wr-pagination--disabled');
     if (this.responsive()) parts.push('wr-pagination--responsive');
+    if (this.hidden()) parts.push('wr-pagination--hidden');
     return parts.join(' ');
   });
 

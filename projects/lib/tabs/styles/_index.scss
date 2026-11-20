@@ -1,4 +1,7 @@
 @use '../../theme/styles' as theme;
+
+// Styles for the entry points this component's own markup renders.
+@use '../../badge/styles' as badge-styles; // WrBadge
 @include theme.loaded('tabs');
 
 .wr-tabs {
@@ -14,6 +17,7 @@
   --wr-tabs-padding-y: var(--wr-space-md);
   --wr-tabs-padding-x: var(--wr-space-lg);
   --wr-tabs-strip-gap: var(--wr-space-xs);
+  --wr-tabs-count-gap: var(--wr-space-sm);
   --wr-tabs-panel-padding-top: var(--wr-space-lg);
 
   display: block;
@@ -121,6 +125,11 @@
       opacity: var(--wr-disabled-opacity);
       cursor: not-allowed;
     }
+  }
+
+  &__count {
+    margin-inline-start: var(--wr-tabs-count-gap);
+    vertical-align: middle;
   }
 
   &__panel {

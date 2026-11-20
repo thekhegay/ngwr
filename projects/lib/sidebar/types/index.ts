@@ -21,6 +21,12 @@ export type WrSidebarActiveOptions = { readonly exact: boolean } | Partial<IsAct
  */
 export type WrSidebarBadgeTone = 'neutral' | 'primary' | 'danger';
 
+/**
+ * How the current page is painted: `primary` is the brand tint, `neutral` a grey
+ * one, for a shell that keeps its primary for the page's own actions.
+ */
+export type WrSidebarActiveTone = 'primary' | 'neutral';
+
 /** A word on the line under the title (`New`, `Optional`, `Deprecated`). */
 export interface WrSidebarBadge {
   readonly text: string;
@@ -78,5 +84,23 @@ export interface WrSidebarGroup extends WrSidebarRow {
   readonly defaultOpen?: boolean;
 }
 
-/** Either a page or a group. */
-export type WrSidebarEntry = WrSidebarItem | WrSidebarGroup;
+/**
+ * A row that does something instead of going somewhere (open the search, start a
+ * new record): a `<button>` with the look and the keyboard of a link row. It has
+ * no route, so it is never the current page and no group opens for it.
+ */
+export interface WrSidebarAction extends WrSidebarRow {
+  /** Called on click, and on Enter and Space as on any button. */
+  readonly action: () => void;
+  /**
+   * The chord that runs the same action, in the `ngwr/hotkey` form (`'mod+k'`).
+   * Drawn at the end of the row the way the platform writes it and published as
+   * `aria-keyshortcuts`. A hint only: the app binds the chord itself.
+   */
+  readonly shortcut?: string;
+  /** Render as plain text, out of the tab order. A `badge` can say why (`Soon`). */
+  readonly disabled?: boolean;
+}
+
+/** A page, a group or an action. */
+export type WrSidebarEntry = WrSidebarItem | WrSidebarGroup | WrSidebarAction;

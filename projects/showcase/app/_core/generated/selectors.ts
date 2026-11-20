@@ -14,7 +14,7 @@
  * entry means the class is not exported from any `public-api.ts` — fix it
  * there, not here. The scan is `scripts/lib/build-selector-map.ts`.
  *
- * 205 of 220 declarations are mapped: 0 carry no selector and
+ * 210 of 225 declarations are mapped: 0 carry no selector and
  * 15 are internal classes no entry point publishes. A deliberate subset,
  * not a lossy one — the generator throws rather than skipping what it cannot read.
  */
@@ -41,6 +41,7 @@ export const SELECTORS = {
     "wr-anchor": { symbol: "WrAnchor", path: "ngwr/anchor" },
     "wr-aurora": { symbol: "WrAurora", path: "ngwr/animations/aurora" },
     "wr-avatar": { symbol: "WrAvatar", path: "ngwr/avatar" },
+    "wr-avatar-group": { symbol: "WrAvatarGroup", path: "ngwr/avatar" },
     "wr-back-top": { symbol: "WrBackTop", path: "ngwr/back-top" },
     "wr-badge": { symbol: "WrBadge", path: "ngwr/badge" },
     "wr-bar-chart": { symbol: "WrBarChart", path: "ngwr/charts/bar-chart" },
@@ -223,6 +224,7 @@ export const SELECTORS = {
     "wrInput": { symbol: "WrInput", path: "ngwr/input" },
     "wrInputPrefix": { symbol: "WrInputPrefix", path: "ngwr/input" },
     "wrInputSuffix": { symbol: "WrInputSuffix", path: "ngwr/input" },
+    "wrInView": { symbol: "WrInView", path: "ngwr/directives" },
     "wrLoadStateContent": { symbol: "WrLoadStateContent", path: "ngwr/load-state" },
     "wrLoadStateEmpty": { symbol: "WrLoadStateEmpty", path: "ngwr/load-state" },
     "wrLoadStateError": { symbol: "WrLoadStateError", path: "ngwr/load-state" },
@@ -233,6 +235,7 @@ export const SELECTORS = {
     "wrPopconfirm": { symbol: "WrPopconfirm", path: "ngwr/popconfirm" },
     "wrPopover": { symbol: "WrPopover", path: "ngwr/popover" },
     "wrResizable": { symbol: "WrResizable", path: "ngwr/resizable" },
+    "wrScrollFollow": { symbol: "WrScrollFollow", path: "ngwr/scroll" },
     "wrSelectLoadError": { symbol: "WrSelectLoadError", path: "ngwr/select" },
     "wrShimmer": { symbol: "WrShimmer", path: "ngwr/animations/shimmer" },
     "wrSpotlight": { symbol: "WrSpotlight", path: "ngwr/animations/spotlight" },
@@ -241,9 +244,11 @@ export const SELECTORS = {
     "wrTableEditCell": { symbol: "WrTableEditCell", path: "ngwr/table" },
     "wrTableExpand": { symbol: "WrTableExpand", path: "ngwr/table" },
     "wrTableGroupHeader": { symbol: "WrTableGroupHeader", path: "ngwr/table" },
+    "wrTableRouting": { symbol: "WrTableRouting", path: "ngwr/table/router" },
     "wrTableSelectionBar": { symbol: "WrTableSelectionBar", path: "ngwr/table" },
     "wrTabsRouting": { symbol: "WrTabsRouting", path: "ngwr/tabs/router" },
     "wrTilt": { symbol: "WrTilt", path: "ngwr/animations/tilt" },
+    "wrTooltip": { symbol: "WrTooltip", path: "ngwr/popover" },
     "wrTypography": { symbol: "WrTypography", path: "ngwr/typography" },
   },
 } satisfies {

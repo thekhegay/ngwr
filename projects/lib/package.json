@@ -41,12 +41,12 @@
     "url": "https://github.com/thekhegay/ngwr/issues"
   },
   "peerDependencies": {
-    "@angular/cdk": "^22.2.0",
-    "@angular/common": "^22.2.0",
-    "@angular/core": "^22.2.0",
-    "@angular/forms": "^22.2.0",
-    "@angular/platform-browser": "^22.2.0",
-    "@angular/router": "^22.2.0",
+    "@angular/cdk": "^22.3.0",
+    "@angular/common": "^22.3.0",
+    "@angular/core": "^22.3.0",
+    "@angular/forms": "^22.3.0",
+    "@angular/platform-browser": "^22.3.0",
+    "@angular/router": "^22.3.0",
     "rxjs": "^7.8.2",
     "prosemirror-commands": "^1.7.2",
     "prosemirror-history": "^1.5.1",
@@ -586,6 +586,9 @@
     "./i18n/ja": {
       "default": "./i18n/ja/public-api.ts"
     },
+    "./i18n/kk": {
+      "default": "./i18n/kk/public-api.ts"
+    },
     "./i18n/ko": {
       "default": "./i18n/ko/public-api.ts"
     },
@@ -866,6 +869,9 @@
     "./table": {
       "sass": "./table/styles/_index.scss",
       "default": "./table/public-api.ts"
+    },
+    "./table/router": {
+      "default": "./table/router/public-api.ts"
     },
     "./table/testing": {
       "default": "./table/testing/public-api.ts"

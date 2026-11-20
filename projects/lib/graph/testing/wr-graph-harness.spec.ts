@@ -469,3 +469,61 @@ describe('WrGraphHarness with a zoomable graph', () => {
     await expect(graph.getZoom()).rejects.toThrow(/getZoom\(\): the graph is not zoomable/);
   });
 });
+
+describe('WrGraphHarness with a selectable graph', () => {
+  @Component({
+    imports: [WrGraph],
+    template: `<wr-graph [nodes]="nodes" [edges]="edges" [selectable]="selectable()" [(selected)]="selected" />`,
+  })
+  class SelectableHost {
+    readonly nodes = NODES;
+    readonly edges = EDGES;
+    readonly selectable = signal(true);
+    readonly selected = signal<string | null>(null);
+  }
+
+  it('selects a node, reads the selection and what it lights, and clears it', async () => {
+    const fixture = TestBed.createComponent(SelectableHost);
+    const graph = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrGraphHarness);
+
+    expect(await graph.isSelectable()).toBe(true);
+    expect(await graph.getSelectedNode()).toBeNull();
+
+    const birch = await graph.getNode({ label: 'Birch' });
+    await birch.select();
+    // Already selected: a second call is not a toggle.
+    await birch.select();
+
+    expect(fixture.componentInstance.selected()).toBe('birch');
+    expect(await birch.isSelected()).toBe(true);
+    expect(await (await graph.getSelectedNode())?.getText()).toBe('Birch');
+    expect(await (await graph.getNode({ label: 'Atlas' })).isLinked()).toBe(true);
+    expect(await (await graph.getNode({ label: 'Dune' })).isLinked()).toBe(true);
+    expect(await birch.isLinked()).toBe(false);
+    expect(await (await graph.getNode({ label: 'Fern' })).isDimmed()).toBe(true);
+    expect(await birch.isDimmed()).toBe(false);
+
+    // Not the selected node: nothing to clear.
+    await (await graph.getNode({ label: 'Atlas' })).deselect();
+    expect(fixture.componentInstance.selected()).toBe('birch');
+
+    await birch.deselect();
+    expect(fixture.componentInstance.selected()).toBeNull();
+    expect(await graph.getSelectedNode()).toBeNull();
+    expect(await (await graph.getNode({ label: 'Fern' })).isDimmed()).toBe(false);
+  });
+
+  it('answers unselected and refuses to select on a graph that is not selectable', async () => {
+    const fixture = TestBed.createComponent(SelectableHost);
+    fixture.componentInstance.selectable.set(false);
+    fixture.componentInstance.selected.set('birch');
+    const graph = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrGraphHarness);
+    const birch = await graph.getNode({ label: 'Birch' });
+
+    expect(await graph.isSelectable()).toBe(false);
+    expect(await graph.getSelectedNode()).toBeNull();
+    expect(await birch.isSelected()).toBe(false);
+    await expect(birch.select()).rejects.toThrow(/not selectable/);
+    await expect(birch.deselect()).rejects.toThrow(/not selectable/);
+  });
+});

@@ -109,6 +109,29 @@ describe('WrPaginationHarness', () => {
     expect(await pager.hasPageSizeChanger()).toBe(true);
   });
 
+  it('tells a pager hidden on a single page from a rendered one', async () => {
+    @Component({
+      imports: [WrPagination],
+      template: '<wr-pagination hideOnSinglePage [total]="total()" />',
+    })
+    class SingleHost {
+      readonly total = signal(5);
+    }
+    const single = TestBed.createComponent(SingleHost);
+    single.detectChanges();
+    const pager = await TestbedHarnessEnvironment.loader(single).getHarness(WrPaginationHarness);
+
+    expect(await pager.isHidden()).toBe(true);
+    expect(await pager.getPages()).toEqual([]);
+
+    single.componentInstance.total.set(25);
+    await single.whenStable();
+
+    expect(await pager.isHidden()).toBe(false);
+    expect(await pager.getPages()).toEqual([1, 2, 3]);
+    single.destroy();
+  });
+
   it('reports each size the strip can render at', async () => {
     const pager = await loader.getHarness(WrPaginationHarness);
     expect(await pager.getSize()).toBe('sm');

@@ -265,6 +265,25 @@
     }
   }
 
+  // Ghost: no fill and no border at rest, only the label. The border stays as a
+  // transparent 1px so the box matches every other variant, and the tint on
+  // hover / press comes from two hooks the intent loop below re-points.
+  &--ghost,
+  &:where([ghost]:not([ghost='false'])) {
+    --wr-btn-ghost-bg-hover: var(--wr-color-hover);
+    --wr-btn-ghost-bg-active: var(--wr-color-fill-strong);
+    --wr-btn-bg: transparent;
+    --wr-btn-border: transparent;
+
+    &:hover {
+      --wr-btn-bg: var(--wr-btn-ghost-bg-hover);
+    }
+
+    &:active {
+      --wr-btn-bg: var(--wr-btn-ghost-bg-active);
+    }
+  }
+
   // Color variants
   @each $name in theme.$colors {
     &--#{$name},
@@ -308,6 +327,29 @@
           --wr-btn-border: var(--wr-color-#{$name}-darker);
         }
       }
+
+      // Ghost: the label in `-ink` like outlined, a transparent fill and border, and a
+      // tint of the intent for hover and press. The label keeps its colour on the tint.
+      &.wr-btn--ghost,
+      &:where([ghost]:not([ghost='false'])) {
+        --wr-btn-ghost-bg-hover: color-mix(in srgb, var(--wr-color-#{$name}) 12%, transparent);
+        --wr-btn-ghost-bg-active: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
+        --wr-btn-color: var(--wr-color-#{$name}-ink);
+        --wr-btn-bg: transparent;
+        --wr-btn-border: transparent;
+
+        &:hover {
+          --wr-btn-color: var(--wr-color-#{$name}-ink);
+          --wr-btn-bg: var(--wr-btn-ghost-bg-hover);
+          --wr-btn-border: transparent;
+        }
+
+        &:active {
+          --wr-btn-color: var(--wr-color-#{$name}-ink);
+          --wr-btn-bg: var(--wr-btn-ghost-bg-active);
+          --wr-btn-border: transparent;
+        }
+      }
     }
   }
 }
@@ -341,11 +383,12 @@
   // Solid colored segments share border and background color, so adjacent
   // buttons fuse into one slab — draw a subtle divider on the inline-end edge
   // of every non-last segment. Outlined/default variants keep their own visible
-  // borders. On hover/focus the segment raises its own border (z-index above
+  // borders, and ghost ones have no slab to divide. On hover/focus the segment
+  // raises its own border (z-index above
   // neighbours), which would otherwise double-paint that edge — so drop the
   // seam there and let the raised border own it cleanly.
   @each $name in theme.$colors {
-    > .wr-btn--#{$name}:not(.wr-btn--outlined):not(:last-child) {
+    > .wr-btn--#{$name}:not(.wr-btn--outlined):not(.wr-btn--ghost):not(:last-child) {
       // rtl-ok: `box-shadow` offsets are physical by spec, with no logical form,
       // so the inline-end edge is spelled once per direction. `:dir()` reads the
       // element's own direction, so no ancestor selector is involved.

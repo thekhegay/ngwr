@@ -117,3 +117,54 @@ describe('the cells of an editable table', () => {
     expect(body).toMatch(/overflow: visible/);
   });
 });
+
+describe('cell padding', () => {
+  const padding =
+    /padding: calc\(var\(--wr-table-cell-padding-y\) \* var\(--wr-density-y, 1\)\)\s+calc\(var\(--wr-table-cell-padding-x\) \* var\(--wr-density-x, 1\)\)/;
+
+  // The lengths the cells drew before the hooks existed, so nothing moves by default.
+  it('defaults the hooks to the padding the table has always drawn', () => {
+    const base = declarations('.wr-table');
+    expect(base).toMatch(/--wr-table-cell-padding-y: 0\.625rem;/);
+    expect(base).toMatch(/--wr-table-cell-padding-x: 0\.875rem;/);
+  });
+
+  it.each(['wr-table__th', 'wr-table__td', 'wr-table__foot-cell'])(
+    'pads .%s through the hooks, times the density',
+    cls => {
+      expect(declarations(`.${cls}`)).toMatch(padding);
+    }
+  );
+
+  it('lines a group band up with the cells', () => {
+    expect(declarations('.wr-table')).toMatch(/--wr-table-group-inner-padding-y: var\(--wr-space-sm\);/);
+    expect(declarations('.wr-table__group-inner')).toMatch(
+      /padding: calc\(var\(--wr-table-group-inner-padding-y\) \* var\(--wr-density-y, 1\)\)\s+calc\(var\(--wr-table-cell-padding-x\) \* var\(--wr-density-x, 1\)\)/
+    );
+  });
+
+  // The preview has left `.wr-table`, so each hook carries its default with it.
+  it('keeps the default padding on a dragged header, outside the table', () => {
+    expect(declarations('.cdk-drag-preview.wr-table__th')).toMatch(
+      /padding: calc\(var\(--wr-table-cell-padding-y, 0\.625rem\) \* var\(--wr-density-y, 1\)\)\s+calc\(var\(--wr-table-cell-padding-x, 0\.875rem\) \* var\(--wr-density-x, 1\)\)/
+    );
+  });
+
+  it.each(['.wr-table--sm', '.wr-table:where([size=sm])'])('tightens the hooks on %s, on the spacing scale', sm => {
+    const body = declarations(sm);
+    expect(body).toMatch(/--wr-table-cell-padding-y: var\(--wr-space-xs\);/);
+    expect(body).toMatch(/--wr-table-cell-padding-x: var\(--wr-space-sm\);/);
+    expect(body).toMatch(/--wr-table-group-inner-padding-y: var\(--wr-space-xs\);/);
+  });
+
+  // Same specificity as the base block, so source order is what lets `sm` win.
+  it('declares the sm values after the defaults', () => {
+    expect(css.lastIndexOf('--wr-table-cell-padding-y: var(--wr-space-xs)')).toBeGreaterThan(
+      css.lastIndexOf('--wr-table-group-inner-padding-y: var(--wr-space-sm)')
+    );
+  });
+
+  it('never multiplies a literal by the density again', () => {
+    expect(css).not.toMatch(/calc\([\d.]+rem \* var\(--wr-density-/);
+  });
+});

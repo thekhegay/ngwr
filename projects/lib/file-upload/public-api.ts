@@ -6,4 +6,5 @@ export type {
   WrFileUploadState,
   WrFileUploadStatus,
   WrFileUploadStatusMap,
+  WrStoredFile,
 } from './types';

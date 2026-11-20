@@ -1,10 +1,10 @@
 <ngwr-doc-page
   title="Graph"
-  description="Draws blocks joined parent to child, top to bottom, for display only."
+  description="Draws blocks joined parent to child, top to bottom, with optional zoom and selection."
   [keywords]="['graph', 'wr-graph', 'org chart', 'dependency graph', 'diagram', 'hierarchy', 'dag']"
   [labels]="['Component', 'SSR-safe']"
   since="14.5.0"
-  updated="16.4.0"
+  updated="16.7.0"
 >
   <ngwr-doc-section
     title="Nodes and edges"
@@ -191,13 +191,65 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Selection"
+    description="`selectable` makes every node a button. The selected node keeps its edges and neighbours lit and the rest is dimmed; `selected` holds its id."
+  >
+    <ngwr-doc-snippet [files]="selectionFiles">
+      <div class="selection">
+        <div class="selection__bar">
+          <wr-btn size="sm" (click)="picked.set('signals')">Select signals</wr-btn>
+          <wr-btn size="sm" (click)="picked.set(null)">Clear</wr-btn>
+          <span class="selection__value">Selected: {{ picked() ?? 'none' }}</span>
+        </div>
+        <wr-graph
+          selectable
+          style="width: 100%"
+          [nodes]="packageNodes"
+          [edges]="packageEdges"
+          [nodeWidth]="184"
+          ariaLabel="Dependencies, selectable"
+          [(selected)]="picked"
+        />
+      </div>
+    </ngwr-doc-snippet>
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Input</th>
+            <th scope="col">What it does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Click</th>
+            <td>Selects the node, or clears it when it is the selected one. A drag still pans a zoomable graph.</td>
+          </tr>
+          <tr>
+            <th scope="row"><kbd>Tab</kbd></th>
+            <td>Moves through the nodes in reading order, after the viewport.</td>
+          </tr>
+          <tr>
+            <th scope="row"><kbd>Enter</kbd> / <kbd>Space</kbd></th>
+            <td>Selects the focused node, or clears it.</td>
+          </tr>
+          <tr>
+            <th scope="row"><kbd>Esc</kbd></th>
+            <td>Clears the selection from anywhere in the graph.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Accessibility"
-    description="Each node reads out its parents and children. Give every graph on a page its own `ariaLabel`."
+    description="Each node reads out its parents and children, and a selectable node is a button that says whether it is pressed. Keep links and controls out of a selectable node's template. Give every graph on a page its own `ariaLabel`."
   />
 
   <ngwr-doc-section
     title="What it does not do"
-    description="No selection, editing or edge labels. Content larger than its node box spills over, so size the box."
+    description="No editing or edge labels. Content larger than its node box spills over, so size the box."
   />
 
   <ngwr-doc-section title="API">

@@ -24,6 +24,7 @@
         class="wr-tabs__tab"
         role="tab"
         [attr.id]="headerId(tab.key())"
+        [attr.aria-label]="tab.accessibleName()"
         [attr.href]="tab.routerHref()"
         [class.wr-tabs__tab--active]="tab.routerActive()"
         [class.wr-tabs__tab--disabled]="tab.disabled()"
@@ -33,7 +34,10 @@
         (click)="onRouterTabClick(tab, $event)"
         (keydown.space)="onRouterTabSpace($event)"
       >
-        {{ tab.title() }}
+        <span class="wr-tabs__tab-label">{{ tab.title() }}</span>
+        @if (tab.count() !== null) {
+          <wr-badge class="wr-tabs__count" size="sm" shape="pill" [color]="null">{{ tab.count() }}</wr-badge>
+        }
       </a>
     } @else {
       <button
@@ -41,6 +45,7 @@
         class="wr-tabs__tab"
         role="tab"
         [attr.id]="headerId(tab.key())"
+        [attr.aria-label]="tab.accessibleName()"
         [attr.aria-controls]="panelId(tab.key())"
         [attr.tabindex]="tab === contentStop() ? 0 : -1"
         [class.wr-tabs__tab--active]="tab === activeTab()"
@@ -49,7 +54,10 @@
         [disabled]="tab.disabled()"
         (click)="onTabClick(tab)"
       >
-        {{ tab.title() }}
+        <span class="wr-tabs__tab-label">{{ tab.title() }}</span>
+        @if (tab.count() !== null) {
+          <wr-badge class="wr-tabs__count" size="sm" shape="pill" [color]="null">{{ tab.count() }}</wr-badge>
+        }
       </button>
     }
   }

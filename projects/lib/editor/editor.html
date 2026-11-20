@@ -14,6 +14,7 @@
           #tool
           #linkPopover="wrPopover"
           wr-btn
+          size="md"
           type="button"
           class="wr-editor__tool"
           [class.wr-editor__tool--active]="state(item)?.active"
@@ -48,6 +49,7 @@
         <button
           #tool
           wr-btn
+          size="md"
           type="button"
           class="wr-editor__tool"
           mode="tooltip"
@@ -188,11 +190,13 @@
       }
       <div class="wr-editor-link__actions">
         @if (linkActive()) {
-          <button wr-btn type="button" class="wr-editor-link__remove" (click)="removeLink()">
+          <button wr-btn size="md" type="button" class="wr-editor-link__remove" (click)="removeLink()">
             {{ linkRemoveLabel() }}
           </button>
         }
-        <button wr-btn type="submit" color="primary" class="wr-editor-link__apply">{{ linkApplyLabel() }}</button>
+        <button wr-btn size="md" type="submit" color="primary" class="wr-editor-link__apply">
+          {{ linkApplyLabel() }}
+        </button>
       </div>
     </div>
   </form>

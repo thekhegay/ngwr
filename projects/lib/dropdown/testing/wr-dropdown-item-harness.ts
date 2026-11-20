@@ -29,7 +29,8 @@ export class WrDropdownItemHarness extends ComponentHarness {
   static with(options: WrDropdownItemHarnessFilters = {}): HarnessPredicate<WrDropdownItemHarness> {
     return new HarnessPredicate(WrDropdownItemHarness, options)
       .addOption('text', options.text, (harness, text) => HarnessPredicate.stringMatches(harness.getText(), text))
-      .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled);
+      .addOption('disabled', options.disabled, async (harness, disabled) => (await harness.isDisabled()) === disabled)
+      .addOption('checked', options.checked, async (harness, checked) => (await harness.isChecked()) === checked);
   }
 
   /** The item's label, trimmed. A leading icon is not part of it. */
@@ -37,9 +38,18 @@ export class WrDropdownItemHarness extends ComponentHarness {
     return (await this.locatorFor('.wr-dropdown-item__label')()).text();
   }
 
-  /** The role the item announces — `menuitem`. */
+  /** The role the item announces: `menuitem`, or `menuitemcheckbox` / `menuitemradio` when it has a checked state. */
   async getRole(): Promise<string | null> {
     return (await this.host()).getAttribute('role');
+  }
+
+  /**
+   * The item's checked state: `true` or `false` for a `menuitemcheckbox` /
+   * `menuitemradio`, `null` for a plain item that has none.
+   */
+  async isChecked(): Promise<boolean | null> {
+    const value = await (await this.host()).getAttribute('aria-checked');
+    return value === null ? null : value === 'true';
   }
 
   /** Whether the item refuses activation. */

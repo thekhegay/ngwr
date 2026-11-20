@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Popover"
-  updated="16.5.0"
+  updated="16.7.0"
   description="Show a template, or a text tooltip, next to its trigger."
   [keywords]="['popover', 'tooltip', 'wr-popover', 'overlay']"
   [labels]="['Directive', 'CDK Overlay']"
@@ -63,6 +63,22 @@
       <wr-btn wrPopover="Remove permanently" mode="tooltip" position="bottom">Delete</wr-btn>
       <wr-btn wrPopover="Open in a new window" mode="tooltip" position="right">Open</wr-btn>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Short form"
+    description='`[wrTooltip]` is `[wrPopover]` with `mode="tooltip"`: same panel, delays and naming of icon-only buttons. Since v16.7.'
+  >
+    <ngwr-doc-snippet [code]="snippets.shortForm">
+      <wr-btn icon="trash" color="danger" outlined wrTooltip="Delete" />
+      <wr-btn wrTooltip="Save changes" position="bottom">Save</wr-btn>
+    </ngwr-doc-snippet>
+    <p>
+      It takes <code>position</code>, <code>showDelay</code>, <code>hideDelay</code>, <code>panelClass</code>,
+      <code>wrPopoverDisabled</code> and <code>wrPopoverOrigin</code>, and the <code>opened</code> and
+      <code>closed</code> outputs. Use one of <code>[wrTooltip]</code> and <code>[wrPopover]</code> on an element, never
+      both.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

@@ -154,6 +154,7 @@ export const wrKo: WrI18nCatalog = {
     failed: '업로드 실패',
     status: '{{name}}: {{status}}',
     retry: '다시 시도',
+    openFile: '{{name}} (새 탭에서 열림)',
   },
   popconfirm: {
     label: '작업 확인',
@@ -193,6 +194,7 @@ export const wrKo: WrI18nCatalog = {
   },
   avatar: {
     alt: '아바타',
+    more: '외 {{count}}명',
   },
   backTop: {
     label: '맨 위로',

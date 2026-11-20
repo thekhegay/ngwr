@@ -70,8 +70,10 @@ import { WrTableEditCell } from './table-edit-cell';
 import { WrTableExpand } from './table-expand';
 import { WrTableFilter, markFilterSelectionChanged } from './table-filter';
 import { WrTableGroupHeader } from './table-group-header';
+import { foldSearchText, plainSearchText } from './table-search';
 import { WrTableSelectionBar } from './table-selection-bar';
 import { WrTableSort } from './table-sort';
+import { WR_TABLE_ROUTING } from './tokens';
 import type {
   WrTableCellContext,
   WrTableCellEdit,
@@ -90,7 +92,9 @@ import type {
   WrTableRow,
   WrTableRowClass,
   WrTableRowClick,
+  WrTableRowLink,
   WrTableSelectionContext,
+  WrTableSize,
   WrTableSortState,
   WrTableSortDirection,
   WrTableState,
@@ -149,6 +153,8 @@ interface CellColumn<T extends WrTableRow> {
   readonly actions: boolean;
   /** Whether its cell names the row (see `labelColumnKey`). */
   readonly label: boolean;
+  /** Whether its cell holds the row's link (see `linkColumnKey`). */
+  readonly link: boolean;
   /** Whether its cell carries the tree indent and toggle. */
   readonly tree: boolean;
   readonly template: TemplateRef<WrTableCellContext> | undefined;
@@ -199,6 +205,19 @@ const EDITOR_FOCUSABLE = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(', ');
 
+/** What a click inside a sortable header cell belongs to instead of the sort. */
+const HEADER_CLICK_IGNORE = [
+  'button',
+  'a[href]',
+  'input',
+  'select',
+  'textarea',
+  '[role=button]',
+  'label',
+  '.wr-table-filter',
+  '.wr-table__resize-handle',
+].join(', ');
+
 /**
  * Instance counter for the ids the row controls are named through. Counted, not
  * `wrRandomId()`, so the prerendered `aria-labelledby` is the one the browser
@@ -216,6 +235,7 @@ const CSV_FIGURE = /^[+-]?[\d\s.,]+%?$/;
  * What a click inside a row belongs to instead of the row. `label` is here
  * because a click on one is replayed on its control.
  */
+// `&__tr--link` in the stylesheet lists the same elements: keep the two in step.
 const ROW_CLICK_IGNORE = [
   'button',
   'a[href]',
@@ -231,6 +251,15 @@ const ROW_CLICK_IGNORE = [
   '.wr-table__td--select',
   '.wr-table__td--expand',
 ].join(', ');
+
+/** A URL with a scheme or a host of its own, which no router serves. */
+const EXTERNAL_URL = /^(?:[a-z][a-z\d+.-]*:|\/\/)/i;
+
+/** A row's link as rendered, and the `rowLink` value a routed one came from. */
+interface RowLink {
+  readonly href: string;
+  readonly routed: string | readonly unknown[] | null;
+}
 
 function sameList(a: readonly unknown[], b: readonly unknown[]): boolean {
   return a.length === b.length && a.every((value, i) => Object.is(value, b[i]));
@@ -327,6 +356,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-table',
+    '[class.wr-table--sm]': "size() === 'sm'",
     '[class.wr-table--responsive]': 'responsive()',
     '[class.wr-table--virtual]': 'virtualized()',
     '[class.wr-table--sticky-head]': 'scrollable()',
@@ -383,9 +413,91 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * One cast at the boundary: the INPUT is wide so any object shape binds, while
    * the body keeps indexing rows the way it always has.
    */
-  private readonly rows = computed<readonly Record<string, unknown>[] | null | undefined>(
+  private readonly source = computed<readonly Record<string, unknown>[] | null | undefined>(
     () => this.items() as unknown as readonly Record<string, unknown>[] | null | undefined
   );
+
+  /**
+   * Client-side text search. A row stays when the text some searchable column
+   * shows contains the query, ignoring case and accents: the column's `format`
+   * over the value, else the value as text. A missing value shows nothing, so
+   * its `empty` placeholder is not searched. Columns that take part: the ones
+   * on screen, less `actions` columns and `searchable: false`. An empty or
+   * blank query is no search.
+   *
+   * The table filters nothing else itself, so a search runs over whatever
+   * `items` holds: filter and sort `items` as before, the search narrows the
+   * result. It comes before paging, so the pager counts the matches and the
+   * page returns to 1 when the query changes, and `toCsv()`, the summary row
+   * and the select-all scope see the matching rows only. In tree mode a parent
+   * stays while it or any descendant matches and shows only the children that
+   * stay; it keeps its open state, so a parent kept for a deep match may need
+   * opening. Server mode (`total` set) holds one page and ignores it.
+   * A selection survives a search: rows it hides stay selected, and the count,
+   * the bar's `$implicit` and `toCsv({ selectedOnly })` all use the whole selection.
+   * @default ''
+   */
+  readonly search = input<string>('');
+
+  /**
+   * The columns the search reads, with the folded text of each cell per row,
+   * so a new query only re-runs `includes`. A new `items` array or column list
+   * starts an empty cache: `format` may read any field of its row, so only a
+   * new list says what a cell shows may have changed.
+   */
+  private readonly searchColumns = computed(() => {
+    this.source();
+    return {
+      cols: this.displayColumns().filter(c => !c.column.actions && c.column.searchable !== false),
+      folded: new WeakMap<object, (string | undefined)[]>(),
+    };
+  });
+
+  /** The rows after the search, plus the kept children per parent in tree mode. */
+  private readonly searched = computed<{
+    readonly rows: readonly Record<string, unknown>[] | null | undefined;
+    readonly kids: ReadonlyMap<Record<string, unknown>, readonly Record<string, unknown>[]> | null;
+  }>(() => {
+    const source = this.source();
+    const query = foldSearchText((this.search() ?? '').trim());
+    if (!source || !query || this.total() !== null) return { rows: source, kids: null };
+    const { cols, folded } = this.searchColumns();
+    const matches = (row: Record<string, unknown>): boolean => {
+      let texts = folded.get(row);
+      if (!texts) folded.set(row, (texts = []));
+      return cols.some((c, i) => {
+        const value = row[c.key];
+        if (noValue(value)) return false;
+        const cached = texts[i];
+        if (cached !== undefined) return cached.includes(query);
+        const shown = c.column.format ? c.column.format(value, row as T) : plainSearchText(value);
+        const text = foldSearchText(shown);
+        texts[i] = text;
+        return text.includes(query);
+      });
+    };
+    if (!this.treeMode()) return { rows: source.filter(matches), kids: null };
+    const kids = new Map<Record<string, unknown>, readonly Record<string, unknown>[]>();
+    const prune = (
+      rows: readonly Record<string, unknown>[],
+      seen: ReadonlySet<unknown>
+    ): readonly Record<string, unknown>[] => {
+      const kept: Record<string, unknown>[] = [];
+      for (const row of rows) {
+        const key = this.rowKeyOf(row);
+        if (seen.has(key)) continue;
+        const children = prune(this.childrenOf(row, false), new Set(seen).add(key));
+        if (children.length > 0 || matches(row)) {
+          kids.set(row, children);
+          kept.push(row);
+        }
+      }
+      return kept;
+    };
+    return { rows: prune(source, new Set()), kids };
+  });
+
+  private readonly rows = computed<readonly Record<string, unknown>[] | null | undefined>(() => this.searched().rows);
 
   /** Mark the table as loading; `loadingMode` picks how it shows. @default false */
   readonly loading = input(false, { transform: coerceBooleanProperty });
@@ -835,20 +947,111 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    *
    * Pointer only: a row takes no focus and no key for it, so give the same
    * action a control of its own in the row (a link or a button in a cell) for
-   * keyboard and screen reader users. The table adds no cursor either: style
-   * `.wr-table__tr` when the rows are clickable.
+   * keyboard and screen reader users, or use `rowLink` when the row leads to a
+   * URL. The table adds no cursor either: style `.wr-table__tr--clickable`.
+   *
+   * While it is bound the rows wear `wr-table__tr--clickable` and tint on
+   * hover. A row with a `rowLink` does not fire it for a click that follows
+   * the link.
    */
   readonly rowClick = output<WrTableRowClick<T>>();
+
+  /**
+   * Whether anything listens to `rowClick`. Angular has no public read for
+   * it, so this looks at the emitter's own list, and `table-row-link.spec.ts`
+   * holds it across Angular bumps.
+   */
+  protected rowClickBound(): boolean {
+    return !!(this.rowClick as unknown as { listeners?: readonly unknown[] | null }).listeners?.length;
+  }
+
+  /**
+   * Makes a row a link: a function from the row to its href, or to `null` for
+   * a row that leads nowhere. Each linked row renders one real `<a>` laid
+   * under its cells, so Enter, middle click, ctrl / cmd click and "copy link"
+   * work anywhere on the row, and the row is one tab stop.
+   *
+   * The link is named by the row's label cell: the tree column in tree mode,
+   * else the first column. Controls in the row stay their own: the same list
+   * `rowClick` skips, with `wrTableIgnoreRowClick` for anything else.
+   *
+   * A plain href loads the page. In a routed app add `WrTableRouting` from
+   * `ngwr/table/router` to the table, and the value becomes a router link: a
+   * URL string or an array of commands.
+   *
+   * Linked rows wear `wr-table__tr--link` and tint on hover.
+   *
+   * @example
+   * ```html
+   * <wr-table [columns]="columns" [items]="orders" [rowLink]="orderLink" />
+   * ```
+   * ```ts
+   * protected readonly orderLink = (order: Order) => `/orders/${order.id}`;
+   * ```
+   * @default null
+   */
+  readonly rowLink = input<WrTableRowLink<T> | null>(null);
+
+  /** The routing adapter, when `WrTableRouting` from `ngwr/table/router` is on the table. */
+  private readonly routing = inject(WR_TABLE_ROUTING, { optional: true });
+
+  /** The link of every rendered row that has one, so a virtualized body resolves its window only. */
+  protected readonly rowLinks = computed<ReadonlyMap<Record<string, unknown>, RowLink>>(() => {
+    const links = new Map<Record<string, unknown>, RowLink>();
+    const rowLink = this.rowLink();
+    if (!rowLink) return links;
+    const routing = this.routing;
+    for (const { row } of this.dataRows()) {
+      const link = rowLink(row as T);
+      if (link == null || link === '') continue;
+      if (typeof link === 'string' && (!routing || EXTERNAL_URL.test(link))) {
+        links.set(row, { href: link, routed: null });
+      } else if (routing) {
+        links.set(row, { href: routing.href(link), routed: link });
+      } else if (typeof ngDevMode === 'undefined' || ngDevMode) {
+        // eslint-disable-next-line no-console -- dev-mode validation
+        console.error(
+          '[NGWR] <wr-table>: `rowLink` returned router commands, but no routing adapter is provided. ' +
+            'Add `WrTableRouting` from `ngwr/table/router` to the table, or return an href string.'
+        );
+      }
+    }
+    return links;
+  });
+
+  /**
+   * The column whose cell holds the row's link: the first one that is not
+   * pinned, since a pinned cell is sticky and would hold the stretched link
+   * inside its own box. The label column when every column is pinned.
+   */
+  protected readonly linkColumnKey = computed<string | null>(() => {
+    if (!this.rowLink()) return null;
+    return this.displayColumns().find(c => !c.column.pin)?.key ?? this.labelColumnKey();
+  });
 
   protected onBodyClick(event: MouseEvent): void {
     const target = event.target as Element;
     const index = this.rowEls().findIndex(el => el.nativeElement.contains(target));
     if (index < 0) return;
     const tr = this.rowEls()[index].nativeElement;
+    const row = this.dataRows()[index];
+    if (!row) return;
+    const link = this.rowLinks().get(row.row);
+    if (link && target.closest('.wr-table__row-link')?.closest('tr') === tr) {
+      if (link.routed !== null) this.routing?.navigate(link.routed, event);
+      return;
+    }
     const control = target.closest(ROW_CLICK_IGNORE);
     if (control && control !== tr && tr.contains(control)) return;
-    const row = this.windowRows().filter(entry => entry.kind === 'row')[index];
-    if (row?.kind !== 'row') return;
+    // A cut cell stays above the link so that its tooltip can open, and hands
+    // its clicks down to it.
+    if (link && target.closest('.wr-table__td--truncate')?.parentElement === tr) {
+      const { ctrlKey, shiftKey, altKey, metaKey } = event;
+      tr.querySelector(':scope > td > .wr-table__row-link')?.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey, shiftKey, altKey, metaKey })
+      );
+      return;
+    }
     const item = row.row;
     this.rowClick.emit({ row: item as unknown as T, index: this.rows()?.indexOf(item) ?? -1, event });
   }
@@ -1301,6 +1504,22 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       });
     }
 
+    // A new query starts at the first page; the first run keeps a restored page,
+    // and server mode, where `search` is ignored, never resets it.
+    let lastSearch: string | null = null;
+    effect(() => {
+      const query = (this.search() ?? '').trim();
+      if (lastSearch === null) {
+        lastSearch = query;
+        return;
+      }
+      if (query === lastSearch) return;
+      lastSearch = query;
+      untracked(() => {
+        if (this.total() === null && this.page() !== 1) this.page.set(1);
+      });
+    });
+
     // Write a clamped page back so `[(page)]` and the pager agree with the rows. An empty
     // dataset is left alone: a host may set the page before its rows arrive.
     effect(() => {
@@ -1418,6 +1637,34 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           if (h > 0) this.measuredRowPx.set(h);
         }
       });
+    });
+
+    // A measured row height goes stale when `size` moves the cell padding, when
+    // `rowHeight` returns to automatic, and is missing while the table had no
+    // rows: measure again once the view has rendered the change. The first run
+    // only records where the table starts; the activation effect measures that.
+    let measuredFor: string | undefined;
+    effect(() => {
+      const key = `${this.size()}|${this.rowHeight() === 0}|${(this.rows()?.length ?? 0) > 0}`;
+      if (measuredFor === undefined || measuredFor === key) {
+        measuredFor = key;
+        return;
+      }
+      measuredFor = key;
+      if (!isPlatformBrowser(this.platformId)) return;
+      if (!untracked(() => this.virtualized()) || untracked(() => this.rowHeight()) !== 0) return;
+      // The rows are held at the old height through `--wr-table-row-h`: let go of
+      // it for the render that measures, or the measure reads the old height back.
+      this.remeasuring.set(true);
+      afterNextRender(
+        () => {
+          const row = this.scrollEl()?.nativeElement.querySelector<HTMLElement>('.wr-table__tr');
+          const h = row?.offsetHeight ?? 0;
+          if (h > 0) this.measuredRowPx.set(h);
+          this.remeasuring.set(false);
+        },
+        { injector: this.injector }
+      );
     });
 
     // (B) Scroll + viewport observer — attached ONLY when virtual + browser, so
@@ -1579,10 +1826,13 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const editors = this.editMap();
     const tableTruncate = this.truncate();
     const labelKey = this.labelColumnKey();
+    const linkKey = this.linkColumnKey();
     const treeKey = this.treeColumnKey();
     return this.displayColumns().map(({ key, column }) => {
       const { align, pin } = column;
-      const truncates = (column.truncate === undefined ? tableTruncate : column.truncate) === 'tooltip';
+      // The table-wide cut never reaches an actions cell: it would clip the buttons and their rings.
+      const truncates =
+        (column.truncate === undefined ? (column.actions ? null : tableTruncate) : column.truncate) === 'tooltip';
       const tdClass = cellClasses('wr-table__td', column);
       return {
         key,
@@ -1601,6 +1851,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         maxWidth: truncates ? (column.width ?? null) : null,
         actions: !!column.actions,
         label: key === labelKey,
+        link: key === linkKey,
         tree: key === treeKey,
         template: templates.get(key),
         editTemplate: column.editable === false ? undefined : editors.get(key),
@@ -1641,6 +1892,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
    * @default 'auto'
    */
   readonly layout = input<WrTableLayout>('auto');
+
+  /**
+   * How tightly the cells are padded. `'sm'` is the compact table: it sets
+   * `--wr-table-cell-padding-y` and `-x` one notch tighter, for header, body
+   * and footer cells alike. The app's density still multiplies both, so `sm`
+   * is relative to it. Card mode keeps its own padding.
+   * @default 'md'
+   */
+  readonly size = input<WrTableSize>('md');
 
   /**
    * A column's name for its controls: the title, the hint after it, or the hint
@@ -1692,9 +1952,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /** The row's class with the consumer's own, resolved through the `rowClass` predicate. */
-  protected rowClasses(row: Record<string, unknown>, index: number): string {
+  protected rowClasses(row: Record<string, unknown>, index: number, linked: boolean): string {
     const extra = this.rowClass()?.(row, index);
-    return extra ? wrToClassList('wr-table__tr', extra).join(' ') : 'wr-table__tr';
+    let own = 'wr-table__tr';
+    if (linked) own += ' wr-table__tr--link';
+    if (this.rowClickBound()) own += ' wr-table__tr--clickable';
+    return extra ? wrToClassList(own, extra).join(' ') : own;
   }
 
   // --- Column resizing ------------------------------------------------------
@@ -1806,6 +2069,19 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   private readonly viewportPx = signal(0);
   /** Measured first-row height (px) when `rowHeight` is auto; 0 until measured. */
   private readonly measuredRowPx = signal(0);
+  /** True for the render that measures a row after a size change. */
+  protected readonly remeasuring = signal(false);
+
+  /**
+   * `--wr-table-row-h` on a virtualized table, once a height is known: a given
+   * `rowHeight` or a measured one. Unset while measuring, so a row is measured at
+   * its own height and not at the fallback or at an older measure.
+   */
+  protected readonly rowHeightVar = computed(() =>
+    this.virtualized() && !this.remeasuring() && (this.rowHeight() > 0 || this.measuredRowPx() > 0)
+      ? this.effRowH()
+      : null
+  );
   /** Fixed layout forced ON by virtualization (distinct from the resize latch). */
   private readonly virtualFixed = signal(false);
 
@@ -2191,7 +2467,9 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   });
 
   /** This row's children, whatever shape `childrenKey` names. */
-  private childrenOf(row: Record<string, unknown>): readonly Record<string, unknown>[] {
+  private childrenOf(row: Record<string, unknown>, searched = true): readonly Record<string, unknown>[] {
+    const kept = searched ? this.searched().kids : null;
+    if (kept) return kept.get(row) ?? [];
     const ck = this.childrenKey();
     if (ck === null) return [];
     const raw = typeof ck === 'function' ? ck(row) : row[ck];
@@ -2239,18 +2517,18 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   /** Every node in the forest, depth-first — what selection and CSV must see. */
-  private allTreeRows(): readonly Record<string, unknown>[] {
+  private allTreeRows(searched = true): readonly Record<string, unknown>[] {
     const out: Record<string, unknown>[] = [];
     const walk = (rows: readonly Record<string, unknown>[], seen: ReadonlySet<unknown>): void => {
       for (const row of rows) {
         const key = this.rowKeyOf(row);
         if (seen.has(key)) continue;
         out.push(row);
-        const children = this.childrenOf(row);
+        const children = this.childrenOf(row, searched);
         if (children.length > 0) walk(children, new Set(seen).add(key));
       }
     };
-    walk(this.rows() ?? [], new Set());
+    walk((searched ? this.rows() : this.source()) ?? [], new Set());
     return out;
   }
 
@@ -2966,8 +3244,10 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   }
 
   private selectedRows(): readonly Record<string, unknown>[] {
+    // The whole selection, rows a search hides included: the bar counts them too.
     const keys = new Set(this.selection());
-    return this.datasetRows().filter(row => keys.has(this.rowKeyOf(row)));
+    const all = this.treeMode() ? this.allTreeRows(false) : (this.source() ?? []);
+    return all.filter(row => keys.has(this.rowKeyOf(row)));
   }
 
   private computeSummary(
@@ -3052,6 +3332,19 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     if (keys.length < 2) return null;
     const at = keys.indexOf(key);
     return at < 0 ? null : at + 1;
+  }
+
+  /**
+   * A click anywhere in a sortable header cell sorts, as a click on its sort
+   * button does. A control in the cell keeps its own click: the sort button
+   * (which cycles by itself), the filter trigger, the resize handle.
+   */
+  protected onHeaderClick(event: MouseEvent, key: string, sortable: boolean | undefined): void {
+    if (!sortable) return;
+    const th = event.currentTarget as Element;
+    const control = (event.target as Element).closest(HEADER_CLICK_IGNORE);
+    if (control && control !== th && th.contains(control)) return;
+    this.cycleSort(key);
   }
 
   protected cycleSort(key: string): void {

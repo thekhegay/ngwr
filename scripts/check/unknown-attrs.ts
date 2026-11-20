@@ -101,6 +101,13 @@ function inputsBySymbol(): Map<string, Set<string>> {
       for (const m of body.matchAll(/alias:\s*'([^']+)'/g)) names.add(m[1]);
       // A host that reflects an attribute accepts it as well.
       for (const m of body.matchAll(/'\[?attr\.([\w-]+)\]?'\s*:/g)) names.add(m[1]);
+      // `hostDirectives: [{ directive: X, inputs: ['a: b', 'c'] }]` - the public name is the part after the colon.
+      const decorator = src.slice(0, from).split(/\n@/).pop() ?? '';
+      if (decorator.includes('hostDirectives')) {
+        for (const list of decorator.matchAll(/\binputs:\s*\[([^\]]*)\]/g)) {
+          for (const entry of list[1].matchAll(/'([^']+)'/g)) names.add(entry[1].split(':').pop()!.trim());
+        }
+      }
       out.set(cls[1], names);
     }
   }

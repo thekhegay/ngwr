@@ -32,7 +32,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { FormValueControl } from '@angular/forms/signals';
 
 import { WrCalendar } from 'ngwr/calendar';
-import { WrDateAdapter, type WrDateFormat, wrPeriodEnd } from 'ngwr/date';
+import { WrDateAdapter, type WrDateFormat, wrFromDay, wrPeriodEnd, wrToDay } from 'ngwr/date';
 import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrInput, WrInputGroup, WrInputSuffix } from 'ngwr/input';
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection, wrFollowSize } from 'ngwr/overlay';
@@ -50,12 +50,23 @@ import { usePickerText, wrPickerPeriod } from './internal/period-text';
 import { tabLeavesPane } from './internal/tab-out';
 import { WrTimePanel } from './internal/time-panel';
 import { wrPickerAdapter, wrPickerPanelInjector } from './internal/zoned-adapter';
-import type { WrDateInputError, WrDatePickerMode, WrDatePickerSize } from './types';
+import type {
+  WrDateInputError,
+  WrDatePickerMode,
+  WrDatePickerSize,
+  WrDatePickerValue,
+  WrDatePickerValueFormat,
+} from './types';
 
 let panelUid = 0;
 
 /** How long a live region stays blank before a repeated refusal is written back. */
 const SILENCE_MS = 100;
+
+/** A `min` / `max` as the `Date` the calendar takes; a string that is no day is no bound. */
+function toBound(value: Date | string | undefined): Date | undefined {
+  return typeof value === 'string' ? (wrFromDay(value) ?? undefined) : value;
+}
 
 /**
  * Unified date / time / date-time picker. Same `<input>` + popover skeleton
@@ -81,11 +92,13 @@ const SILENCE_MS = 100;
  * year and arranged by the i18n catalog; `[format]`, when set, replaces it,
  * and the date typed in that format stands for the period it is in.
  *
- * A signal-forms native control: it implements `FormValueControl<Date | null>`,
- * so `[formField]` binds straight to its `value` model — no
+ * A signal-forms native control: it implements `FormValueControl`, so
+ * `[formField]` binds straight to its `value` model — no
  * `ControlValueAccessor` in between. `[(value)]` works standalone, and classic
  * `[(ngModel)]` / reactive forms keep working through Angular's bridge. Value
- * type is `Date | null` for every mode.
+ * type is `Date | null` for every mode, unless {@link valueFormat} is `'day'`:
+ * the model is then a `YYYY-MM-DD` string, and the class's type parameter is
+ * that format, inferred from the `valueFormat` binding in a template.
  *
  * Parses the input on every keystroke and emits only a date it can read and the
  * calendar would accept. Anything else is REFUSED, never guessed: the bound value
@@ -114,6 +127,9 @@ const SILENCE_MS = 100;
  *
  * <!-- Date + time -->
  * <wr-date-picker mode="datetime" [(value)]="when" [showSeconds]="true" [step]="5" />
+ *
+ * <!-- A day string: `due` is a `signal<string | null>` holding '2026-03-01' -->
+ * <wr-date-picker valueFormat="day" [(value)]="due" min="2026-01-01" />
  * ```
  *
  * @see https://ngwr.dev/reference/components/date-picker
@@ -122,12 +138,15 @@ const SILENCE_MS = 100;
   selector: 'wr-date-picker',
   templateUrl: './date-picker.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-date-picker', '[class]': 'classes()' },
+  host: { class: 'wr-date-picker', '[class]': 'classes()', '[attr.data-day]': 'dayAttr()' },
   imports: [WrInput, WrInputGroup, WrInputSuffix],
   providers: [WrDateInputField],
   viewProviders: [WR_DATE_INPUT_FIELD_VIEW_PROVIDER],
 })
-export class WrDatePicker implements FormValueControl<Date | null> {
+export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements Omit<
+  FormValueControl<WrDatePickerValue<F> | null>,
+  'min' | 'max'
+> {
   /**
    * What the picker picks: `'date'`, `'time'`, `'datetime'`, or a period held
    * as its first day: `'week'`, `'month'`, `'quarter'`, `'year'`.
@@ -148,23 +167,47 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Placeholder shown when the input is empty. */
   readonly placeholder = input<string>('');
 
-  // Typed `Date | undefined` (not `Date | null`) to satisfy the reserved
-  // `FormUiControl` min/max slots, which are keyed to the control's value type
-  // and want `Date | undefined`. Both null and undefined stay falsy, so the
-  // internal bounds checks below are unaffected.
   /**
-   * Min selectable date (forwarded to the calendar). Ignored in `time` mode. A
-   * period mode refuses a period that ends before it.
+   * What the `value` model holds. `'date'` is a `Date`. `'day'` is a
+   * `YYYY-MM-DD` string, the browser-local day `wrToDay` from `ngwr/date`
+   * writes, so a form posts what the picker holds. A string that is not a
+   * valid day in that form reads as empty.
+   *
+   * It applies where the value is a day: `mode="date"` and the period modes,
+   * which hold their first day. `time` and `datetime` hold an instant, which a
+   * day string cannot carry: they ignore it, keep a `Date`, and warn in dev mode.
+   *
+   * Only the model changes. `dateFilter` is still called with a `Date`, and a
+   * refusal still carries `Date`s in its payload.
+   * @default 'date'
    */
-  readonly min = input<Date | undefined>(undefined);
+  readonly valueFormat = input<F>('date' as F);
+
+  // `undefined` rather than `null`: a bound `[formField]` writes the schema's
+  // `MIN_DATE` / `MAX_DATE` here, and that is a `Date` or `undefined`. Both
+  // null and undefined stay falsy for the bounds checks. The class leaves both
+  // out of its `FormValueControl`: the contract types them as the value, and
+  // these take a `Date` or a day string under either format.
+  /**
+   * Min selectable date (forwarded to the calendar): a `Date`, or a
+   * `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a
+   * string that is not a valid day is no bound. A period mode refuses a period
+   * that ends before it.
+   */
+  readonly min = input<Date | string | undefined>(undefined);
 
   /**
-   * Max selectable date (forwarded to the calendar). Ignored in `time` mode. A
-   * period mode refuses a period that starts after it.
+   * Max selectable date (forwarded to the calendar): a `Date`, or a
+   * `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a
+   * string that is not a valid day is no bound. A period mode refuses a period
+   * that starts after it.
    */
-  readonly max = input<Date | undefined>(undefined);
+  readonly max = input<Date | string | undefined>(undefined);
 
-  /** Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. */
+  /**
+   * Predicate to disable specific dates (forwarded to the calendar). Ignored in
+   * `time` mode. Called with a `Date` at local midnight under either `valueFormat`.
+   */
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
 
   /**
@@ -242,8 +285,33 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   protected readonly inputEl = viewChild.required<ElementRef<HTMLInputElement>>('input');
   protected readonly triggerEl = viewChild<ElementRef<HTMLButtonElement>>('trigger');
 
-  /** The picked Date. Bound by `[formField]`, or two-way via `[(value)]`. */
-  readonly value = model<Date | null>(null);
+  /**
+   * The picked value: a `Date`, or a `YYYY-MM-DD` string with
+   * `valueFormat="day"`. Bound by `[formField]`, or two-way via `[(value)]`.
+   */
+  readonly value = model<WrDatePickerValue<F> | null>(null);
+
+  /** Whether the model holds a day string: `valueFormat="day"` in a mode whose value is a day. */
+  private readonly holdsDay = computed(() => {
+    const mode = this.mode();
+    return this.valueFormat() === 'day' && mode !== 'time' && mode !== 'datetime';
+  });
+
+  /** The model as the `Date` the field and the panels work on. */
+  private readonly date = computed<Date | null>(() => this.toDate(this.value()));
+
+  private readonly minDate = computed(() => toBound(this.min()));
+  private readonly maxDate = computed(() => toBound(this.max()));
+
+  /**
+   * The held day on the host as `data-day`, for a test or a stylesheet: empty
+   * while there is no value, absent when the model is a `Date`.
+   */
+  protected readonly dayAttr = computed(() => {
+    if (!this.holdsDay()) return null;
+    const date = this.date();
+    return date ? wrToDay(date) : '';
+  });
 
   /** Emitted on blur so a bound field can mark itself touched. */
   readonly touch = output<void>();
@@ -257,7 +325,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Text currently in the input (may be partial / invalid mid-type). */
   protected readonly text = signal<string>('');
 
-  protected readonly hasValue = computed(() => this.value() != null);
+  protected readonly hasValue = computed(() => this.date() != null);
 
   /** Whether the popover is currently open. */
   protected readonly overlayOpen = signal(false);
@@ -524,7 +592,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   /** Last value we pushed into the model ourselves — lets the sync effect
    * skip the echo of our own edits (so a live keystroke's raw text is never
    * reformatted mid-type). */
-  private lastValue: Date | null = null;
+  private lastValue: Date | string | null = null;
 
   /** The format the sync effect last rendered with. Paired with `lastValue`
    * because the echo guard has to answer "is the display still current", and a
@@ -536,6 +604,17 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-picker');
+    if (typeof ngDevMode === 'undefined' || ngDevMode) {
+      effect(() => {
+        const mode = this.mode();
+        if (this.valueFormat() !== 'day' || (mode !== 'time' && mode !== 'datetime')) return;
+        // eslint-disable-next-line no-console -- dev-mode validation
+        console.warn(
+          `[NGWR] <wr-date-picker mode="${mode}"> ignores valueFormat="day": a day string cannot hold a time, ` +
+            'so the value stays a Date. Drop valueFormat, or use mode="date" or a period mode.'
+        );
+      });
+    }
     this.destroyRef.onDestroy(() => {
       this.dispose();
       clearTimeout(this.silenceTimer);
@@ -556,7 +635,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     // protection (a keystroke changes the value, never the format) and still
     // re-renders when the format itself moves.
     effect(() => {
-      const v = this.value();
+      const raw = this.value();
+      const v = this.date();
       const fmt = this.resolvedFormat();
       // Read here to be tracked: the same value prints differently once the
       // display zone, the locale or, in a period mode, the catalog moves.
@@ -566,9 +646,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
         // DIFFERENT object holding the same date came from outside — a reset to a fresh
         // copy of the day, say. That is no reason to re-render text the user is
         // typing, but it does replace text the picker refused.
-        const outside = v !== this.lastValue;
-        const echo = this.sameDate(v, this.lastValue) && fmt === this.lastFormat && key === this.lastKey;
-        this.lastValue = v;
+        const outside = raw !== this.lastValue;
+        const echo = this.sameValue(raw, this.lastValue) && fmt === this.lastFormat && key === this.lastKey;
+        this.lastValue = raw;
         this.lastFormat = fmt;
         this.lastKey = key;
         if (echo && !(outside && this.refusal())) return;
@@ -600,7 +680,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     // own viewDate to the bound `date`).
     effect(() => {
       const ref = this.dateRef();
-      if (ref) ref.setInput('date', this.value());
+      if (ref) ref.setInput('date', this.date());
     });
 
     // …and the constraints with it. Pushing these only at attach time meant a
@@ -610,8 +690,8 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     effect(() => {
       const ref = this.dateRef();
       if (!ref) return;
-      ref.setInput('min', this.min());
-      ref.setInput('max', this.max());
+      ref.setInput('min', this.minDate());
+      ref.setInput('max', this.maxDate());
       ref.setInput('dateFilter', this.dateFilter());
       ref.setInput('granularity', this.period() ?? 'day');
     });
@@ -633,10 +713,10 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     effect(() => {
       const ref = this.dateTimeRef();
       if (!ref) return;
-      const value = this.value();
+      const value = this.date();
       if (value !== this.lastFromPanel) ref.setInput('value', value);
-      ref.setInput('min', this.min());
-      ref.setInput('max', this.max());
+      ref.setInput('min', this.minDate());
+      ref.setInput('max', this.maxDate());
       ref.setInput('dateFilter', this.dateFilter());
       ref.setInput('timeFormat', this.timeFormat());
       ref.setInput('showSeconds', this.showSeconds());
@@ -656,7 +736,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       return;
     }
     const parsed = this.fieldText.read(raw);
-    if (!parsed) {
+    // A day string holds years 0 to 9999 only: a date it cannot write is as
+    // unreadable as text that is no date, and leaves the value alone.
+    if (!parsed || (this.holdsDay() && !wrToDay(parsed))) {
       this.refuse(this.fieldText.unreadable());
       return;
     }
@@ -688,7 +770,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    */
   private withKeptDate(parsed: Date): Date {
     if (this.mode() !== 'time') return parsed;
-    const current = this.value();
+    const current = this.date();
     if (!current || !this.adapter.isValid(current)) return parsed;
     return this.adapter.setTime(
       current,
@@ -752,7 +834,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
 
   /** Show the committed value canonically, or commit an emptied field as `null`. */
   private settleText(): void {
-    const v = this.value();
+    const v = this.date();
     if (v && this.adapter.isValid(v)) {
       this.text.set(this.fieldText.show(v));
     } else if (!this.text()) {
@@ -783,7 +865,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
    */
   private onFormReset(): void {
     if (!this.refusal()) return;
-    const v = this.value();
+    const v = this.date();
     this.text.set(v && this.adapter.isValid(v) ? this.fieldText.show(v) : '');
     this.refuse(null);
   }
@@ -999,10 +1081,10 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     const ref = this.overlayRef.attach(new ComponentPortal(WrCalendar));
     // Before the date: a period mode opens on its own view, never on the day grid.
     ref.setInput('granularity', this.period() ?? 'day');
-    ref.setInput('date', this.value());
+    ref.setInput('date', this.date());
     this.dateRef.set(ref);
-    ref.setInput('min', this.min());
-    ref.setInput('max', this.max());
+    ref.setInput('min', this.minDate());
+    ref.setInput('max', this.maxDate());
     ref.setInput('dateFilter', this.dateFilter());
     ref.setInput('autoFocus', this.autoFocusPanel);
     ref.instance.date.subscribe(next => {
@@ -1020,7 +1102,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     ref.setInput('step', this.step());
     ref.setInput('autoFocus', this.autoFocusPanel);
     ref.setInput('readonly', this.readonly());
-    ref.setInput('value', this.value() ?? this.adapter.today());
+    ref.setInput('value', this.date() ?? this.adapter.today());
     this.timeRef.set(ref);
     ref.instance.value.subscribe((next: Date | null) => {
       if (!next) return;
@@ -1032,9 +1114,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
   private attachDateTime(): void {
     if (!this.overlayRef) return;
     const ref = this.overlayRef.attach(new ComponentPortal(WrDateTimePanel, null, this.panelInjector()));
-    ref.setInput('value', this.value());
-    ref.setInput('min', this.min());
-    ref.setInput('max', this.max());
+    ref.setInput('value', this.date());
+    ref.setInput('min', this.minDate());
+    ref.setInput('max', this.maxDate());
     ref.setInput('dateFilter', this.dateFilter());
     ref.setInput('timeFormat', this.timeFormat());
     ref.setInput('showSeconds', this.showSeconds());
@@ -1047,7 +1129,7 @@ export class WrDatePicker implements FormValueControl<Date | null> {
       this.commit(next);
       // What the model holds now, not what the panel asked for — the two differ when
       // the write was refused.
-      ref.setInput('value', this.value());
+      ref.setInput('value', this.date());
     });
   }
 
@@ -1077,8 +1159,9 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     // day click and moved its value, which is the one thing a disabled control
     // must never do.
     if (this.readonly() || this.disabled()) return;
-    this.lastValue = next;
-    this.value.set(next);
+    const held = this.toModel(next);
+    this.lastValue = held;
+    this.value.set(held);
   }
 
   /**
@@ -1132,14 +1215,23 @@ export class WrDatePicker implements FormValueControl<Date | null> {
     const period = this.period();
     return this.refusals.outOfBounds(
       date,
-      { min: this.min(), max: this.max(), filter: this.dateFilter() },
+      { min: this.minDate(), max: this.maxDate(), filter: this.dateFilter() },
       period ? wrPeriodEnd(this.adapter, date, period) : date
     );
   }
 
-  private sameDate(a: Date | null, b: Date | null): boolean {
+  private sameValue(a: Date | string | null, b: Date | string | null): boolean {
     if (a === b) return true;
-    if (!a || !b) return false;
+    if (!(a instanceof Date) || !(b instanceof Date)) return false;
     return a.getTime() === b.getTime();
+  }
+
+  private toDate(value: Date | string | null | undefined): Date | null {
+    if (this.holdsDay() && !(value instanceof Date)) return wrFromDay(value);
+    return (value as Date | null | undefined) ?? null;
+  }
+
+  private toModel(date: Date | null): WrDatePickerValue<F> | null {
+    return (date && this.holdsDay() ? wrToDay(date) : date) as WrDatePickerValue<F> | null;
   }
 }

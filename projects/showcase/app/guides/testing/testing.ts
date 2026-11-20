@@ -1107,6 +1107,12 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<string> | Promise<void>',
     },
     {
+      name: 'getDayValue() / setDayValue(day)',
+      description:
+        'The value as `YYYY-MM-DD`. `getDayValue` needs `valueFormat="day"`; `setDayValue` picks the day out of the calendar in any day or period mode.',
+      type: 'Promise<string | null> | Promise<void>',
+    },
+    {
       name: 'getPanelHeader() / getView() / getWeekdayLabels()',
       description: '`getView()` is `day`, `month` or `year`.',
       type: 'Promise<string> | Promise<string[]>',
@@ -2329,8 +2335,19 @@ export class MyWidgetHarness extends ComponentHarness {
       type: 'Promise<…>',
     },
     {
+      name: 'isSelectable() / getSelectedNode()',
+      description: 'A `selectable` graph, and the node it has selected or `null`. Since v16.7.',
+      type: 'Promise<…>',
+    },
+    {
       name: 'Node: getText() / getRelationText()',
       description: '`WrGraphNodeHarness`: the drawn text, and the parents and children sentence.',
+      type: 'Promise<…>',
+    },
+    {
+      name: 'Node: select() / deselect() / isSelected() / isLinked() / isDimmed()',
+      description:
+        'Picks the node through its button, and reads what the selection lit or dimmed. `select()` and `deselect()` throw on a graph that is not `selectable`. Since v16.7.',
       type: 'Promise<…>',
     },
   ];

@@ -33,7 +33,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/animations/thread-lines` | `import { WrThreadLines } from 'ngwr/animations/thread-lines'` | `wr-thread-lines` |
 | `ngwr/animations/tilt` | `import { WrTilt } from 'ngwr/animations/tilt'` | `[wrTilt]` |
 | `ngwr/animations/typewriter` | `import { WrTypewriter } from 'ngwr/animations/typewriter'` | `wr-typewriter` |
-| `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar` |
+| `ngwr/avatar` | `import { WrAvatar } from 'ngwr/avatar'` | `wr-avatar-group` `wr-avatar` |
 | `ngwr/back-top` | `import { WrBackTop } from 'ngwr/back-top'` | `wr-back-top` |
 | `ngwr/badge` | `import { WrBadge } from 'ngwr/badge'` | `wr-badge` `wr-tag` |
 | `ngwr/breadcrumbs` | `import { WrBreadcrumbs } from 'ngwr/breadcrumbs'` | `wr-breadcrumbs-item` `wr-breadcrumbs` |
@@ -111,7 +111,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/descriptions` | `import { WrDescriptions } from 'ngwr/descriptions'` | `wr-description-item` `wr-descriptions` |
 | `ngwr/dialog` | `import { WrDialog } from 'ngwr/dialog'` | `[wrDialogClose]` `[wrDialogContent]` `[wrDialogFooter]` `[wrDialogTitle]` |
 | `ngwr/dialog/testing` | `import { WrDialogHarness } from 'ngwr/dialog/testing'` | — |
-| `ngwr/directives` | `import { WrAutofocus } from 'ngwr/directives'` | `[wrAutofocus]` `textarea[wrAutosize]` `[wrClickOutside]` `[wrCopyToClipboard]` `[wrFitText]` |
+| `ngwr/directives` | `import { WrAutofocus } from 'ngwr/directives'` | `[wrAutofocus]` `textarea[wrAutosize]` `[wrClickOutside]` `[wrCopyToClipboard]` `[wrFitText]` `[wrInView]` |
 | `ngwr/divider` | `import { WrDivider } from 'ngwr/divider'` | `wr-divider` |
 | `ngwr/drawer` | `import { WrDrawer } from 'ngwr/drawer'` | `[wrDrawerClose]` `[wrDrawerContent]` `[wrDrawerFooter]` `[wrDrawerTitle]` `wr-drawer` |
 | `ngwr/drawer/testing` | `import { WrDrawerHarness } from 'ngwr/drawer/testing'` | — |
@@ -141,6 +141,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/i18n/id` | `import { wrId } from 'ngwr/i18n/id'` | — |
 | `ngwr/i18n/it` | `import { wrIt } from 'ngwr/i18n/it'` | — |
 | `ngwr/i18n/ja` | `import { wrJa } from 'ngwr/i18n/ja'` | — |
+| `ngwr/i18n/kk` | `import { wrKk } from 'ngwr/i18n/kk'` | — |
 | `ngwr/i18n/ko` | `import { wrKo } from 'ngwr/i18n/ko'` | — |
 | `ngwr/i18n/nl` | `import { wrNl } from 'ngwr/i18n/nl'` | — |
 | `ngwr/i18n/pl` | `import { wrPl } from 'ngwr/i18n/pl'` | — |
@@ -183,7 +184,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/platform` | `import { WrPlatform } from 'ngwr/platform'` | — |
 | `ngwr/popconfirm` | `import { WrPopconfirm } from 'ngwr/popconfirm'` | `wr-popconfirm` `[wrPopconfirm]` |
 | `ngwr/popconfirm/testing` | `import { WrPopconfirmHarness } from 'ngwr/popconfirm/testing'` | — |
-| `ngwr/popover` | `import { WrPopover } from 'ngwr/popover'` | `[wrPopover]` |
+| `ngwr/popover` | `import { WrPopover } from 'ngwr/popover'` | `[wrPopover]` `[wrTooltip]` |
 | `ngwr/popover/testing` | `import { WrPopoverHarness } from 'ngwr/popover/testing'` | — |
 | `ngwr/progress` | `import { WrProgress } from 'ngwr/progress'` | `wr-progress` |
 | `ngwr/pull-to-refresh` | `import { WrPullToRefresh } from 'ngwr/pull-to-refresh'` | `wr-pull-to-refresh` |
@@ -198,7 +199,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/result` | `import { WrResult } from 'ngwr/result'` | `wr-result-404` `wr-result-403` `wr-result-500` `wr-result` |
 | `ngwr/schema-form` | `import { WrSchemaForm } from 'ngwr/schema-form'` | `wr-schema-form` |
 | `ngwr/schema-form/testing` | `import { WrSchemaFormArrayHarness } from 'ngwr/schema-form/testing'` | — |
-| `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | — |
+| `ngwr/scroll` | `import { WrScroll } from 'ngwr/scroll'` | `[wrScrollFollow]` |
 | `ngwr/segmented` | `import { WrSegmented } from 'ngwr/segmented'` | `wr-segmented` |
 | `ngwr/segmented/testing` | `import { WrSegmentedHarness } from 'ngwr/segmented/testing'` | — |
 | `ngwr/select` | `import { WrSelect } from 'ngwr/select'` | `ng-template[wrSelectLoadError]` `wr-option-group` `ng-template[wrOptionLeading]` `wr-option` `wr-select` |
@@ -222,6 +223,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/switch` | `import { WrSwitch } from 'ngwr/switch'` | `wr-switch` |
 | `ngwr/switch/testing` | `import { WrSwitchHarness } from 'ngwr/switch/testing'` | — |
 | `ngwr/table` | `import { WrTable } from 'ngwr/table'` | `[wrTableCell]` `wr-table-column-chooser` `[wrTableEditCell]` `ng-template[wrTableExpand]` `wr-table-filter` `ng-template[wrTableGroupHeader]` `ng-template[wrTableSelectionBar]` `wr-table-sort` `wr-table` |
+| `ngwr/table/router` | `import { WrTableRouting } from 'ngwr/table/router'` | `[wrTableRouting]` |
 | `ngwr/table/testing` | `import { WrTableCellHarness } from 'ngwr/table/testing'` | — |
 | `ngwr/tabs` | `import { WrTabs } from 'ngwr/tabs'` | `wr-tab` `wr-tabs` |
 | `ngwr/tabs/router` | `import { WrTabsRouting } from 'ngwr/tabs/router'` | `[wrTabsRouting]` |

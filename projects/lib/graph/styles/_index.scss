@@ -26,6 +26,13 @@
   --wr-graph-card-padding: var(--wr-space-sm) var(--wr-space-md);
   --wr-graph-card-font-size: var(--wr-text-sm);
   --wr-graph-card-line-height: var(--wr-leading-tight);
+  // Selection, drawn only with `selectable`: the ring on the selected node, the
+  // colour of its edges, and how far everything unrelated steps back.
+  --wr-graph-selected-ring-color: var(--wr-color-primary);
+  --wr-graph-selected-ring-width: 2px;
+  --wr-graph-select-radius: var(--wr-graph-card-radius);
+  --wr-graph-linked-edge-color: var(--wr-color-primary);
+  --wr-graph-dimmed-opacity: 0.4;
   // The zoom buttons, drawn only with `zoomable`.
   --wr-graph-controls-offset: var(--wr-space-sm);
   --wr-graph-controls-gap: var(--wr-space-xs);
@@ -88,8 +95,49 @@
     fill: var(--wr-graph-edge-color);
   }
 
+  &__edge--linked {
+    stroke: var(--wr-graph-linked-edge-color);
+  }
+
+  // A highlighted edge points at an arrowhead of its own, for the reason above.
+  &__edges &__arrow--linked polygon {
+    fill: var(--wr-graph-linked-edge-color);
+  }
+
+  // Opacity takes the arrowhead with the line.
+  &__edge--dimmed {
+    opacity: var(--wr-graph-dimmed-opacity);
+  }
+
   &__node {
     box-sizing: border-box;
+  }
+
+  // A dimmed node that holds the focus is shown whole, and its ring with it.
+  &__node--dimmed:not(:focus-within) {
+    opacity: var(--wr-graph-dimmed-opacity);
+  }
+
+  // The button a selectable node is. It fills the node's box, so a template's
+  // `height: 100%` still resolves.
+  &__select {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    border-radius: var(--wr-graph-select-radius);
+  }
+
+  // Drawn over the content as a border, so it shows on any template, leaves the
+  // outline to the focus ring and survives `forced-colors`.
+  &__node--selected > &__select::after {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    content: '';
+    border: var(--wr-graph-selected-ring-width) solid var(--wr-graph-selected-ring-color);
+    border-radius: inherit;
   }
 
   &__card {

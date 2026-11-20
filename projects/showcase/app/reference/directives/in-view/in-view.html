@@ -1,0 +1,36 @@
+<ngwr-doc-page
+  title="wrInView"
+  since="16.7.0"
+  description="Emit when an element enters or leaves the viewport."
+  [keywords]="['wrInView', 'in view', 'viewport', 'visible', 'intersection', 'observer', 'directive']"
+  [labels]="['Directive']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="`(wrInView)` carries `true` on entering and `false` on leaving. An element that starts out of view emits nothing until it shows up."
+  >
+    <ngwr-doc-code [code]="snippets.usage" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-scroll" tabindex="0">
+        <p class="ngwr-demo-scroll__row">Scroll down</p>
+        <p class="ngwr-demo-scroll__row">Scroll down</p>
+        <p class="ngwr-demo-scroll__row" (wrInView)="seen.set($event)" [wrInViewThreshold]="1">
+          {{ seen() ? 'In view' : 'Out of view' }}
+        </p>
+        <p class="ngwr-demo-scroll__row">Scroll up</p>
+        <p class="ngwr-demo-scroll__row">Scroll up</p>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="One observer"
+    description="Every instance with the same threshold shares one `IntersectionObserver`. It is created with the first element and disconnected with the last. Nothing is observed on the server."
+  />
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

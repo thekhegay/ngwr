@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="16.6.0"
+  updated="16.7.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -223,6 +223,10 @@
   >
     <ngwr-doc-code [code]="snippets.leading" language="angular-html" />
     <ngwr-doc-code [code]="snippets.leadingTs" language="angular-ts" />
+    <p>
+      Over <code>[options]</code> with <code>[valueWith]</code>, <code>let-item="item"</code> is the item behind the id.
+    </p>
+    <ngwr-doc-code [code]="snippets.leadingItem" language="angular-html" />
     <ngwr-doc-snippet code="">
       <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 28rem">
         <wr-select placeholder="Assign to" ariaLabel="Assignee" [(value)]="assignee">

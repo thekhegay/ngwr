@@ -48,6 +48,7 @@ export default class DatePickerPageComponent {
   protected readonly formatted = signal<Date | null>(null);
   protected readonly bounded = signal<Date | null>(null);
   protected readonly refused = signal<Date | null>(null);
+  protected readonly day = signal<string | null>('2026-03-14');
 
   protected readonly time = signal<Date | null>(new Date());
   protected readonly time24 = signal<Date | null>(new Date());
@@ -116,6 +117,10 @@ export default class DatePickerPageComponent {
   [max]="firstOfNextMonth"
   [dateFilter]="isWeekday"
 />`,
+
+    dayTs: `readonly due = signal<string | null>('2026-03-14');`,
+
+    day: `<wr-date-picker valueFormat="day" [(value)]="due" min="2026-01-01" max="2026-12-31" />`,
 
     refused: `<wr-date-picker #dueField [(value)]="due" format="dd.MM.yyyy" [min]="today" />
 

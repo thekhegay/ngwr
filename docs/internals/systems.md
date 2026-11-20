@@ -199,6 +199,20 @@ one component folder. Reach for them instead of hand-rolling:
   string through the internal `wrToLocalDate`, and `wrDate`, `wrFormatDate` and
   the date validators parse through it in turn, so all four read one string as
   one instant. It must stay free of the adapter and of DI.
+  **Day strings** (16.7): `wrToDay`, `wrToday` and `wrFromDay` are plain
+  functions too, for a `YYYY-MM-DD` value: the browser-local day, never the UTC
+  one. `wrFromDay` is strict where `wrParseDate` is lenient: that exact form
+  and a day the calendar has, else `null`. It reads through `wrToLocalDate`
+  and checks the result by writing it back, since an engine may carry
+  `2026-02-30` over into March. `valueFormat="day"` on `wr-date-picker` holds
+  its model through the same pair: the class is generic over the format
+  (`WrDatePicker<'day'>`), a template infers it from the `valueFormat` binding,
+  and everything inside still works on a `Date` (the private `date` computed),
+  so the field, the panels, `dateFilter` and the refusals did not change. The
+  host publishes the held day as `data-day`, which is what
+  `WrDatePickerHarness.getDayValue()` reads. The class implements
+  `FormValueControl` without `min` and `max`: the contract types those as the
+  value, and they take a `Date` or a day string under either format.
   **Backend values** (16.2): `wrParseDate(value, options)` takes `epochUnit`
   (`ms`, `us`, `s`, `auto`), `zonelessIn` (`browser`, `display`, `utc`) and the
   `timeZone` that `display` reads in, through the wall-clock helpers of
@@ -316,6 +330,11 @@ one component folder. Reach for them instead of hand-rolling:
   only over `layout="auto"`. `actions: true` on a column wraps its cell
   template in `.wr-table__actions` and shrinks the column with `width: 1%`,
   which a fixed layout would read literally, so there the rule steps back.
+  `size="sm"` (host class `wr-table--sm`) restates the two cell padding hooks,
+  `--wr-table-cell-padding-y` / `-x`, on the spacing scale; the density
+  multipliers apply on top, so it is relative to the density and has no `lg`.
+  A click anywhere in a sortable header cell sorts (`onHeaderClick`, pointer
+  only, skipping `HEADER_CLICK_IGNORE`); the sort button stays the control.
   `stickyHeader` gives any mode its own scroll area under a sticky header, the
   one a virtualized body already scrolls in (host class `wr-table--sticky-head`
   for both), sized by `viewportHeight`, where `'fill'` takes the parent's
@@ -329,6 +348,18 @@ one component folder. Reach for them instead of hand-rolling:
   the bar over a filled one. `(rowClick)` is one delegated listener on the
   body and pointer only; a click on a control in the row, or under
   `wrTableIgnoreRowClick` (an attribute, no directive), is not a row click.
+  `rowLink` gives a row one EMPTY `<a class="wr-table__row-link">`, absolute
+  over the row at `z-index: -1` inside the row's own stacking context, named by
+  the label cell through `aria-labelledby`. The cells of a linked row are
+  `pointer-events: none` and the controls `rowClick` skips take the pointer
+  back, in a `:where()` so a disabled control keeps its own `none`: nothing is
+  raised or repositioned. The anchor sits in the first unpinned cell, since a
+  sticky cell would hold it inside its own box. A cut cell keeps the pointer
+  for its tooltip and the body listener replays its click on the link. A row
+  tints on hover only as `wr-table__tr--link` or `--clickable` (`rowClick`
+  bound, read off the emitter's private `listeners`, which
+  `table-row-link.spec.ts` pins). Router commands go through `WR_TABLE_ROUTING`,
+  provided by `WrTableRouting` in `ngwr/table/router`.
   Header hints (`headerHint`) and cut cells (`truncate: 'tooltip'`) share ONE
   `WrPopover` per table, created on first use and pointed at the hovered or
   focused cell through `wrPopoverOrigin`; the table listens natively, so a

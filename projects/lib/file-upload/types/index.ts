@@ -34,3 +34,17 @@ export interface WrFileUploadStatus {
 
 /** Per-file upload state, keyed by the `File` objects in `value`. */
 export type WrFileUploadStatusMap = ReadonlyMap<File, WrFileUploadStatus>;
+
+/**
+ * A file that already lives on a server, listed through `[stored]`. It is not a
+ * `File` and never enters `value`: the app owns it, and says what happened to it
+ * through `(storedRemove)`.
+ */
+export interface WrStoredFile {
+  /** The name shown in the row. */
+  readonly name: string;
+  /** Size in bytes. Left out, the row shows no size. */
+  readonly size?: number | null;
+  /** Where the file can be opened. Left out, the name is plain text. Opens in a new tab. */
+  readonly url?: string | null;
+}

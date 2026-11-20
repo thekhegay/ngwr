@@ -27,4 +27,6 @@ export interface WrDropdownItemHarnessFilters extends BaseHarnessFilters {
   readonly text?: string | RegExp;
   /** Match only enabled (`false`) or only disabled (`true`) items. */
   readonly disabled?: boolean;
+  /** Match only checked (`true`) or only unchecked (`false`) items. A plain item has no state and never matches. */
+  readonly checked?: boolean;
 }

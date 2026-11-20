@@ -156,6 +156,17 @@ export class WrPaginationHarness extends ComponentHarness {
   }
 
   /**
+   * Whether `hideOnSinglePage` has hidden the pager: everything fits on one page,
+   * so it renders nothing and its host takes no box.
+   *
+   * Ask this first on a pager that may be hidden. It has no cells, step controls,
+   * total label or size changer then, so the reads that need one throw.
+   */
+  async isHidden(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-pagination--hidden');
+  }
+
+  /**
    * The whole strip in DOM order: a `number` for every page cell, and the gap
    * marker's own text (`…`) for every ellipsis.
    *

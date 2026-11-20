@@ -67,17 +67,10 @@ protected readonly account = form(this.model, path => {
 
 <wr-select [(ngModel)]="plan">…</wr-select>`,
 
-    validatorsTemplate: `<!-- Ignored: no error, and the form submits. -->
-<wr-select formControlName="plan" required>…</wr-select>
-
-<!-- Works: the validator on the FormControl (below), the asterisk on the field. -->
+    validatorsTemplate: `<!-- The FormControl gets a required error; the field draws the asterisk. -->
 <wr-form-field label="Plan" required>
-  <wr-select formControlName="plan">…</wr-select>
+  <wr-select formControlName="plan" required>…</wr-select>
 </wr-form-field>`,
-
-    validators: `form = new FormGroup({
-  plan: new FormControl<string | null>(null, Validators.required),
-});`,
 
     formError: `<wr-form-field label="Handle" required>
   <input wrInput formControlName="handle" />

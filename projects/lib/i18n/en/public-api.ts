@@ -218,6 +218,7 @@ export const wrEn: WrI18nCatalog = {
     failed: 'Upload failed',
     status: '{{name}}: {{status}}',
     retry: 'Try again',
+    openFile: '{{name}} (opens in a new tab)',
   },
   popconfirm: {
     label: 'Confirm action',
@@ -260,6 +261,7 @@ export const wrEn: WrI18nCatalog = {
   },
   avatar: {
     alt: 'Avatar',
+    more: '{{count}} more',
   },
   backTop: {
     label: 'Back to top',
