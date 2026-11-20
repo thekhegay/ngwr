@@ -299,6 +299,23 @@ describe('WrScrollFollow', () => {
     expect(follow().following()).toBe(true);
   });
 
+  it('follows again when a reader scrolled up is clamped to the end by shorter content', async () => {
+    await mount(Host);
+
+    scrollTo(60);
+    expect(follow().following()).toBe(false);
+
+    host().rows.set([10, 11, 12, 13, 14, 15]);
+    fixture.detectChanges();
+    scrollTo(top);
+    await settle();
+    expect(follow().following()).toBe(true);
+
+    host().rows.update(rows => [...rows, 16]);
+    await settle();
+    expect(top).toBe(80);
+  });
+
   it('resumes when the reader scrolls back to within the threshold of the end', async () => {
     await mount(Host);
     scrollTo(0);
