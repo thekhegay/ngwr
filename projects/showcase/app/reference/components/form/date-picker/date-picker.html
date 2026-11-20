@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Date Picker"
-  updated="16.6.0"
+  updated="16.7.0"
   description="A text field with a popup for picking a date, a time, both, or a week, month, quarter or year."
   [keywords]="['date', 'time', 'datetime', 'month', 'quarter', 'year', 'week', 'period', 'picker', 'wr-date-picker']"
   [labels]="['Signal Forms', 'CDK Overlay']"
@@ -30,6 +30,30 @@
     <ngwr-doc-snippet code="">
       <wr-date-picker [(value)]="bounded" [min]="today" [max]="firstOfNextMonth" [dateFilter]="isWeekday" />
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Day strings"
+    description='`valueFormat="day"` holds the value as a `YYYY-MM-DD` string, the local day, so a form posts what the picker holds. `min` and `max` take such a string too. In code the same conversion is `wrToDay` and `wrFromDay`, see [wrDate](/reference/pipes/wr-date). New in v16.7.'
+  >
+    <ngwr-doc-code [code]="snippets.dayTs" language="angular-ts" />
+    <ngwr-doc-code [code]="snippets.day" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        <wr-date-picker valueFormat="day" [(value)]="day" min="2026-01-01" max="2026-12-31" placeholder="Pick a day" />
+        <span style="color: var(--wr-color-on-surface-muted); font-size: 0.875rem">
+          Value: <code>{{ day() ?? 'null' }}</code>
+        </span>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        It applies to <code>mode="date"</code> and the period modes, which hold their first day. <code>time</code> and
+        <code>datetime</code> ignore it and keep a <code>Date</code>.
+      </li>
+      <li>A string in the model that is not a valid day in that form reads as empty.</li>
+      <li><code>dateFilter</code> still gets a <code>Date</code>, and a refusal still carries <code>Date</code>s.</li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section

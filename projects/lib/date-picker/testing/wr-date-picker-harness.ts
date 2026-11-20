@@ -76,6 +76,70 @@ export class WrDatePickerHarness extends WrDatePickerHarnessBase {
     return (await this.field()).getProperty<string>('value');
   }
 
+  /**
+   * The held day of a `valueFormat="day"` picker, as the `YYYY-MM-DD` string its
+   * model holds, or `null` when it is empty. Read from the host's `data-day`,
+   * which the component writes from the model, so text the picker refused does
+   * not show here. Throws on a picker that holds a `Date`.
+   */
+  async getDayValue(): Promise<string | null> {
+    const day = await (await this.host()).getAttribute('data-day');
+    if (day === null) {
+      throw new Error(
+        `${this.harnessName}.getDayValue(): this picker holds a Date, not a day string. Only valueFormat="day" ` +
+          'in mode="date" or a period mode publishes one; read getValueText() instead.'
+      );
+    }
+
+    return day === '' ? null : day;
+  }
+
+  /**
+   * Pick a `YYYY-MM-DD` day out of the calendar, opening the popup when it is
+   * closed: zoom out to the years, then pick the year, the month and the day,
+   * as far as the mode goes (a `month` picker stops at the month, a `week`
+   * picker takes the week the day is in). It needs no `valueFormat="day"`, and
+   * it does not know the field's `format`, which is why it does not type.
+   *
+   * Throws on a string that is not in that form, on a year, month or day that
+   * `min` / `max` or `dateFilter` rule out, and in `time` and `datetime` modes.
+   * A read-only picker opens and takes the clicks without moving its value:
+   * assert with {@link getDayValue}.
+   */
+  async setDayValue(day: string): Promise<void> {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+    if (!match) {
+      throw new Error(`${this.harnessName}.setDayValue(${JSON.stringify(day)}): expected a day as YYYY-MM-DD.`);
+    }
+    const mode = await this.getMode();
+    if (mode === 'time' || mode === 'datetime') {
+      throw new Error(
+        `${this.harnessName}.setDayValue(): mode="${mode}" holds a time as well, which a day does not name. Use ` +
+          'setValueText(), or selectDay() and setTime().'
+      );
+    }
+    const [year, month, dayOfMonth] = match.slice(1).map(Number);
+
+    await this.open();
+    while ((await this.getView()) !== 'year') await this.zoomOut();
+    await this.showYear(year);
+    await this.selectYear(year);
+    if (!(await this.isOpen())) return;
+
+    const view = await this.getView();
+    if (view === 'year') {
+      throw new Error(`${this.harnessName}.setDayValue(${JSON.stringify(day)}): the year ${year} is disabled.`);
+    }
+    if (view === 'quarter') return this.selectQuarter((Math.floor((month - 1) / 3) + 1) as 1 | 2 | 3 | 4);
+
+    await this.selectMonth(month - 1);
+    if (!(await this.isOpen())) return;
+    if ((await this.getView()) !== 'day') {
+      throw new Error(`${this.harnessName}.setDayValue(${JSON.stringify(day)}): that month is disabled.`);
+    }
+    await this.selectDay(dayOfMonth);
+  }
+
   /** The field's placeholder. */
   async getPlaceholder(): Promise<string> {
     return (await this.field()).getProperty<string>('placeholder');
@@ -158,6 +222,20 @@ export class WrDatePickerHarness extends WrDatePickerHarnessBase {
   /** Flip the stepper between AM and PM. Throws in 24-hour mode, which has no such control. */
   async toggleMeridiem(): Promise<void> {
     await (await this.timePanel()).toggleMeridiem();
+  }
+
+  /** Page the year view until `year` is one of the twelve on show. */
+  private async showYear(year: number): Promise<void> {
+    // 0 to 9999 is 834 pages of twelve; a header that never reaches the year is a bug, not a wait.
+    for (let page = 0; page < 840; page++) {
+      const chips = await this.allInPanel('.wr-calendar__years .wr-calendar__chip');
+      const shown = await Promise.all(chips.map(async chip => Number(await chip.text())));
+      if (year < shown[0]) await this.previous();
+      else if (year > shown[shown.length - 1]) await this.next();
+      else return;
+    }
+
+    throw new Error(`${this.harnessName}.setDayValue(): the year view never reached ${year}.`);
   }
 
   private async field(): Promise<TestElement> {
