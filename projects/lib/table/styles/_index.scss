@@ -1569,6 +1569,13 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   transition: none;
 }
 
+// The preview of a `size="sm"` table: the table restates the padding hooks on
+// itself, which the preview has left, so the same values are the fallbacks here.
+.cdk-drag-preview.wr-table__th.wr-table__th--preview-sm {
+  padding: calc(var(--wr-table-cell-padding-y, var(--wr-space-xs)) * var(--wr-density-y, 1))
+    calc(var(--wr-table-cell-padding-x, var(--wr-space-sm)) * var(--wr-density-x, 1));
+}
+
 // The cursor of a column drag. The CDK preview takes no pointer events, so the
 // cursor comes from a class on `<html>` for the length of the drag, set by the
 // table; `!important` because every control under the pointer has its own.
