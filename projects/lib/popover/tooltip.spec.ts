@@ -1,3 +1,4 @@
+import { OverlayRef } from '@angular/cdk/overlay';
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -80,6 +81,24 @@ describe('WrTooltip', () => {
     fixture.detectChanges();
 
     expect(el('element').getAttribute('aria-label')).toBe('Rename');
+  });
+
+  it('repositions an open tooltip when its text changes, and closes it when the text goes empty', async () => {
+    const reposition = vi.spyOn(OverlayRef.prototype, 'updatePosition');
+    hover('element');
+    expect(pane()?.textContent?.trim()).toBe('Edit');
+    reposition.mockClear();
+
+    fixture.componentInstance.text.set('Edited, saved to the server');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(pane()?.textContent?.trim()).toBe('Edited, saved to the server');
+    expect(reposition).toHaveBeenCalled();
+
+    fixture.componentInstance.text.set('');
+    fixture.detectChanges();
+    expect(pane()).toBeNull();
+    reposition.mockRestore();
   });
 
   it('passes position through', () => {
