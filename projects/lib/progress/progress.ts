@@ -65,19 +65,30 @@ export class WrProgress {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('progress');
 
+    // The host and every label are watched: a label widens without the host
+    // moving when a web font swaps in after the first fit.
+    let observer: ResizeObserver | null = null;
+    const watch = (): void => {
+      if (!observer) return;
+      observer.disconnect();
+      observer.observe(this.host);
+      this.host.querySelectorAll('.wr-progress__mark-text').forEach(text => observer?.observe(text));
+    };
+
     afterRenderEffect({
       read: () => {
         this.labelledMarks();
         this.fitLabels();
+        watch();
       },
     });
 
     const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
       if (typeof ResizeObserver === 'undefined') return;
-      const observer = new ResizeObserver(() => this.fitLabels());
-      observer.observe(this.host);
-      destroyRef.onDestroy(() => observer.disconnect());
+      observer = new ResizeObserver(() => this.fitLabels());
+      watch();
+      destroyRef.onDestroy(() => observer?.disconnect());
     });
   }
 
@@ -179,12 +190,15 @@ export class WrProgress {
   /** Hide each label that would touch the last one still shown. Measured, so it follows the bar's width. */
   private fitLabels(): void {
     const hidden = new Set<number>();
+    const track = this.host.getBoundingClientRect().width;
     let last: DOMRect | null = null;
     this.host.querySelectorAll('.wr-progress__mark-text').forEach((text, index) => {
       const rect = text.getBoundingClientRect();
       // Not laid out (a hidden pane, a detached host): nothing to compare.
       if (!rect.width) return;
-      if (last && rect.left < last.right + LABEL_GAP && last.left < rect.right + LABEL_GAP) hidden.add(index);
+      // Wider than the bar it would hang out of: hidden, its tick kept.
+      if (track && rect.width > track) hidden.add(index);
+      else if (last && rect.left < last.right + LABEL_GAP && last.left < rect.right + LABEL_GAP) hidden.add(index);
       else last = rect;
     });
 
