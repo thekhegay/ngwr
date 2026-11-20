@@ -37,6 +37,12 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   --wr-table-head-font-size: var(--wr-text-xs);
   --wr-table-head-font-weight: var(--wr-font-weight-semibold);
   --wr-table-row-hover: var(--wr-color-fill-subtle);
+  // The padding of a header, body and footer cell at density 1. Off the
+  // spacing scale: these are the lengths the table has always drawn, and each
+  // is multiplied by `--wr-density-y` / `-x` where it is read. `size="sm"`
+  // restates both (see `.wr-table--sm`).
+  --wr-table-cell-padding-y: 0.625rem;
+  --wr-table-cell-padding-x: 0.875rem;
   // Head casing. The library renders column titles as the author wrote them —
   // forcing `uppercase` mutates their content, and a header written "ID" or
   // "created at" is the consumer's decision to make, not ours. Both halves stay
@@ -142,7 +148,8 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
 
   &__th,
   &__td {
-    padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+    padding: calc(var(--wr-table-cell-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-table-cell-padding-x) * var(--wr-density-x, 1));
     text-align: start;
     vertical-align: middle;
     border-bottom: 1px solid var(--wr-table-border);
@@ -232,6 +239,13 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     &:hover::after {
       opacity: 1;
     }
+  }
+
+  // A click anywhere in a sortable header cell sorts. Above `--draggable`, so
+  // a reorderable column keeps its grab cursor.
+  &__th--sortable {
+    cursor: pointer;
+    user-select: none;
   }
 
   // --- Column reordering ----------------------------------------------------
@@ -442,7 +456,8 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   // carries no styles of its own — it exists as a public hook so consumers can
   // target those two cells without matching on position.
   &__foot-cell {
-    padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+    padding: calc(var(--wr-table-cell-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-table-cell-padding-x) * var(--wr-density-x, 1));
     background: var(--wr-table-head-bg);
     border-top: 1px solid var(--wr-table-border);
     font-weight: var(--wr-table-foot-cell-font-weight);
@@ -899,6 +914,7 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   // --- Row grouping ---------------------------------------------------------
   --wr-table-group-bg: var(--wr-color-fill-subtle);
   --wr-table-group-inner-gap: var(--wr-space-sm);
+  --wr-table-group-inner-padding-y: var(--wr-space-sm);
   --wr-table-group-toggle-gap: var(--wr-space-sm);
   --wr-table-group-toggle-font-weight: var(--wr-font-weight-semibold);
   --wr-table-group-count-padding-x: var(--wr-space-sm);
@@ -925,7 +941,8 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     align-items: center;
     gap: var(--wr-table-group-inner-gap);
     max-width: 100%;
-    padding: calc(0.5rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+    padding: calc(var(--wr-table-group-inner-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-table-cell-padding-x) * var(--wr-density-x, 1));
   }
 
   &__group-select {
@@ -1014,6 +1031,19 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   &__group-row:last-child > &__group-cell {
     border-bottom: 0;
   }
+}
+
+// --- Compact size -----------------------------------------------------------
+// `size="sm"` restates the padding hooks one notch tighter, on the spacing
+// scale. The density multipliers still apply on top, so a compact table inside
+// a `sm` density is tighter again. After the base block, which declares the
+// group hook last. The attribute form covers the frame before the first update
+// pass (see `static-variant-selectors.spec.ts`).
+.wr-table--sm,
+.wr-table:where([size='sm']) {
+  --wr-table-cell-padding-y: var(--wr-space-xs);
+  --wr-table-cell-padding-x: var(--wr-space-sm);
+  --wr-table-group-inner-padding-y: var(--wr-space-xs);
 }
 
 // --- Own scroll area --------------------------------------------------------
@@ -1523,7 +1553,8 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   // declared on `.wr-table`, which the preview has left, so they are passed with
   // the same defaults that block sets. `--wr-density-*` and `--wr-color-*` are
   // root-level and resolve as-is.
-  padding: calc(0.625rem * var(--wr-density-y, 1)) calc(0.875rem * var(--wr-density-x, 1));
+  padding: calc(var(--wr-table-cell-padding-y, 0.625rem) * var(--wr-density-y, 1))
+    calc(var(--wr-table-cell-padding-x, 0.875rem) * var(--wr-density-x, 1));
   background: var(--wr-table-head-bg, var(--wr-color-fill));
   color: var(--wr-color-on-surface-muted);
   font-family: var(--wr-table-font-family, var(--wr-font-family-base));

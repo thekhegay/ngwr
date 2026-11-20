@@ -31,6 +31,7 @@ export type {
   WrTableRowLink,
   WrTableRoutingAdapter,
   WrTableSelectionContext,
+  WrTableSize,
   WrTableSortAccessor,
   WrTableSortState,
   WrTableSortDirection,

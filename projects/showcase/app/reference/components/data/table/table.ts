@@ -615,6 +615,13 @@ protected readonly columns: WrTableColumns = {
   role: { title: 'Role on the team', width: 140, truncate: 'tooltip' },
   seats: { title: 'Seats', align: 'end', width: 80 },
 };`,
+    size: `<wr-table size="sm" [columns]="columns" [items]="rows" />
+
+/* Or a size of your own */
+.wr-table {
+  --wr-table-cell-padding-y: var(--wr-space-xs);
+  --wr-table-cell-padding-x: var(--wr-space-md);
+}`,
     rowActions: `<wr-table [columns]="columns" [items]="rows">
   <ng-template wrTableCell="actions" let-row="item">
     <wr-btn icon="pencil" size="sm" outlined wrPopover="Edit" mode="tooltip" (click)="edit(row)" />
@@ -1190,7 +1197,13 @@ type WrTableSummaryContext =
       type: 'string',
       sub: true,
     },
-    { name: 'sortable', description: 'Show a clickable sort indicator.', type: 'boolean', default: 'false', sub: true },
+    {
+      name: 'sortable',
+      description: 'Show a sort indicator; a click in the header cell sorts.',
+      type: 'boolean',
+      default: 'false',
+      sub: true,
+    },
     {
       name: 'filterItems',
       description: 'Non-empty list shows a filter dropdown.',

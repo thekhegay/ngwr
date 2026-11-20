@@ -26,5 +26,6 @@ export type { WrTableGroupContext } from './table-group-context';
 export type { WrTableLayout } from './table-layout';
 export type { WrTableLoadingMode } from './table-loading-mode';
 export type { WrTableSelectionContext } from './table-selection-context';
+export type { WrTableSize } from './table-size';
 export type { WrTableState } from './table-state';
 export type { WrTableSummaryContext } from './table-summary-context';

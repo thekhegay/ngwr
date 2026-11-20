@@ -119,6 +119,8 @@ const VARIANTS: [entry: string, byClass: string, byAttribute: string][] = [
   ...sizes('slider', 'wr-slider'),
   ...sizes('color-picker', 'wr-color-picker'),
   ...sizes('transfer', 'wr-transfer'),
+  // The table has no `lg`.
+  ['table', '.wr-table--sm', `.wr-table${value('size', 'sm')}`],
   // These two keep their hooks on the parts, so a size is a rule per part.
   ...[
     ['file-upload', 'wr-file-upload', ['zone', 'icon', 'hint', 'list', 'item']] as const,

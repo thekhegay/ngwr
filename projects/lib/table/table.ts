@@ -94,6 +94,7 @@ import type {
   WrTableRowClick,
   WrTableRowLink,
   WrTableSelectionContext,
+  WrTableSize,
   WrTableSortState,
   WrTableSortDirection,
   WrTableState,
@@ -202,6 +203,19 @@ const EDITOR_FOCUSABLE = [
   'a[href]',
   '[contenteditable]:not([contenteditable="false"])',
   '[tabindex]:not([tabindex="-1"])',
+].join(', ');
+
+/** What a click inside a sortable header cell belongs to instead of the sort. */
+const HEADER_CLICK_IGNORE = [
+  'button',
+  'a[href]',
+  'input',
+  'select',
+  'textarea',
+  '[role=button]',
+  'label',
+  '.wr-table-filter',
+  '.wr-table__resize-handle',
 ].join(', ');
 
 /**
@@ -342,6 +356,7 @@ function flatRow(row: Record<string, unknown>, id: string, posinset: number, set
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-table',
+    '[class.wr-table--sm]': "size() === 'sm'",
     '[class.wr-table--responsive]': 'responsive()',
     '[class.wr-table--virtual]': 'virtualized()',
     '[class.wr-table--sticky-head]': 'scrollable()',
@@ -1851,6 +1866,15 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   readonly layout = input<WrTableLayout>('auto');
 
   /**
+   * How tightly the cells are padded. `'sm'` is the compact table: it sets
+   * `--wr-table-cell-padding-y` and `-x` one notch tighter, for header, body
+   * and footer cells alike. The app's density still multiplies both, so `sm`
+   * is relative to it. Card mode keeps its own padding.
+   * @default 'md'
+   */
+  readonly size = input<WrTableSize>('md');
+
+  /**
    * A column's name for its controls: the title, the hint after it, or the hint
    * alone under an empty title.
    */
@@ -3267,6 +3291,19 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     if (keys.length < 2) return null;
     const at = keys.indexOf(key);
     return at < 0 ? null : at + 1;
+  }
+
+  /**
+   * A click anywhere in a sortable header cell sorts, as a click on its sort
+   * button does. A control in the cell keeps its own click: the sort button
+   * (which cycles by itself), the filter trigger, the resize handle.
+   */
+  protected onHeaderClick(event: MouseEvent, key: string, sortable: boolean | undefined): void {
+    if (!sortable) return;
+    const th = event.currentTarget as Element;
+    const control = (event.target as Element).closest(HEADER_CLICK_IGNORE);
+    if (control && control !== th && th.contains(control)) return;
+    this.cycleSort(key);
   }
 
   protected cycleSort(key: string): void {
