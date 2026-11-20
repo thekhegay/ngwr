@@ -347,7 +347,20 @@ export class WrPopover implements AfterViewInit {
     // feeds its own panel refs.
     effect(() => {
       const content = this.content();
-      this.textPanelRef?.setInput('text', typeof content === 'string' ? content : '');
+      const panel = this.textPanelRef;
+      if (!panel) return;
+      const text = typeof content === 'string' ? content : '';
+      untracked(() => {
+        // An empty bubble is never wanted, and `scheduleShow` refuses to open one.
+        if (!text) {
+          this.openState.set(false);
+          return;
+        }
+        panel.setInput('text', text);
+        // A centred panel was placed for the old width: place it again once the
+        // new text has been drawn.
+        afterNextRender(() => this.overlayRef?.updatePosition(), { injector: this.injector });
+      });
     });
     // A tooltip answers the USER'S KEYBOARD, not every focus there is.
     //
