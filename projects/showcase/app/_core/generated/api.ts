@@ -1478,6 +1478,7 @@ export const API = {
     { name: "defaultItemIcon", description: "Icon for a page that names none. `null` draws no icon.", type: "string | null", default: "null" },
     { name: "autoExpand", description: "Open every group above the current route, once per navigation: a group the user closes stays closed until the route changes.", type: "boolean", default: "true" },
     { name: "autoCollapse", description: "Close the groups the previous navigation opened when the next one leaves them, so a long nav does not keep every visited section expanded. A group the user opened or closed by hand is never closed for them. Needs `autoExpand`.", type: "boolean", default: "false" },
+    { name: "activeTone", description: "How the current page is painted: the primary tint, or with `'neutral'` a grey one that leaves the primary to the page's own actions. Either way the four `--wr-sidebar-row-active-*` hooks take any colour.", type: "WrSidebarActiveTone", default: "'primary'" },
   ],
   // <wr-skeleton>
   WrSkeleton: [

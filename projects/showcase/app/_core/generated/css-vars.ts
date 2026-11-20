@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1910 hook(s) across 116 page(s). A property is here only when the
+ * 1915 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1930,12 +1930,17 @@ export const CSS_VARS = {
       { name: "--wr-sidebar-icon-size", default: "1rem", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-meta-gap", default: "0.375rem", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-padding", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-row-active-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-sidebar", overrides: 1 },
+      { name: "--wr-sidebar-row-active-color", default: "var(--wr-color-primary-ink)", scope: ".wr-sidebar", overrides: 1 },
+      { name: "--wr-sidebar-row-active-icon", default: "var(--wr-color-primary)", scope: ".wr-sidebar", overrides: 1 },
+      { name: "--wr-sidebar-row-active-indicator", default: "var(--wr-color-primary)", scope: ".wr-sidebar", overrides: 1 },
       { name: "--wr-sidebar-row-font-size", default: "var(--wr-text-sm)", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-row-height", default: "2rem", scope: ".wr-sidebar", overrides: 1 },
       { name: "--wr-sidebar-row-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-row-padding-x", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-row-padding-y", default: "0.375rem", scope: ".wr-sidebar", overrides: 1 },
       { name: "--wr-sidebar-row-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-sidebar" },
+      { name: "--wr-sidebar-slot-gap", default: "var(--wr-space-sm)", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-subtitle-font-size", default: "var(--wr-text-xs)", scope: ".wr-sidebar" },
       { name: "--wr-sidebar-subtitle-line-height", default: "var(--wr-text-xs-leading)", scope: ".wr-sidebar" },
     ],

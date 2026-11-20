@@ -169,7 +169,7 @@ export const UPDATED = {
   "reference/components/schema-form": "16.3.0",
   "reference/components/segmented": "16.6.0",
   "reference/components/select": "16.6.0",
-  "reference/components/sidebar": "15.0.0",
+  "reference/components/sidebar": "16.7.0",
   "reference/components/skeleton": "15.6.0",
   "reference/components/slider": "16.3.0",
   "reference/components/sortable-list": "16.2.0",
