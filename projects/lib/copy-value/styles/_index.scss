@@ -47,8 +47,8 @@
     padding: var(--wr-copy-value-button-padding);
     // WCAG 2.5.8 on its own: in a linked table row the row is a target under
     // the button, so the spacing exception never applies there.
-    min-inline-size: 1.5rem; // 24px
-    min-block-size: 1.5rem;
+    min-inline-size: 24px;
+    min-block-size: 24px;
     border: 0;
     border-radius: var(--wr-copy-value-button-radius);
     background: transparent;
