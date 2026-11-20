@@ -1020,7 +1020,11 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
    * the `[options]` item, else the one kept from an earlier pass, else the value.
    */
   itemFor(value: unknown): unknown {
-    return this.itemsByValue().get(value) ?? this.selectedItems().get(value) ?? value;
+    // `has`, not `??`: an option item may itself be null.
+    const byValue = this.itemsByValue();
+    if (byValue.has(value)) return byValue.get(value);
+    const selected = this.selectedItems();
+    return selected.has(value) ? selected.get(value) : value;
   }
 
   /** The first of `dynamicOptions()` carrying each value. */
