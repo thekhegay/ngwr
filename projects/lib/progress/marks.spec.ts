@@ -151,10 +151,15 @@ describe('WrProgress marks', () => {
  */
 describe('WrProgress mark labels that would touch', () => {
   const rects: Record<string, [left: number, right: number]> = {};
+  let trackWidth = 0;
 
   beforeEach(() => {
     for (const key of Object.keys(rects)) delete rects[key];
+    trackWidth = 0;
     vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
+      if (this.classList.contains('wr-progress')) {
+        return { left: 0, right: trackWidth, width: trackWidth, top: 0, bottom: 0, height: 0, x: 0, y: 0 } as DOMRect;
+      }
       const [left, right] = (this.classList.contains('wr-progress__mark-text') && rects[this.textContent]) || [0, 0];
       return { left, right, width: right - left, top: 0, bottom: 0, height: 0, x: left, y: 0 } as DOMRect;
     });
@@ -180,6 +185,19 @@ describe('WrProgress mark labels that would touch', () => {
     // `b` overlaps `a`; `c` is closer than the gap to `a`; `d` clears `a`, the last one shown.
     expect(hidden(fixture)).toEqual(['b', 'c']);
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.wr-progress__mark')).toHaveLength(4);
+
+    fixture.destroy();
+  });
+
+  it('hides a label wider than the bar, keeping its tick', async () => {
+    trackWidth = 50;
+    Object.assign(rects, { wide: [0, 80] });
+    const fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.marks.set([{ value: 50, label: 'wide' }]);
+    await fixture.whenStable();
+
+    expect(hidden(fixture)).toEqual(['wide']);
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('.wr-progress__mark')).toHaveLength(1);
 
     fixture.destroy();
   });
