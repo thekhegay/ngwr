@@ -85,10 +85,8 @@ describe('WrTooltip', () => {
   it('passes position through', () => {
     hover('icon-only');
 
-    const panel = pane()!;
-    const host = el('icon-only').getBoundingClientRect();
-    expect(panel).not.toBeNull();
-    expect(panel.getBoundingClientRect().top).toBeGreaterThanOrEqual(host.top);
+    // jsdom lays nothing out, so the placement class is what says where it went.
+    expect(pane()?.classList.contains('wr-tooltip-overlay--bottom')).toBe(true);
   });
 
   it('stays shut while wrPopoverDisabled', () => {
