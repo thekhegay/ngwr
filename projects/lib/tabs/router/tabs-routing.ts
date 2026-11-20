@@ -133,7 +133,10 @@ export class WrTabsRouting implements WrTabsRoutingAdapter {
   }
 
   isActive(commands: string | readonly string[], exact = false): boolean {
-    return containsTree(this.router.parseUrl(this.url()), this.tree(commands), exact ? MATCH_EXACT : MATCH);
+    // Read for the dependency only: the router's own URL is already the new one
+    // for a `NavigationEnd` subscriber that runs before this adapter's.
+    this.url();
+    return containsTree(this.router.parseUrl(this.router.url), this.tree(commands), exact ? MATCH_EXACT : MATCH);
   }
 
   navigate(commands: string | readonly string[], event: MouseEvent): void {
