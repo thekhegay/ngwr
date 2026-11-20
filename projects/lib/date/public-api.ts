@@ -1,4 +1,5 @@
 export { WrDateAdapter, WrNativeDateAdapter, wrIsNamedFormat } from './wr-date-adapter';
+export { wrFromDay, wrToDay, wrToday } from './day';
 export { wrIsDateOnly, wrToLocalDate } from './local-date';
 export { wrParseDate } from './parse-date';
 export { wrPeriodEnd, wrPeriodStart, wrWeekOfYear, wrWeekStart } from './period';

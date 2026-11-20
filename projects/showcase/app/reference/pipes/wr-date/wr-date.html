@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="wrDate"
-  updated="16.2.0"
+  updated="16.7.0"
   description="Format a date with a named preset or a token string."
   [keywords]="['pipe', 'wrDate', 'date', 'format', 'intl']"
   [labels]="['Pipe']"
@@ -143,6 +143,13 @@
         </tbody>
       </table>
     </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Day strings"
+    description="A day on the wire is `YYYY-MM-DD`. `wrToDay`, `wrToday` and `wrFromDay` from `ngwr/date` read and write it in the browser's zone, where `toISOString().slice(0, 10)` gives the UTC day. Plain functions. New in v16.7."
+  >
+    <ngwr-doc-code [code]="snippets.day" language="typescript" />
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

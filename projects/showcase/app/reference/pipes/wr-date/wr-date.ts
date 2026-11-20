@@ -111,6 +111,13 @@ wrParseDate(1772343000000);                // epoch milliseconds
 wrParseDate(1772343000000123, { epochUnit: 'auto' }); // microseconds, by size
 wrParseDate('2026-03-01 14:30:00', { zonelessIn: 'display', timeZone: '+0500' }); // 09:30 UTC
 wrParseDate('n/a');                        // null`,
+    day: `import { wrFromDay, wrToDay, wrToday } from 'ngwr/date';
+
+wrToDay(new Date(2026, 2, 1, 0, 30)); // '2026-03-01', in every zone
+wrToday();                            // the same for now
+wrFromDay('2026-03-01');              // 1 March 2026, 00:00 local
+wrFromDay('2026-02-30');              // null
+wrFromDay('2026-03-01T09:30:00Z');    // null: wrParseDate reads that`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -132,6 +139,26 @@ wrParseDate('n/a');                        // null`,
       description:
         'From `ngwr/date`. A backend value as a `Date`: the space form, a date-only string as the local day, an ISO string, an epoch number or a `Date`. `null` for anything that holds no date. `options`: `epochUnit` (`ms`, `us`, `s`, `auto`), `zonelessIn` (`browser`, `display`, `utc`) and the `timeZone` that `display` reads in.',
       type: '(value: Date | string | number | null | undefined, options?: WrParseDateOptions) => Date | null',
+      default: '—',
+    },
+    {
+      name: 'wrToDay',
+      description:
+        "From `ngwr/date`. The local calendar day of a `Date` as `YYYY-MM-DD`. `''` for an Invalid Date and a year outside 0 to 9999.",
+      type: '(date: Date) => string',
+      default: '—',
+    },
+    {
+      name: 'wrToday',
+      description: "From `ngwr/date`. Today as `YYYY-MM-DD`, in the browser's zone.",
+      type: '() => string',
+      default: '—',
+    },
+    {
+      name: 'wrFromDay',
+      description:
+        'From `ngwr/date`. A `YYYY-MM-DD` string as that day at local midnight. `null` for any other form and for a day no calendar has, such as `2026-02-30`.',
+      type: '(day: string | null | undefined) => Date | null',
       default: '—',
     },
   ];
