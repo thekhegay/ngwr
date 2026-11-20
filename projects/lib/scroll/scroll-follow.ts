@@ -221,25 +221,57 @@ export class WrScrollFollow {
 
     let parent: Element = host;
     for (let depth = 0; depth < WRAPPER_DEPTH; depth++) {
-      let found: Anchor | null = null;
-      let boxes = 0;
-      for (let child = parent.lastElementChild; child; child = child.previousElementSibling) {
-        const rect = child.getBoundingClientRect();
-        // `display: none` and `display: contents` have no box to hold on to.
-        if (!rect.width && !rect.height) continue;
-        boxes++;
-        if (!found && rect.top < box.bottom) found = { node: child, offset: rect.top - box.top };
-        if (found && boxes > 1) break;
-      }
+      const found = this.lowestInView(parent, box);
       if (!found) break;
-      anchors.push(found);
+      anchors.push(found.anchor);
       // An only child is a wrapper, and its top does not move when rows are added inside it.
-      if (boxes > 1) break;
-      parent = found.node;
+      if (found.others) break;
+      parent = found.anchor.node;
     }
 
     this.anchors = anchors;
     this.anchorsTop = host.scrollTop;
+  }
+
+  /**
+   * The last child of `parent` that starts above the bottom of `box`, found by
+   * bisection: rows stack top to bottom, so only the ones around the view are
+   * measured, not every row below it. A child without a box (`display: none`,
+   * `display: contents`) has nothing to hold on to and is stepped over.
+   * `others` is whether `parent` has a second child with a box.
+   */
+  private lowestInView(parent: Element, box: DOMRect): { anchor: Anchor; others: boolean } | null {
+    const children = parent.children;
+    const sized = (index: number): DOMRect | null => {
+      const rect = children[index].getBoundingClientRect();
+      return rect.width || rect.height ? rect : null;
+    };
+
+    let found = -1;
+    let foundRect: DOMRect | null = null;
+    let low = 0;
+    let high = children.length - 1;
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      let probe = mid;
+      let rect = sized(probe);
+      while (!rect && probe > low) rect = sized(--probe);
+      if (!rect) {
+        low = mid + 1;
+      } else if (rect.top < box.bottom) {
+        found = probe;
+        foundRect = rect;
+        low = mid + 1;
+      } else {
+        high = probe - 1;
+      }
+    }
+    if (!foundRect) return null;
+
+    let others = false;
+    for (let i = found - 1; i >= 0 && !others; i--) others = sized(i) !== null;
+    for (let i = found + 1; i < children.length && !others; i++) others = sized(i) !== null;
+    return { anchor: { node: children[found], offset: foundRect.top - box.top }, others };
   }
 
   /** Put the remembered row back where it was. */
