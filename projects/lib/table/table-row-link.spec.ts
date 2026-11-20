@@ -222,6 +222,24 @@ describe('WrTable rowLink', () => {
     expect(document.getElementById(links()[1].getAttribute('aria-labelledby')!)!.textContent.trim()).toBe('Tim');
   });
 
+  it('makes the tree row the only tab stop, and Enter on it follows the link', () => {
+    set(h => h.childrenKey.set('reports'));
+    expect(links().every(a => a.getAttribute('tabindex') === '-1')).toBe(true);
+
+    const seen: string[] = [];
+    host().addEventListener('click', event => {
+      const a = (event.target as Element).closest('.wr-table__row-link');
+      if (a) seen.push(a.getAttribute('href')!);
+    });
+    const press = (key: string): void => {
+      rows()[1].dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+    };
+    press('Enter');
+    expect(seen).toEqual(['/users/2']);
+    press(' ');
+    expect(seen).toEqual(['/users/2']);
+  });
+
   it('keeps the link out of a pinned cell, which would hold it inside its own box', () => {
     set(h =>
       h.columns.set({
