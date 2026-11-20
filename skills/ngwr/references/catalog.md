@@ -183,7 +183,7 @@ root barrel for components: the root `ngwr` exports only `provideWr()`.
 | `ngwr/platform` | `import { WrPlatform } from 'ngwr/platform'` | — |
 | `ngwr/popconfirm` | `import { WrPopconfirm } from 'ngwr/popconfirm'` | `wr-popconfirm` `[wrPopconfirm]` |
 | `ngwr/popconfirm/testing` | `import { WrPopconfirmHarness } from 'ngwr/popconfirm/testing'` | — |
-| `ngwr/popover` | `import { WrPopover } from 'ngwr/popover'` | `[wrPopover]` |
+| `ngwr/popover` | `import { WrPopover } from 'ngwr/popover'` | `[wrPopover]` `[wrTooltip]` |
 | `ngwr/popover/testing` | `import { WrPopoverHarness } from 'ngwr/popover/testing'` | — |
 | `ngwr/progress` | `import { WrProgress } from 'ngwr/progress'` | `wr-progress` |
 | `ngwr/pull-to-refresh` | `import { WrPullToRefresh } from 'ngwr/pull-to-refresh'` | `wr-pull-to-refresh` |
