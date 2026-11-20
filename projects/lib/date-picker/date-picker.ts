@@ -603,8 +603,8 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
   private lastKey: string | null = null;
 
   constructor() {
+    if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('date-picker');
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
-      wrCheckStyles('date-picker');
       effect(() => {
         const mode = this.mode();
         if (this.valueFormat() !== 'day' || (mode !== 'time' && mode !== 'datetime')) return;
