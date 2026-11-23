@@ -284,6 +284,7 @@ export const ROUTES = {
       wrDate: { path: 'wr-date', title: 'wrDate' },
       wrDuration: { path: 'wr-duration', title: 'wrDuration' },
       wrInitials: { path: 'wr-initials', title: 'wrInitials' },
+      wrList: { path: 'wr-list', title: 'wrList' },
       wrTruncate: { path: 'wr-truncate', title: 'wrTruncate' },
       wrMark: { path: 'wr-mark', title: 'wrMark' },
       wrPlural: { path: 'wr-plural', title: 'wrPlural' },

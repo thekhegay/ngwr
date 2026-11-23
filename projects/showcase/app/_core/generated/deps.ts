@@ -512,6 +512,7 @@ export const DOC_ROUTES: Readonly<
   "reference/pipes/wr-date": {"title":"wrDate","kind":"Pipe","labels":["Pipe"],"description":"Format a date with a named preset or a token string."},
   "reference/pipes/wr-duration": {"title":"wrDuration","kind":"Pipe","labels":["Pipe"],"description":"Show a span of milliseconds as clock digits, as units or as a timer."},
   "reference/pipes/wr-initials": {"title":"wrInitials","kind":"Pipe","labels":["Pipe"],"description":"Up to two initials of a name, one grapheme each."},
+  "reference/pipes/wr-list": {"title":"wrList","kind":"Pipe","labels":["Pipe"],"description":"Join a list with the commas and the last \"and\" or \"or\" of the app locale."},
   "reference/pipes/wr-mark": {"title":"wrMark","kind":"Pipe","labels":["Pipe"],"description":"Highlight a search query in text with `<mark>`."},
   "reference/pipes/wr-number": {"title":"wrNumber","kind":"Pipe","labels":["Pipe"],"description":"Format a number, percent or price in the app locale."},
   "reference/pipes/wr-plural": {"title":"wrPlural","kind":"Pipe","labels":["Pipe"],"description":"Pick the right word form for a count, in any language."},

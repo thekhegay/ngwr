@@ -1,0 +1,80 @@
+<ngwr-doc-page
+  title="wrList"
+  since="16.9.0"
+  description='Join a list with the commas and the last "and" or "or" of the app locale.'
+  [keywords]="['pipe', 'wrList', 'list', 'join', 'and', 'or', 'conjunction', 'disjunction', 'i18n']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="`join(', ')` drops the last word and is wrong in every language. The pipe joins through `Intl.ListFormat` in `LOCALE_ID`."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            <tr>
+              <th scope="row"><code>wrList</code></th>
+              <td>{{ names | wrList }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>wrList: 'disjunction'</code></th>
+              <td>{{ names | wrList: 'disjunction' }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>wrList: 'unit'</code></th>
+              <td>{{ parts | wrList: 'unit' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Playground"
+    description="Blank items are left out. One item renders as it is, none as an empty string."
+  >
+    <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ items() | wrList: options() }}</p>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In TypeScript"
+    description="`wrFormatList` gives the same text for a string built in code, in the locale you pass."
+  >
+    <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Locale</th>
+              <th>And</th>
+              <th>Or</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of locales; track row.locale) {
+              <tr>
+                <th scope="row">
+                  <code>{{ row.locale }}</code>
+                </th>
+                <td>{{ row.and }}</td>
+                <td>{{ row.or }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

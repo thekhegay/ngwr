@@ -796,6 +796,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   ],
   'reference/pipes/wr-plural': [
     'reference/pipes/wr-number',
+    'reference/pipes/wr-list',
     'guides/translations/interpolation',
     'reference/services/i18n',
   ],
@@ -803,6 +804,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/utils/wr-initials',
     'reference/components/avatar',
     'reference/pipes/wr-truncate',
+  ],
+  'reference/pipes/wr-list': [
+    'reference/pipes/wr-plural',
+    'reference/pipes/wr-number',
+    'guides/translations/interpolation',
   ],
   'reference/pipes/wr-range': ['reference/components/skeleton'],
   'reference/pipes/wr-truncate': [
