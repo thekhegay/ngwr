@@ -303,7 +303,7 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   /** Emitted with the file when the retry button of a failed row is pressed. */
   readonly retry = output<File>();
 
-  /** Emitted on commit so a bound field can mark itself touched. */
+  /** Emitted on commit and when focus leaves the drop zone, so a bound field can mark itself touched. */
   readonly touch = output<void>();
 
   protected readonly picker = viewChild.required<ElementRef<HTMLInputElement>>('picker');
