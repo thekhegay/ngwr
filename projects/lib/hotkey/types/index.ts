@@ -10,6 +10,8 @@
  * Modifiers: `ctrl`, `alt`, `shift`, `meta`, `cmd` (alias for `meta`),
  * `mod` (auto: `cmd` on macOS, `ctrl` elsewhere). Last token is the key.
  *
+ * The plus key is a trailing `+` or `plus`: `'mod++'`, `'mod+plus'`.
+ *
  * Examples: `'ctrl+k'`, `'cmd+shift+p'`, `'escape'`, `'mod+/'`, `'ArrowDown'`.
  */
 export type WrHotkeySpec = string;

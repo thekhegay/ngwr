@@ -23,6 +23,14 @@ describe('wrParseHotkeySpec', () => {
     expect(wrParseHotkeySpec('mod+s', true)).toMatchObject({ ctrl: false, meta: true });
   });
 
+  it('binds the plus key as a trailing + or as the plus alias', () => {
+    const expected = { ctrl: true, alt: false, shift: true, meta: false, key: '+' };
+    expect(wrParseHotkeySpec('ctrl+shift++')).toEqual(expected);
+    expect(wrParseHotkeySpec('ctrl+shift+plus')).toEqual(expected);
+    expect(wrParseHotkeySpec('+')).toMatchObject({ key: '+' });
+    expect(wrMatchesHotkey(press('+', { ctrlKey: true, shiftKey: true }), wrParseHotkeySpec('ctrl+shift++'))).toBe(true);
+  });
+
   it('normalizes key aliases to what KeyboardEvent.key actually reports', () => {
     expect(wrParseHotkeySpec('esc').key).toBe('escape');
     expect(wrParseHotkeySpec('space').key).toBe(' ');
