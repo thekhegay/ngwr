@@ -179,6 +179,17 @@ describe('WrCarousel', () => {
     expect(track().style.transform).toBe('translateX(0%)');
   });
 
+  it('repairs a NaN or fractional index written by the host', () => {
+    fixture.componentInstance.active.set(Number.NaN);
+    fixture.detectChanges();
+    expect(active()).toBe(0);
+    expect(track().style.transform).toBe('translateX(0%)');
+
+    fixture.componentInstance.active.set(1.5);
+    fixture.detectChanges();
+    expect(active()).toBe(1);
+  });
+
   it('pulls an out-of-range write back into the range', () => {
     fixture.componentInstance.active.set(9);
     fixture.detectChanges();

@@ -330,7 +330,8 @@ export class WrPagination {
     // used to accept at both ends.
     effect(() => {
       const page = this.page();
-      const floored = Math.max(1, page);
+      // NaN and a fraction from the host are repaired here: `Math.min` and `Math.max` keep NaN.
+      const floored = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
       const clamped = this.total() <= 0 ? floored : Math.min(floored, this.totalPages());
       if (clamped !== page) this.page.set(clamped);
     });

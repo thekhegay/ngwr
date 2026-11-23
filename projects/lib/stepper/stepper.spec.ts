@@ -168,6 +168,18 @@ describe('WrStepper', () => {
     expect(currents()).toEqual(['step', '-', '-']);
   });
 
+  it('repairs a NaN or fractional active index written by the host', () => {
+    fixture.componentInstance.active.set(Number.NaN);
+    fixture.detectChanges();
+    expect(active()).toBe(0);
+    expect(currents()).toEqual(['step', '-', '-']);
+
+    fixture.componentInstance.active.set(1.5);
+    fixture.detectChanges();
+    expect(active()).toBe(1);
+    expect(currents()).toEqual(['-', 'step', '-']);
+  });
+
   it('follows the last step down when it is removed from under the active index', () => {
     fixture.componentInstance.active.set(2);
     fixture.detectChanges();

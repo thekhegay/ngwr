@@ -769,6 +769,21 @@ describe('WrPagination emits a modifier for every documented align and shape', (
    * locked the tab. `NaN` arrived the same way from a `pageSize` bound to an
    * emptied number field.
    */
+  describe('a page that is not a whole number', () => {
+    it('repairs NaN to the first page and a fraction down', () => {
+      const fx = TestBed.createComponent(Host);
+      fx.componentInstance.page.set(Number.NaN);
+      fx.detectChanges();
+      expect(fx.componentInstance.page()).toBe(1);
+
+      fx.componentInstance.page.set(2.5);
+      fx.detectChanges();
+      expect(fx.componentInstance.page()).toBe(2);
+      const current = (fx.nativeElement as HTMLElement).querySelector('[aria-current="page"]');
+      expect(current?.textContent?.trim()).toBe('2');
+    });
+  });
+
   describe('a page size that is not a positive number', () => {
     for (const size of [0, -5, Number.NaN]) {
       it(`renders one page and a sane range for pageSize=${String(size)}`, () => {
