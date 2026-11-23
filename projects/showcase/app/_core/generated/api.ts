@@ -23,8276 +23,1927 @@ import type { DocApiRow } from '#core/components';
 export const API = {
   // <[wrAffix]>
   WrAffix: [
-    {
-      name: 'wrAffixOffsetTop',
-      description: 'Pixels from the top of the scroll container when stuck.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: '(wrAffixChange)',
-      description:
-        'Fires when the element pins or unpins — `true` once it has stuck, `false` when it returns to the flow. Use it to swap a shadow or a compact layout.',
-      type: 'boolean',
-    },
+    { name: "wrAffixOffsetTop", description: "Pixels from the top of the scroll container when stuck.", type: "number", default: "0" },
+    { name: "(wrAffixChange)", description: "Fires when the element pins or unpins — `true` once it has stuck, `false` when it returns to the flow. Use it to swap a shadow or a compact layout.", type: "boolean" },
   ],
   // <wr-alert>
   WrAlert: [
-    {
-      name: 'closeLabel',
-      description: "Accessible name. Falls back to `alert.close`, then `'Close alert'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'title',
-      description: 'Optional headline shown at the top of the alert.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'type', description: 'Visual variant.', type: 'WrAlertType', default: "'info'" },
-    {
-      name: 'iconName',
-      description: 'Override the default per-type icon with any ngwr icon name.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
-    {
-      name: 'message',
-      description: 'Optional secondary message rendered below the title.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'icon',
-      description:
-        'When `true`, renders a leading status icon matching the `type`. Pass `false` to hide. Ignored when `iconName` is set.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'closable', description: 'When `true`, renders a close button.', type: 'boolean', default: 'false' },
-    {
-      name: '(closed)',
-      description:
-        'Emitted when the user dismisses the alert via the close button. If the close button had focus, focus moves on to the next focusable element after the alert (or the one before it, when nothing follows) — unless a `(closed)` handler has placed it somewhere itself.',
-      type: 'void',
-    },
+    { name: "closeLabel", description: "Accessible name. Falls back to `alert.close`, then `'Close alert'`.", type: "string | null", default: "null" },
+    { name: "title", description: "Optional headline shown at the top of the alert.", type: "string | null", default: "null" },
+    { name: "type", description: "Visual variant.", type: "WrAlertType", default: "'info'" },
+    { name: "iconName", description: "Override the default per-type icon with any ngwr icon name.", type: "WrIconName | null", default: "null" },
+    { name: "message", description: "Optional secondary message rendered below the title.", type: "string | null", default: "null" },
+    { name: "icon", description: "When `true`, renders a leading status icon matching the `type`. Pass `false` to hide. Ignored when `iconName` is set.", type: "boolean", default: "true" },
+    { name: "closable", description: "When `true`, renders a close button.", type: "boolean", default: "false" },
+    { name: "(closed)", description: "Emitted when the user dismisses the alert via the close button. If the close button had focus, focus moves on to the next focusable element after the alert (or the one before it, when nothing follows) — unless a `(closed)` handler has placed it somewhere itself.", type: "void" },
   ],
   // <wr-anchor>
   WrAnchor: [
-    {
-      name: 'links',
-      description:
-        'The entries, in DOCUMENT ORDER — the scroll spy walks them top to bottom and stops at the first target below the cursor line, so a list in any other order highlights the wrong entry.',
-      type: 'readonly WrAnchorLink[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name for the navigation landmark. Falls back to `anchor.label`, then `'Table of contents'` — it used to be that English string, hard-coded on the host, in a landmark a screen reader reads out on every page.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'offset',
-      description: 'Pixel offset subtracted on scroll — for sticky headers.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'hitArea',
-      description: "Highlight an item when its target's top is within this many px of the offset line.",
-      type: 'number',
-      default: '80',
-    },
+    { name: "links", description: "The entries, in DOCUMENT ORDER — the scroll spy walks them top to bottom and stops at the first target below the cursor line, so a list in any other order highlights the wrong entry.", type: "readonly WrAnchorLink[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `anchor.label`, then `'Table of contents'` — it used to be that English string, hard-coded on the host, in a landmark a screen reader reads out on every page.", type: "string | null", default: "null" },
+    { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
+    { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
   ],
   // <wr-aurora>
   WrAurora: [
-    { name: 'edge', description: 'The edge the curtain hangs from.', type: 'WrAuroraEdge', default: "'top'" },
-    {
-      name: 'height',
-      description: 'How far into the region the curtain reaches, as a share of its height, from 0.1 to 1.',
-      type: 'number',
-      default: '0.5',
-    },
-    {
-      name: 'amplitude',
-      description:
-        "How far the free edge's wave moves it, a multiplier: one is about a quarter of the curtain's height; none is a straight edge.",
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'scale',
-      description:
-        'The size of the shapes, a multiplier: one puts about a wave and a half across the width; more is broader.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'speed',
-      description: 'How fast the wave, the rays and the hue move, a multiplier: none holds the curtain still.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'glow',
-      description: "How strong the light is, a multiplier on the wash's alpha and the glow.",
-      type: 'number',
-      default: '1',
-    },
-    { name: 'rays', description: 'How strongly the rays show, from none to one.', type: 'number', default: '0.6' },
-    {
-      name: 'layers',
-      description: 'How many curtains hang at different depths, from one to three.',
-      type: 'number',
-      default: '2',
-    },
-    {
-      name: 'intro',
-      description: 'Whether the curtain fades and lengthens in when first on screen.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'follow',
-      description: 'Whether the curtain drifts gently toward the pointer over the parent.',
-      type: 'boolean',
-      default: 'true',
-    },
+    { name: "edge", description: "The edge the curtain hangs from.", type: "WrAuroraEdge", default: "'top'" },
+    { name: "height", description: "How far into the region the curtain reaches, as a share of its height, from 0.1 to 1.", type: "number", default: "0.5" },
+    { name: "amplitude", description: "How far the free edge's wave moves it, a multiplier: one is about a quarter of the curtain's height; none is a straight edge.", type: "number", default: "1" },
+    { name: "scale", description: "The size of the shapes, a multiplier: one puts about a wave and a half across the width; more is broader.", type: "number", default: "1" },
+    { name: "speed", description: "How fast the wave, the rays and the hue move, a multiplier: none holds the curtain still.", type: "number", default: "1" },
+    { name: "glow", description: "How strong the light is, a multiplier on the wash's alpha and the glow.", type: "number", default: "1" },
+    { name: "rays", description: "How strongly the rays show, from none to one.", type: "number", default: "0.6" },
+    { name: "layers", description: "How many curtains hang at different depths, from one to three.", type: "number", default: "2" },
+    { name: "intro", description: "Whether the curtain fades and lengthens in when first on screen.", type: "boolean", default: "false" },
+    { name: "follow", description: "Whether the curtain drifts gently toward the pointer over the parent.", type: "boolean", default: "true" },
   ],
   // <[wrAutofocus]>
   WrAutofocus: [
-    {
-      name: 'wrAutofocus',
-      description:
-        "Truthy = focus the host, `'first'` = focus the first focusable element inside it. Defaults to `true` so bare `wrAutofocus` works.",
-      type: 'boolean',
-      default: 'true',
-    },
+    { name: "wrAutofocus", description: "Truthy = focus the host, `'first'` = focus the first focusable element inside it. Defaults to `true` so bare `wrAutofocus` works.", type: "boolean", default: "true" },
   ],
   // <textarea[wrAutosize]>
   WrAutosize: [
-    {
-      name: 'minRows',
-      description:
-        'Smallest height, in rendered rows. The textarea never shrinks below it, so a field that starts empty still reserves the room.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'maxRows',
-      description:
-        'Largest height, in rendered rows. `0` — the default — lets it grow without a ceiling; any other value caps the height and the textarea scrolls past it.',
-      type: 'number',
-      default: '0',
-    },
+    { name: "minRows", description: "Smallest height, in rendered rows. The textarea never shrinks below it, so a field that starts empty still reserves the room.", type: "number", default: "1" },
+    { name: "maxRows", description: "Largest height, in rendered rows. `0` — the default — lets it grow without a ceiling; any other value caps the height and the textarea scrolls past it.", type: "number", default: "0" },
   ],
   // <wr-avatar>
   WrAvatar: [
-    {
-      name: 'url',
-      description:
-        'Image URL. Projected content (e.g. initials) shows while it is unset, loading or broken, and gives way once the image has loaded.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'alt',
-      description:
-        "Alt text for the image. Falls back to `avatar.alt`, then `'Avatar'` — pass the person's name where you have it, since that is what a reader wants. With an `alt`, projected initials are hidden from assistive technology while an image is in play, so the name is announced once. Without one, the image carries only the generic name, so the initials stay announced beside it — visually hidden once it has loaded, never dropped. `alt=\"\"` marks the avatar decorative, as it does on an `<img>`: the image is silent and so are the initials while an image is in play — for an avatar beside a name that is already printed. After a failed load with nothing projected, the `alt` is still announced, so a broken image never leaves the avatar nameless.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'name',
-      description:
-        "The person's name. It is the image's alt text when `alt` is not given (`alt` wins when both are, `alt=\"\"` included), and its initials are the fallback when nothing is projected: shown with no `url`, while the image loads and after it fails, hidden once the image has loaded. Announced as the name rather than as two letters, and once only beside an image. A name with no initial (`'...'`) draws nothing and leaves the spinner to the image.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tint',
-      description:
-        "Colour the initials avatar from a stable hash of `name`: the same name is the same tint on every render, server and client alike, and a new name is a new tint. Five tints, each an intent's `-soft` fill under its `-ink` text, so the initials reach 4.5:1 in both schemes. Nothing without `name`, and nothing while projected content stands in for the initials.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'shape',
-      description:
-        'Corner treatment. `rounded` (default) is a soft rounded square, `circle` is the classic profile avatar, `squircle` is the iOS look.',
-      type: 'WrAvatarShape',
-      default: "'rounded'",
-    },
-    {
-      name: 'size',
-      description:
-        'Box size. See {@link WrAvatarSize} for accepted values. The resolved value is published on the host as `--wr-avatar-size`.',
-      type: 'WrAvatarSize',
-      default: "'6rem'",
-    },
+    { name: "url", description: "Image URL. Projected content (e.g. initials) shows while it is unset, loading or broken, and gives way once the image has loaded.", type: "string | null", default: "null" },
+    { name: "alt", description: "Alt text for the image. Falls back to `avatar.alt`, then `'Avatar'` — pass the person's name where you have it, since that is what a reader wants. With an `alt`, projected initials are hidden from assistive technology while an image is in play, so the name is announced once. Without one, the image carries only the generic name, so the initials stay announced beside it — visually hidden once it has loaded, never dropped. `alt=\"\"` marks the avatar decorative, as it does on an `<img>`: the image is silent and so are the initials while an image is in play — for an avatar beside a name that is already printed. After a failed load with nothing projected, the `alt` is still announced, so a broken image never leaves the avatar nameless.", type: "string | null", default: "null" },
+    { name: "name", description: "The person's name. It is the image's alt text when `alt` is not given (`alt` wins when both are, `alt=\"\"` included), and its initials are the fallback when nothing is projected: shown with no `url`, while the image loads and after it fails, hidden once the image has loaded. Announced as the name rather than as two letters, and once only beside an image. A name with no initial (`'...'`) draws nothing and leaves the spinner to the image.", type: "string | null", default: "null" },
+    { name: "tint", description: "Colour the initials avatar from a stable hash of `name`: the same name is the same tint on every render, server and client alike, and a new name is a new tint. Five tints, each an intent's `-soft` fill under its `-ink` text, so the initials reach 4.5:1 in both schemes. Nothing without `name`, and nothing while projected content stands in for the initials.", type: "boolean", default: "false" },
+    { name: "shape", description: "Corner treatment. `rounded` (default) is a soft rounded square, `circle` is the classic profile avatar, `squircle` is the iOS look.", type: "WrAvatarShape", default: "'rounded'" },
+    { name: "size", description: "Box size. See {@link WrAvatarSize} for accepted values. The resolved value is published on the host as `--wr-avatar-size`.", type: "WrAvatarSize", default: "'6rem'" },
   ],
   // <wr-avatar-group>
   WrAvatarGroup: [
-    {
-      name: 'max',
-      description:
-        'The most avatars drawn. Past it the rest are hidden and a "+N" avatar counts them. Unset, negative or not a number: no limit.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'label',
-      description: 'The group\'s accessible name, for example "Assignees". Without one the group has no role.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "max", description: "The most avatars drawn. Past it the rest are hidden and a \"+N\" avatar counts them. Unset, negative or not a number: no limit.", type: "number | null", default: "null" },
+    { name: "label", description: "The group's accessible name, for example \"Assignees\". Without one the group has no role.", type: "string | null", default: "null" },
   ],
   // <wr-back-top>
   WrBackTop: [
-    {
-      name: 'visibilityThreshold',
-      description: 'Show the button once `window.scrollY` exceeds this many pixels.',
-      type: 'number',
-      default: '400',
-    },
-    {
-      name: 'offset',
-      description: 'Pixel offset subtracted from the scroll target — for sticky headers.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'ariaLabel',
-      description: "Accessible label for the button. Falls back to `backTop.label`, then `'Back to top'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "visibilityThreshold", description: "Show the button once `window.scrollY` exceeds this many pixels.", type: "number", default: "400" },
+    { name: "offset", description: "Pixel offset subtracted from the scroll target — for sticky headers.", type: "number", default: "0" },
+    { name: "ariaLabel", description: "Accessible label for the button. Falls back to `backTop.label`, then `'Back to top'`.", type: "string | null", default: "null" },
   ],
   // <wr-badge>
   WrBadge: [
-    {
-      name: 'color',
-      description:
-        'Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is decoration or category, never the state on its own: four of the five intents share one lightness and `success` against `danger` is 1.004:1, so the label has to say the state (`Offline`, not a red `Status`). A badge draws no icon — when a chip must stand for a status without words, use `<wr-tag>` with its `icon` input.',
-      type: 'WrColor | null',
-      default: "'primary'",
-    },
-    { name: 'size', description: 'Size variant.', type: 'WrBadgeSize', default: "'md'" },
-    {
-      name: 'shape',
-      description:
-        'Corner treatment. Mirrors `<wr-btn>` — `rounded` (default) uses the small form-radius; `pill` rounds the ends fully.',
-      type: 'WrBadgeShape',
-      default: "'rounded'",
-    },
-    {
-      name: 'outlined',
-      description: 'Outlined style — transparent fill, colored border and text.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "color", description: "Color variant. Maps to `--wr-color-*` CSS variables from the theme. It is decoration or category, never the state on its own: four of the five intents share one lightness and `success` against `danger` is 1.004:1, so the label has to say the state (`Offline`, not a red `Status`). A badge draws no icon — when a chip must stand for a status without words, use `<wr-tag>` with its `icon` input.", type: "WrColor | null", default: "'primary'" },
+    { name: "size", description: "Size variant.", type: "WrBadgeSize", default: "'md'" },
+    { name: "shape", description: "Corner treatment. Mirrors `<wr-btn>` — `rounded` (default) uses the small form-radius; `pill` rounds the ends fully.", type: "WrBadgeShape", default: "'rounded'" },
+    { name: "outlined", description: "Outlined style — transparent fill, colored border and text.", type: "boolean", default: "false" },
   ],
   // <wr-bar-chart>
   WrBarChart: [
-    {
-      name: 'data',
-      description:
-        "The bars, left to right. One series: a datum with no `color` of its own takes the chart's `color`, so by default every bar comes out the same. A negative value draws an empty bar with its number printed — or, beside `lines`, a bar down from zero. A value that is not a finite number is MISSING: an empty bar with no number printed, named by its label alone, an empty cell in the data table. Ignored while `series` has entries.",
-      type: 'readonly WrBarChartDatum[]',
-      default: '[]',
-    },
-    {
-      name: 'series',
-      description:
-        "Several series over the same categories: one bar per series in every category, side by side, or piled up with `stacked`. A series with no `color` takes the next entry from the chart's palette, and each takes the next dash for its outline, the first one solid. Wins over `data` while it has entries.",
-      type: 'readonly WrBarSeries[]',
-      default: '[]',
-    },
-    {
-      name: 'categories',
-      description:
-        "The categories' names for `series`, in order: a series takes one value per category. A category past the end of this list, which a longer series reaches, is named by its position, counting from 1, in `LOCALE_ID`'s digits. Not read with `data`, whose datums carry their own labels.",
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'lines',
-      description:
-        "Lines drawn over the bars, through the middle of each category, with a point at every value: a target, a rate, a running average beside the figures it describes. Each takes one value per category, on the bars' own value axis, and a fitted axis is fitted to the bars and the lines together. Works with `data` and with `series`, grouped or stacked, standing up or lying down, where the lines run down the rows. A line with no `color` takes the palette's next colour after the bars' — past the last series, or the palette's second beside `data` — and each takes the next dash and the next marker shape, the first solid with a circle, so two lines differ without hue. The legend lists every line after the series, keyed by its dash and its marker; the tooltip gives each line's value in the category; the data table a column per line after the series' columns, or after the bars'. A missing value breaks the line, and a lone value between two missing ones is a point with no line. Lines never stack, and print no value: the tooltip and each point's name carry it. Beside `data`, a negative bar draws down from zero rather than as an empty bar, since the lines' axis can reach below zero and an empty bar there would read as zero. The track keeps room at each end of the value axis for the largest marker, ring included, so a point on either end is not cut off.",
-      type: 'readonly WrBarLine[]',
-      default: '[]',
-    },
-    {
-      name: 'stacked',
-      description:
-        "Pile each category's bars on each other, in series order, so the end of the pile reads the total. Positive values pile up from zero and negative ones down from it, each sign on its own, so no bar crosses another. A missing value adds nothing. Each bar's accessible name, the tooltip and the data table keep each series' own value; the value printed past a pile (`showValues`) is the pile's total, one for each sign the category has, and announces itself as \"Total: 20\" (`barChart.total`). `series` only.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'orientation',
-      description:
-        "Which way the bars run. `horizontal` lays them along the inline axis, one row per category, with the names in a gutter at inline start as wide as the longest (up to `--wr-bar-chart-label-max-width`, then ellipsised). Under RTL the gutter is on the right and the bars grow leftwards. Lying down, `height` is the least the plot takes: the rows share it, but each bar's row keeps at least `--wr-bar-chart-row-min-size` (one line of the value's text), so a long list of categories or series grows the chart rather than thinning its bars to nothing.",
-      type: 'WrBarOrientation',
-      default: "'vertical'",
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name of the chart. Falls back to `barChart.label`, then `'Bar chart'`. Also the data table's caption.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'color',
-      description:
-        "Default bar colour when a datum has none: the chart palette's first colour, which is the brand colour unless `--wr-chart-1` says otherwise. `data` only.",
-      type: 'string',
-      default: "'var(--wr-chart-1)'",
-    },
-    {
-      name: 'showGrid',
-      description:
-        "Draw the gridlines: one across the plot at every tick of the value axis, level standing up and upright lying down. Their colour is `--wr-bar-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`. With the grid or the axis on, the value axis is snapped to round numbers; with both off it is fitted to the data.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showAxis',
-      description:
-        "Print the value axis' scale: a number at every tick, in a gutter at inline start standing up and under the plot lying down, written compact (`1.2K`) or through `valueFormat`. Decoration: the bars' names carry the values.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showValues',
-      description:
-        "Show value labels at each bar, past its end: above a bar standing up, beyond its end lying down — below (or before) a negative `series` bar, and the pile's total for each sign with `stacked`. A value too wide for a `series` bar standing up is left out rather than cut, since a cut number reads as another one; the tooltip and each bar's name carry it whole. Off by default, since the axis already reads the values.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'height',
-      description:
-        'Pixel height of the chart area. With `orientation="horizontal"` it is the least the plot takes: each bar\'s row keeps at least `--wr-bar-chart-row-min-size`, so rows that need more grow the plot past it.',
-      type: 'number',
-      default: '200',
-    },
-    {
-      name: 'max',
-      description:
-        'Explicit max value. `0` = auto. With `series` it fixes the positive end of the axis; the negative end is still fitted to the data. A value past it is drawn to the edge, and its name, the tooltip and the data table still give its own figure.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the bar's label and value on hover — with `series`, the category's name and a row per series shown. Pointer only — the accessible names already carry every value. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'showLegend',
-      description:
-        "Show the legend. With `series`, or beside `lines`, which it then lists. `'auto'` shows it when there is something to tell apart - two series or more, or any line - and leaves it out for a single series, which has nothing to key; `true` shows it for one series too.",
-      type: "boolean | 'auto'",
-      default: "'auto'",
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` and `hiddenLines` still hide a series from outside.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the bars give way to the loading message, over the grid and the axis the chart had.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the bars give way to the error message. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toggleableLegend',
-      description:
-        'Make each legend row a toggle button that shows and hides its series, through `hiddenSeries` — or its line, through `hiddenLines`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per row. With `series`, or beside `lines`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSeries',
-      description:
-        "The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values: it draws no bars and leaves its lane, so the others widen; it leaves the stack, the tooltip and the data table; and a fitted axis is fitted to the series still shown. The categories do not change, since they belong to the chart rather than to one series. The legend keeps the hidden series' row, struck through, so it can be shown again. A position past the end of `series` is kept and ignored.",
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'hiddenLines',
-      description:
-        "The positions in `lines` of the lines that are hidden, as `hiddenSeries` holds the series': a toggleable legend writes it, and a host may bind it with or without one, `[(hiddenLines)]`. A hidden line draws nothing and leaves the tooltip and the data table, and a fitted axis is fitted to what is still shown. The legend keeps its row, struck through. A position past the end of `lines` is kept and ignored.",
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render the chart's figures as a table that only assistive technology reaches: a row per category, headed by its name, and a column per series shown — or, with `data`, one column for the bars, headed \"Value\" (`barChart.value`) — then one per line shown, every value written the way the tooltip writes it. A missing value is an empty cell, and a stacked chart's table keeps each series' own values. Each bar's accessible name already carries its value; the table is for a reader who wants to move cell by cell. It is rendered beside the plot, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A hidden series or line leaves it.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        "Writes every number the chart shows: the labels at the bars, the tooltip and each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact labels from a thousand up (`1.2K`, `3.4M`).",
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
+    { name: "data", description: "The bars, left to right. One series: a datum with no `color` of its own takes the chart's `color`, so by default every bar comes out the same. A negative value draws an empty bar with its number printed — or, beside `lines`, a bar down from zero. A value that is not a finite number is MISSING: an empty bar with no number printed, named by its label alone, an empty cell in the data table. Ignored while `series` has entries.", type: "readonly WrBarChartDatum[]", default: "[]" },
+    { name: "series", description: "Several series over the same categories: one bar per series in every category, side by side, or piled up with `stacked`. A series with no `color` takes the next entry from the chart's palette, and each takes the next dash for its outline, the first one solid. Wins over `data` while it has entries.", type: "readonly WrBarSeries[]", default: "[]" },
+    { name: "categories", description: "The categories' names for `series`, in order: a series takes one value per category. A category past the end of this list, which a longer series reaches, is named by its position, counting from 1, in `LOCALE_ID`'s digits. Not read with `data`, whose datums carry their own labels.", type: "readonly string[]", default: "[]" },
+    { name: "lines", description: "Lines drawn over the bars, through the middle of each category, with a point at every value: a target, a rate, a running average beside the figures it describes. Each takes one value per category, on the bars' own value axis, and a fitted axis is fitted to the bars and the lines together. Works with `data` and with `series`, grouped or stacked, standing up or lying down, where the lines run down the rows. A line with no `color` takes the palette's next colour after the bars' — past the last series, or the palette's second beside `data` — and each takes the next dash and the next marker shape, the first solid with a circle, so two lines differ without hue. The legend lists every line after the series, keyed by its dash and its marker; the tooltip gives each line's value in the category; the data table a column per line after the series' columns, or after the bars'. A missing value breaks the line, and a lone value between two missing ones is a point with no line. Lines never stack, and print no value: the tooltip and each point's name carry it. Beside `data`, a negative bar draws down from zero rather than as an empty bar, since the lines' axis can reach below zero and an empty bar there would read as zero. The track keeps room at each end of the value axis for the largest marker, ring included, so a point on either end is not cut off.", type: "readonly WrBarLine[]", default: "[]" },
+    { name: "stacked", description: "Pile each category's bars on each other, in series order, so the end of the pile reads the total. Positive values pile up from zero and negative ones down from it, each sign on its own, so no bar crosses another. A missing value adds nothing. Each bar's accessible name, the tooltip and the data table keep each series' own value; the value printed past a pile (`showValues`) is the pile's total, one for each sign the category has, and announces itself as \"Total: 20\" (`barChart.total`). `series` only.", type: "boolean", default: "false" },
+    { name: "orientation", description: "Which way the bars run. `horizontal` lays them along the inline axis, one row per category, with the names in a gutter at inline start as wide as the longest (up to `--wr-bar-chart-label-max-width`, then ellipsised). Under RTL the gutter is on the right and the bars grow leftwards. Lying down, `height` is the least the plot takes: the rows share it, but each bar's row keeps at least `--wr-bar-chart-row-min-size` (one line of the value's text), so a long list of categories or series grows the chart rather than thinning its bars to nothing.", type: "WrBarOrientation", default: "'vertical'" },
+    { name: "ariaLabel", description: "Accessible name of the chart. Falls back to `barChart.label`, then `'Bar chart'`. Also the data table's caption.", type: "string | null", default: "null" },
+    { name: "color", description: "Default bar colour when a datum has none: the chart palette's first colour, which is the brand colour unless `--wr-chart-1` says otherwise. `data` only.", type: "string", default: "'var(--wr-chart-1)'" },
+    { name: "showGrid", description: "Draw the gridlines: one across the plot at every tick of the value axis, level standing up and upright lying down. Their colour is `--wr-bar-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`. With the grid or the axis on, the value axis is snapped to round numbers; with both off it is fitted to the data.", type: "boolean", default: "true" },
+    { name: "showAxis", description: "Print the value axis' scale: a number at every tick, in a gutter at inline start standing up and under the plot lying down, written compact (`1.2K`) or through `valueFormat`. Decoration: the bars' names carry the values.", type: "boolean", default: "true" },
+    { name: "showValues", description: "Show value labels at each bar, past its end: above a bar standing up, beyond its end lying down — below (or before) a negative `series` bar, and the pile's total for each sign with `stacked`. A value too wide for a `series` bar standing up is left out rather than cut, since a cut number reads as another one; the tooltip and each bar's name carry it whole. Off by default, since the axis already reads the values.", type: "boolean", default: "false" },
+    { name: "height", description: "Pixel height of the chart area. With `orientation=\"horizontal\"` it is the least the plot takes: each bar's row keeps at least `--wr-bar-chart-row-min-size`, so rows that need more grow the plot past it.", type: "number", default: "200" },
+    { name: "max", description: "Explicit max value. `0` = auto. With `series` it fixes the positive end of the axis; the negative end is still fitted to the data. A value past it is drawn to the edge, and its name, the tooltip and the data table still give its own figure.", type: "number", default: "0" },
+    { name: "tooltip", description: "Show a tooltip with the bar's label and value on hover — with `series`, the category's name and a row per series shown. Pointer only — the accessible names already carry every value. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "showLegend", description: "Show the legend. With `series`, or beside `lines`, which it then lists. `'auto'` shows it when there is something to tell apart - two series or more, or any line - and leaves it out for a single series, which has nothing to key; `true` shows it for one series too.", type: "boolean | 'auto'", default: "'auto'" },
+    { name: "legendPosition", description: "Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` and `hiddenLines` still hide a series from outside.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the chart's data is in flight: the bars give way to the loading message, over the grid and the axis the chart had.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the bars give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "toggleableLegend", description: "Make each legend row a toggle button that shows and hides its series, through `hiddenSeries` — or its line, through `hiddenLines`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per row. With `series`, or beside `lines`.", type: "boolean", default: "false" },
+    { name: "hiddenSeries", description: "The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values: it draws no bars and leaves its lane, so the others widen; it leaves the stack, the tooltip and the data table; and a fitted axis is fitted to the series still shown. The categories do not change, since they belong to the chart rather than to one series. The legend keeps the hidden series' row, struck through, so it can be shown again. A position past the end of `series` is kept and ignored.", type: "readonly number[]", default: "[]" },
+    { name: "hiddenLines", description: "The positions in `lines` of the lines that are hidden, as `hiddenSeries` holds the series': a toggleable legend writes it, and a host may bind it with or without one, `[(hiddenLines)]`. A hidden line draws nothing and leaves the tooltip and the data table, and a fitted axis is fitted to what is still shown. The legend keeps its row, struck through. A position past the end of `lines` is kept and ignored.", type: "readonly number[]", default: "[]" },
+    { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per category, headed by its name, and a column per series shown — or, with `data`, one column for the bars, headed \"Value\" (`barChart.value`) — then one per line shown, every value written the way the tooltip writes it. A missing value is an empty cell, and a stacked chart's table keeps each series' own values. Each bar's accessible name already carries its value; the table is for a reader who wants to move cell by cell. It is rendered beside the plot, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A hidden series or line leaves it.", type: "boolean", default: "false" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the labels at the bars, the tooltip and each bar's accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact labels from a thousand up (`1.2K`, `3.4M`).", type: "((value: number) => string) | null", default: "null" },
   ],
   // <[wrBlurReveal]>
   WrBlurReveal: [
-    {
-      name: 'by',
-      description:
-        'What enters one at a time: a word, or a grapheme. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.',
-      type: 'WrBlurRevealBy',
-      default: "'words'",
-    },
-    { name: 'from', description: 'The side a piece settles in from.', type: 'WrBlurRevealFrom', default: "'below'" },
-    {
-      name: 'stagger',
-      description:
-        'Gap between the start of one piece and the next, in ms. Unset, the mode decides: 70 for words, 28 for letters. Either way the whole reveal spreads over 1.2 s at most, so for a long text the gap shrinks until the last piece starts by then.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'delay',
-      description: 'Pause between the host entering the viewport and the first piece, in ms.',
-      type: 'number',
-      default: '0',
-    },
+    { name: "by", description: "What enters one at a time: a word, or a grapheme. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrBlurRevealBy", default: "'words'" },
+    { name: "from", description: "The side a piece settles in from.", type: "WrBlurRevealFrom", default: "'below'" },
+    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 70 for words, 28 for letters. Either way the whole reveal spreads over 1.2 s at most, so for a long text the gap shrinks until the last piece starts by then.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause between the host entering the viewport and the first piece, in ms.", type: "number", default: "0" },
   ],
   // <wr-boxplot-chart>
   WrBoxplotChart: [
-    {
-      name: 'groups',
-      description:
-        'One entry per box, in reading order: each with its raw `values` or a `stats` summary worked out elsewhere. A group with neither, or with nothing finite to summarise, keeps its slot and its name and draws no box.',
-      type: 'readonly WrBoxplotGroup[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the chart. The numbers are nowhere in text unless `dataTable` puts them there, so say what the chart shows. Falls back to `boxplotChart.label` ("Box plot").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'xLabel',
-      description:
-        'What the groups are — a region, a release. Drawn under the group names only when given; either way it heads the group column of the data table, which falls back to `boxplotChart.group` ("Group").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'yLabel',
-      description:
-        'What the values measure, with their unit. Drawn along the value axis, reading upwards, only when given.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes every number the chart shows: the axis ticks, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'color',
-      description:
-        'The colour of every group with no `color` of its own. Any CSS colour. Defaults to the first colour of the chart palette, `--wr-chart-1`.',
-      type: 'string',
-      default: "'var(--wr-chart-1)'",
-    },
-    {
-      name: 'height',
-      description:
-        "The plot's height in px, at least 80. Under 160 the value axis aims for fewer ticks, so their labels keep clear of one another.",
-      type: 'number',
-      default: '240',
-    },
-    {
-      name: 'showGrid',
-      description:
-        "Draw the gridlines: one across the plot at every tick of the value axis. Their colour is `--wr-boxplot-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`; the one at zero, when the axis reaches it, is the stronger `--wr-boxplot-chart-zero-color`.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showAxis',
-      description:
-        "Draw the value axis' scale: a number at every tick, beside the plot. Decoration, as the tooltip and the data table carry every figure.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the boxes give way to the loading message, over the grid and the axis the chart keeps.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the boxes give way to the error message. `loading` comes first when both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description:
-        "The message shown when no group has anything to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the hovered group's five numbers — the whiskers' ends, the quartiles and the median — and its outliers' values, the lowest three, then how many more there are: every outlier is counted, drawn or not. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render every group's numbers as a table only assistive technology reaches, beside the drawing: a row per group, a column for each of the five numbers from the lower whisker up and, when a group has any, one listing its outliers - all of them up to fifty, and past that the lowest, the highest and how many more. The drawing is one named image, so without it the numbers are nowhere a screen reader can walk.",
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "groups", description: "One entry per box, in reading order: each with its raw `values` or a `stats` summary worked out elsewhere. A group with neither, or with nothing finite to summarise, keeps its slot and its name and draws no box.", type: "readonly WrBoxplotGroup[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart. The numbers are nowhere in text unless `dataTable` puts them there, so say what the chart shows. Falls back to `boxplotChart.label` (\"Box plot\").", type: "string | null", default: "null" },
+    { name: "xLabel", description: "What the groups are — a region, a release. Drawn under the group names only when given; either way it heads the group column of the data table, which falls back to `boxplotChart.group` (\"Group\").", type: "string | null", default: "null" },
+    { name: "yLabel", description: "What the values measure, with their unit. Drawn along the value axis, reading upwards, only when given.", type: "string | null", default: "null" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the axis ticks, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter.", type: "((value: number) => string) | null", default: "null" },
+    { name: "color", description: "The colour of every group with no `color` of its own. Any CSS colour. Defaults to the first colour of the chart palette, `--wr-chart-1`.", type: "string", default: "'var(--wr-chart-1)'" },
+    { name: "height", description: "The plot's height in px, at least 80. Under 160 the value axis aims for fewer ticks, so their labels keep clear of one another.", type: "number", default: "240" },
+    { name: "showGrid", description: "Draw the gridlines: one across the plot at every tick of the value axis. Their colour is `--wr-boxplot-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`; the one at zero, when the axis reaches it, is the stronger `--wr-boxplot-chart-zero-color`.", type: "boolean", default: "true" },
+    { name: "showAxis", description: "Draw the value axis' scale: a number at every tick, beside the plot. Decoration, as the tooltip and the data table carry every figure.", type: "boolean", default: "true" },
+    { name: "loading", description: "A request for the chart's data is in flight: the boxes give way to the loading message, over the grid and the axis the chart keeps.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the boxes give way to the error message. `loading` comes first when both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown when no group has anything to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "tooltip", description: "Show a tooltip with the hovered group's five numbers — the whiskers' ends, the quartiles and the median — and its outliers' values, the lowest three, then how many more there are: every outlier is counted, drawn or not. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "dataTable", description: "Render every group's numbers as a table only assistive technology reaches, beside the drawing: a row per group, a column for each of the five numbers from the lower whisker up and, when a group has any, one listing its outliers - all of them up to fifty, and past that the lowest, the highest and how many more. The drawing is one named image, so without it the numbers are nowhere a screen reader can walk.", type: "boolean", default: "false" },
   ],
   // <wr-breadcrumbs>
   WrBreadcrumbs: [
-    {
-      name: 'separator',
-      description: 'Separator glyph between items. Any short string.',
-      type: 'string',
-      default: "'/'",
-    },
-    {
-      name: 'ariaLabel',
-      description: "Accessible label for the `nav` landmark. Falls back to `breadcrumbs.label`, then `'Breadcrumbs'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'truncate',
-      description:
-        'Keep every item on one line and end a long one in an ellipsis. A linked item is cut at `--wr-breadcrumbs-item-max-width` (16rem). The current item is cut at `--wr-breadcrumbs-current-max-width`, `none` by default, so it is cut only where it is wider than the trail. A cut item shows its full text as a `title` on hover.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "separator", description: "Separator glyph between items. Any short string.", type: "string", default: "'/'" },
+    { name: "ariaLabel", description: "Accessible label for the `nav` landmark. Falls back to `breadcrumbs.label`, then `'Breadcrumbs'`.", type: "string | null", default: "null" },
+    { name: "truncate", description: "Keep every item on one line and end a long one in an ellipsis. A linked item is cut at `--wr-breadcrumbs-item-max-width` (16rem). The current item is cut at `--wr-breadcrumbs-current-max-width`, `none` by default, so it is cut only where it is wider than the trail. A cut item shows its full text as a `title` on hover.", type: "boolean", default: "false" },
   ],
   // <wr-breadcrumbs-item>
   WrBreadcrumbsItem: [
-    {
-      name: 'href',
-      description: 'Plain anchor href. Overridden by `routerLink` when both are set.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'routerLink',
-      description: 'Angular router target. Anything `RouterLink` accepts (string or `any[]`).',
-      type: 'string | readonly unknown[] | null',
-      default: 'null',
-    },
-    {
-      name: 'queryParams',
-      description:
-        'Query parameters for a `routerLink` crumb, the way `RouterLink` takes them. A `?` written into `routerLink` is part of the path, and the router escapes it: `/debts?date=1` became `/debts%3Fdate%3D1`. Ignored without `routerLink`.',
-      type: 'Params | null',
-      default: 'null',
-    },
-    {
-      name: 'external',
-      description: 'Open external `href` in a new tab. Ignored when `routerLink` is set.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'icon',
-      description: 'Optional leading icon rendered inline before the label.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
+    { name: "href", description: "Plain anchor href. Overridden by `routerLink` when both are set.", type: "string | null", default: "null" },
+    { name: "routerLink", description: "Angular router target. Anything `RouterLink` accepts (string or `any[]`).", type: "string | readonly unknown[] | null", default: "null" },
+    { name: "queryParams", description: "Query parameters for a `routerLink` crumb, the way `RouterLink` takes them. A `?` written into `routerLink` is part of the path, and the router escapes it: `/debts?date=1` became `/debts%3Fdate%3D1`. Ignored without `routerLink`.", type: "Params | null", default: "null" },
+    { name: "external", description: "Open external `href` in a new tab. Ignored when `routerLink` is set.", type: "boolean", default: "false" },
+    { name: "icon", description: "Optional leading icon rendered inline before the label.", type: "WrIconName | null", default: "null" },
   ],
   // <wr-bullet-chart>
   WrBulletChart: [
-    {
-      name: 'value',
-      description:
-        'The measure. A value that is not a finite number — `null` while it loads — draws no bar, and the chart is announced as having no value rather than as zero.',
-      type: 'number | null',
-      required: true,
-    },
-    {
-      name: 'target',
-      description:
-        'The comparative measure, drawn as a marker across the line. `null`, or anything that is not a finite number, draws none and leaves it out of the accessible name.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'ranges',
-      description:
-        "The upper limit of each qualitative band, in any order: `[150, 225, 300]` draws a band from the scale's start to 150, one from 150 to 225 and one from 225 to 300. They are sorted, a repeated limit counts once, and one that is not a finite number is dropped. The band nearest zero is the strongest step and each one after it fainter, between `--wr-bullet-chart-range-start` and `--wr-bullet-chart-range-end`. Few recommends no more than five. The first band is everything below the first limit, so it has room only where the scale reaches below that limit. A negative first limit lower than both the value and the target is where the scale starts, which leaves that band no room: it is not drawn, and the drawing opens with the second band and its paler step. Where the scale runs on past the last limit, a rule marks where the last band ends.",
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'max',
-      description:
-        'The end of the scale. `0` takes the largest of `value`, `target` and `ranges`, so the last band reaches the end; a value above `0` fixes it, and anything past it is drawn to the end — the accessible name and the tooltip still give its own figure.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'label',
-      description:
-        'What is measured, shown at inline start beside the drawing, ellipsised past `--wr-bullet-chart-label-max-width`. It heads the tooltip and opens the accessible name; without it the name opens with `bulletChart.label` ("Bullet chart").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'subLabel',
-      description:
-        'A line under the label — the unit, the period. The drawing is described by it (`aria-describedby`), so a screen reader hears it after the name.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the drawing, in place of the sentence the chart writes itself — "Revenue: 270 of target 250". Give one where the bands mean something a reader needs, since they have no names of their own.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        "Writes every number the chart shows: the scale's ticks, the tooltip and the accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`) unless the full numbers are shorter.",
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    { name: 'showScale', description: "Show the scale's ticks under the drawing.", type: 'boolean', default: 'true' },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the label, the value and the target while the pointer is over the drawing. Pointer only: the accessible name says the same. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'loading',
-      description:
-        'A request for the measure is in flight: the bands, the bar and the marker give way to the loading message on the track.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        'The measure failed to load: the marks give way to the error message. `loading` wins while both are set.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description:
-        "The message shown with neither a value nor a target. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "value", description: "The measure. A value that is not a finite number — `null` while it loads — draws no bar, and the chart is announced as having no value rather than as zero.", type: "number | null", required: true },
+    { name: "target", description: "The comparative measure, drawn as a marker across the line. `null`, or anything that is not a finite number, draws none and leaves it out of the accessible name.", type: "number | null", default: "null" },
+    { name: "ranges", description: "The upper limit of each qualitative band, in any order: `[150, 225, 300]` draws a band from the scale's start to 150, one from 150 to 225 and one from 225 to 300. They are sorted, a repeated limit counts once, and one that is not a finite number is dropped. The band nearest zero is the strongest step and each one after it fainter, between `--wr-bullet-chart-range-start` and `--wr-bullet-chart-range-end`. Few recommends no more than five. The first band is everything below the first limit, so it has room only where the scale reaches below that limit. A negative first limit lower than both the value and the target is where the scale starts, which leaves that band no room: it is not drawn, and the drawing opens with the second band and its paler step. Where the scale runs on past the last limit, a rule marks where the last band ends.", type: "readonly number[]", default: "[]" },
+    { name: "max", description: "The end of the scale. `0` takes the largest of `value`, `target` and `ranges`, so the last band reaches the end; a value above `0` fixes it, and anything past it is drawn to the end — the accessible name and the tooltip still give its own figure.", type: "number", default: "0" },
+    { name: "label", description: "What is measured, shown at inline start beside the drawing, ellipsised past `--wr-bullet-chart-label-max-width`. It heads the tooltip and opens the accessible name; without it the name opens with `bulletChart.label` (\"Bullet chart\").", type: "string | null", default: "null" },
+    { name: "subLabel", description: "A line under the label — the unit, the period. The drawing is described by it (`aria-describedby`), so a screen reader hears it after the name.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the drawing, in place of the sentence the chart writes itself — \"Revenue: 270 of target 250\". Give one where the bands mean something a reader needs, since they have no names of their own.", type: "string | null", default: "null" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the scale's ticks, the tooltip and the accessible name. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`) unless the full numbers are shorter.", type: "((value: number) => string) | null", default: "null" },
+    { name: "showScale", description: "Show the scale's ticks under the drawing.", type: "boolean", default: "true" },
+    { name: "tooltip", description: "Show a tooltip with the label, the value and the target while the pointer is over the drawing. Pointer only: the accessible name says the same. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "loading", description: "A request for the measure is in flight: the bands, the bar and the marker give way to the loading message on the track.", type: "boolean", default: "false" },
+    { name: "error", description: "The measure failed to load: the marks give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown with neither a value nor a target. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
   ],
   // <wr-burger>
   WrBurger: [
-    {
-      name: 'open',
-      description: 'Two-way bindable open state. Drives the hamburger ↔ close morph.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'label',
-      description: "Accessible name for the toggle button. Falls back to `burger.label`, then `'Toggle menu'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'disabled', description: 'Disable the toggle.', type: 'boolean', default: 'false' },
+    { name: "open", description: "Two-way bindable open state. Drives the hamburger ↔ close morph.", type: "boolean", default: "false" },
+    { name: "label", description: "Accessible name for the toggle button. Falls back to `burger.label`, then `'Toggle menu'`.", type: "string | null", default: "null" },
+    { name: "disabled", description: "Disable the toggle.", type: "boolean", default: "false" },
   ],
   // <wr-btn, button[wr-btn], a[wr-btn]>
   WrButton: [
-    {
-      name: 'color',
-      description: 'Color variant. Omit for the neutral default style.',
-      type: 'WrColor | null',
-      default: 'null',
-    },
-    {
-      name: 'size',
-      description:
-        'Size variant. `null` (default) takes the size a container provides through `WR_BUTTON_SIZE`, such as a sized dialog, and `md` outside one. A size set here always wins.',
-      type: 'WrButtonSize | null',
-      default: 'null',
-    },
-    {
-      name: 'shape',
-      description:
-        'Corner treatment — `rounded`, `pill` or `squircle`. `null` (default) falls back to `rounded`. Inside a `<wr-btn-group shape="…">`, the group\'s shape ALWAYS wins over this input — the group enforces a consistent corner treatment across its members.',
-      type: 'WrButtonShape | null',
-      default: 'null',
-    },
-    {
-      name: 'icon',
-      description:
-        'Icon name to render alongside the label. The icon is hidden while `loading` is `true` so the spinner can take its place.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
-    {
-      name: 'iconPosition',
-      description: 'Position of the icon relative to the label.',
-      type: 'WrButtonIconPosition',
-      default: "'start'",
-    },
-    { name: 'disabled', description: 'Disable the button.', type: 'boolean', default: 'false' },
-    {
-      name: 'outlined',
-      description: 'Outlined variant — colored text and border on a transparent background.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'ghost',
-      description:
-        "Ghost variant — no fill and no border at rest, just the label in the button's color; hover and press tint the background. Quieter than `outlined`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'block', description: "Stretch the button to fill its parent's width.", type: 'boolean', default: 'false' },
-    {
-      name: 'loading',
-      description: 'Show a spinner overlaying the label. Layout is preserved.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'disabledWhenLoading',
-      description:
-        'When `loading` is `true` and this is also `true`, pointer events are suppressed and the button reports as disabled to assistive tech.',
-      type: 'boolean',
-      default: 'true',
-    },
+    { name: "color", description: "Color variant. Omit for the neutral default style.", type: "WrColor | null", default: "null" },
+    { name: "size", description: "Size variant. `null` (default) takes the size a container provides through `WR_BUTTON_SIZE`, such as a sized dialog, and `md` outside one. A size set here always wins.", type: "WrButtonSize | null", default: "null" },
+    { name: "shape", description: "Corner treatment — `rounded`, `pill` or `squircle`. `null` (default) falls back to `rounded`. Inside a `<wr-btn-group shape=\"…\">`, the group's shape ALWAYS wins over this input — the group enforces a consistent corner treatment across its members.", type: "WrButtonShape | null", default: "null" },
+    { name: "icon", description: "Icon name to render alongside the label. The icon is hidden while `loading` is `true` so the spinner can take its place.", type: "WrIconName | null", default: "null" },
+    { name: "iconPosition", description: "Position of the icon relative to the label.", type: "WrButtonIconPosition", default: "'start'" },
+    { name: "disabled", description: "Disable the button.", type: "boolean", default: "false" },
+    { name: "outlined", description: "Outlined variant — colored text and border on a transparent background.", type: "boolean", default: "false" },
+    { name: "ghost", description: "Ghost variant — no fill and no border at rest, just the label in the button's color; hover and press tint the background. Quieter than `outlined`.", type: "boolean", default: "false" },
+    { name: "block", description: "Stretch the button to fill its parent's width.", type: "boolean", default: "false" },
+    { name: "loading", description: "Show a spinner overlaying the label. Layout is preserved.", type: "boolean", default: "false" },
+    { name: "disabledWhenLoading", description: "When `loading` is `true` and this is also `true`, pointer events are suppressed and the button reports as disabled to assistive tech.", type: "boolean", default: "true" },
   ],
   // <wr-btn-group>
   WrButtonGroup: [
-    {
-      name: 'shape',
-      description:
-        'Corner treatment enforced on every child `<wr-btn>`. Child `[shape]` inputs are ignored when this is set — the group exists to make a uniform control. `null` (default) leaves children alone.',
-      type: 'WrButtonShape | null',
-      default: 'null',
-    },
+    { name: "shape", description: "Corner treatment enforced on every child `<wr-btn>`. Child `[shape]` inputs are ignored when this is set — the group exists to make a uniform control. `null` (default) leaves children alone.", type: "WrButtonShape | null", default: "null" },
   ],
   // <wr-calendar>
   WrCalendar: [
-    { name: 'mode', description: 'Selection mode.', type: 'WrCalendarMode', default: "'single'" },
-    {
-      name: 'granularity',
-      description:
-        "What one pick names. `'week'` keeps the day grid, where hovering and picking take the whole week; `'month'`, `'quarter'` and `'year'` open on that view and pick there, with no day grid to drop to. A period is held as its first day. In `range` mode the end is the last day of the end period, so the range stays an inclusive run of days. `min`, `max` and `dateFilter` close a period only when they close every day in it. A week starts on the adapter's first day of the week.",
-      type: 'WrCalendarGranularity',
-      default: "'day'",
-    },
-    {
-      name: 'date',
-      description: "Two-way bindable single value (used when `mode === 'single'`).",
-      type: 'Date | null',
-      default: 'null',
-    },
-    {
-      name: 'range',
-      description: "Two-way bindable `[start, end]` (used when `mode === 'range'`).",
-      type: 'WrCalendarRange',
-      default: '[null, null]',
-    },
-    {
-      name: 'value',
-      description:
-        'The selection as one value, whatever the mode: a `Date` in `single` mode, a `[start, end]` tuple in `range` mode, `null` while nothing is picked. Bound by `[formField]`, or two-way via `[(value)]`. Kept in step with `date` and `range`: a write to either side reaches the other.',
-      type: 'WrCalendarValue',
-      default: 'null',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted when focus leaves the calendar, so a bound field can mark itself touched.',
-      type: 'void',
-    },
-    {
-      name: 'min',
-      description: 'Min selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.',
-      type: 'NonNullable<WrCalendarValue> | undefined',
-      default: 'undefined',
-    },
-    {
-      name: 'max',
-      description: 'Max selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.',
-      type: 'NonNullable<WrCalendarValue> | undefined',
-      default: 'undefined',
-    },
-    {
-      name: 'dateFilter',
-      description: 'Predicate — return `false` to disable specific dates (e.g. weekends only).',
-      type: '((date: Date) => boolean) | null',
-      default: 'null',
-    },
-    {
-      name: 'autoFocus',
-      description:
-        'Move real focus onto the roving cell as soon as the grid is on screen. Off by default: a standalone `<wr-calendar>` sitting in a page must not steal focus on load. `wr-date-picker` turns it on for the popup it opens from its trigger, where the user asked to be taken to the calendar.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'disabled', description: 'Disable interaction entirely.', type: 'boolean', default: 'false' },
-    {
-      name: 'readonly',
-      description:
-        "Read-only: the grid keeps its tab stop, the arrows still move the cursor and the header still pages through months and years, but picking a day writes nothing. Bound automatically from the field's readonly state when used with `[formField]`. Mirrored as `aria-readonly` on the day grid.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the day grid, for a calendar that stands alone: a `role="grid"` has no name of its own. Inside a `<wr-form-field>` the field\'s label names the grid instead.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'prevMonthLabel',
-      description:
-        "Accessible name of the back arrow on the day view. Falls back to `calendar.prevMonth`, then `'Previous month'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextMonthLabel',
-      description:
-        "Accessible name of the forward arrow on the day view. Falls back to `calendar.nextMonth`, then `'Next month'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'monthListLabel',
-      description: "Accessible name of the month list. Falls back to `calendar.monthList`, then `'Months'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'yearListLabel',
-      description: "Accessible name of the year list. Falls back to `calendar.yearList`, then `'Years'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'quarterListLabel',
-      description: "Accessible name of the quarter list. Falls back to `calendar.quarterList`, then `'Quarters'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'prevYearLabel',
-      description:
-        "Accessible name of the back arrow on the month view. Falls back to `calendar.prevYear`, then `'Previous year'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextYearLabel',
-      description:
-        "Accessible name of the forward arrow on the month view. Falls back to `calendar.nextYear`, then `'Next year'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'prevYearsLabel',
-      description:
-        "Accessible name of the back arrow on the year view. Falls back to `calendar.prevYears`, then `'Previous 12 years'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextYearsLabel',
-      description:
-        "Accessible name of the forward arrow on the year view. Falls back to `calendar.nextYears`, then `'Next 12 years'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "mode", description: "Selection mode.", type: "WrCalendarMode", default: "'single'" },
+    { name: "granularity", description: "What one pick names. `'week'` keeps the day grid, where hovering and picking take the whole week; `'month'`, `'quarter'` and `'year'` open on that view and pick there, with no day grid to drop to. A period is held as its first day. In `range` mode the end is the last day of the end period, so the range stays an inclusive run of days. `min`, `max` and `dateFilter` close a period only when they close every day in it. A week starts on the adapter's first day of the week.", type: "WrCalendarGranularity", default: "'day'" },
+    { name: "date", description: "Two-way bindable single value (used when `mode === 'single'`).", type: "Date | null", default: "null" },
+    { name: "range", description: "Two-way bindable `[start, end]` (used when `mode === 'range'`).", type: "WrCalendarRange", default: "[null, null]" },
+    { name: "value", description: "The selection as one value, whatever the mode: a `Date` in `single` mode, a `[start, end]` tuple in `range` mode, `null` while nothing is picked. Bound by `[formField]`, or two-way via `[(value)]`. Kept in step with `date` and `range`: a write to either side reaches the other.", type: "WrCalendarValue", default: "null" },
+    { name: "(touch)", description: "Emitted when focus leaves the calendar, so a bound field can mark itself touched.", type: "void" },
+    { name: "min", description: "Min selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.", type: "NonNullable<WrCalendarValue> | undefined", default: "undefined" },
+    { name: "max", description: "Max selectable date (inclusive). Takes a `Date`; `null` or `undefined` is no bound.", type: "NonNullable<WrCalendarValue> | undefined", default: "undefined" },
+    { name: "dateFilter", description: "Predicate — return `false` to disable specific dates (e.g. weekends only).", type: "((date: Date) => boolean) | null", default: "null" },
+    { name: "autoFocus", description: "Move real focus onto the roving cell as soon as the grid is on screen. Off by default: a standalone `<wr-calendar>` sitting in a page must not steal focus on load. `wr-date-picker` turns it on for the popup it opens from its trigger, where the user asked to be taken to the calendar.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable interaction entirely.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only: the grid keeps its tab stop, the arrows still move the cursor and the header still pages through months and years, but picking a day writes nothing. Bound automatically from the field's readonly state when used with `[formField]`. Mirrored as `aria-readonly` on the day grid.", type: "boolean", default: "false" },
+    { name: "ariaLabel", description: "Accessible name of the day grid, for a calendar that stands alone: a `role=\"grid\"` has no name of its own. Inside a `<wr-form-field>` the field's label names the grid instead.", type: "string | null", default: "null" },
+    { name: "prevMonthLabel", description: "Accessible name of the back arrow on the day view. Falls back to `calendar.prevMonth`, then `'Previous month'`.", type: "string | null", default: "null" },
+    { name: "nextMonthLabel", description: "Accessible name of the forward arrow on the day view. Falls back to `calendar.nextMonth`, then `'Next month'`.", type: "string | null", default: "null" },
+    { name: "monthListLabel", description: "Accessible name of the month list. Falls back to `calendar.monthList`, then `'Months'`.", type: "string | null", default: "null" },
+    { name: "yearListLabel", description: "Accessible name of the year list. Falls back to `calendar.yearList`, then `'Years'`.", type: "string | null", default: "null" },
+    { name: "quarterListLabel", description: "Accessible name of the quarter list. Falls back to `calendar.quarterList`, then `'Quarters'`.", type: "string | null", default: "null" },
+    { name: "prevYearLabel", description: "Accessible name of the back arrow on the month view. Falls back to `calendar.prevYear`, then `'Previous year'`.", type: "string | null", default: "null" },
+    { name: "nextYearLabel", description: "Accessible name of the forward arrow on the month view. Falls back to `calendar.nextYear`, then `'Next year'`.", type: "string | null", default: "null" },
+    { name: "prevYearsLabel", description: "Accessible name of the back arrow on the year view. Falls back to `calendar.prevYears`, then `'Previous 12 years'`.", type: "string | null", default: "null" },
+    { name: "nextYearsLabel", description: "Accessible name of the forward arrow on the year view. Falls back to `calendar.nextYears`, then `'Next 12 years'`.", type: "string | null", default: "null" },
   ],
   // <wr-calendar-heatmap>
   WrCalendarHeatmap: [
-    {
-      name: 'data',
-      description:
-        'One entry per day — `{ date, value }`. Days you pass nothing for render as empty cells, so a sparse array is the normal shape rather than a gap. Rows outside the weeks drawn are skipped, and do not move the scale.',
-      type: 'readonly WrHeatmapDatum[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the whole grid. Its cells are bare spans whose `title` a screen reader on a role-less element does not read, so the map used to be several hundred anonymous nodes with no name. Falls back to `calendarHeatmap.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'endDate', description: 'Last day to render.', type: 'string | Date | null', default: 'today' },
-    { name: 'weeks', description: 'Number of weeks (columns) to render.', type: 'number', default: '53' },
-    {
-      name: 'cellSize',
-      description:
-        'Cell side in CSS pixels. Twelve with a gap of three reads as a grid of days; the eleven and two it was before 16.5 ran the squares together.',
-      type: 'number',
-      default: '12',
-    },
-    { name: 'cellGap', description: 'Pixel gap between cells.', type: 'number', default: '3' },
-    {
-      name: 'color',
-      description:
-        "The colour of the highest level: any CSS colour, `var(--wr-…)` included. The four levels under it are stepped from it toward the surface, as the chart theme steps its own scale. `null` paints the levels with the theme's sequential scale, `--wr-chart-seq-1` to `-5`, which an app retints for every chart at once.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'emptyColor',
-      description:
-        "Background colour for zero-value days. `null` takes `--wr-calendar-heatmap-empty`, the chart theme's track.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'showLegend',
-      description: 'Show the scale key: the levels from 0 to the largest day.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the scale key sits: under the grid, over it, or `none` for no key at all. It keeps to the inline end, where the newest weeks are, so it stays in sight while the year scrolls.',
-      type: "Exclude<WrChartLegendPosition, 'start' | 'end'>",
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        'A request for the days is in flight: the grid keeps its squares, all empty, and the loading message sits under them.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        'The days failed to load: the grid keeps its squares, all empty, with the error message under them. `loading` wins while both are set.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown with no data. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'showLabels',
-      description: 'Show the weekday + month labels around the grid.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the day and its count on hover. It is the sentence the square's `title` carried, so the `title` is written only while this is off — or the browser would open a second copy a moment later. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        "Writes each day's count in the tooltip, the `title` and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.",
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        'Render the days\' values as a table that only assistive technology reaches: a row per week, headed by its dates, and a column per weekday, each day\'s count written the way the tooltip writes it. A day after the last one drawn is an empty cell. The grid is one named `role="img"`, which hides everything inside it, so without the table the values are nowhere a screen reader can walk. It is rendered beside the grid, clipped to nothing: it takes no room, draws nothing and holds no tab stop.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "data", description: "One entry per day — `{ date, value }`. Days you pass nothing for render as empty cells, so a sparse array is the normal shape rather than a gap. Rows outside the weeks drawn are skipped, and do not move the scale.", type: "readonly WrHeatmapDatum[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the whole grid. Its cells are bare spans whose `title` a screen reader on a role-less element does not read, so the map used to be several hundred anonymous nodes with no name. Falls back to `calendarHeatmap.label`.", type: "string | null", default: "null" },
+    { name: "endDate", description: "Last day to render.", type: "string | Date | null", default: "today" },
+    { name: "weeks", description: "Number of weeks (columns) to render.", type: "number", default: "53" },
+    { name: "cellSize", description: "Cell side in CSS pixels. Twelve with a gap of three reads as a grid of days; the eleven and two it was before 16.5 ran the squares together.", type: "number", default: "12" },
+    { name: "cellGap", description: "Pixel gap between cells.", type: "number", default: "3" },
+    { name: "color", description: "The colour of the highest level: any CSS colour, `var(--wr-…)` included. The four levels under it are stepped from it toward the surface, as the chart theme steps its own scale. `null` paints the levels with the theme's sequential scale, `--wr-chart-seq-1` to `-5`, which an app retints for every chart at once.", type: "string | null", default: "null" },
+    { name: "emptyColor", description: "Background colour for zero-value days. `null` takes `--wr-calendar-heatmap-empty`, the chart theme's track.", type: "string | null", default: "null" },
+    { name: "showLegend", description: "Show the scale key: the levels from 0 to the largest day.", type: "boolean", default: "true" },
+    { name: "legendPosition", description: "Where the scale key sits: under the grid, over it, or `none` for no key at all. It keeps to the inline end, where the newest weeks are, so it stays in sight while the year scrolls.", type: "Exclude<WrChartLegendPosition, 'start' | 'end'>", default: "'bottom'" },
+    { name: "loading", description: "A request for the days is in flight: the grid keeps its squares, all empty, and the loading message sits under them.", type: "boolean", default: "false" },
+    { name: "error", description: "The days failed to load: the grid keeps its squares, all empty, with the error message under them. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown with no data. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "showLabels", description: "Show the weekday + month labels around the grid.", type: "boolean", default: "true" },
+    { name: "tooltip", description: "Show a tooltip with the day and its count on hover. It is the sentence the square's `title` carried, so the `title` is written only while this is off — or the browser would open a second copy a moment later. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes each day's count in the tooltip, the `title` and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.", type: "((value: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the days' values as a table that only assistive technology reaches: a row per week, headed by its dates, and a column per weekday, each day's count written the way the tooltip writes it. A day after the last one drawn is an empty cell. The grid is one named `role=\"img\"`, which hides everything inside it, so without the table the values are nowhere a screen reader can walk. It is rendered beside the grid, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
   // <wr-candlestick-chart>
   WrCandlestickChart: [
-    {
-      name: 'data',
-      description:
-        'The periods, oldest first: one evenly spaced slot each. A period whose four prices are not all finite keeps its slot and its label, and draws no candle.',
-      type: 'readonly WrCandlestickDatum[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the chart. The prices are nowhere in text unless `dataTable` puts them there, so say what the chart shows: the instrument and the period. Falls back to `candlestickChart.label` ("Candlestick chart"). It is also the data table\'s caption.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'increaseColor',
-      description:
-        'The colour of a rising candle, any CSS colour. `null` keeps `--wr-candlestick-chart-increase-color`, which is `var(--wr-color-success)`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'decreaseColor',
-      description:
-        'The colour of a falling candle, any CSS colour. `null` keeps `--wr-candlestick-chart-decrease-color`, which is `var(--wr-color-danger)`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        "Writes every price the chart shows: the y-axis ticks, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`: compact ticks (`1.2K`) unless the full numbers are shorter, and in the tooltip and the table every price at the data's own precision — as many fraction digits as the most precise price given, up to ten, and never fewer than the axis step needs — so a forex quote of 1.08345 is not written `1.083`.",
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    { name: 'height', description: "The plot's height in px, at least 80.", type: 'number', default: '240' },
-    {
-      name: 'showGrid',
-      description:
-        "Draw the gridlines: one across the plot at every tick of the price axis. Their colour is `--wr-candlestick-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showAxis',
-      description:
-        "Draw the price axis' scale: a number beside the plot at every tick. The period labels under the candles are the time axis, so they stay either way, as the line chart's `xLabels` do.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'hollow',
-      description:
-        'Draw a rising body as an outline rather than solid, so a rise and a fall are told apart by fill as well as by colour: the cue that survives greyscale, print and red-green colour blindness. A body too narrow to show an inside (under 4px) is dotted instead. A falling body is solid either way.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'decimate',
-      description:
-        "Merge the periods once there are more than two a pixel of the drawing: each drawn candle then stands for a run of them, with the open of the first, the close of the last, the highest high and the lowest low, so the chart's extremes, its first open and its last close are all still drawn, at one candle every two pixels instead of two elements a period. The tooltip reads the period under the pointer and the data table lists every one, merged or not. Off draws a candle per period whatever their number.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the candles give way to the loading message, over the grid and the axis the chart keeps.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the candles give way to the error message. `loading` comes first when both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown with nothing to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the period's open, high, low and close under the pointer. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render every period's prices as a table only assistive technology reaches, beside the drawing: a row per period, headed by its label, and a column each for the open, the high, the low and the close. A price that is not a finite number is an empty cell. The drawing is one named image, so without it the prices are nowhere a screen reader can walk.",
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "data", description: "The periods, oldest first: one evenly spaced slot each. A period whose four prices are not all finite keeps its slot and its label, and draws no candle.", type: "readonly WrCandlestickDatum[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart. The prices are nowhere in text unless `dataTable` puts them there, so say what the chart shows: the instrument and the period. Falls back to `candlestickChart.label` (\"Candlestick chart\"). It is also the data table's caption.", type: "string | null", default: "null" },
+    { name: "increaseColor", description: "The colour of a rising candle, any CSS colour. `null` keeps `--wr-candlestick-chart-increase-color`, which is `var(--wr-color-success)`.", type: "string | null", default: "null" },
+    { name: "decreaseColor", description: "The colour of a falling candle, any CSS colour. `null` keeps `--wr-candlestick-chart-decrease-color`, which is `var(--wr-color-danger)`.", type: "string | null", default: "null" },
+    { name: "valueFormat", description: "Writes every price the chart shows: the y-axis ticks, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`: compact ticks (`1.2K`) unless the full numbers are shorter, and in the tooltip and the table every price at the data's own precision — as many fraction digits as the most precise price given, up to ten, and never fewer than the axis step needs — so a forex quote of 1.08345 is not written `1.083`.", type: "((value: number) => string) | null", default: "null" },
+    { name: "height", description: "The plot's height in px, at least 80.", type: "number", default: "240" },
+    { name: "showGrid", description: "Draw the gridlines: one across the plot at every tick of the price axis. Their colour is `--wr-candlestick-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`.", type: "boolean", default: "true" },
+    { name: "showAxis", description: "Draw the price axis' scale: a number beside the plot at every tick. The period labels under the candles are the time axis, so they stay either way, as the line chart's `xLabels` do.", type: "boolean", default: "true" },
+    { name: "hollow", description: "Draw a rising body as an outline rather than solid, so a rise and a fall are told apart by fill as well as by colour: the cue that survives greyscale, print and red-green colour blindness. A body too narrow to show an inside (under 4px) is dotted instead. A falling body is solid either way.", type: "boolean", default: "false" },
+    { name: "decimate", description: "Merge the periods once there are more than two a pixel of the drawing: each drawn candle then stands for a run of them, with the open of the first, the close of the last, the highest high and the lowest low, so the chart's extremes, its first open and its last close are all still drawn, at one candle every two pixels instead of two elements a period. The tooltip reads the period under the pointer and the data table lists every one, merged or not. Off draws a candle per period whatever their number.", type: "boolean", default: "true" },
+    { name: "loading", description: "A request for the chart's data is in flight: the candles give way to the loading message, over the grid and the axis the chart keeps.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the candles give way to the error message. `loading` comes first when both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown with nothing to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "tooltip", description: "Show a tooltip with the period's open, high, low and close under the pointer. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "dataTable", description: "Render every period's prices as a table only assistive technology reaches, beside the drawing: a row per period, headed by its label, and a column each for the open, the high, the low and the close. A price that is not a finite number is an empty cell. The drawing is one named image, so without it the prices are nowhere a screen reader can walk.", type: "boolean", default: "false" },
   ],
   // <wr-card>
   WrCard: [
-    { name: 'bordered', description: 'Render a 1px border around the surface.', type: 'boolean', default: 'true' },
-    { name: 'hoverable', description: 'Lift / shadow the card on hover.', type: 'boolean', default: 'false' },
-    {
-      name: 'loading',
-      description: 'Overlay with a centred spinner — for in-place data loads.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'compact',
-      description: 'Compact paddings — half the default vertical / horizontal spacing.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "bordered", description: "Render a 1px border around the surface.", type: "boolean", default: "true" },
+    { name: "hoverable", description: "Lift / shadow the card on hover.", type: "boolean", default: "false" },
+    { name: "loading", description: "Overlay with a centred spinner — for in-place data loads.", type: "boolean", default: "false" },
+    { name: "compact", description: "Compact paddings — half the default vertical / horizontal spacing.", type: "boolean", default: "false" },
   ],
   // <wr-carousel>
   WrCarousel: [
-    {
-      name: 'prevLabel',
-      description: 'Accessible name of the previous-slide button. Falls back to `carousel.prev`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextLabel',
-      description: 'Accessible name of the next-slide button. Falls back to `carousel.next`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'paginationLabel',
-      description: 'Accessible name of the dot group. Falls back to `carousel.pagination`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name of the carousel itself. Falls back to `carousel.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'roledescription',
-      description:
-        "Word a screen reader speaks IN PLACE OF the `group` role. Falls back to `carousel.roledescription`, then `'carousel'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'pauseLabel',
-      description:
-        'Name of the autoplay button while the slides advance. Falls back to `marquee.pause`, "Pause" in English.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'playLabel',
-      description:
-        'Name of the autoplay button while the slides stand. Falls back to `marquee.play`, "Play" in English.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'active', description: 'Active slide index. Two-way bindable.', type: 'number', default: '0' },
-    { name: 'showArrows', description: 'Show prev / next arrow buttons.', type: 'boolean', default: 'true' },
-    { name: 'showDots', description: 'Show dot indicators below the slides.', type: 'boolean', default: 'true' },
-    {
-      name: 'autoplay',
-      description:
-        'Auto-advance slides. Held while the pointer or keyboard focus is inside the carousel and during a swipe. While the reader prefers reduced motion it does not start until they press play. Turn on `pauseButton` to let readers stop it.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'pauseButton',
-      description:
-        'Draw a pause / play button while `autoplay` is on. WCAG 2.2.2 asks for a way to pause moving content, so turn it on with autoplay.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'intervalMs', description: 'Autoplay interval (ms).', type: 'number', default: '4000' },
-    { name: 'loop', description: 'Wrap around at the ends.', type: 'boolean', default: 'true' },
+    { name: "prevLabel", description: "Accessible name of the previous-slide button. Falls back to `carousel.prev`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Accessible name of the next-slide button. Falls back to `carousel.next`.", type: "string | null", default: "null" },
+    { name: "paginationLabel", description: "Accessible name of the dot group. Falls back to `carousel.pagination`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the carousel itself. Falls back to `carousel.label`.", type: "string | null", default: "null" },
+    { name: "roledescription", description: "Word a screen reader speaks IN PLACE OF the `group` role. Falls back to `carousel.roledescription`, then `'carousel'`.", type: "string | null", default: "null" },
+    { name: "pauseLabel", description: "Name of the autoplay button while the slides advance. Falls back to `marquee.pause`, \"Pause\" in English.", type: "string | null", default: "null" },
+    { name: "playLabel", description: "Name of the autoplay button while the slides stand. Falls back to `marquee.play`, \"Play\" in English.", type: "string | null", default: "null" },
+    { name: "active", description: "Active slide index. Two-way bindable.", type: "number", default: "0" },
+    { name: "showArrows", description: "Show prev / next arrow buttons.", type: "boolean", default: "true" },
+    { name: "showDots", description: "Show dot indicators below the slides.", type: "boolean", default: "true" },
+    { name: "autoplay", description: "Auto-advance slides. Held while the pointer or keyboard focus is inside the carousel and during a swipe. While the reader prefers reduced motion it does not start until they press play. Turn on `pauseButton` to let readers stop it.", type: "boolean", default: "false" },
+    { name: "pauseButton", description: "Draw a pause / play button while `autoplay` is on. WCAG 2.2.2 asks for a way to pause moving content, so turn it on with autoplay.", type: "boolean", default: "false" },
+    { name: "intervalMs", description: "Autoplay interval (ms).", type: "number", default: "4000" },
+    { name: "loop", description: "Wrap around at the ends.", type: "boolean", default: "true" },
   ],
   // <wr-carousel-slide>
   WrCarouselSlide: [
-    {
-      name: 'roledescription',
-      description:
-        "Word a screen reader speaks IN PLACE OF the `group` role. Falls back to `carousel.slideRoledescription`, then `'slide'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "roledescription", description: "Word a screen reader speaks IN PLACE OF the `group` role. Falls back to `carousel.slideRoledescription`, then `'slide'`.", type: "string | null", default: "null" },
   ],
   // <wr-cascader>
   WrCascader: [
-    {
-      name: 'clearLabel',
-      description: "Accessible name. Falls back to `select.clearSelection`, then `'Clear selection'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'options',
-      description: 'Root-level options. Each may have `children` for deeper levels.',
-      type: 'readonly WrCascaderOption<T>[]',
-      required: true,
-    },
-    { name: 'placeholder', description: 'Placeholder shown when no path is selected.', type: 'string', default: "''" },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — a `role="combobox"` with nothing selected and no placeholder otherwise has no name at all.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable the cascader. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse changes while the trigger stays focusable and the path still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only cascader simply does not open — there is nothing to browse that is not already on the trigger — and the clear button goes away with it. Mirrored as `aria-readonly`, which role `combobox` supports.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: 'WrCascaderSize',
-      default: "'md'",
-    },
-    {
-      name: 'block',
-      description: "Stretch the cascader to fill its parent's width.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'rounded', description: 'Pill-shaped corners on the trigger.', type: 'boolean', default: 'false' },
-    {
-      name: 'clearable',
-      description: 'Show a clear-all (×) button on the trigger when a path is selected.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'changeOnSelect',
-      description:
-        'Allow selecting non-leaf (parent) nodes. When `false`, only leaves (nodes without children) commit a selection.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'separator',
-      description: 'Separator between labels in the trigger display.',
-      type: 'string',
-      default: "'/'",
-    },
-    {
-      name: 'autoFocus',
-      description:
-        'Focus the selected option, or the first one, when the panel opens. Off, focus stays on the trigger: ArrowDown, ArrowUp or Tab there move into the panel, and a letter jumps to the option it starts.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the column panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    {
-      name: 'value',
-      description:
-        'Committed selection path (full array from root to leaf). Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'unknown',
-      default: '[]',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted on blur / commit so a bound field can mark itself touched.',
-      type: 'void',
-    },
-    { name: '(opened)', description: 'Fires after the panel opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the panel closes.', type: 'void' },
+    { name: "clearLabel", description: "Accessible name. Falls back to `select.clearSelection`, then `'Clear selection'`.", type: "string | null", default: "null" },
+    { name: "options", description: "Root-level options. Each may have `children` for deeper levels.", type: "readonly WrCascaderOption<T>[]", required: true },
+    { name: "placeholder", description: "Placeholder shown when no path is selected.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — a `role=\"combobox\"` with nothing selected and no placeholder otherwise has no name at all.", type: "string | null", default: "null" },
+    { name: "disabled", description: "Disable the cascader. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while the trigger stays focusable and the path still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only cascader simply does not open — there is nothing to browse that is not already on the trigger — and the clear button goes away with it. Mirrored as `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrCascaderSize", default: "'md'" },
+    { name: "block", description: "Stretch the cascader to fill its parent's width.", type: "boolean", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners on the trigger.", type: "boolean", default: "false" },
+    { name: "clearable", description: "Show a clear-all (×) button on the trigger when a path is selected.", type: "boolean", default: "true" },
+    { name: "changeOnSelect", description: "Allow selecting non-leaf (parent) nodes. When `false`, only leaves (nodes without children) commit a selection.", type: "boolean", default: "false" },
+    { name: "separator", description: "Separator between labels in the trigger display.", type: "string", default: "'/'" },
+    { name: "autoFocus", description: "Focus the selected option, or the first one, when the panel opens. Off, focus stays on the trigger: ArrowDown, ArrowUp or Tab there move into the panel, and a letter jumps to the option it starts.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the column panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "value", description: "Committed selection path (full array from root to leaf). Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown", default: "[]" },
+    { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
+    { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
   ],
   // <ul[wr-chart-legend]>
   WrChartLegend: [
-    {
-      name: 'items',
-      description: "One row per series, in the chart's order.",
-      type: 'readonly WrChartLegendItem[]',
-      default: '[]',
-    },
-    {
-      name: 'position',
-      description:
-        'Where the legend sits beside its chart. `top` and `bottom` lay the rows out in a wrapping line, `start` and `end` in a column, and `none` draws nothing - the list stays in the DOM, hidden, so `hiddenSeries` keeps working from outside.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'toggleable',
-      description:
-        'Make each row a toggle button that shows and hides its series, through `hiddenSeries` and `toggled`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSeries',
-      description:
-        'The positions in `items` of the series that are hidden, ascending. Positions rather than labels: two series may share a label, and a label translated into another language would no longer match the one it hid. A position past the end of `items` is kept and ignored, so a series coming back finds its state. Written by a click on a `toggleable` row; read in either mode, so a legend that does not toggle still shows a series hidden from elsewhere as hidden.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the list. A `toggleable` legend falls back to `chartLegend.toggleLabel` ("Toggle series visibility"), which tells a reader what its buttons do; one that does not toggle has no name unless given one.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: '(toggled)',
-      description:
-        'Emits when a reader shows or hides a series from a `toggleable` legend, after `hiddenSeries` moves.',
-      type: 'WrChartLegendToggle',
-    },
-    {
-      name: 'hiddenLabel',
-      description:
-        "The word a hidden row of a legend that does not toggle carries after its name, visually hidden: the strike-through and the faded key are the eye's half of the state, and a toggle row's `aria-pressed` is the other half there. Falls back to `chartLegend.hidden`, then `'hidden'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "items", description: "One row per series, in the chart's order.", type: "readonly WrChartLegendItem[]", default: "[]" },
+    { name: "position", description: "Where the legend sits beside its chart. `top` and `bottom` lay the rows out in a wrapping line, `start` and `end` in a column, and `none` draws nothing - the list stays in the DOM, hidden, so `hiddenSeries` keeps working from outside.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "toggleable", description: "Make each row a toggle button that shows and hides its series, through `hiddenSeries` and `toggled`.", type: "boolean", default: "false" },
+    { name: "hiddenSeries", description: "The positions in `items` of the series that are hidden, ascending. Positions rather than labels: two series may share a label, and a label translated into another language would no longer match the one it hid. A position past the end of `items` is kept and ignored, so a series coming back finds its state. Written by a click on a `toggleable` row; read in either mode, so a legend that does not toggle still shows a series hidden from elsewhere as hidden.", type: "readonly number[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the list. A `toggleable` legend falls back to `chartLegend.toggleLabel` (\"Toggle series visibility\"), which tells a reader what its buttons do; one that does not toggle has no name unless given one.", type: "string | null", default: "null" },
+    { name: "(toggled)", description: "Emits when a reader shows or hides a series from a `toggleable` legend, after `hiddenSeries` moves.", type: "WrChartLegendToggle" },
+    { name: "hiddenLabel", description: "The word a hidden row of a legend that does not toggle carries after its name, visually hidden: the strike-through and the faded key are the eye's half of the state, and a toggle row's `aria-pressed` is the other half there. Falls back to `chartLegend.hidden`, then `'hidden'`.", type: "string | null", default: "null" },
   ],
   // <wr-chart-scale>
   WrChartScale: [
-    {
-      name: 'steps',
-      description: 'The paint of each step, lowest first: any CSS colour, `var(--wr-…)` included.',
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'minLabel',
-      description: 'What the lowest step stands for, written before the ramp. `null` writes nothing.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'maxLabel',
-      description: 'What the highest step stands for, written after the ramp. `null` writes nothing.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'position',
-      description:
-        "Where the key sits beside its chart, as a legend's `position`: it picks the margin that keeps it off the chart, and `none` draws nothing.",
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'block',
-      description: "The host chart's block, for its own class on each part. `null` adds none.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "steps", description: "The paint of each step, lowest first: any CSS colour, `var(--wr-…)` included.", type: "readonly string[]", default: "[]" },
+    { name: "minLabel", description: "What the lowest step stands for, written before the ramp. `null` writes nothing.", type: "string | null", default: "null" },
+    { name: "maxLabel", description: "What the highest step stands for, written after the ramp. `null` writes nothing.", type: "string | null", default: "null" },
+    { name: "position", description: "Where the key sits beside its chart, as a legend's `position`: it picks the margin that keeps it off the chart, and `none` draws nothing.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "block", description: "The host chart's block, for its own class on each part. `null` adds none.", type: "string | null", default: "null" },
   ],
   // <wr-checkbox>
   WrCheckbox: [
-    {
-      name: 'id',
-      description:
-        'Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.',
-      type: 'string',
-      default: 'Randomly generated',
-    },
-    {
-      name: 'checkboxValue',
-      description:
-        "This checkbox's identity when inside a `<wr-checkbox-group>` — the value added to / removed from the group's array. Ignored in standalone mode. (Named `checkboxValue`, not `value`, because `FormCheckboxControl` reserves `value`.)",
-      type: 'unknown',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name for a checkbox used WITHOUT projected text — a selection cell in a table, say. The wrapping `<label>` names the control whenever content is projected; with none, the native input has no name, and an `aria-label` put on the host lands on a `<wr-checkbox>` element that no screen reader ever announces.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabelledby',
-      description:
-        "Ids of the elements that name this checkbox, space-separated, for a box whose name is already on screen somewhere else — a table row's label cell, say, joined to an action word. Lands on the inner `<input>` as `aria-labelledby`, which wins over `ariaLabel` and over projected text. The ids have to resolve in the same document; one that matches nothing is skipped, and with none left the box falls back to `ariaLabel`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'checked',
-      description:
-        "Checked state — the form value. Bound by `[formField]`, two-way via `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`, where the group's array is the source of truth.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
-    {
-      name: 'disabled',
-      description:
-        "Disable the checkbox. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        'Refuse edits while staying focusable and submittable. Bound automatically from the field\'s readonly state when used with `[formField]`. A native `<input type="checkbox">` ignores the `readonly` attribute, so this cancels the click\'s activation behaviour instead — which covers Space too, since a checkbox turns Space into a click — and mirrors the state as `aria-readonly`, which role `checkbox` supports.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: 'WrCheckboxSize',
-      default: "'md'",
-    },
-    {
-      name: 'icon',
-      description:
-        'Optional icon name rendered inside the box when checked, in place of the default checkmark. Use any registered NGWR icon.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
-    {
-      name: 'indeterminate',
-      description:
-        'Show the indeterminate ("mixed") state — a dash instead of a check. Visual only and controlled: set it yourself for a parent "select all" whose children are partly checked, and clear it on the next toggle. Takes visual precedence over `checked`; the native input reports `aria-checked="mixed"`. A click the host does not answer still toggles `checked` underneath, and the dash and the mixed state both stay until the binding turns `false`.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "Randomly generated" },
+    { name: "checkboxValue", description: "This checkbox's identity when inside a `<wr-checkbox-group>` — the value added to / removed from the group's array. Ignored in standalone mode. (Named `checkboxValue`, not `value`, because `FormCheckboxControl` reserves `value`.)", type: "unknown", default: "null" },
+    { name: "ariaLabel", description: "Accessible name for a checkbox used WITHOUT projected text — a selection cell in a table, say. The wrapping `<label>` names the control whenever content is projected; with none, the native input has no name, and an `aria-label` put on the host lands on a `<wr-checkbox>` element that no screen reader ever announces.", type: "string | null", default: "null" },
+    { name: "ariaLabelledby", description: "Ids of the elements that name this checkbox, space-separated, for a box whose name is already on screen somewhere else — a table row's label cell, say, joined to an action word. Lands on the inner `<input>` as `aria-labelledby`, which wins over `ariaLabel` and over projected text. The ids have to resolve in the same document; one that matches nothing is skipped, and with none left the box falls back to `ariaLabel`.", type: "string | null", default: "null" },
+    { name: "checked", description: "Checked state — the form value. Bound by `[formField]`, two-way via `[(checked)]`, or `[(ngModel)]`. Ignored inside a `<wr-checkbox-group>`, where the group's array is the source of truth.", type: "boolean", default: "false" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "disabled", description: "Disable the checkbox. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native `<input type=\"checkbox\">` ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since a checkbox turns Space into a click — and mirrors the state as `aria-readonly`, which role `checkbox` supports.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrCheckboxSize", default: "'md'" },
+    { name: "icon", description: "Optional icon name rendered inside the box when checked, in place of the default checkmark. Use any registered NGWR icon.", type: "WrIconName | null", default: "null" },
+    { name: "indeterminate", description: "Show the indeterminate (\"mixed\") state — a dash instead of a check. Visual only and controlled: set it yourself for a parent \"select all\" whose children are partly checked, and clear it on the next toggle. Takes visual precedence over `checked`; the native input reports `aria-checked=\"mixed\"`. A click the host does not answer still toggles `checked` underneath, and the dash and the mixed state both stay until the binding turns `false`.", type: "boolean", default: "false" },
   ],
   // <wr-checkbox-group>
   WrCheckboxGroup: [
-    {
-      name: 'disabled',
-      description:
-        "Disable every child checkbox. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse edits on every child while they stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. No `aria-readonly` on the host: role `group` does not support it (the state is not global), so each child box mirrors its own instead.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'value',
-      description: "The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`.",
-      type: 'unknown[]',
-      default: '[]',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted when a child toggles so a bound field can mark itself touched.',
-      type: 'void',
-    },
+    { name: "disabled", description: "Disable every child checkbox. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits on every child while they stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. No `aria-readonly` on the host: role `group` does not support it (the state is not global), so each child box mirrors its own instead.", type: "boolean", default: "false" },
+    { name: "value", description: "The checked items' values. Bound by `[formField]`, or two-way via `[(value)]`.", type: "unknown[]", default: "[]" },
+    { name: "(touch)", description: "Emitted when a child toggles so a bound field can mark itself touched.", type: "void" },
   ],
   // <[wrClickOutside]>
   WrClickOutside: [
-    {
-      name: '(wrClickOutside)',
-      description:
-        'Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.',
-      type: 'MouseEvent',
-    },
+    { name: "(wrClickOutside)", description: "Fires on a pointer press that landed outside the host element. Close a menu or commit an inline edit with it; the event is the original click.", type: "MouseEvent" },
   ],
   // <[wrClickSparks]>
   WrClickSparks: [
-    {
-      name: 'wrClickSparks',
-      description:
-        'How many strokes one burst has. Written as the directive\'s own value: `wrClickSparks="10"`. Unset or empty, {@link CLICK_SPARKS_COUNT}.',
-      type: 'number',
-      default: 'CLICK_SPARKS_COUNT',
-    },
+    { name: "wrClickSparks", description: "How many strokes one burst has. Written as the directive's own value: `wrClickSparks=\"10\"`. Unset or empty, {@link CLICK_SPARKS_COUNT}.", type: "number", default: "CLICK_SPARKS_COUNT" },
   ],
   // <wr-collapse>
   WrCollapse: [
-    { name: 'title', description: 'Header text.', type: 'string', required: true },
-    { name: 'open', description: 'Two-way bindable open/closed state.', type: 'boolean', default: 'false' },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    {
-      name: 'bordered',
-      description:
-        'Draws the frame, the panel background and the rounded corners. Turn it off for a flat list: no frame, rows split by a divider line between neighbours.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'indicator',
-      description: 'The header glyph: `chevron` turns over, `plus` becomes a minus while open.',
-      type: 'WrCollapseIndicator',
-      default: "'chevron'",
-    },
+    { name: "title", description: "Header text.", type: "string", required: true },
+    { name: "open", description: "Two-way bindable open/closed state.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "bordered", description: "Draws the frame, the panel background and the rounded corners. Turn it off for a flat list: no frame, rows split by a divider line between neighbours.", type: "boolean", default: "true" },
+    { name: "indicator", description: "The header glyph: `chevron` turns over, `plus` becomes a minus while open.", type: "WrCollapseIndicator", default: "'chevron'" },
   ],
   // <wr-collapse-group>
   WrCollapseGroup: [
-    {
-      name: 'accordion',
-      description: 'When true, only one child may be open at a time.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "accordion", description: "When true, only one child may be open at a time.", type: "boolean", default: "false" },
   ],
   // <wr-color-picker>
   WrColorPicker: [
-    {
-      name: 'alpha',
-      description: 'Render the alpha slider and emit 8-digit hex / `rgba()`.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    {
-      name: 'readonly',
-      description:
-        'Refuse changes while every surface stays focusable and the colour still submits. Bound automatically from the field\'s readonly state when used with `[formField]`. The two sliders keep their tab stop and keep announcing `aria-valuenow` — they simply do not move — the hex / channel fields take the native `readonly` attribute, and the swatches go inert. Switching TABS still works: that changes which notation is displayed, not the colour. `aria-readonly` is mirrored on the sliders, which support it; the saturation surface is a `role="group"`, which does not, so it carries nothing.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'format',
-      description:
-        'Format the control writes into `value`. See {@link WrColorFormat} — all three are accepted on the way in whichever one is set.',
-      type: 'WrColorFormat',
-      default: "'hex'",
-    },
-    {
-      name: 'swatches',
-      description:
-        'Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. An entry is a colour string, or `{ value, label }` to give its button a name: a bare string announces itself, `#3366ff`.',
-      type: 'readonly WrColorPickerSwatch[]',
-      default: '[]',
-    },
-    {
-      name: 'size',
-      description:
-        'Panel size: its width, padding, the saturation surface and the thumbs. The preset buttons follow the width. The format tabs and the channel fields keep their size.',
-      type: 'WrColorPickerSize',
-      default: "'md'",
-    },
-    {
-      name: 'value',
-      description: 'The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'string',
-      default: "''",
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
+    { name: "alpha", description: "Render the alpha slider and emit 8-digit hex / `rgba()`.", type: "boolean", default: "true" },
+    { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while every surface stays focusable and the colour still submits. Bound automatically from the field's readonly state when used with `[formField]`. The two sliders keep their tab stop and keep announcing `aria-valuenow` — they simply do not move — the hex / channel fields take the native `readonly` attribute, and the swatches go inert. Switching TABS still works: that changes which notation is displayed, not the colour. `aria-readonly` is mirrored on the sliders, which support it; the saturation surface is a `role=\"group\"`, which does not, so it carries nothing.", type: "boolean", default: "false" },
+    { name: "format", description: "Format the control writes into `value`. See {@link WrColorFormat} — all three are accepted on the way in whichever one is set.", type: "WrColorFormat", default: "'hex'" },
+    { name: "swatches", description: "Preset hex colours rendered as a clickable row beneath the inputs. Empty = no row. An entry is a colour string, or `{ value, label }` to give its button a name: a bare string announces itself, `#3366ff`.", type: "readonly WrColorPickerSwatch[]", default: "[]" },
+    { name: "size", description: "Panel size: its width, padding, the saturation surface and the thumbs. The preset buttons follow the width. The format tabs and the channel fields keep their size.", type: "WrColorPickerSize", default: "'md'" },
+    { name: "value", description: "The selected colour as a string. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <[wrColorPickerTrigger]>
   WrColorPickerTrigger: [
-    { name: 'value', description: 'Two-way bindable colour value (hex string).', type: 'string', default: "''" },
-    { name: 'alpha', description: 'Forwarded to the inner picker.', type: 'boolean', default: 'true' },
-    { name: 'format', description: 'Forwarded to the inner picker.', type: 'WrColorFormat', default: "'hex'" },
-    {
-      name: 'swatches',
-      description: 'Forwarded to the inner picker.',
-      type: 'readonly WrColorPickerSwatch[]',
-      default: '[]',
-    },
-    {
-      name: 'size',
-      description: 'Forwarded to the inner picker: the size of the panel this opens.',
-      type: 'WrColorPickerSize',
-      default: "'md'",
-    },
-    { name: 'disabled', description: 'Disable the trigger entirely.', type: 'boolean', default: 'false' },
-    {
-      name: 'wrColorPickerTriggerAutoFocus',
-      description:
-        "Where focus goes when the picker opens. `false` leaves it on the trigger, and Tab from there walks into the panel; `'first-tabbable'` puts it on the saturation surface; `'dialog'` on the panel itself, with no ring. Closing hands focus back to the trigger whenever it was inside. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.",
-      type: 'WrOverlayAutoFocus',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the picker panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    { name: '(opened)', description: 'Fires after the picker opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the picker closes.', type: 'void' },
+    { name: "value", description: "Two-way bindable colour value (hex string).", type: "string", default: "''" },
+    { name: "alpha", description: "Forwarded to the inner picker.", type: "boolean", default: "true" },
+    { name: "format", description: "Forwarded to the inner picker.", type: "WrColorFormat", default: "'hex'" },
+    { name: "swatches", description: "Forwarded to the inner picker.", type: "readonly WrColorPickerSwatch[]", default: "[]" },
+    { name: "size", description: "Forwarded to the inner picker: the size of the panel this opens.", type: "WrColorPickerSize", default: "'md'" },
+    { name: "disabled", description: "Disable the trigger entirely.", type: "boolean", default: "false" },
+    { name: "wrColorPickerTriggerAutoFocus", description: "Where focus goes when the picker opens. `false` leaves it on the trigger, and Tab from there walks into the panel; `'first-tabbable'` puts it on the saturation surface; `'dialog'` on the panel itself, with no ring. Closing hands focus back to the trigger whenever it was inside. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.", type: "WrOverlayAutoFocus", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the picker panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "(opened)", description: "Fires after the picker opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the picker closes.", type: "void" },
   ],
   // <wr-command-palette>
   WrCommandPalette: [
-    {
-      name: 'paletteLabel',
-      description: "Accessible name. Falls back to `commandPalette.label`, then `'Command palette'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'items', description: 'Items shown in the palette.', type: 'readonly WrCommandItem[]', default: '[]' },
-    { name: 'open', description: 'Controlled open state (two-way bindable).', type: 'boolean', default: 'false' },
-    {
-      name: 'trigger',
-      description: 'Global hotkey that opens the palette. `null` disables auto-binding.',
-      type: 'WrHotkeySpec | null',
-      default: "'mod+k'",
-    },
-    {
-      name: 'placeholder',
-      description: 'Search input placeholder. Falls back to `commandPalette.placeholder`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'emptyText',
-      description: 'Text shown when no items match. Falls back to `commandPalette.noResults`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingText',
-      description:
-        'Overrides the `commandPalette.loading` catalog string, shown instead of {@link emptyText} while {@link loading} is true.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'closeOnPick',
-      description: 'Auto-close on `(picked)`. Set false to keep open.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: '(picked)', description: 'Fires when the user commits an item (Enter / click).', type: 'WrCommandItem' },
-    {
-      name: 'query',
-      description:
-        "The search text. Two-way, so a host can seed it, clear it, or read what the user is looking for — the palette used to keep this to itself, which is what made it impossible to back with anything but a static `items` array. Writing it does NOT re-run a host's search on its own: the debounced {@link searchChange} output is what fires, on exactly the cadence {@link debounceMs} sets.",
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'serverSearch',
-      description:
-        'The item list is already scoped to the query upstream — skip the built-in client-side filter. Set it when `[items]` is fed from a server via the {@link searchChange} output. Without this, a backend that ranks or tolerates typos (returning rows whose labels do not literally contain the query) would have those rows hidden again on the client — the same rule `wr-select` follows, and the same reason.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'loading',
-      description:
-        'A host-driven search is in flight. Swaps the empty row for {@link loadingText} — an async palette that says "No results" between every keystroke and its answer is stating something false.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'debounceMs',
-      description:
-        'How long the query must settle before {@link searchChange} fires, in ms. A search request per keystroke is what exhausts a metered search backend: typing `select` is six requests at 0 and roughly one at 250.',
-      type: 'number',
-      default: '250',
-    },
-    {
-      name: '(searchChange)',
-      description:
-        'The settled query. This is the hook for a server-backed palette: dispatch on it, then feed the result into `[items]` with `[serverSearch]` set. Fires on the {@link debounceMs} cadence, NOT per keystroke — `queryChange` is the per-keystroke signal if that is what you want.',
-      type: 'string',
-    },
+    { name: "paletteLabel", description: "Accessible name. Falls back to `commandPalette.label`, then `'Command palette'`.", type: "string | null", default: "null" },
+    { name: "items", description: "Items shown in the palette.", type: "readonly WrCommandItem[]", default: "[]" },
+    { name: "open", description: "Controlled open state (two-way bindable).", type: "boolean", default: "false" },
+    { name: "trigger", description: "Global hotkey that opens the palette. `null` disables auto-binding.", type: "WrHotkeySpec | null", default: "'mod+k'" },
+    { name: "placeholder", description: "Search input placeholder. Falls back to `commandPalette.placeholder`.", type: "string | null", default: "null" },
+    { name: "emptyText", description: "Text shown when no items match. Falls back to `commandPalette.noResults`.", type: "string | null", default: "null" },
+    { name: "loadingText", description: "Overrides the `commandPalette.loading` catalog string, shown instead of {@link emptyText} while {@link loading} is true.", type: "string | null", default: "null" },
+    { name: "closeOnPick", description: "Auto-close on `(picked)`. Set false to keep open.", type: "boolean", default: "true" },
+    { name: "(picked)", description: "Fires when the user commits an item (Enter / click).", type: "WrCommandItem" },
+    { name: "query", description: "The search text. Two-way, so a host can seed it, clear it, or read what the user is looking for — the palette used to keep this to itself, which is what made it impossible to back with anything but a static `items` array. Writing it does NOT re-run a host's search on its own: the debounced {@link searchChange} output is what fires, on exactly the cadence {@link debounceMs} sets.", type: "string", default: "''" },
+    { name: "serverSearch", description: "The item list is already scoped to the query upstream — skip the built-in client-side filter. Set it when `[items]` is fed from a server via the {@link searchChange} output. Without this, a backend that ranks or tolerates typos (returning rows whose labels do not literally contain the query) would have those rows hidden again on the client — the same rule `wr-select` follows, and the same reason.", type: "boolean", default: "false" },
+    { name: "loading", description: "A host-driven search is in flight. Swaps the empty row for {@link loadingText} — an async palette that says \"No results\" between every keystroke and its answer is stating something false.", type: "boolean", default: "false" },
+    { name: "debounceMs", description: "How long the query must settle before {@link searchChange} fires, in ms. A search request per keystroke is what exhausts a metered search backend: typing `select` is six requests at 0 and roughly one at 250.", type: "number", default: "250" },
+    { name: "(searchChange)", description: "The settled query. This is the hook for a server-backed palette: dispatch on it, then feed the result into `[items]` with `[serverSearch]` set. Fires on the {@link debounceMs} cadence, NOT per keystroke — `queryChange` is the per-keystroke signal if that is what you want.", type: "string" },
   ],
   // <wr-comment>
   WrComment: [
-    {
-      name: 'author',
-      description:
-        "Who wrote it. Also the article's accessible name. Leave it empty when a `[wrCommentAuthor]` element draws the name instead.",
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'time',
-      description:
-        'When it was written, already formatted: the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'datetime',
-      description:
-        'The same moment, machine-readable. With it the time renders as a `<time datetime>`: a `Date` is written as ISO 8601, a string as given.',
-      type: 'Date | string | null',
-      default: 'null',
-    },
-    {
-      name: 'variant',
-      description: '`row` is a discussion entry; `bubble` is a chat message, which takes no replies.',
-      type: 'WrCommentVariant',
-      default: "'row'",
-    },
-    {
-      name: 'side',
-      description:
-        "Which inline side a bubble sits on. `end` is the reader's own message. Ignored by the `row` variant.",
-      type: 'WrCommentSide',
-      default: "'start'",
-    },
-    {
-      name: 'repliesLabel',
-      description: "Accessible name of the replies group. Falls back to `comment.replies`, then `'Replies'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "author", description: "Who wrote it. Also the article's accessible name. Leave it empty when a `[wrCommentAuthor]` element draws the name instead.", type: "string", default: "''" },
+    { name: "time", description: "When it was written, already formatted: the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.", type: "string", default: "''" },
+    { name: "datetime", description: "The same moment, machine-readable. With it the time renders as a `<time datetime>`: a `Date` is written as ISO 8601, a string as given.", type: "Date | string | null", default: "null" },
+    { name: "variant", description: "`row` is a discussion entry; `bubble` is a chat message, which takes no replies.", type: "WrCommentVariant", default: "'row'" },
+    { name: "side", description: "Which inline side a bubble sits on. `end` is the reader's own message. Ignored by the `row` variant.", type: "WrCommentSide", default: "'start'" },
+    { name: "repliesLabel", description: "Accessible name of the replies group. Falls back to `comment.replies`, then `'Replies'`.", type: "string | null", default: "null" },
   ],
   // <wr-comment-composer>
   WrCommentComposer: [
-    { name: 'placeholder', description: 'Native placeholder text.', type: 'string', default: "''" },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name for the field. Falls back to the placeholder: the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'sendLabel',
-      description: "Accessible name of the send button. Falls back to `comment.send`, then `'Send'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'rows', description: 'Visible row count while the field is empty.', type: 'number', default: '1' },
-    {
-      name: 'maxRows',
-      description: 'Rows the field grows to before it scrolls on its own.',
-      type: 'number',
-      default: '6',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable the field and the button. Bound automatically from the field's disabled state when used with `[formField]`. The text is kept.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description: 'Read-only state: the text is shown and announced, keeps its tab stop and cannot be edited or sent.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'sending',
-      description:
-        'A send is in flight: the button is disabled, the host is `aria-busy` and Enter does nothing. The field stays editable and the text is kept.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'enterSends',
-      description:
-        '`true`: Enter sends and Shift+Enter adds a line. `false`: Enter adds a line and only Ctrl+Enter or Cmd+Enter sends.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'clearOnSend',
-      description:
-        'Clear the field before `send` emits. With `false` the text stays until the app clears the model itself.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'value',
-      description: 'The draft. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'string',
-      default: "''",
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
-    {
-      name: '(send)',
-      description: "The trimmed text, once per send. Where it goes is the app's business.",
-      type: 'string',
-    },
+    { name: "placeholder", description: "Native placeholder text.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder: the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.", type: "string | null", default: "null" },
+    { name: "sendLabel", description: "Accessible name of the send button. Falls back to `comment.send`, then `'Send'`.", type: "string | null", default: "null" },
+    { name: "rows", description: "Visible row count while the field is empty.", type: "number", default: "1" },
+    { name: "maxRows", description: "Rows the field grows to before it scrolls on its own.", type: "number", default: "6" },
+    { name: "disabled", description: "Disable the field and the button. Bound automatically from the field's disabled state when used with `[formField]`. The text is kept.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only state: the text is shown and announced, keeps its tab stop and cannot be edited or sent.", type: "boolean", default: "false" },
+    { name: "sending", description: "A send is in flight: the button is disabled, the host is `aria-busy` and Enter does nothing. The field stays editable and the text is kept.", type: "boolean", default: "false" },
+    { name: "enterSends", description: "`true`: Enter sends and Shift+Enter adds a line. `false`: Enter adds a line and only Ctrl+Enter or Cmd+Enter sends.", type: "boolean", default: "true" },
+    { name: "clearOnSend", description: "Clear the field before `send` emits. With `false` the text stays until the app clears the model itself.", type: "boolean", default: "true" },
+    { name: "value", description: "The draft. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(send)", description: "The trimmed text, once per send. Where it goes is the app's business.", type: "string" },
   ],
   // <wr-compare>
   WrCompare: [
-    {
-      name: 'position',
-      description: 'Divider position as a percentage (0–100). Two-way bindable.',
-      type: 'number',
-      default: '50',
-    },
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name of the divider. Falls back to `compare.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'orientation',
-      description:
-        "Divider direction: - `'horizontal'` — divider line is vertical, drags left/right. - `'vertical'` — divider line is horizontal, drags up/down.",
-      type: "'horizontal' | 'vertical'",
-      default: "'horizontal'",
-    },
-    { name: 'showHandle', description: 'Show the round drag handle on the divider.', type: 'boolean', default: 'true' },
-    { name: 'disabled', description: 'Disable interaction (divider stays put).', type: 'boolean', default: 'false' },
-    {
-      name: 'minPosition',
-      description: 'Lowest position the divider may reach, in percent.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'maxPosition',
-      description: 'Highest position the divider may reach, in percent.',
-      type: 'number',
-      default: '100',
-    },
+    { name: "position", description: "Divider position as a percentage (0–100). Two-way bindable.", type: "number", default: "50" },
+    { name: "ariaLabel", description: "Accessible name of the divider. Falls back to `compare.label`.", type: "string | null", default: "null" },
+    { name: "orientation", description: "Divider direction: - `'horizontal'` — divider line is vertical, drags left/right. - `'vertical'` — divider line is horizontal, drags up/down.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
+    { name: "showHandle", description: "Show the round drag handle on the divider.", type: "boolean", default: "true" },
+    { name: "disabled", description: "Disable interaction (divider stays put).", type: "boolean", default: "false" },
+    { name: "minPosition", description: "Lowest position the divider may reach, in percent.", type: "number", default: "0" },
+    { name: "maxPosition", description: "Highest position the divider may reach, in percent.", type: "number", default: "100" },
   ],
   // <[wrContextMenu]>
   WrContextMenu: [
-    {
-      name: 'wrContextMenu',
-      description: 'Menu to open. Pass a `<wr-context-menu>` template reference.',
-      type: 'WrContextMenuPanel',
-      required: true,
-    },
-    {
-      name: 'wrContextMenuAutoFocus',
-      description:
-        'Focus the first item when the menu opens. Off, focus stays on the element that had it, and while the menu is open ArrowDown / ArrowUp anywhere on the page walk into it at its first / last item; a letter jumps to the item it starts. Closing hands focus back only when it was inside. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "wrContextMenu", description: "Menu to open. Pass a `<wr-context-menu>` template reference.", type: "WrContextMenuPanel", required: true },
+    { name: "wrContextMenuAutoFocus", description: "Focus the first item when the menu opens. Off, focus stays on the element that had it, and while the menu is open ArrowDown / ArrowUp anywhere on the page walk into it at its first / last item; a letter jumps to the item it starts. Closing hands focus back only when it was inside. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.", type: "boolean", default: "false" },
   ],
   // <wr-context-menu-item>
   WrContextMenuItem: [
-    { name: 'icon', description: 'Optional leading icon name.', type: 'WrIconName | null', default: 'null' },
-    {
-      name: 'disabled',
-      description: 'Disable interaction (suppresses pointer + keyboard).',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'submenu',
-      description:
-        'Optional nested `<wr-context-menu>`. When set, hovering the item (or pressing →) opens it to the right with a chevron indicator.',
-      type: 'WrContextMenuPanel | null',
-      default: 'null',
-    },
+    { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
+    { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
+    { name: "submenu", description: "Optional nested `<wr-context-menu>`. When set, hovering the item (or pressing →) opens it to the right with a chevron indicator.", type: "WrContextMenuPanel | null", default: "null" },
   ],
   // <wr-context-menu>
   WrContextMenuPanel: [
-    {
-      name: 'panelClass',
-      description:
-        'Extra CSS classes for the menu box. It goes on the box rather than on the CDK pane, and that is what makes one input cover a whole cascade: only the inner `<div>` of this template is portalled into the overlay, the host element stays behind at `display: none`, and every submenu is its own `<wr-context-menu>` — so a class written on each one reaches each panel, with nothing to plumb from the trigger down.',
-      type: 'WrClassInput',
-      default: 'null',
-    },
+    { name: "panelClass", description: "Extra CSS classes for the menu box. It goes on the box rather than on the CDK pane, and that is what makes one input cover a whole cascade: only the inner `<div>` of this template is portalled into the overlay, the host element stays behind at `display: none`, and every submenu is its own `<wr-context-menu>` — so a class written on each one reaches each panel, with nothing to plumb from the trigger down.", type: "WrClassInput", default: "null" },
   ],
   // <[wrCopyToClipboard]>
   WrCopyToClipboard: [
-    { name: 'wrCopyToClipboard', description: 'The text to copy.', type: 'string', required: true },
-    {
-      name: 'wrCopyToClipboardToast',
-      description: 'Confirm a copy with a toast instead of the tooltip and the announcement.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'copiedLabel',
-      description:
-        "Text of the tooltip, the announcement and the toast. Falls back to `copyToClipboard.copied`, then `'Copied'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: '(copied)', description: 'Emitted with the copied text once the write succeeds.', type: 'string' },
-    {
-      name: '(copyFailed)',
-      description: 'Emitted if the copy fails (denied permission, no clipboard, …).',
-      type: 'unknown',
-    },
+    { name: "wrCopyToClipboard", description: "The text to copy.", type: "string", required: true },
+    { name: "wrCopyToClipboardToast", description: "Confirm a copy with a toast instead of the tooltip and the announcement.", type: "boolean", default: "false" },
+    { name: "copiedLabel", description: "Text of the tooltip, the announcement and the toast. Falls back to `copyToClipboard.copied`, then `'Copied'`.", type: "string | null", default: "null" },
+    { name: "(copied)", description: "Emitted with the copied text once the write succeeds.", type: "string" },
+    { name: "(copyFailed)", description: "Emitted if the copy fails (denied permission, no clipboard, …).", type: "unknown" },
   ],
   // <wr-copy-value>
   WrCopyValue: [
-    {
-      name: 'value',
-      description: "The value shown and copied. `null`, `undefined` and `''` are empty.",
-      type: 'string | number | null | undefined',
-      default: 'null',
-    },
-    {
-      name: 'wrap',
-      description: 'Let a long value wrap over several lines instead of truncating it.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'copyLabel',
-      description: "Accessible name and tooltip of the button. Falls back to `copyValue.copy`, then `'Copy'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'copiedLabel',
-      description: "Tooltip and announcement after a copy. Falls back to `copyValue.copied`, then `'Copied'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'emptyLabel',
-      description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: '(copied)', description: 'Emitted with the text that reached the clipboard.', type: 'string' },
-    { name: '(copyFailed)', description: 'Emitted when the browser refused the write.', type: 'void' },
+    { name: "value", description: "The value shown and copied. `null`, `undefined` and `''` are empty.", type: "string | number | null | undefined", default: "null" },
+    { name: "wrap", description: "Let a long value wrap over several lines instead of truncating it.", type: "boolean", default: "false" },
+    { name: "copyLabel", description: "Accessible name and tooltip of the button. Falls back to `copyValue.copy`, then `'Copy'`.", type: "string | null", default: "null" },
+    { name: "copiedLabel", description: "Tooltip and announcement after a copy. Falls back to `copyValue.copied`, then `'Copied'`.", type: "string | null", default: "null" },
+    { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
+    { name: "(copied)", description: "Emitted with the text that reached the clipboard.", type: "string" },
+    { name: "(copyFailed)", description: "Emitted when the browser refused the write.", type: "void" },
   ],
   // <wr-counter>
   WrCounter: [
-    {
-      name: 'value',
-      description:
-        'The number to show. Coerced like every other numeric input here — it was the only one without it, and `Intl.NumberFormat().format(NaN)` renders the literal text `NaN`.',
-      type: 'number',
-      required: true,
-    },
-    { name: 'mode', description: 'Animation mode.', type: 'WrCounterMode', default: "'odometer'" },
-    { name: 'duration', description: 'Duration (ms).', type: 'number', default: '900' },
-    { name: 'decimals', description: 'Fixed number of decimals.', type: 'number', default: '0' },
-    { name: 'prefix', description: "Optional prefix (e.g. `'$'`).", type: 'string', default: "''" },
-    { name: 'suffix', description: "Optional suffix (e.g. `'%'`).", type: 'string', default: "''" },
-    { name: 'grouping', description: 'Group thousands.', type: 'boolean', default: 'true' },
-    {
-      name: 'minIntegerDigits',
-      description: 'Pad integer part to at least this many digits.',
-      type: 'number',
-      default: '0 (no padding)',
-    },
+    { name: "value", description: "The number to show. Coerced like every other numeric input here — it was the only one without it, and `Intl.NumberFormat().format(NaN)` renders the literal text `NaN`.", type: "number", required: true },
+    { name: "mode", description: "Animation mode.", type: "WrCounterMode", default: "'odometer'" },
+    { name: "duration", description: "Duration (ms).", type: "number", default: "900" },
+    { name: "decimals", description: "Fixed number of decimals.", type: "number", default: "0" },
+    { name: "prefix", description: "Optional prefix (e.g. `'$'`).", type: "string", default: "''" },
+    { name: "suffix", description: "Optional suffix (e.g. `'%'`).", type: "string", default: "''" },
+    { name: "grouping", description: "Group thousands.", type: "boolean", default: "true" },
+    { name: "minIntegerDigits", description: "Pad integer part to at least this many digits.", type: "number", default: "0 (no padding)" },
   ],
   // <wr-count-up>
   WrCountUp: [
-    { name: 'from', description: 'Starting value.', type: 'number', default: '0' },
-    { name: 'to', description: 'Target value.', type: 'number', required: true },
-    {
-      name: 'duration',
-      description:
-        "Animation duration, in the units its easing reads, or `null` for that easing's own default: - `ease-out` — milliseconds (default 1200, min 100) - `spring` — seconds, roughly how long the spring takes to settle (default 2, min 0.05)",
-      type: 'number | null',
-      default: 'null',
-    },
-    { name: 'delay', description: 'Optional delay (ms) before the animation starts.', type: 'number', default: '0' },
-    { name: 'easing', description: 'Animation curve.', type: 'WrCountUpEasing', default: "'ease-out'" },
-    {
-      name: 'trigger',
-      description:
-        "When to start the animation. - `'mount'` (default) — start as soon as the component is rendered. - `'visible'` — wait for the host to enter the viewport (IntersectionObserver). Useful for long pages or hero numbers below the fold.",
-      type: 'WrCountUpTrigger',
-      default: "'mount'",
-    },
-    {
-      name: 'direction',
-      description: "Counting direction. `'down'` swaps `from` ↔ `to`.",
-      type: 'WrCountUpDirection',
-      default: "'up'",
-    },
-    { name: 'decimals', description: 'Fixed number of decimals.', type: 'number', default: '0' },
-    { name: 'prefix', description: "Optional prefix (e.g. `'$'`).", type: 'string', default: "''" },
-    { name: 'suffix', description: "Optional suffix (e.g. `'%'`).", type: 'string', default: "''" },
-    {
-      name: 'grouping',
-      description: 'Disable grouping separators (`1,234` → `1234`).',
-      type: 'boolean',
-      default: 'true (grouping on)',
-    },
-    { name: '(started)', description: 'Emits when the animation begins.', type: 'void' },
-    { name: '(completed)', description: 'Emits when the animation settles.', type: 'void' },
+    { name: "from", description: "Starting value.", type: "number", default: "0" },
+    { name: "to", description: "Target value.", type: "number", required: true },
+    { name: "duration", description: "Animation duration, in the units its easing reads, or `null` for that easing's own default: - `ease-out` — milliseconds (default 1200, min 100) - `spring` — seconds, roughly how long the spring takes to settle (default 2, min 0.05)", type: "number | null", default: "null" },
+    { name: "delay", description: "Optional delay (ms) before the animation starts.", type: "number", default: "0" },
+    { name: "easing", description: "Animation curve.", type: "WrCountUpEasing", default: "'ease-out'" },
+    { name: "trigger", description: "When to start the animation. - `'mount'` (default) — start as soon as the component is rendered. - `'visible'` — wait for the host to enter the viewport (IntersectionObserver). Useful for long pages or hero numbers below the fold.", type: "WrCountUpTrigger", default: "'mount'" },
+    { name: "direction", description: "Counting direction. `'down'` swaps `from` ↔ `to`.", type: "WrCountUpDirection", default: "'up'" },
+    { name: "decimals", description: "Fixed number of decimals.", type: "number", default: "0" },
+    { name: "prefix", description: "Optional prefix (e.g. `'$'`).", type: "string", default: "''" },
+    { name: "suffix", description: "Optional suffix (e.g. `'%'`).", type: "string", default: "''" },
+    { name: "grouping", description: "Disable grouping separators (`1,234` → `1234`).", type: "boolean", default: "true (grouping on)" },
+    { name: "(started)", description: "Emits when the animation begins.", type: "void" },
+    { name: "(completed)", description: "Emits when the animation settles.", type: "void" },
   ],
   // <wr-date-picker>
   WrDatePicker: [
-    {
-      name: 'mode',
-      description:
-        "What the picker picks: `'date'`, `'time'`, `'datetime'`, or a period held as its first day: `'week'`, `'month'`, `'quarter'`, `'year'`.",
-      type: 'WrDatePickerMode',
-      default: "'date'",
-    },
-    {
-      name: 'format',
-      description:
-        'Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`, and with a format (`MM.yyyy`) reads the typed date as the period it is in.',
-      type: 'WrDateFormat | string | null',
-      default: 'null',
-    },
-    { name: 'placeholder', description: 'Placeholder shown when the input is empty.', type: 'string', default: "''" },
-    {
-      name: 'valueFormat',
-      description:
-        "What the `value` model holds. `'date'` is a `Date`. `'day'` is a `YYYY-MM-DD` string, the browser-local day `wrToDay` from `ngwr/date` writes, so a form posts what the picker holds. A string that is not a valid day in that form reads as empty. It applies where the value is a day: `mode=\"date\"` and the period modes, which hold their first day. `time` and `datetime` hold an instant, which a day string cannot carry: they ignore it, keep a `Date`, and warn in dev mode. Only the model changes. `dateFilter` is still called with a `Date`, and a refusal still carries `Date`s in its payload.",
-      type: 'F',
-      default: "'date'",
-    },
-    {
-      name: 'min',
-      description:
-        'Min selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that ends before it.',
-      type: 'Date | string | undefined',
-      default: 'undefined',
-    },
-    {
-      name: 'max',
-      description:
-        'Max selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that starts after it.',
-      type: 'Date | string | undefined',
-      default: 'undefined',
-    },
-    {
-      name: 'dateFilter',
-      description:
-        'Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. Called with a `Date` at local midnight under either `valueFormat`.',
-      type: '((date: Date) => boolean) | null',
-      default: 'null',
-    },
-    {
-      name: 'timeFormat',
-      description:
-        "12 / 24-hour clock, in the time panel and in the field, unless `format` is set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.",
-      type: "'auto' | '12h' | '24h'",
-      default: "'auto'",
-    },
-    {
-      name: 'showSeconds',
-      description:
-        'Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'step', description: 'Minute / second step for the time panel.', type: 'number', default: '1' },
-    {
-      name: 'size',
-      description:
-        "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.",
-      type: 'WrDatePickerSize',
-      default: "'md'",
-    },
-    {
-      name: 'block',
-      description: "Stretch the field to fill its parent's width. The panel keeps its size.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rounded',
-      description: 'Pill-shaped corners on the field. The panel keeps its shape.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'clearable',
-      description:
-        'Show a clear (×) button once a date is picked. It is a pointer control: from the keyboard, emptying the field clears the value.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'clearLabel',
-      description: 'Clear (×) button aria-label. Falls back to `common.clear`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description: 'Read-only — input not typeable, but the trigger icon still opens the overlay.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'value',
-      description:
-        'The picked value: a `Date`, or a `YYYY-MM-DD` string with `valueFormat="day"`. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'WrDatePickerValue<F> | null',
-      default: 'null',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
-    { name: '(opened)', description: 'Fires after the popup opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the popup closes.', type: 'void' },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the text field. Falls back to the placeholder, then to the same catalog string the calendar button uses — the field is a `role="combobox"`, and with an empty placeholder it had no name at all.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'panelAriaLabel',
-      description:
-        'Accessible name of the popup. The trigger advertises `aria-haspopup="dialog"`, so the panel is a `role="dialog"` — and an unnamed dialog announces as a bare "dialog". Defaults to the catalog\'s `datePicker.panel*` string for the current `mode`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'autoFocus',
-      description:
-        'Move focus into the panel when a pointer press on the calendar button opens it. Off by default: the press leaves focus on the button, and the keyboard is what moves in, by Enter or Space on the button, `Alt+ArrowDown` in the field, or `ArrowDown` once the panel is open. Closing hands focus back to where it came from whenever it was inside.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
+    { name: "mode", description: "What the picker picks: `'date'`, `'time'`, `'datetime'`, or a period held as its first day: `'week'`, `'month'`, `'quarter'`, `'year'`.", type: "WrDatePickerMode", default: "'date'" },
+    { name: "format", description: "Format used for both display and parsing. When `null` (default), the format is derived from `mode` (`shortDate` / `time` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`time24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`, and with a format (`MM.yyyy`) reads the typed date as the period it is in.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
+    { name: "valueFormat", description: "What the `value` model holds. `'date'` is a `Date`. `'day'` is a `YYYY-MM-DD` string, the browser-local day `wrToDay` from `ngwr/date` writes, so a form posts what the picker holds. A string that is not a valid day in that form reads as empty. It applies where the value is a day: `mode=\"date\"` and the period modes, which hold their first day. `time` and `datetime` hold an instant, which a day string cannot carry: they ignore it, keep a `Date`, and warn in dev mode. Only the model changes. `dateFilter` is still called with a `Date`, and a refusal still carries `Date`s in its payload.", type: "F", default: "'date'" },
+    { name: "min", description: "Min selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that ends before it.", type: "Date | string | undefined", default: "undefined" },
+    { name: "max", description: "Max selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that starts after it.", type: "Date | string | undefined", default: "undefined" },
+    { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. Called with a `Date` at local midnight under either `valueFormat`.", type: "((date: Date) => boolean) | null", default: "null" },
+    { name: "timeFormat", description: "12 / 24-hour clock, in the time panel and in the field, unless `format` is set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
+    { name: "showSeconds", description: "Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
+    { name: "step", description: "Minute / second step for the time panel.", type: "number", default: "1" },
+    { name: "size", description: "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrDatePickerSize", default: "'md'" },
+    { name: "block", description: "Stretch the field to fill its parent's width. The panel keeps its size.", type: "boolean", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners on the field. The panel keeps its shape.", type: "boolean", default: "false" },
+    { name: "clearable", description: "Show a clear (×) button once a date is picked. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only — input not typeable, but the trigger icon still opens the overlay.", type: "boolean", default: "false" },
+    { name: "value", description: "The picked value: a `Date`, or a `YYYY-MM-DD` string with `valueFormat=\"day\"`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrDatePickerValue<F> | null", default: "null" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(opened)", description: "Fires after the popup opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the popup closes.", type: "void" },
+    { name: "ariaLabel", description: "Accessible name of the text field. Falls back to the placeholder, then to the same catalog string the calendar button uses — the field is a `role=\"combobox\"`, and with an empty placeholder it had no name at all.", type: "string | null", default: "null" },
+    { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the panel is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panel*` string for the current `mode`.", type: "string | null", default: "null" },
+    { name: "autoFocus", description: "Move focus into the panel when a pointer press on the calendar button opens it. Off by default: the press leaves focus on the button, and the keyboard is what moves in, by Enter or Space on the button, `Alt+ArrowDown` in the field, or `ArrowDown` once the panel is open. Closing hands focus back to where it came from whenever it was inside.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
   // <wr-date-range-picker>
   WrDateRangePicker: [
-    {
-      name: 'mode',
-      description:
-        "What each end picks: `'date'`, `'datetime'`, or a period: `'month'`, `'quarter'`, `'year'`. A range of periods runs to the last day of the end period.",
-      type: 'WrDateRangePickerMode',
-      default: "'date'",
-    },
-    {
-      name: 'format',
-      description:
-        'Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`.',
-      type: 'WrDateFormat | string | null',
-      default: 'null',
-    },
-    { name: 'startPlaceholder', description: 'Placeholder for the start input.', type: 'string', default: "''" },
-    { name: 'endPlaceholder', description: 'Placeholder for the end input.', type: 'string', default: "''" },
-    { name: 'separator', description: 'Glyph rendered between the two inputs.', type: 'string', default: "'–'" },
-    {
-      name: 'minDate',
-      description: 'Min selectable date, applied to both ends.',
-      type: 'Date | null',
-      default: 'null',
-    },
-    {
-      name: 'maxDate',
-      description: 'Max selectable date, applied to both ends.',
-      type: 'Date | null',
-      default: 'null',
-    },
-    {
-      name: 'dateFilter',
-      description: 'Predicate to disable specific dates (forwarded to the calendar).',
-      type: '((date: Date) => boolean) | null',
-      default: 'null',
-    },
-    {
-      name: 'timeFormat',
-      description:
-        "12 / 24-hour clock, in the time panels and in both fields, unless `format` is set. `'auto'` follows the locale. Applies in `datetime` mode.",
-      type: "'auto' | '12h' | '24h'",
-      default: "'auto'",
-    },
-    {
-      name: 'showSeconds',
-      description:
-        'Show seconds, in the time panels and in both fields, unless `format` is set. Applies in `datetime` mode.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'step', description: 'Minute / second step for the time panels.', type: 'number', default: '1' },
-    {
-      name: 'size',
-      description:
-        "Control size — forwarded to each field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.",
-      type: 'WrDatePickerSize',
-      default: "'md'",
-    },
-    {
-      name: 'block',
-      description: "Stretch the field to fill its parent's width. The panel keeps its size.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rounded',
-      description: 'Pill-shaped corners on the field. The panel keeps its shape.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'clearable',
-      description:
-        'Show a clear (×) button once either end is picked. It is a pointer control: from the keyboard, emptying both fields clears the value.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'presets',
-      description:
-        "One-click ranges, drawn as a list of buttons on the start side of the panel. A click commits the range, closes the panel and emits `touch`, in both modes. The preset whose range equals the value is marked pressed, and one that reaches outside `minDate` / `maxDate` is disabled. The labels are the app's: the library ships none. A range function is called when the panel opens, with today in the display time zone. `wrLastDays`, `wrThisWeek`, `wrThisMonth` and `wrLastMonth` return one. See {@link WrDateRangePreset} for what each mode commits.",
-      type: 'readonly WrDateRangePreset[]',
-      default: '[]',
-    },
-    {
-      name: 'presetsLabel',
-      description: 'Accessible name of the preset list. The library ships none.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'clearLabel',
-      description: 'Clear (×) button aria-label. Falls back to `common.clear`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        'Read-only — neither the inputs nor the calendar can change the value. Deliberately stricter than `wr-date-picker`, which still opens its popup while read-only: with two fields feeding one calendar there is no reading of "untypeable" that leaves the grid free to rewrite both ends. The doc used to promise the trigger still opened; the code has always refused, and refusing is the behaviour worth keeping.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'value',
-      description: 'The picked range. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'WrDateRange | null',
-      default: 'null',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
-    { name: '(opened)', description: 'Fires after the popup opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the popup closes.', type: 'void' },
-    {
-      name: 'panelAriaLabel',
-      description:
-        'Accessible name of the popup. The trigger advertises `aria-haspopup="dialog"`, so the pane is a `role="dialog"` — and an unnamed dialog announces as a bare "dialog". Defaults to the catalog\'s `datePicker.panelRange*` string for the current `mode`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'autoFocus',
-      description:
-        'Move focus into the panel when a pointer press on the calendar button opens it. Off by default: the press leaves focus on the button, and the keyboard is what moves in, by Enter or Space on the button, `Alt+ArrowDown` in the field, or `ArrowDown` once the panel is open. Closing hands focus back to where it came from whenever it was inside.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
+    { name: "mode", description: "What each end picks: `'date'`, `'datetime'`, or a period: `'month'`, `'quarter'`, `'year'`. A range of periods runs to the last day of the end period.", type: "WrDateRangePickerMode", default: "'date'" },
+    { name: "format", description: "Format used for both display and parsing, on both ends. When `null` (default), it is derived from `mode` (`shortDate` / `shortDateTime`), with the hour cycle of `timeFormat` and the seconds of `showSeconds` (`shortDateTime24hSeconds`, …). Pass a named key or raw token string to override. A period mode writes the period when this is `null`.", type: "WrDateFormat | string | null", default: "null" },
+    { name: "startPlaceholder", description: "Placeholder for the start input.", type: "string", default: "''" },
+    { name: "endPlaceholder", description: "Placeholder for the end input.", type: "string", default: "''" },
+    { name: "separator", description: "Glyph rendered between the two inputs.", type: "string", default: "'–'" },
+    { name: "minDate", description: "Min selectable date, applied to both ends.", type: "Date | null", default: "null" },
+    { name: "maxDate", description: "Max selectable date, applied to both ends.", type: "Date | null", default: "null" },
+    { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar).", type: "((date: Date) => boolean) | null", default: "null" },
+    { name: "timeFormat", description: "12 / 24-hour clock, in the time panels and in both fields, unless `format` is set. `'auto'` follows the locale. Applies in `datetime` mode.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
+    { name: "showSeconds", description: "Show seconds, in the time panels and in both fields, unless `format` is set. Applies in `datetime` mode.", type: "boolean", default: "false" },
+    { name: "step", description: "Minute / second step for the time panels.", type: "number", default: "1" },
+    { name: "size", description: "Control size — forwarded to each field's `[size]`, and shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrDatePickerSize", default: "'md'" },
+    { name: "block", description: "Stretch the field to fill its parent's width. The panel keeps its size.", type: "boolean", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners on the field. The panel keeps its shape.", type: "boolean", default: "false" },
+    { name: "clearable", description: "Show a clear (×) button once either end is picked. It is a pointer control: from the keyboard, emptying both fields clears the value.", type: "boolean", default: "false" },
+    { name: "presets", description: "One-click ranges, drawn as a list of buttons on the start side of the panel. A click commits the range, closes the panel and emits `touch`, in both modes. The preset whose range equals the value is marked pressed, and one that reaches outside `minDate` / `maxDate` is disabled. The labels are the app's: the library ships none. A range function is called when the panel opens, with today in the display time zone. `wrLastDays`, `wrThisWeek`, `wrThisMonth` and `wrLastMonth` return one. See {@link WrDateRangePreset} for what each mode commits.", type: "readonly WrDateRangePreset[]", default: "[]" },
+    { name: "presetsLabel", description: "Accessible name of the preset list. The library ships none.", type: "string | null", default: "null" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only — neither the inputs nor the calendar can change the value. Deliberately stricter than `wr-date-picker`, which still opens its popup while read-only: with two fields feeding one calendar there is no reading of \"untypeable\" that leaves the grid free to rewrite both ends. The doc used to promise the trigger still opened; the code has always refused, and refusing is the behaviour worth keeping.", type: "boolean", default: "false" },
+    { name: "value", description: "The picked range. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrDateRange | null", default: "null" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(opened)", description: "Fires after the popup opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the popup closes.", type: "void" },
+    { name: "panelAriaLabel", description: "Accessible name of the popup. The trigger advertises `aria-haspopup=\"dialog\"`, so the pane is a `role=\"dialog\"` — and an unnamed dialog announces as a bare \"dialog\". Defaults to the catalog's `datePicker.panelRange*` string for the current `mode`.", type: "string | null", default: "null" },
+    { name: "autoFocus", description: "Move focus into the panel when a pointer press on the calendar button opens it. Off by default: the press leaves focus on the button, and the keyboard is what moves in, by Enter or Space on the button, `Alt+ArrowDown` in the field, or `ArrowDown` once the panel is open. Closing hands focus back to where it came from whenever it was inside.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the calendar panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
   ],
   // <wr-date-stamp>
   WrDateStamp: [
-    {
-      name: 'value',
-      description:
-        "The moment shown: a `Date`, an epoch number, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.",
-      type: 'Date | string | number | null | undefined',
-      default: 'null',
-    },
-    {
-      name: 'dateFormat',
-      description:
-        "Format of the first line: a named key or a token string (`'d MMM yyyy'`). `withDates({ stamp })` changes the default.",
-      type: 'WrDateFormat | string',
-      default: "'mediumDate'",
-    },
-    {
-      name: 'timeFormat',
-      description:
-        "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`). `withDates({ stamp })` changes the default.",
-      type: 'WrDateFormat | string',
-      default: "'time'",
-    },
-    {
-      name: 'seconds',
-      description:
-        "Write the seconds in the time line: `'time'` is read as `'timeSeconds'` and `'HH:mm'` as `'HH:mm:ss'`. A format that already has them is left alone. `withDates({ stamp })` changes the default.",
-      type: 'unknown',
-      default: 'false',
-    },
-    {
-      name: 'todayTimeOnly',
-      description:
-        'Show the time alone for a value from today. Today is the day in the display zone, read when the stamp renders: one left on screen past midnight keeps its single line. A date-only value keeps its date. `withDates({ stamp })` changes the default.',
-      type: 'unknown',
-      default: 'false',
-    },
-    {
-      name: 'epochUnit',
-      description:
-        "What a number in `value` counts since the epoch: `'ms'`, `'us'`, `'s'` or `'auto'`, by size. `null` follows `withDates({ epochUnit })`.",
-      type: 'WrEpochUnit | null',
-      default: 'null',
-    },
-    {
-      name: 'emptyLabel',
-      description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "value", description: "The moment shown: a `Date`, an epoch number, or a string `wrParseDate` reads. `null`, `undefined`, `''` and a value that is not a date are empty.", type: "Date | string | number | null | undefined", default: "null" },
+    { name: "dateFormat", description: "Format of the first line: a named key or a token string (`'d MMM yyyy'`). `withDates({ stamp })` changes the default.", type: "WrDateFormat | string", default: "'mediumDate'" },
+    { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`). `withDates({ stamp })` changes the default.", type: "WrDateFormat | string", default: "'time'" },
+    { name: "seconds", description: "Write the seconds in the time line: `'time'` is read as `'timeSeconds'` and `'HH:mm'` as `'HH:mm:ss'`. A format that already has them is left alone. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
+    { name: "todayTimeOnly", description: "Show the time alone for a value from today. Today is the day in the display zone, read when the stamp renders: one left on screen past midnight keeps its single line. A date-only value keeps its date. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
+    { name: "epochUnit", description: "What a number in `value` counts since the epoch: `'ms'`, `'us'`, `'s'` or `'auto'`, by size. `null` follows `withDates({ epochUnit })`.", type: "WrEpochUnit | null", default: "null" },
+    { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
   ],
   // <[wrDecode]>
   WrDecode: [
-    {
-      name: 'trigger',
-      description:
-        '`view` plays once, the first time most of the host is in the viewport. `hover` plays on every pointer enter and focus of the host or its closest focusable ancestor, but never restarts while already playing.',
-      type: 'WrDecodeTrigger',
-      default: "'view'",
-    },
-    {
-      name: 'glyphs',
-      description:
-        'The characters random glyphs are drawn from, for every slot. Unset, each slot draws from the shape of its own character: uppercase letters and digits for an uppercase letter, lowercase for lowercase, digits for a digit, a few symbols for anything else.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'stagger',
-      description:
-        'Gap between one slot locking and the next, in ms. Unset, 36. Either way the locks spread over 1.2 s at most, so for a long text the gap shrinks until the last slot locks by then.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'delay',
-      description: 'Pause between the trigger and the first glyph, in ms. The text stands as authored meanwhile.',
-      type: 'number',
-      default: '0',
-    },
+    { name: "trigger", description: "`view` plays once, the first time most of the host is in the viewport. `hover` plays on every pointer enter and focus of the host or its closest focusable ancestor, but never restarts while already playing.", type: "WrDecodeTrigger", default: "'view'" },
+    { name: "glyphs", description: "The characters random glyphs are drawn from, for every slot. Unset, each slot draws from the shape of its own character: uppercase letters and digits for an uppercase letter, lowercase for lowercase, digits for a digit, a few symbols for anything else.", type: "string | null", default: "null" },
+    { name: "stagger", description: "Gap between one slot locking and the next, in ms. Unset, 36. Either way the locks spread over 1.2 s at most, so for a long text the gap shrinks until the last slot locks by then.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause between the trigger and the first glyph, in ms. The text stands as authored meanwhile.", type: "number", default: "0" },
   ],
   // <[wrDensity]>
   WrDensityDirective: [
-    { name: 'wrDensity', description: 'Density to apply to this subtree.', type: 'WrDensityValue', required: true },
+    { name: "wrDensity", description: "Density to apply to this subtree.", type: "WrDensityValue", required: true },
   ],
   // <wr-description-item>
   WrDescriptionItem: [
-    {
-      name: 'label',
-      description:
-        'The term shown beside the projected value — "Email", "Created". Keep it a noun: it is read as the name of the value, not as a sentence.',
-      type: 'string',
-      default: "''",
-    },
+    { name: "label", description: "The term shown beside the projected value — \"Email\", \"Created\". Keep it a noun: it is read as the name of the value, not as a sentence.", type: "string", default: "''" },
   ],
   // <wr-descriptions>
   WrDescriptions: [
-    { name: 'title', description: 'Optional title shown above the list.', type: 'string', default: "''" },
-    {
-      name: 'inline',
-      description: 'Two-column rows (label left, value right) instead of stacked.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'bordered', description: 'Add visible borders around each row.', type: 'boolean', default: 'false' },
-    {
-      name: 'responsive',
-      description:
-        "Reflow `inline` rows back to a stacked layout when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.",
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "title", description: "Optional title shown above the list.", type: "string", default: "''" },
+    { name: "inline", description: "Two-column rows (label left, value right) instead of stacked.", type: "boolean", default: "false" },
+    { name: "bordered", description: "Add visible borders around each row.", type: "boolean", default: "false" },
+    { name: "responsive", description: "Reflow `inline` rows back to a stacked layout when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.", type: "boolean", default: "false" },
   ],
   // <[wrDestruct]>
   WrDestruct: [
-    {
-      name: 'shift',
-      description: "How far a pixel of the text may move at full noise, each way, in em of the host's font size.",
-      type: 'number',
-      default: '0.15',
-    },
+    { name: "shift", description: "How far a pixel of the text may move at full noise, each way, in em of the host's font size.", type: "number", default: "0.15" },
   ],
   // <[wrDialogClose]>
   WrDialogClose: [
-    {
-      name: 'wrDialogClose',
-      description:
-        'Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.',
-      type: 'R | undefined',
-      default: 'undefined',
-    },
+    { name: "wrDialogClose", description: "Value to pass to `close()`. When unset — or used as a bare attribute — the dialog closes with `undefined`.", type: "R | undefined", default: "undefined" },
   ],
   // <[wrDialogContent]>
   WrDialogContent: [
-    {
-      name: 'id',
-      description: "The element's id, generated unless given. An `alertdialog` names it in `aria-describedby`.",
-      type: 'string',
-      default: '`wr-dialog-content-${++uid}`',
-    },
+    { name: "id", description: "The element's id, generated unless given. An `alertdialog` names it in `aria-describedby`.", type: "string", default: "`wr-dialog-content-${++uid}`" },
   ],
   // <[wrDialogFooter]>
   WrDialogFooter: [
-    {
-      name: 'align',
-      description: 'Horizontal alignment of the children.',
-      type: "'start' | 'center' | 'end'",
-      default: "'end'",
-    },
+    { name: "align", description: "Horizontal alignment of the children.", type: "'start' | 'center' | 'end'", default: "'end'" },
   ],
   // <wr-divider>
   WrDivider: [
-    {
-      name: 'color',
-      description: 'Color of the divider line. Omit for the neutral default.',
-      type: 'WrColor | null',
-      default: 'null',
-    },
-    { name: 'type', description: 'Line style.', type: 'WrDividerType', default: "'solid'" },
-    { name: 'width', description: 'Line width in pixels.', type: 'number', default: '1' },
-    {
-      name: 'align',
-      description:
-        'Label position. Only meaningful when the divider has projected content — otherwise the line is symmetric and alignment has no visible effect.',
-      type: 'WrDividerAlign',
-      default: "'center'",
-    },
+    { name: "color", description: "Color of the divider line. Omit for the neutral default.", type: "WrColor | null", default: "null" },
+    { name: "type", description: "Line style.", type: "WrDividerType", default: "'solid'" },
+    { name: "width", description: "Line width in pixels.", type: "number", default: "1" },
+    { name: "align", description: "Label position. Only meaningful when the divider has projected content — otherwise the line is symmetric and alignment has no visible effect.", type: "WrDividerAlign", default: "'center'" },
   ],
   // <wr-donut-chart>
   WrDonutChart: [
-    {
-      name: 'segments',
-      description:
-        "The slices, drawn clockwise from twelve o'clock. A segment with no `color` takes the next colour of the chart palette, `--wr-chart-1` to `--wr-chart-8`.",
-      type: 'readonly WrDonutSegment[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the drawing, and the caption of the data table. The arcs carry no text and the legend is optional, so with `showLegend: false` this and the centre text are the whole of what a screen reader gets unless `dataTable` renders the figures. Falls back to `donutChart.label`, or to `donutChart.pieLabel` with `pie`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'size', description: 'Diameter in CSS pixels.', type: 'number', default: '200' },
-    {
-      name: 'thickness',
-      description:
-        'Inner-ring thickness as a percent of radius (0–100). `0` fills to the centre, and keeps the centre text; `pie` ignores it.',
-      type: 'number',
-      default: '30',
-    },
-    {
-      name: 'pie',
-      description:
-        "Draw a pie chart: every slice fills to the centre, whatever `thickness` says, and the host takes the `wr-donut-chart--pie` modifier. A pie has no hole to print in, so `centerValue` and `centerLabel` are not rendered. Everything else is the donut's: the slices run clockwise from twelve o'clock, with the same gap between them, the legend and its toggle, and the tooltip — which in a pie also opens from a wider, invisible target over a slice too thin to point at (see `tooltip`). The drawing's name falls back to `donutChart.pieLabel`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'gapless',
-      description:
-        "Draw the slices edge to edge, with no gap between them: each is stroked in its own colour rather than the surface's, and the host takes the `wr-donut-chart--gapless` modifier. The gap is a shape that tells two neighbours apart without hue, so with it off only the colour change divides them; keep the legend or the tooltip on where the chart has to read without hue.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'showLegend',
-      description:
-        "Show the legend. `'auto'` shows it when there is something to tell apart - two segments or more - and leaves it out for a single one; `true` shows it for one segment too.",
-      type: "boolean | 'auto'",
-      default: "'auto'",
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSegments` still hides a slice from outside.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the slices give way to the loading message, over the ring drawn as a track.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the slices give way to the error message. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toggleableLegend',
-      description:
-        'Make each legend row a toggle button that shows and hides its slice, through `hiddenSegments`. A row is a `<button aria-pressed>`, pressed while its slice is shown, so the legend becomes one tab stop per slice.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSegments',
-      description:
-        'The positions in `segments` of the slices that are hidden. Positions rather than labels, since two slices may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSegments)]`. A hidden slice is left out of the ring, and the slices still shown RE-NORMALISE: they share the whole ring between them, each at its share of their own total. A donut reads as the parts of the whole it draws, so leaving the hidden slice\'s arc as a gap would show a whole that no longer adds up, and turning a slice off is how a reader asks "of the rest, how much is each?". The tooltip cannot open on a slice that is not drawn. The legend keeps the hidden slice\'s row, struck through and with its own value, so it can be shown again; the row says "hidden" to a screen reader as well, through `aria-pressed` on a toggle and a visually hidden word otherwise. The centre text is printed as given, so a host that writes a total there works it out from this list. A position past the end of `segments` is kept and ignored.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'centerValue',
-      description: 'Bold value text in the center. Not rendered with `pie`, which has no hole to hold it.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'centerLabel',
-      description: 'Smaller label under the value. Not rendered with `pie`, which has no hole to hold it.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few degrees, is hovered over a wider strip than it draws, through an invisible `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart under about 92px) out of what the wider slices beside it can spare, each of which keeps that much of its own. A sliver whose neighbours are slivers too, or have little to spare, gets a narrower target or none, and is read in the legend. The ring draws no such target. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes every value in the legend, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        'Render the chart\'s figures as a table that only assistive technology reaches: a row per slice shown, headed by its label, with its value as the legend writes it and its share of the ring, a percentage in `LOCALE_ID`. A slice hidden through `hiddenSegments` has no row, and a slice that draws nothing has an empty share. The table gives way with the slices while the chart is empty, `loading` or in `error`. The drawing is one named `role="img"`, which hides everything inside it, and the legend is left out for a single slice and with `showLegend` off, so without the table the numbers may be nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "segments", description: "The slices, drawn clockwise from twelve o'clock. A segment with no `color` takes the next colour of the chart palette, `--wr-chart-1` to `--wr-chart-8`.", type: "readonly WrDonutSegment[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the drawing, and the caption of the data table. The arcs carry no text and the legend is optional, so with `showLegend: false` this and the centre text are the whole of what a screen reader gets unless `dataTable` renders the figures. Falls back to `donutChart.label`, or to `donutChart.pieLabel` with `pie`.", type: "string | null", default: "null" },
+    { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "200" },
+    { name: "thickness", description: "Inner-ring thickness as a percent of radius (0–100). `0` fills to the centre, and keeps the centre text; `pie` ignores it.", type: "number", default: "30" },
+    { name: "pie", description: "Draw a pie chart: every slice fills to the centre, whatever `thickness` says, and the host takes the `wr-donut-chart--pie` modifier. A pie has no hole to print in, so `centerValue` and `centerLabel` are not rendered. Everything else is the donut's: the slices run clockwise from twelve o'clock, with the same gap between them, the legend and its toggle, and the tooltip — which in a pie also opens from a wider, invisible target over a slice too thin to point at (see `tooltip`). The drawing's name falls back to `donutChart.pieLabel`.", type: "boolean", default: "false" },
+    { name: "gapless", description: "Draw the slices edge to edge, with no gap between them: each is stroked in its own colour rather than the surface's, and the host takes the `wr-donut-chart--gapless` modifier. The gap is a shape that tells two neighbours apart without hue, so with it off only the colour change divides them; keep the legend or the tooltip on where the chart has to read without hue.", type: "boolean", default: "false" },
+    { name: "showLegend", description: "Show the legend. `'auto'` shows it when there is something to tell apart - two segments or more - and leaves it out for a single one; `true` shows it for one segment too.", type: "boolean | 'auto'", default: "'auto'" },
+    { name: "legendPosition", description: "Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSegments` still hides a slice from outside.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the chart's data is in flight: the slices give way to the loading message, over the ring drawn as a track.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the slices give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "toggleableLegend", description: "Make each legend row a toggle button that shows and hides its slice, through `hiddenSegments`. A row is a `<button aria-pressed>`, pressed while its slice is shown, so the legend becomes one tab stop per slice.", type: "boolean", default: "false" },
+    { name: "hiddenSegments", description: "The positions in `segments` of the slices that are hidden. Positions rather than labels, since two slices may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSegments)]`. A hidden slice is left out of the ring, and the slices still shown RE-NORMALISE: they share the whole ring between them, each at its share of their own total. A donut reads as the parts of the whole it draws, so leaving the hidden slice's arc as a gap would show a whole that no longer adds up, and turning a slice off is how a reader asks \"of the rest, how much is each?\". The tooltip cannot open on a slice that is not drawn. The legend keeps the hidden slice's row, struck through and with its own value, so it can be shown again; the row says \"hidden\" to a screen reader as well, through `aria-pressed` on a toggle and a visually hidden word otherwise. The centre text is printed as given, so a host that writes a total there works it out from this list. A position past the end of `segments` is kept and ignored.", type: "readonly number[]", default: "[]" },
+    { name: "centerValue", description: "Bold value text in the center. Not rendered with `pie`, which has no hole to hold it.", type: "string", default: "''" },
+    { name: "centerLabel", description: "Smaller label under the value. Not rendered with `pie`, which has no hole to hold it.", type: "string", default: "''" },
+    { name: "tooltip", description: "Show a tooltip with the slice's label and value on hover. Pointer only — the legend prints the same numbers, and with `showLegend` off `ariaLabel` is where to say them. With `pie`, a slice too thin to land a pointer on, a sliver of a few degrees, is hovered over a wider strip than it draws, through an invisible `.wr-donut-chart__hit` over the pie: widened toward 12px of outer arc (15° on a chart under about 92px) out of what the wider slices beside it can spare, each of which keeps that much of its own. A sliver whose neighbours are slivers too, or have little to spare, gets a narrower target or none, and is read in the legend. The ring draws no such target. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes every value in the legend, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.", type: "((value: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per slice shown, headed by its label, with its value as the legend writes it and its share of the ring, a percentage in `LOCALE_ID`. A slice hidden through `hiddenSegments` has no row, and a slice that draws nothing has an empty share. The table gives way with the slices while the chart is empty, `loading` or in `error`. The drawing is one named `role=\"img\"`, which hides everything inside it, and the legend is left out for a single slice and with `showLegend` off, so without the table the numbers may be nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
   // <wr-dot-grid>
   WrDotGrid: [
-    { name: 'spacing', description: 'Distance between two dots, in px.', type: 'number', default: '26' },
-    {
-      name: 'reach',
-      description: 'How far from the pointer a dot still lights and moves, in px.',
-      type: 'number',
-      default: '140',
-    },
+    { name: "spacing", description: "Distance between two dots, in px.", type: "number", default: "26" },
+    { name: "reach", description: "How far from the pointer a dot still lights and moves, in px.", type: "number", default: "140" },
   ],
   // <wr-drawer>
   WrDrawer: [
-    { name: 'open', description: 'Two-way bindable open state.', type: 'boolean', default: 'false' },
-    { name: 'position', description: 'Side the drawer slides in from.', type: 'WrDrawerPosition', default: "'right'" },
-    {
-      name: 'width',
-      description: 'Width when position is left/right. Any CSS length.',
-      type: 'string',
-      default: "'20rem'",
-    },
-    {
-      name: 'height',
-      description: 'Height when position is top/bottom. Any CSS length.',
-      type: 'string',
-      default: "'16rem'",
-    },
-    {
-      name: 'maxHeight',
-      description:
-        'Upper cap on height (top/bottom positions). Useful for bottom sheets that should grow with content up to a viewport-relative max. Any CSS length.',
-      type: 'string | null',
-      default: 'null (no cap)',
-    },
-    {
-      name: 'rounded',
-      description: 'Round the leading corners — the edge facing the viewport interior. Common bottom-sheet styling.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'safeArea',
-      description:
-        "Pad the trailing edge with `env(safe-area-inset-*)` so content doesn't sit under the iOS home indicator.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hasBackdrop',
-      description:
-        'Show the dimming backdrop, and with it make the drawer MODAL: focus is trapped inside, the panel is announced with `aria-modal="true"`, and the page behind it does not scroll. `false` makes it a NON-MODAL side panel (since v15). The page stays clickable, scrollable and reachable with Tab; the panel keeps `role="dialog"` without `aria-modal`. Focus still moves into it on open, Escape closes it unless focus has moved on to the page, and on close focus goes back to the opener unless the reader has moved on likewise. Read when the drawer opens.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'closeOnBackdropClick',
-      description: 'Close when the backdrop is clicked.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'closeOnEscape', description: 'Close on Escape.', type: 'boolean', default: 'true' },
-    {
-      name: 'closable',
-      description:
-        "Show a dismiss (×) button in the panel's top-right corner. Set `false` when the projected content supplies its own close affordance.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'closeLabel',
-      description: 'Accessible name for the dismiss button. Falls back to `drawer.close`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the drawer's panel — the box that slides in. On the panel rather than on the CDK pane, because that is the element `WrDrawerManager.open({ panelClass })` styles too: there the content IS the pane, so one name has to mean the same surface on both paths.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    {
-      name: 'toasts',
-      description:
-        "Where the global toast stack paints while the drawer is open. `'below'` keeps it under the drawer and its backdrop. Read when the drawer opens.",
-      type: "'above' | 'below'",
-      default: "'above'",
-    },
-    {
-      name: 'autoFocus',
-      description:
-        "Where focus goes when the drawer opens: `'dialog'` focuses the panel itself with no ring so the first Tab reaches the first control, `'first-tabbable'` focuses the first tabbable element, `false` moves nothing. An element marked `cdkFocusInitial` wins in every mode. Read when the drawer opens.",
-      type: 'WrDrawerAutoFocus',
-      default: "'dialog'",
-    },
+    { name: "open", description: "Two-way bindable open state.", type: "boolean", default: "false" },
+    { name: "position", description: "Side the drawer slides in from.", type: "WrDrawerPosition", default: "'right'" },
+    { name: "width", description: "Width when position is left/right. Any CSS length.", type: "string", default: "'20rem'" },
+    { name: "height", description: "Height when position is top/bottom. Any CSS length.", type: "string", default: "'16rem'" },
+    { name: "maxHeight", description: "Upper cap on height (top/bottom positions). Useful for bottom sheets that should grow with content up to a viewport-relative max. Any CSS length.", type: "string | null", default: "null (no cap)" },
+    { name: "rounded", description: "Round the leading corners — the edge facing the viewport interior. Common bottom-sheet styling.", type: "boolean", default: "false" },
+    { name: "safeArea", description: "Pad the trailing edge with `env(safe-area-inset-*)` so content doesn't sit under the iOS home indicator.", type: "boolean", default: "false" },
+    { name: "hasBackdrop", description: "Show the dimming backdrop, and with it make the drawer MODAL: focus is trapped inside, the panel is announced with `aria-modal=\"true\"`, and the page behind it does not scroll. `false` makes it a NON-MODAL side panel (since v15). The page stays clickable, scrollable and reachable with Tab; the panel keeps `role=\"dialog\"` without `aria-modal`. Focus still moves into it on open, Escape closes it unless focus has moved on to the page, and on close focus goes back to the opener unless the reader has moved on likewise. Read when the drawer opens.", type: "boolean", default: "true" },
+    { name: "closeOnBackdropClick", description: "Close when the backdrop is clicked.", type: "boolean", default: "true" },
+    { name: "closeOnEscape", description: "Close on Escape.", type: "boolean", default: "true" },
+    { name: "closable", description: "Show a dismiss (×) button in the panel's top-right corner. Set `false` when the projected content supplies its own close affordance.", type: "boolean", default: "true" },
+    { name: "closeLabel", description: "Accessible name for the dismiss button. Falls back to `drawer.close`.", type: "string | null", default: "null" },
+    { name: "panelClass", description: "Extra CSS classes for the drawer's panel — the box that slides in. On the panel rather than on the CDK pane, because that is the element `WrDrawerManager.open({ panelClass })` styles too: there the content IS the pane, so one name has to mean the same surface on both paths.", type: "WrClassInput", default: "null" },
+    { name: "toasts", description: "Where the global toast stack paints while the drawer is open. `'below'` keeps it under the drawer and its backdrop. Read when the drawer opens.", type: "'above' | 'below'", default: "'above'" },
+    { name: "autoFocus", description: "Where focus goes when the drawer opens: `'dialog'` focuses the panel itself with no ring so the first Tab reaches the first control, `'first-tabbable'` focuses the first tabbable element, `false` moves nothing. An element marked `cdkFocusInitial` wins in every mode. Read when the drawer opens.", type: "WrDrawerAutoFocus", default: "'dialog'" },
   ],
   // <[wrDrawerClose]>
   WrDrawerClose: [
-    {
-      name: 'wrDrawerClose',
-      description:
-        'Value to pass to `close()` for service-opened drawers. When unset — or used as a bare attribute — the drawer closes with `undefined`.',
-      type: 'R | undefined',
-      default: 'undefined',
-    },
+    { name: "wrDrawerClose", description: "Value to pass to `close()` for service-opened drawers. When unset — or used as a bare attribute — the drawer closes with `undefined`.", type: "R | undefined", default: "undefined" },
   ],
   // <[wrDrawerFooter]>
   WrDrawerFooter: [
-    {
-      name: 'align',
-      description: 'Horizontal alignment of footer content.',
-      type: "'start' | 'center' | 'end'",
-      default: "'end'",
-    },
+    { name: "align", description: "Horizontal alignment of footer content.", type: "'start' | 'center' | 'end'", default: "'end'" },
   ],
   // <[wrDropdown]>
   WrDropdown: [
-    {
-      name: 'wrDropdown',
-      description: 'Menu to open. Pass a `<wr-dropdown-menu>` template reference.',
-      type: 'WrDropdownMenu',
-      required: true,
-    },
-    {
-      name: 'trigger',
-      description:
-        'How the menu opens. `manual` leaves the host alone, for one menu shared by many anchors: a click handler records the row, then calls `open()`.',
-      type: 'WrDropdownTrigger',
-      default: "'click'",
-    },
-    {
-      name: 'position',
-      description:
-        "Where the menu anchors relative to the trigger: the twelve placements `wr-popover` takes. A placement that does not fit flips to the opposite side (a `left*` / `right*` menu may also drop below or above, and then stays there until it closes), and the pane's `wr-dropdown-overlay--<placement>` class names the side it actually took.",
-      type: 'WrDropdownPosition',
-      default: "'bottom-start'",
-    },
-    {
-      name: 'arrow',
-      description:
-        "Draw a small arrow on the menu's edge, pointing at the trigger — the one `wr-popover` and `wr-popconfirm` draw, from the same shared rule. It follows the placement the menu actually took, so a flipped menu points the right way, and it widens the gap to the trigger from 0.25rem to popover's 0.5rem so the tip does not touch the control. Turn it off on a menu with no padding of its own (`--wr-dropdown-padding: 0`) or one that clips its overflow: the square reaches about 3px inside the menu's border, over the first row, and `overflow` cuts its tip off. Read when the menu opens.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'wrDropdownDisabled',
-      description:
-        "Turns the trigger off: no click, hover or key opens the menu, `open()` and `toggle()` do nothing (a `manual` trigger included), and an open menu closes. The host publishes no popup ARIA meanwhile and carries `wr-dropdown-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'wrDropdownAutoFocus',
-      description:
-        'Focus the first item when a click, a key or `open()` opens the menu. Off, focus stays on the trigger and ArrowDown / ArrowUp there walk into the menu at its first / last item; a letter jumps to the item it starts. A pointer hovering a `trigger="hover"` menu never moves focus. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the menu's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    { name: '(opened)', description: 'Fires after the menu opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the menu closes.', type: 'void' },
+    { name: "wrDropdown", description: "Menu to open. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
+    { name: "trigger", description: "How the menu opens. `manual` leaves the host alone, for one menu shared by many anchors: a click handler records the row, then calls `open()`.", type: "WrDropdownTrigger", default: "'click'" },
+    { name: "position", description: "Where the menu anchors relative to the trigger: the twelve placements `wr-popover` takes. A placement that does not fit flips to the opposite side (a `left*` / `right*` menu may also drop below or above, and then stays there until it closes), and the pane's `wr-dropdown-overlay--<placement>` class names the side it actually took.", type: "WrDropdownPosition", default: "'bottom-start'" },
+    { name: "arrow", description: "Draw a small arrow on the menu's edge, pointing at the trigger — the one `wr-popover` and `wr-popconfirm` draw, from the same shared rule. It follows the placement the menu actually took, so a flipped menu points the right way, and it widens the gap to the trigger from 0.25rem to popover's 0.5rem so the tip does not touch the control. Turn it off on a menu with no padding of its own (`--wr-dropdown-padding: 0`) or one that clips its overflow: the square reaches about 3px inside the menu's border, over the first row, and `overflow` cuts its tip off. Read when the menu opens.", type: "boolean", default: "true" },
+    { name: "wrDropdownDisabled", description: "Turns the trigger off: no click, hover or key opens the menu, `open()` and `toggle()` do nothing (a `manual` trigger included), and an open menu closes. The host publishes no popup ARIA meanwhile and carries `wr-dropdown-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it.", type: "boolean", default: "false" },
+    { name: "wrDropdownAutoFocus", description: "Focus the first item when a click, a key or `open()` opens the menu. Off, focus stays on the trigger and ArrowDown / ArrowUp there walk into the menu at its first / last item; a letter jumps to the item it starts. A pointer hovering a `trigger=\"hover\"` menu never moves focus. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the menu's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "(opened)", description: "Fires after the menu opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the menu closes.", type: "void" },
   ],
   // <wr-dropdown-item>
   WrDropdownItem: [
-    { name: 'icon', description: 'Optional leading icon name.', type: 'WrIconName | null', default: 'null' },
-    {
-      name: 'disabled',
-      description: 'Disable interaction (suppresses pointer + keyboard).',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'checked',
-      description:
-        'Checked state. `null` (default) is a plain `menuitem` with no check column; `true` / `false` turn it into a `menuitemcheckbox` (or `menuitemradio` with `radio`) that shows a check mark while `true`. The item does not toggle itself: flip the state you bind here from `(click)`.',
-      type: 'boolean | null',
-      default: 'null',
-    },
-    {
-      name: 'radio',
-      description: 'With `checked` set, announce as `menuitemradio` instead of `menuitemcheckbox`.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "icon", description: "Optional leading icon name.", type: "WrIconName | null", default: "null" },
+    { name: "disabled", description: "Disable interaction (suppresses pointer + keyboard).", type: "boolean", default: "false" },
+    { name: "checked", description: "Checked state. `null` (default) is a plain `menuitem` with no check column; `true` / `false` turn it into a `menuitemcheckbox` (or `menuitemradio` with `radio`) that shows a check mark while `true`. The item does not toggle itself: flip the state you bind here from `(click)`.", type: "boolean | null", default: "null" },
+    { name: "radio", description: "With `checked` set, announce as `menuitemradio` instead of `menuitemcheckbox`.", type: "boolean", default: "false" },
   ],
   // <[wrDropdownSubmenu]>
   WrDropdownSubmenu: [
-    {
-      name: 'wrDropdownSubmenu',
-      description: 'Menu to open beside the item. Pass a `<wr-dropdown-menu>` template reference.',
-      type: 'WrDropdownMenu',
-      required: true,
-    },
-    {
-      name: 'showDelay',
-      description: 'How long the pointer rests on the item before the submenu opens, in ms.',
-      type: 'number',
-      default: '150',
-    },
-    {
-      name: 'hideDelay',
-      description:
-        'How long the submenu stays once the pointer has left both the item and the submenu, in ms. Long enough to cross a neighbouring item on the way in.',
-      type: 'number',
-      default: '150',
-    },
+    { name: "wrDropdownSubmenu", description: "Menu to open beside the item. Pass a `<wr-dropdown-menu>` template reference.", type: "WrDropdownMenu", required: true },
+    { name: "showDelay", description: "How long the pointer rests on the item before the submenu opens, in ms.", type: "number", default: "150" },
+    { name: "hideDelay", description: "How long the submenu stays once the pointer has left both the item and the submenu, in ms. Long enough to cross a neighbouring item on the way in.", type: "number", default: "150" },
   ],
   // <wr-editor>
   WrEditor: [
-    {
-      name: 'value',
-      description:
-        'The document as a {@link WrEditorJson} tree; `null` when nothing is written. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'WrEditorValue',
-      default: 'null',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
-    {
-      name: 'disabled',
-      description:
-        "Disable the editor and its toolbar. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        'Refuse edits while the text stays reachable, selectable and announced. Bound automatically from the field\'s readonly state when used with `[formField]`. Set before the editor mounts, it means ProseMirror is never started: the document is drawn as ordinary markup in a focusable `role="group"` that keeps the tab stop and carries the editor\'s name, so a viewer costs no editor and the structure of what it shows is still announced. `aria-readonly` is deliberately absent there — ARIA does not allow it on `group`, and `aria-disabled`, the only attribute that would apply, means something else — so the cue is the `wr-editor--readonly` class. The toolbar goes inert, since none of its tools can apply; a pure viewer binds `[toolbar]="false"`. A view that is already mounted stays mounted, refuses typing, paste, drop, the shortcuts and every toolbar command, and reports `aria-readonly` on its surface as before.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'placeholder',
-      description: 'Hint shown while the document is empty, and exposed as `aria-placeholder`.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name of the text — of the surface, or of the document a read-only editor draws in its place. Falls back to the surrounding `<wr-form-field>`'s label, then to `editor.label`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toolbar',
-      description: "The toolbar's tools, in order, with `'|'` between groups; `false` hides it.",
-      type: 'readonly WrEditorTool[] | false',
-      default: 'WR_EDITOR_TOOLBAR',
-    },
+    { name: "value", description: "The document as a {@link WrEditorJson} tree; `null` when nothing is written. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrEditorValue", default: "null" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "disabled", description: "Disable the editor and its toolbar. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while the text stays reachable, selectable and announced. Bound automatically from the field's readonly state when used with `[formField]`. Set before the editor mounts, it means ProseMirror is never started: the document is drawn as ordinary markup in a focusable `role=\"group\"` that keeps the tab stop and carries the editor's name, so a viewer costs no editor and the structure of what it shows is still announced. `aria-readonly` is deliberately absent there — ARIA does not allow it on `group`, and `aria-disabled`, the only attribute that would apply, means something else — so the cue is the `wr-editor--readonly` class. The toolbar goes inert, since none of its tools can apply; a pure viewer binds `[toolbar]=\"false\"`. A view that is already mounted stays mounted, refuses typing, paste, drop, the shortcuts and every toolbar command, and reports `aria-readonly` on its surface as before.", type: "boolean", default: "false" },
+    { name: "placeholder", description: "Hint shown while the document is empty, and exposed as `aria-placeholder`.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name of the text — of the surface, or of the document a read-only editor draws in its place. Falls back to the surrounding `<wr-form-field>`'s label, then to `editor.label`.", type: "string | null", default: "null" },
+    { name: "toolbar", description: "The toolbar's tools, in order, with `'|'` between groups; `false` hides it.", type: "readonly WrEditorTool[] | false", default: "WR_EDITOR_TOOLBAR" },
   ],
   // <wr-empty>
   WrEmpty: [
-    {
-      name: 'icon',
-      description:
-        'Render the built-in folder glyph. Pass `false` to show no icon at all. Ignored when `iconName` is set — the same contract as `<wr-alert>`. This used to be typed as an icon NAME, which it never was: whatever name you passed, the template drew the folder. Any truthy value still shows it, so nothing that compiled before behaves differently.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'iconName',
-      description: 'Show any registered ngwr icon instead of the built-in glyph.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
-    {
-      name: 'title',
-      description: "Headline. Falls back to `empty.noData` from WrI18n, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "icon", description: "Render the built-in folder glyph. Pass `false` to show no icon at all. Ignored when `iconName` is set — the same contract as `<wr-alert>`. This used to be typed as an icon NAME, which it never was: whatever name you passed, the template drew the folder. Any truthy value still shows it, so nothing that compiled before behaves differently.", type: "boolean", default: "true" },
+    { name: "iconName", description: "Show any registered ngwr icon instead of the built-in glyph.", type: "WrIconName | null", default: "null" },
+    { name: "title", description: "Headline. Falls back to `empty.noData` from WrI18n, then `'No data'`.", type: "string | null", default: "null" },
   ],
   // <wr-event-calendar>
   WrEventCalendar: [
-    {
-      name: 'events',
-      description: 'Everything to render. Never mutated — see `eventChange`.',
-      type: 'readonly WrCalendarEvent[]',
-      default: '[]',
-    },
-    { name: 'view', description: 'Which span is shown. Two-way bindable.', type: 'WrCalendarView', default: "'month'" },
-    {
-      name: 'date',
-      description: 'Any date inside the shown span. Two-way bindable.',
-      type: 'Date',
-      default: 'new Date()',
-    },
-    {
-      name: 'views',
-      description: 'Which buttons the view switcher offers. Empty hides it.',
-      type: 'readonly WrCalendarView[]',
-      default: "['month', 'week', 'day']",
-    },
-    {
-      name: 'editable',
-      description: 'Allow dragging chips to move and resize them.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'slotMinutes',
-      description: 'Minutes per row in the time views — also the drag snap.',
-      type: 'number',
-      default: '30',
-    },
-    { name: 'dayStartHour', description: 'First hour the time views show.', type: 'number', default: '0' },
-    { name: 'dayEndHour', description: 'First hour they do NOT show, exclusive.', type: 'number', default: '24' },
-    {
-      name: 'maxLanes',
-      description: 'Lanes a month cell shows before collapsing the rest into “+N more”.',
-      type: 'number',
-      default: '3',
-    },
-    {
-      name: 'hideHeader',
-      description: 'Hide the built-in header — supply your own navigation instead.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: '(eventClick)', description: 'A chip was activated.', type: 'WrCalendarEvent' },
-    {
-      name: '(slotClick)',
-      description: 'Empty space was activated — the slot the user pointed at.',
-      type: 'WrCalendarSlot',
-    },
-    {
-      name: '(eventChange)',
-      description: 'A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.',
-      type: 'WrCalendarEventChange',
-    },
-    {
-      name: 'todayLabel',
-      description: "Text of the button that jumps to today. Falls back to `eventCalendar.today`, then `'Today'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'previousLabel',
-      description: "Accessible name of the back arrow. Falls back to `eventCalendar.previous`, then `'Previous'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextLabel',
-      description: "Accessible name of the forward arrow. Falls back to `eventCalendar.next`, then `'Next'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'allDayLabel',
-      description:
-        "Text of the all-day band, also read as the time of an all-day event. Falls back to `eventCalendar.allDay`, then `'All day'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'timeLabel',
-      description: "Accessible name of the time gutter column. Falls back to `eventCalendar.time`, then `'Time'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'monthLabel',
-      description:
-        "Text of the month option in the view switcher. Falls back to `eventCalendar.month`, then `'Month'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'weekLabel',
-      description: "Text of the week option in the view switcher. Falls back to `eventCalendar.week`, then `'Week'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'dayLabel',
-      description: "Text of the day option in the view switcher. Falls back to `eventCalendar.day`, then `'Day'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name of the grid; overridable for a page with several.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "events", description: "Everything to render. Never mutated — see `eventChange`.", type: "readonly WrCalendarEvent[]", default: "[]" },
+    { name: "view", description: "Which span is shown. Two-way bindable.", type: "WrCalendarView", default: "'month'" },
+    { name: "date", description: "Any date inside the shown span. Two-way bindable.", type: "Date", default: "new Date()" },
+    { name: "views", description: "Which buttons the view switcher offers. Empty hides it.", type: "readonly WrCalendarView[]", default: "['month', 'week', 'day']" },
+    { name: "editable", description: "Allow dragging chips to move and resize them.", type: "boolean", default: "false" },
+    { name: "slotMinutes", description: "Minutes per row in the time views — also the drag snap.", type: "number", default: "30" },
+    { name: "dayStartHour", description: "First hour the time views show.", type: "number", default: "0" },
+    { name: "dayEndHour", description: "First hour they do NOT show, exclusive.", type: "number", default: "24" },
+    { name: "maxLanes", description: "Lanes a month cell shows before collapsing the rest into “+N more”.", type: "number", default: "3" },
+    { name: "hideHeader", description: "Hide the built-in header — supply your own navigation instead.", type: "boolean", default: "false" },
+    { name: "(eventClick)", description: "A chip was activated.", type: "WrCalendarEvent" },
+    { name: "(slotClick)", description: "Empty space was activated — the slot the user pointed at.", type: "WrCalendarSlot" },
+    { name: "(eventChange)", description: "A drag or an `Alt` + arrow finished. Apply it yourself; nothing moves until you do.", type: "WrCalendarEventChange" },
+    { name: "todayLabel", description: "Text of the button that jumps to today. Falls back to `eventCalendar.today`, then `'Today'`.", type: "string | null", default: "null" },
+    { name: "previousLabel", description: "Accessible name of the back arrow. Falls back to `eventCalendar.previous`, then `'Previous'`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Accessible name of the forward arrow. Falls back to `eventCalendar.next`, then `'Next'`.", type: "string | null", default: "null" },
+    { name: "allDayLabel", description: "Text of the all-day band, also read as the time of an all-day event. Falls back to `eventCalendar.allDay`, then `'All day'`.", type: "string | null", default: "null" },
+    { name: "timeLabel", description: "Accessible name of the time gutter column. Falls back to `eventCalendar.time`, then `'Time'`.", type: "string | null", default: "null" },
+    { name: "monthLabel", description: "Text of the month option in the view switcher. Falls back to `eventCalendar.month`, then `'Month'`.", type: "string | null", default: "null" },
+    { name: "weekLabel", description: "Text of the week option in the view switcher. Falls back to `eventCalendar.week`, then `'Week'`.", type: "string | null", default: "null" },
+    { name: "dayLabel", description: "Text of the day option in the view switcher. Falls back to `eventCalendar.day`, then `'Day'`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the grid; overridable for a page with several.", type: "string | null", default: "null" },
   ],
   // <[wrFallingLetters]>
   WrFallingLetters: [
-    {
-      name: 'wrFallingLetters',
-      description:
-        'A selector for one descendant of the host whose letters fall instead of the host\'s own, written as the directive\'s value: `wrFallingLetters=".wr-result__description"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'floor',
-      description:
-        "A selector for the element whose content box is the floor and the walls, found with `closest` from the host. Unset, the host's parent element: on a `display: contents` host that is the box around it. On a `wr-*` host write it as a binding (`[floor]=\"'main'\"`), since a static attribute that is not one of the component's inputs fails `check:attrs`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'rest',
-      description: 'How long the heap lies still before the letters spring back on their own, in ms.',
-      type: 'number',
-      default: '4000',
-    },
+    { name: "wrFallingLetters", description: "A selector for one descendant of the host whose letters fall instead of the host's own, written as the directive's value: `wrFallingLetters=\".wr-result__description\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
+    { name: "floor", description: "A selector for the element whose content box is the floor and the walls, found with `closest` from the host. Unset, the host's parent element: on a `display: contents` host that is the box around it. On a `wr-*` host write it as a binding (`[floor]=\"'main'\"`), since a static attribute that is not one of the component's inputs fails `check:attrs`.", type: "string | null", default: "null" },
+    { name: "rest", description: "How long the heap lies still before the letters spring back on their own, in ms.", type: "number", default: "4000" },
   ],
   // <wr-file-upload>
   WrFileUpload: [
-    {
-      name: 'multiple',
-      description: 'Allow multiple files. Single mode replaces on each add.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'accept',
-      description: '`accept` attribute — comma-separated MIME types or extensions.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'size',
-      description: "Control size: the drop zone's padding, icon and text, and the list rows.",
-      type: 'WrFileUploadSize',
-      default: "'md'",
-    },
-    { name: 'maxSize', description: 'Max bytes per file. `0` disables the check.', type: 'number', default: '0' },
-    {
-      name: 'maxFiles',
-      description: 'Max files (multi mode only). `0` disables the check.',
-      type: 'number',
-      default: '0',
-    },
-    { name: 'showList', description: 'Render the picked-files list below the zone.', type: 'boolean', default: 'true' },
-    {
-      name: 'disabled',
-      description:
-        "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        'Refuse changes to the selection while the zone stays focusable and the files still submit. Bound automatically from the field\'s readonly state when used with `[formField]`. The zone stops opening the picker, a drop is refused and the per-file remove buttons go inert — but the list stays readable, which is the point. No `aria-readonly`: the zone is a `role="button"`, and ARIA does not define the state for that role, so `aria-disabled` would be the only mirror available and it would say the wrong thing.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'status',
-      description:
-        "Where the app's upload of each file stands, keyed by the `File` objects in `value`. A row with an entry draws its state: a progress bar while `uploading` (indeterminate without a `percent`), a mark when `done`, the `message` and a retry button on `error`. A file with no entry is a plain row. Pass a new `Map` on each change: an input sees a new reference, not a `set()` on the one it already holds. `null` (the default) renders nothing extra.",
-      type: 'WrFileUploadStatusMap | null',
-      default: 'null',
-    },
-    {
-      name: 'stored',
-      description:
-        'Files that already live on a server, listed before the picked ones with the same look: name, size when known, a link when `url` is set, and a remove button. They are not part of `value`, so a form value stays the `File`s the user picked. Removing one does not change this input: `(storedRemove)` emits the descriptor and the app drops it from the list it passes in. In multiple mode they count toward `maxFiles`. In single mode a pick does not replace them: the app clears its own list when it takes the new file. A `required` rule on the control sees `value` only, so an edit form whose file is stored validates against its own list instead.',
-      type: 'readonly WrStoredFile[]',
-      default: '[]',
-    },
-    {
-      name: 'previews',
-      description:
-        'Show a thumbnail beside each image file. The thumbnail is an object URL, revoked when its file leaves the list or the component is destroyed. Browser only: nothing is created on the server.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'acceptPaste',
-      description:
-        'Take files pasted with Ctrl/Cmd+V while the drop zone has focus. They go through the same `accept`, `maxSize` and `maxFiles` rules as a drop. A paste that carries no file is left alone.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'pickLabel',
-      description: 'Primary call-to-action label. Falls back to `fileUpload.browse`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'dropLabel',
-      description: 'Secondary instruction below the CTA. Falls back to `fileUpload.dropZone`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'dropZoneLabel',
-      description:
-        "Overrides the drop zone's accessible name. Unset, the zone is named by its visible copy, after the field's label inside a `<wr-form-field>`. An override must contain that copy, or speech input cannot reach the control (WCAG 2.5.3).",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'removeFileLabel',
-      description:
-        'Name of each row\'s remove button. `{{name}}` is the row\'s file name, so the buttons of a list are told apart. Falls back to `fileUpload.removeFile`, "Remove {{name}}" in English.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'retryLabel',
-      description: 'Retry button text on a failed row. Falls back to `fileUpload.retry`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'uploadingLabel',
-      description:
-        "Name of the `uploading` state: the progress bar's name and the announcement. Falls back to `fileUpload.uploading`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'uploadedLabel',
-      description:
-        "Name of the `done` state: the mark's name and the announcement. Falls back to `fileUpload.uploaded`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'failedLabel',
-      description: 'Text of a failed row whose status carries no `message`. Falls back to `fileUpload.failed`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'helperText',
-      description: 'Optional helper text shown below the labels (e.g. accepted formats).',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'value',
-      description:
-        'Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `multiple`: a single `File` (or `null`), or a `File[]` array.',
-      type: 'File | readonly File[] | null',
-      default: 'null',
-    },
-    {
-      name: '(rejected)',
-      description: 'Emitted when files are rejected for type / size / count reasons.',
-      type: 'readonly WrFileUploadRejection[]',
-    },
-    {
-      name: '(storedRemove)',
-      description: 'Emitted with the descriptor when the remove button of a stored row is pressed.',
-      type: 'WrStoredFile',
-    },
-    {
-      name: '(retry)',
-      description: 'Emitted with the file when the retry button of a failed row is pressed.',
-      type: 'File',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted on commit and when focus leaves the drop zone, so a bound field can mark itself touched.',
-      type: 'void',
-    },
+    { name: "multiple", description: "Allow multiple files. Single mode replaces on each add.", type: "boolean", default: "false" },
+    { name: "accept", description: "`accept` attribute — comma-separated MIME types or extensions.", type: "string", default: "''" },
+    { name: "size", description: "Control size: the drop zone's padding, icon and text, and the list rows.", type: "WrFileUploadSize", default: "'md'" },
+    { name: "maxSize", description: "Max bytes per file. `0` disables the check.", type: "number", default: "0" },
+    { name: "maxFiles", description: "Max files (multi mode only). `0` disables the check.", type: "number", default: "0" },
+    { name: "showList", description: "Render the picked-files list below the zone.", type: "boolean", default: "true" },
+    { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes to the selection while the zone stays focusable and the files still submit. Bound automatically from the field's readonly state when used with `[formField]`. The zone stops opening the picker, a drop is refused and the per-file remove buttons go inert — but the list stays readable, which is the point. No `aria-readonly`: the zone is a `role=\"button\"`, and ARIA does not define the state for that role, so `aria-disabled` would be the only mirror available and it would say the wrong thing.", type: "boolean", default: "false" },
+    { name: "status", description: "Where the app's upload of each file stands, keyed by the `File` objects in `value`. A row with an entry draws its state: a progress bar while `uploading` (indeterminate without a `percent`), a mark when `done`, the `message` and a retry button on `error`. A file with no entry is a plain row. Pass a new `Map` on each change: an input sees a new reference, not a `set()` on the one it already holds. `null` (the default) renders nothing extra.", type: "WrFileUploadStatusMap | null", default: "null" },
+    { name: "stored", description: "Files that already live on a server, listed before the picked ones with the same look: name, size when known, a link when `url` is set, and a remove button. They are not part of `value`, so a form value stays the `File`s the user picked. Removing one does not change this input: `(storedRemove)` emits the descriptor and the app drops it from the list it passes in. In multiple mode they count toward `maxFiles`. In single mode a pick does not replace them: the app clears its own list when it takes the new file. A `required` rule on the control sees `value` only, so an edit form whose file is stored validates against its own list instead.", type: "readonly WrStoredFile[]", default: "[]" },
+    { name: "previews", description: "Show a thumbnail beside each image file. The thumbnail is an object URL, revoked when its file leaves the list or the component is destroyed. Browser only: nothing is created on the server.", type: "boolean", default: "false" },
+    { name: "acceptPaste", description: "Take files pasted with Ctrl/Cmd+V while the drop zone has focus. They go through the same `accept`, `maxSize` and `maxFiles` rules as a drop. A paste that carries no file is left alone.", type: "boolean", default: "false" },
+    { name: "pickLabel", description: "Primary call-to-action label. Falls back to `fileUpload.browse`.", type: "string | null", default: "null" },
+    { name: "dropLabel", description: "Secondary instruction below the CTA. Falls back to `fileUpload.dropZone`.", type: "string | null", default: "null" },
+    { name: "dropZoneLabel", description: "Overrides the drop zone's accessible name. Unset, the zone is named by its visible copy, after the field's label inside a `<wr-form-field>`. An override must contain that copy, or speech input cannot reach the control (WCAG 2.5.3).", type: "string | null", default: "null" },
+    { name: "removeFileLabel", description: "Name of each row's remove button. `{{name}}` is the row's file name, so the buttons of a list are told apart. Falls back to `fileUpload.removeFile`, \"Remove {{name}}\" in English.", type: "string | null", default: "null" },
+    { name: "retryLabel", description: "Retry button text on a failed row. Falls back to `fileUpload.retry`.", type: "string | null", default: "null" },
+    { name: "uploadingLabel", description: "Name of the `uploading` state: the progress bar's name and the announcement. Falls back to `fileUpload.uploading`.", type: "string | null", default: "null" },
+    { name: "uploadedLabel", description: "Name of the `done` state: the mark's name and the announcement. Falls back to `fileUpload.uploaded`.", type: "string | null", default: "null" },
+    { name: "failedLabel", description: "Text of a failed row whose status carries no `message`. Falls back to `fileUpload.failed`.", type: "string | null", default: "null" },
+    { name: "helperText", description: "Optional helper text shown below the labels (e.g. accepted formats).", type: "string", default: "''" },
+    { name: "value", description: "Selected file(s). Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `multiple`: a single `File` (or `null`), or a `File[]` array.", type: "File | readonly File[] | null", default: "null" },
+    { name: "(rejected)", description: "Emitted when files are rejected for type / size / count reasons.", type: "readonly WrFileUploadRejection[]" },
+    { name: "(storedRemove)", description: "Emitted with the descriptor when the remove button of a stored row is pressed.", type: "WrStoredFile" },
+    { name: "(retry)", description: "Emitted with the file when the retry button of a failed row is pressed.", type: "File" },
+    { name: "(touch)", description: "Emitted on commit and when focus leaves the drop zone, so a bound field can mark itself touched.", type: "void" },
   ],
   // <[wrFitText]>
   WrFitText: [
-    {
-      name: 'wrFitText',
-      description: '`false` switches the fitting off and removes the width it wrote. Bare `wrFitText` is on.',
-      type: 'boolean',
-      default: 'true',
-    },
+    { name: "wrFitText", description: "`false` switches the fitting off and removes the width it wrote. Bare `wrFitText` is on.", type: "boolean", default: "true" },
   ],
   // <wr-flow-lines>
   WrFlowLines: [
-    { name: 'spacing', description: 'Between two lines, in CSS px, four at least.', type: 'number', default: '10' },
-    { name: 'lineWidth', description: 'How thick a line is, in CSS px.', type: 'number', default: '1' },
-    {
-      name: 'amplitude',
-      description: 'How far the drift bends a line at most, in CSS px.',
-      type: 'number',
-      default: '28',
-    },
-    {
-      name: 'orientation',
-      description: 'Which way the lines run across the region.',
-      type: 'WrFlowLinesOrientation',
-      default: "'horizontal'",
-    },
-    {
-      name: 'twist',
-      description: "The lines' tilt from their orientation, in degrees: positive falls toward the inline end.",
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'speed',
-      description: 'How fast the drift and the dashes move, a multiplier: none holds the field still between pushes.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'reach',
-      description: 'How far from the pointer a line is still pushed, in CSS px.',
-      type: 'number',
-      default: '160',
-    },
-    {
-      name: 'push',
-      description:
-        'How hard the pointer pushes, a multiplier: one moves a line a seventh of `reach` at most; none turns the push off.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'bounce',
-      description: 'How much a released line swings past its place, a multiplier: none settles without a swing.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'ripple',
-      description: 'Whether a click, or a tap, sends a ring out across the field.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'intro',
-      description: 'Whether the lines draw in from the inline start when first on screen.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'dashed',
-      description: 'Whether the lines are dashed, with the dashes streaming along them.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "spacing", description: "Between two lines, in CSS px, four at least.", type: "number", default: "10" },
+    { name: "lineWidth", description: "How thick a line is, in CSS px.", type: "number", default: "1" },
+    { name: "amplitude", description: "How far the drift bends a line at most, in CSS px.", type: "number", default: "28" },
+    { name: "orientation", description: "Which way the lines run across the region.", type: "WrFlowLinesOrientation", default: "'horizontal'" },
+    { name: "twist", description: "The lines' tilt from their orientation, in degrees: positive falls toward the inline end.", type: "number", default: "0" },
+    { name: "speed", description: "How fast the drift and the dashes move, a multiplier: none holds the field still between pushes.", type: "number", default: "1" },
+    { name: "reach", description: "How far from the pointer a line is still pushed, in CSS px.", type: "number", default: "160" },
+    { name: "push", description: "How hard the pointer pushes, a multiplier: one moves a line a seventh of `reach` at most; none turns the push off.", type: "number", default: "1" },
+    { name: "bounce", description: "How much a released line swings past its place, a multiplier: none settles without a swing.", type: "number", default: "1" },
+    { name: "ripple", description: "Whether a click, or a tap, sends a ring out across the field.", type: "boolean", default: "true" },
+    { name: "intro", description: "Whether the lines draw in from the inline start when first on screen.", type: "boolean", default: "false" },
+    { name: "dashed", description: "Whether the lines are dashed, with the dashes streaming along them.", type: "boolean", default: "false" },
   ],
   // <wr-fluid-cursor>
   WrFluidCursor: [
-    { name: 'intensity', description: 'How much dye a move lays, a multiplier.', type: 'number', default: '1' },
-    {
-      name: 'size',
-      description: 'The radius of a splat, in CSS px: how wide the ink the pointer lays is.',
-      type: 'number',
-      default: '24',
-    },
-    {
-      name: 'force',
-      description: "How much of the pointer's speed the fluid takes, a multiplier.",
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'swirl',
-      description:
-        'How strongly the eddies are fed back, a multiplier: more curls the trail tighter, none lets it smooth out.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'trail',
-      description: 'How long the dye lasts, in seconds, from a fresh splat to gone.',
-      type: 'number',
-      default: '3',
-    },
-    {
-      name: 'momentum',
-      description: 'How long the motion the pointer gave lasts, in seconds.',
-      type: 'number',
-      default: '6',
-    },
-    {
-      name: 'shading',
-      description: 'Whether the dye is shaded by its own relief, a slight lighting from the top left.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'rainbow',
-      description: "Whether a stroke cycles the hue circle instead of the theme's palette.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'clickSplash',
-      description: 'Whether a click or a tap splashes the ink outward from the point.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'quality',
-      description: 'How finely the fluid is simulated: the grids and the pressure solve.',
-      type: 'WrFluidCursorQuality',
-      default: "'medium'",
-    },
+    { name: "intensity", description: "How much dye a move lays, a multiplier.", type: "number", default: "1" },
+    { name: "size", description: "The radius of a splat, in CSS px: how wide the ink the pointer lays is.", type: "number", default: "24" },
+    { name: "force", description: "How much of the pointer's speed the fluid takes, a multiplier.", type: "number", default: "1" },
+    { name: "swirl", description: "How strongly the eddies are fed back, a multiplier: more curls the trail tighter, none lets it smooth out.", type: "number", default: "1" },
+    { name: "trail", description: "How long the dye lasts, in seconds, from a fresh splat to gone.", type: "number", default: "3" },
+    { name: "momentum", description: "How long the motion the pointer gave lasts, in seconds.", type: "number", default: "6" },
+    { name: "shading", description: "Whether the dye is shaded by its own relief, a slight lighting from the top left.", type: "boolean", default: "true" },
+    { name: "rainbow", description: "Whether a stroke cycles the hue circle instead of the theme's palette.", type: "boolean", default: "false" },
+    { name: "clickSplash", description: "Whether a click or a tap splashes the ink outward from the point.", type: "boolean", default: "true" },
+    { name: "quality", description: "How finely the fluid is simulated: the grids and the pressure solve.", type: "WrFluidCursorQuality", default: "'medium'" },
   ],
   // <[wrForm]>
   WrForm: [
-    {
-      name: 'inline',
-      description: 'Lay the fields out in a wrapping row, aligned on their bottom edge. `columns` is ignored.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'columns',
-      description: 'How many equal columns a row holds. Below a form width of `30rem` every field takes a full row.',
-      type: 'number',
-      default: '1',
-    },
+    { name: "inline", description: "Lay the fields out in a wrapping row, aligned on their bottom edge. `columns` is ignored.", type: "boolean", default: "false" },
+    { name: "columns", description: "How many equal columns a row holds. Below a form width of `30rem` every field takes a full row.", type: "number", default: "1" },
   ],
   // <wr-form-error>
   WrFormError: [
-    {
-      name: 'key',
-      description:
-        "Validator key this message corresponds to (e.g. `'required'`). Optional — without a key the message always renders, which is the plain inline-error usage inside `<wr-form-item>`.",
-      type: 'string',
-    },
+    { name: "key", description: "Validator key this message corresponds to (e.g. `'required'`). Optional — without a key the message always renders, which is the plain inline-error usage inside `<wr-form-item>`.", type: "string" },
   ],
   // <wr-form-field>
   WrFormField: [
-    { name: 'label', description: 'Label text shown above the control.', type: 'string', default: "''" },
-    {
-      name: 'hint',
-      description: 'Hint text shown below the control. Hidden when an error is visible.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'required',
-      description: 'Show a `*` next to the label and set `aria-required` on the projected control.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'optional',
-      description:
-        'Show an "optional" marker next to the label — the word comes from `optionalLabel`. Mutually exclusive with `required`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'optionalLabel',
-      description:
-        "Word inside the optional marker's parentheses. Falls back to `form.optional`, then `'optional'`. The parentheses are the template's, so no locale has to repeat punctuation.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'controlId',
-      description:
-        "Force a specific id on the label's `for` attribute. Auto-generated otherwise, and adopted by the projected `wrInput` unless that element already carries an `id` of its own.",
-      type: 'string',
-      default: '`wr-form-field-${++uid}`',
-    },
-    {
-      name: 'autoErrors',
-      description:
-        "Render a message for any error the markup does not already answer: the validator's own `message`, else `validation.<key>` from the app's i18n catalog. ngwr ships no error texts, so a key neither of them answers renders nothing, and dev mode warns once for it. On by default: a field with no `<wr-form-error>` at all is the common case. Turn it off for a field whose copy is entirely hand-written.",
-      type: 'boolean',
-      default: 'true',
-    },
+    { name: "label", description: "Label text shown above the control.", type: "string", default: "''" },
+    { name: "hint", description: "Hint text shown below the control. Hidden when an error is visible.", type: "string", default: "''" },
+    { name: "required", description: "Show a `*` next to the label and set `aria-required` on the projected control.", type: "boolean", default: "false" },
+    { name: "optional", description: "Show an \"optional\" marker next to the label — the word comes from `optionalLabel`. Mutually exclusive with `required`.", type: "boolean", default: "false" },
+    { name: "optionalLabel", description: "Word inside the optional marker's parentheses. Falls back to `form.optional`, then `'optional'`. The parentheses are the template's, so no locale has to repeat punctuation.", type: "string | null", default: "null" },
+    { name: "controlId", description: "Force a specific id on the label's `for` attribute. Auto-generated otherwise, and adopted by the projected `wrInput` unless that element already carries an `id` of its own.", type: "string", default: "`wr-form-field-${++uid}`" },
+    { name: "autoErrors", description: "Render a message for any error the markup does not already answer: the validator's own `message`, else `validation.<key>` from the app's i18n catalog. ngwr ships no error texts, so a key neither of them answers renders nothing, and dev mode warns once for it. On by default: a field with no `<wr-form-error>` at all is the common case. Turn it off for a field whose copy is entirely hand-written.", type: "boolean", default: "true" },
   ],
   // <wr-form-item>
   WrFormItem: [
-    {
-      name: 'hasError',
-      description: 'When `true`, applies error coloring to the projected label and inputs.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "hasError", description: "When `true`, applies error coloring to the projected label and inputs.", type: "boolean", default: "false" },
   ],
   // <[wrFormSpan]>
   WrFormSpan: [
-    {
-      name: 'wrFormSpan',
-      description:
-        "Columns to span. Empty or `'full'` takes the whole row. A number above the form's `columns` spans them all.",
-      type: "number | 'full'",
-      default: "'full'",
-    },
+    { name: "wrFormSpan", description: "Columns to span. Empty or `'full'` takes the whole row. A number above the form's `columns` spans them all.", type: "number | 'full'", default: "'full'" },
   ],
   // <wr-funnel-chart>
   WrFunnelChart: [
-    {
-      name: 'stages',
-      description:
-        'The stages, from the top of the funnel down. Nothing is sorted: a stage is drawn where it is given, so a stage larger than the one before it shows as one.',
-      type: 'readonly WrFunnelStage[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name of the chart, and the data table's caption. Each stage names itself, so this says what the funnel is about. Falls back to `funnelChart.label`, then `'Funnel chart'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'color',
-      description:
-        'The colour of a stage with no `color` of its own. One colour by default, because the stages are one quantity measured along a sequence, not categories: every stage is named in text beside its bar, so colour tells nothing apart here. The first colour of the chart palette, which is the brand colour unless the theme says otherwise.',
-      type: 'string',
-      default: "'var(--wr-chart-1)'",
-    },
-    {
-      name: 'max',
-      description:
-        'The value of a full-width bar. `0` makes it the largest stage shown; a value above `0` fixes it, so two funnels side by side share one scale. A stage above a fixed `max` is drawn full width, and its figure, the tooltip and the data table still give its own value.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'conversion',
-      description:
-        "Which conversions are printed on the drawing: each stage's share of the stage before it, between the two bars (`previous`), its share of the first stage, under its value (`first`), `both` or `none`. The tooltip, every stage's accessible name and the data table carry both whatever this says.",
-      type: 'WrFunnelConversion',
-      default: "'both'",
-    },
-    { name: 'showValues', description: "Print each stage's value beside its bar.", type: 'boolean', default: 'true' },
-    {
-      name: 'valueLabel',
-      description:
-        'What the values count — visitors, orders — as the heading of the data table\'s value column. Falls back to `funnelChart.value` ("Value").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the stage's label, value and both conversions on hover. Pointer only — each stage's accessible name already carries the same figures. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'loading',
-      description: "A request for the chart's data is in flight: the stages give way to the loading message.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the stages give way to the error message. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown when there is no stage. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes every value the chart shows: beside the bars, in the tooltip, in the accessible names and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'percentFormat',
-      description:
-        "Writes every conversion the chart shows, given as a RATIO — `0.25` for a quarter, `1.2` for a stage that grew by a fifth — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a small real conversion is not printed as `0%`.",
-      type: '((ratio: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render the chart's figures as a table that only assistive technology reaches: a row per stage, headed by its label, with its value and both conversions, each written as the tooltip writes it. A figure the stage does not have is an empty cell. Each stage's accessible name already carries its figures; the table is for a reader who wants to move through them cell by cell, with the column headings read out. It is rendered beside the stages, clipped to nothing: it takes no room, draws nothing and holds no tab stop.",
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "stages", description: "The stages, from the top of the funnel down. Nothing is sorted: a stage is drawn where it is given, so a stage larger than the one before it shows as one.", type: "readonly WrFunnelStage[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart, and the data table's caption. Each stage names itself, so this says what the funnel is about. Falls back to `funnelChart.label`, then `'Funnel chart'`.", type: "string | null", default: "null" },
+    { name: "color", description: "The colour of a stage with no `color` of its own. One colour by default, because the stages are one quantity measured along a sequence, not categories: every stage is named in text beside its bar, so colour tells nothing apart here. The first colour of the chart palette, which is the brand colour unless the theme says otherwise.", type: "string", default: "'var(--wr-chart-1)'" },
+    { name: "max", description: "The value of a full-width bar. `0` makes it the largest stage shown; a value above `0` fixes it, so two funnels side by side share one scale. A stage above a fixed `max` is drawn full width, and its figure, the tooltip and the data table still give its own value.", type: "number", default: "0" },
+    { name: "conversion", description: "Which conversions are printed on the drawing: each stage's share of the stage before it, between the two bars (`previous`), its share of the first stage, under its value (`first`), `both` or `none`. The tooltip, every stage's accessible name and the data table carry both whatever this says.", type: "WrFunnelConversion", default: "'both'" },
+    { name: "showValues", description: "Print each stage's value beside its bar.", type: "boolean", default: "true" },
+    { name: "valueLabel", description: "What the values count — visitors, orders — as the heading of the data table's value column. Falls back to `funnelChart.value` (\"Value\").", type: "string | null", default: "null" },
+    { name: "tooltip", description: "Show a tooltip with the stage's label, value and both conversions on hover. Pointer only — each stage's accessible name already carries the same figures. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "loading", description: "A request for the chart's data is in flight: the stages give way to the loading message.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the stages give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown when there is no stage. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "valueFormat", description: "Writes every value the chart shows: beside the bars, in the tooltip, in the accessible names and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.", type: "((value: number) => string) | null", default: "null" },
+    { name: "percentFormat", description: "Writes every conversion the chart shows, given as a RATIO — `0.25` for a quarter, `1.2` for a stage that grew by a fifth — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a small real conversion is not printed as `0%`.", type: "((ratio: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per stage, headed by its label, with its value and both conversions, each written as the tooltip writes it. A figure the stage does not have is an empty cell. Each stage's accessible name already carries its figures; the table is for a reader who wants to move through them cell by cell, with the column headings read out. It is rendered beside the stages, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
   // <wr-gauge>
   WrGauge: [
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name — the role needs one. Falls back to `gauge.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'value',
-      description:
-        "The reading. Coerced like every other numeric input here — it was the only one without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is invalid path geometry and drops the arc.",
-      type: 'number',
-      required: true,
-    },
-    {
-      name: 'min',
-      description: 'Low end of the scale — where the arc starts. Values below it clamp here.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'max',
-      description: 'High end of the scale — where the arc completes. Values above it clamp here.',
-      type: 'number',
-      default: '100',
-    },
-    { name: 'size', description: 'Diameter in CSS pixels.', type: 'number', default: '160' },
-    {
-      name: 'strokeWidth',
-      description:
-        'Arc stroke thickness in CSS pixels, the same at any `size`. It was a share of the drawing until 16.5, so a gauge twice the size drew an arc twice as thick.',
-      type: 'number',
-      default: '16',
-    },
-    {
-      name: 'trackColor',
-      description:
-        "Colour of the unfilled arc behind the value. Any CSS colour; the default is the chart theme's track, shared with the meter group and the bullet chart.",
-      type: 'string',
-      default: "'var(--wr-chart-track)'",
-    },
-    {
-      name: 'valueColor',
-      description:
-        'Colour of the filled arc. Any CSS colour: the default is the first colour of the chart palette; pass another (`var(--wr-chart-3)`), or an intent token to tie it to a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.',
-      type: 'string',
-      default: "'var(--wr-chart-1)'",
-    },
-    { name: 'showValue', description: 'Show the value text in the center.', type: 'boolean', default: 'true' },
-    {
-      name: 'suffix',
-      description:
-        'Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'loading',
-      description:
-        'A request for the reading is in flight: the arc and the number give way to the loading message, over the track.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        'The reading failed to load: the arc and the number give way to the error message. `loading` wins while both are set.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes the reading in the centre, the tooltip and `aria-valuetext`, before `suffix`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
+    { name: "ariaLabel", description: "Accessible name — the role needs one. Falls back to `gauge.label`.", type: "string | null", default: "null" },
+    { name: "value", description: "The reading. Coerced like every other numeric input here — it was the only one without it, so a NaN reached the arc's `d` as the literal text `NaN`, which is invalid path geometry and drops the arc.", type: "number", required: true },
+    { name: "min", description: "Low end of the scale — where the arc starts. Values below it clamp here.", type: "number", default: "0" },
+    { name: "max", description: "High end of the scale — where the arc completes. Values above it clamp here.", type: "number", default: "100" },
+    { name: "size", description: "Diameter in CSS pixels.", type: "number", default: "160" },
+    { name: "strokeWidth", description: "Arc stroke thickness in CSS pixels, the same at any `size`. It was a share of the drawing until 16.5, so a gauge twice the size drew an arc twice as thick.", type: "number", default: "16" },
+    { name: "trackColor", description: "Colour of the unfilled arc behind the value. Any CSS colour; the default is the chart theme's track, shared with the meter group and the bullet chart.", type: "string", default: "'var(--wr-chart-track)'" },
+    { name: "valueColor", description: "Colour of the filled arc. Any CSS colour: the default is the first colour of the chart palette; pass another (`var(--wr-chart-3)`), or an intent token to tie it to a threshold, e.g. `var(--wr-color-danger)` once the value crosses one.", type: "string", default: "'var(--wr-chart-1)'" },
+    { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
+    { name: "suffix", description: "Unit printed immediately after the number — `%`, `/10`, ` GB`. It goes into the accessible text too, so the gauge is announced the way it reads.", type: "string", default: "''" },
+    { name: "loading", description: "A request for the reading is in flight: the arc and the number give way to the loading message, over the track.", type: "boolean", default: "false" },
+    { name: "error", description: "The reading failed to load: the arc and the number give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "tooltip", description: "Show a tooltip with the reading on hover, named by `ariaLabel` when one is given. Pointer only — the meter announces the same reading. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes the reading in the centre, the tooltip and `aria-valuetext`, before `suffix`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
   ],
   // <[wrGlitch]>
   WrGlitch: [
-    {
-      name: 'wrGlitch',
-      description:
-        'A selector for one descendant of the host to glitch instead of the host itself, written as the directive\'s own value: `wrGlitch=".wr-result__title"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'active',
-      description:
-        'Plays the effect while true, exactly as under a pointer; hover and focus still start it when this is false. Drive it with short bursts to make a tile glitch on its own: keep each burst to one cycle or more and the gaps longer than the burst, so the flash budget above holds.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "wrGlitch", description: "A selector for one descendant of the host to glitch instead of the host itself, written as the directive's own value: `wrGlitch=\".wr-result__title\"`. Resolved once after the first render with `querySelector`; a selector that matches nothing turns the effect off. Unset or empty, the host.", type: "string | null", default: "null" },
+    { name: "active", description: "Plays the effect while true, exactly as under a pointer; hover and focus still start it when this is false. Drive it with short bursts to make a tile glitch on its own: keep each burst to one cycle or more and the gaps longer than the burst, so the flash budget above holds.", type: "boolean", default: "false" },
   ],
   // <[wrGlowBorder]>
   WrGlowBorder: [
-    { name: 'active', description: 'Stops the arc without removing the directive.', type: 'boolean', default: 'true' },
+    { name: "active", description: "Stops the arc without removing the directive.", type: "boolean", default: "true" },
   ],
   // <wr-graph>
   WrGraph: [
-    {
-      name: 'nodes',
-      description:
-        'The nodes, in any order. Input order breaks layout ties, so the same arrays always produce the same picture. Never mutated.',
-      type: 'readonly WrGraphNode<TData>[]',
-      default: '[]',
-    },
-    {
-      name: 'edges',
-      description: 'Parent-child links, `from` the parent and `to` the child. Never mutated.',
-      type: 'readonly WrGraphEdge[]',
-      default: '[]',
-    },
-    {
-      name: 'nodeWidth',
-      description: 'Width in pixels of a node that sets none of its own.',
-      type: 'number',
-      default: '160',
-    },
-    {
-      name: 'nodeHeight',
-      description: 'Height in pixels of a node that sets none of its own.',
-      type: 'number',
-      default: '48',
-    },
-    {
-      name: 'ariaLabel',
-      description: "Accessible name of the scrolling viewport. Falls back to `graph.label`, then `'Graph'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'zoomable',
-      description:
-        'Lets the viewport zoom and pan instead of scrolling: `Ctrl` or `⌘` with the wheel, a pinch, a drag on the field, the keyboard and three buttons. A plain wheel or a two-finger scroll pans while the drawing has more to show that way, and scrolls the page once it has none. The drawing is fitted on first draw and whenever the layout changes its size, until the view is moved by hand. A touch drag on the graph then pans it rather than scrolling the page.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'wheelZoom',
-      description:
-        'Lets a plain wheel zoom, with no modifier key. The wheel then never pans, and the page no longer scrolls while the pointer is over the graph. Without it a plain wheel pans the drawing, and scrolls the page once the drawing has nothing more to show in that direction.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'zoom',
-      description:
-        'The zoom, where `1` is 100%. Two-way: it follows every gesture, and a value written to it zooms around the middle of the viewport, kept inside `minZoom` and `maxZoom`. Ignored unless `zoomable`.',
-      type: 'number',
-      default: '1',
-    },
-    { name: 'minZoom', description: 'The smallest zoom.', type: 'number', default: '0.25' },
-    { name: 'maxZoom', description: 'The largest zoom. Never below `minZoom`.', type: 'number', default: '4' },
-    {
-      name: 'selectable',
-      description:
-        'Lets a node be selected: each node becomes a button, pressed while it is the selected one. A click, `Enter` or `Space` selects it, the same again or `Escape` clears the selection. While a node is selected, its edges and the nodes at their other ends stay lit and everything else is dimmed. A node template should hold no control of its own while this is on: the whole node is one button.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'selected',
-      description:
-        'The id of the selected node, or `null`. Two-way: it follows every pick, and a value written to it selects that node. An id no drawn node has highlights nothing. Ignored unless `selectable`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'zoomInLabel',
-      description: "Accessible name of the zoom-in button. Falls back to `graph.zoomIn`, then `'Zoom in'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'zoomOutLabel',
-      description: "Accessible name of the zoom-out button. Falls back to `graph.zoomOut`, then `'Zoom out'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'fitLabel',
-      description: "Accessible name of the fit button. Falls back to `graph.fit`, then `'Fit to view'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: '(layoutError)',
-      description:
-        'An asynchronous layout rejected. Carries the rejection as thrown. The last picture stays on screen, and a run that was aborted never reports here.',
-      type: 'unknown',
-    },
+    { name: "nodes", description: "The nodes, in any order. Input order breaks layout ties, so the same arrays always produce the same picture. Never mutated.", type: "readonly WrGraphNode<TData>[]", default: "[]" },
+    { name: "edges", description: "Parent-child links, `from` the parent and `to` the child. Never mutated.", type: "readonly WrGraphEdge[]", default: "[]" },
+    { name: "nodeWidth", description: "Width in pixels of a node that sets none of its own.", type: "number", default: "160" },
+    { name: "nodeHeight", description: "Height in pixels of a node that sets none of its own.", type: "number", default: "48" },
+    { name: "ariaLabel", description: "Accessible name of the scrolling viewport. Falls back to `graph.label`, then `'Graph'`.", type: "string | null", default: "null" },
+    { name: "zoomable", description: "Lets the viewport zoom and pan instead of scrolling: `Ctrl` or `⌘` with the wheel, a pinch, a drag on the field, the keyboard and three buttons. A plain wheel or a two-finger scroll pans while the drawing has more to show that way, and scrolls the page once it has none. The drawing is fitted on first draw and whenever the layout changes its size, until the view is moved by hand. A touch drag on the graph then pans it rather than scrolling the page.", type: "boolean", default: "false" },
+    { name: "wheelZoom", description: "Lets a plain wheel zoom, with no modifier key. The wheel then never pans, and the page no longer scrolls while the pointer is over the graph. Without it a plain wheel pans the drawing, and scrolls the page once the drawing has nothing more to show in that direction.", type: "boolean", default: "false" },
+    { name: "zoom", description: "The zoom, where `1` is 100%. Two-way: it follows every gesture, and a value written to it zooms around the middle of the viewport, kept inside `minZoom` and `maxZoom`. Ignored unless `zoomable`.", type: "number", default: "1" },
+    { name: "minZoom", description: "The smallest zoom.", type: "number", default: "0.25" },
+    { name: "maxZoom", description: "The largest zoom. Never below `minZoom`.", type: "number", default: "4" },
+    { name: "selectable", description: "Lets a node be selected: each node becomes a button, pressed while it is the selected one. A click, `Enter` or `Space` selects it, the same again or `Escape` clears the selection. While a node is selected, its edges and the nodes at their other ends stay lit and everything else is dimmed. A node template should hold no control of its own while this is on: the whole node is one button.", type: "boolean", default: "false" },
+    { name: "selected", description: "The id of the selected node, or `null`. Two-way: it follows every pick, and a value written to it selects that node. An id no drawn node has highlights nothing. Ignored unless `selectable`.", type: "string | null", default: "null" },
+    { name: "zoomInLabel", description: "Accessible name of the zoom-in button. Falls back to `graph.zoomIn`, then `'Zoom in'`.", type: "string | null", default: "null" },
+    { name: "zoomOutLabel", description: "Accessible name of the zoom-out button. Falls back to `graph.zoomOut`, then `'Zoom out'`.", type: "string | null", default: "null" },
+    { name: "fitLabel", description: "Accessible name of the fit button. Falls back to `graph.fit`, then `'Fit to view'`.", type: "string | null", default: "null" },
+    { name: "(layoutError)", description: "An asynchronous layout rejected. Carries the rejection as thrown. The last picture stays on screen, and a run that was aborted never reports here.", type: "unknown" },
   ],
   // <wr-heatmap-chart>
   WrHeatmapChart: [
-    {
-      name: 'data',
-      description:
-        'The values, rows × columns: one array per row, in the order of `rows`, each with one value per column, in the order of `columns`. A `null`, a value that is not a finite number, or one past the end of a shorter row is an EMPTY cell — no data, drawn hatched and outlined rather than as the lowest level.',
-      type: 'WrHeatmapMatrix',
-      default: '[]',
-    },
-    {
-      name: 'rows',
-      description:
-        "The rows' names, top to bottom, beside the matrix at inline start. The matrix is as tall as the longer of this list and `data`; a row with no name here is named by its position, from 1. A name wider than `--wr-heatmap-chart-row-label-max-width` (10rem) is cut with an ellipsis, and the tooltip and the data table carry it whole.",
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'columns',
-      description:
-        "The columns' names, from inline start, above the matrix. The matrix is as wide as the longer of this list and the longest row of `data`; a column with no name here is named by its position, from 1. Where the names are wider than their columns, the chart draws every second, third or later one and leaves the rest out of sight, still read by a screen reader; the tooltip and the data table name every column. A single column too narrow for its name cuts it with an ellipsis.",
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'color',
-      description:
-        "The colour of the highest level: any CSS colour, `var(--wr-…)` included. Every lower level is stepped from it toward the surface, as the chart theme steps its own scale. `null` paints the levels with the theme's sequential scale, `--wr-chart-seq-1` to `-5`, which an app retints for every chart at once.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'min',
-      description:
-        'The value of the lowest level. `null` takes the lowest value in `data`; a value given holds the scale there, and a cell below it takes the lowest level.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'max',
-      description:
-        'The value of the highest level. `null` takes the highest value in `data`; a value given holds the scale there, and a cell above it takes the highest level. Bounds given in the wrong order are swapped. A scale with no span — every value the same, or `min` equal to `max` — has one level, the lowest: every value is drawn on it, an all-zero matrix as a faint tint rather than as the peak, and the legend keys that one level.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'levels',
-      description:
-        'How many levels the scale is cut into, each an equal share of it from `min` to `max`: whole numbers from 2 to 10. Fewer levels are easier to tell apart; the value text and the data table carry what the levels round.',
-      type: 'number',
-      default: '5',
-    },
-    {
-      name: 'showValues',
-      description:
-        "Print each value in its cell, compact from a thousand (`1.2K`). A value is printed whole or not at all: one wider than its cell is left out rather than cut, and the tooltip and the data table still carry it. Black or white, whichever reads better on the cell — picked with CSS relative colour syntax; a browser without it (Firefox before 128) prints the value on a small chip of the surface in the chart's text colour instead, which reads on every level. An empty cell prints nothing.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'showLegend',
-      description: 'Show the scale key, from `min` to `max`, with a key for an empty cell while there is one.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the scale key sits: `bottom` or `top` of the matrix, `start` or `end` of it, or `none` for no key at all.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the cells give way to the loading message, beside the row and column names the chart had.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the cells give way to the error message. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description:
-        "The message shown for a matrix with no row or no column. Falls back to `chart.empty`, then `'No data'`. An empty CELL is `noDataLabel`'s.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip for the cell under the pointer: its row's name, its column's name and its value, or `noDataLabel` for an empty cell. Pointer only — the data table is where the same numbers are for a keyboard or a screen reader. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes every number the chart shows: the values in the cells, the legend, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, compact in the cells from a thousand up.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        'Render the chart\'s figures as a table that only assistive technology reaches: a row per row, headed by its name, and a column per column, every value written the way the tooltip writes it, and an empty cell as `noDataLabel`. The cells are one named `role="img"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the matrix, clipped to nothing: it takes no room, draws nothing and holds no tab stop.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name of the matrix. Its cells carry no text a screen reader reaches, so this is where to say what the chart shows — or turn on `dataTable`. Falls back to `heatmapChart.label`, which is also the data table's caption.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'noDataLabel',
-      description:
-        'What an empty cell is called, in the tooltip, the legend\'s key and the data table — "Closed", "Not measured". Falls back to `heatmapChart.noData`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "data", description: "The values, rows × columns: one array per row, in the order of `rows`, each with one value per column, in the order of `columns`. A `null`, a value that is not a finite number, or one past the end of a shorter row is an EMPTY cell — no data, drawn hatched and outlined rather than as the lowest level.", type: "WrHeatmapMatrix", default: "[]" },
+    { name: "rows", description: "The rows' names, top to bottom, beside the matrix at inline start. The matrix is as tall as the longer of this list and `data`; a row with no name here is named by its position, from 1. A name wider than `--wr-heatmap-chart-row-label-max-width` (10rem) is cut with an ellipsis, and the tooltip and the data table carry it whole.", type: "readonly string[]", default: "[]" },
+    { name: "columns", description: "The columns' names, from inline start, above the matrix. The matrix is as wide as the longer of this list and the longest row of `data`; a column with no name here is named by its position, from 1. Where the names are wider than their columns, the chart draws every second, third or later one and leaves the rest out of sight, still read by a screen reader; the tooltip and the data table name every column. A single column too narrow for its name cuts it with an ellipsis.", type: "readonly string[]", default: "[]" },
+    { name: "color", description: "The colour of the highest level: any CSS colour, `var(--wr-…)` included. Every lower level is stepped from it toward the surface, as the chart theme steps its own scale. `null` paints the levels with the theme's sequential scale, `--wr-chart-seq-1` to `-5`, which an app retints for every chart at once.", type: "string | null", default: "null" },
+    { name: "min", description: "The value of the lowest level. `null` takes the lowest value in `data`; a value given holds the scale there, and a cell below it takes the lowest level.", type: "number | null", default: "null" },
+    { name: "max", description: "The value of the highest level. `null` takes the highest value in `data`; a value given holds the scale there, and a cell above it takes the highest level. Bounds given in the wrong order are swapped. A scale with no span — every value the same, or `min` equal to `max` — has one level, the lowest: every value is drawn on it, an all-zero matrix as a faint tint rather than as the peak, and the legend keys that one level.", type: "number | null", default: "null" },
+    { name: "levels", description: "How many levels the scale is cut into, each an equal share of it from `min` to `max`: whole numbers from 2 to 10. Fewer levels are easier to tell apart; the value text and the data table carry what the levels round.", type: "number", default: "5" },
+    { name: "showValues", description: "Print each value in its cell, compact from a thousand (`1.2K`). A value is printed whole or not at all: one wider than its cell is left out rather than cut, and the tooltip and the data table still carry it. Black or white, whichever reads better on the cell — picked with CSS relative colour syntax; a browser without it (Firefox before 128) prints the value on a small chip of the surface in the chart's text colour instead, which reads on every level. An empty cell prints nothing.", type: "boolean", default: "false" },
+    { name: "showLegend", description: "Show the scale key, from `min` to `max`, with a key for an empty cell while there is one.", type: "boolean", default: "true" },
+    { name: "legendPosition", description: "Where the scale key sits: `bottom` or `top` of the matrix, `start` or `end` of it, or `none` for no key at all.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the chart's data is in flight: the cells give way to the loading message, beside the row and column names the chart had.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the cells give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown for a matrix with no row or no column. Falls back to `chart.empty`, then `'No data'`. An empty CELL is `noDataLabel`'s.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "tooltip", description: "Show a tooltip for the cell under the pointer: its row's name, its column's name and its value, or `noDataLabel` for an empty cell. Pointer only — the data table is where the same numbers are for a keyboard or a screen reader. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the values in the cells, the legend, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, compact in the cells from a thousand up.", type: "((value: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per row, headed by its name, and a column per column, every value written the way the tooltip writes it, and an empty cell as `noDataLabel`. The cells are one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the matrix, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
+    { name: "ariaLabel", description: "Accessible name of the matrix. Its cells carry no text a screen reader reaches, so this is where to say what the chart shows — or turn on `dataTable`. Falls back to `heatmapChart.label`, which is also the data table's caption.", type: "string | null", default: "null" },
+    { name: "noDataLabel", description: "What an empty cell is called, in the tooltip, the legend's key and the data table — \"Closed\", \"Not measured\". Falls back to `heatmapChart.noData`.", type: "string | null", default: "null" },
   ],
   // <[wrHotkey]>
   WrHotkeyBinding: [
-    {
-      name: 'wrHotkey',
-      description:
-        "The chord to listen for — `'mod+k'`, `'shift+?'`, or the full spec object. `mod` resolves to ⌘ on macOS and Ctrl everywhere else.",
-      type: 'WrHotkeySpec',
-      required: true,
-    },
-    {
-      name: 'scoped',
-      description: 'Scope the binding to the host element instead of `document`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'allowInInput',
-      description: 'Fire even when an input / textarea has focus.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'preventDefault',
-      description: 'Suppress the default action when the binding fires.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'hotkeyLabel',
-      description: 'What the shortcut does, listed by `WrHotkey.bindings` for a cheat sheet.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: '(wrHotkeyMatch)', description: 'Emits the original KeyboardEvent on match.', type: 'KeyboardEvent' },
+    { name: "wrHotkey", description: "The chord to listen for — `'mod+k'`, `'shift+?'`, or the full spec object. `mod` resolves to ⌘ on macOS and Ctrl everywhere else.", type: "WrHotkeySpec", required: true },
+    { name: "scoped", description: "Scope the binding to the host element instead of `document`.", type: "boolean", default: "false" },
+    { name: "allowInInput", description: "Fire even when an input / textarea has focus.", type: "boolean", default: "false" },
+    { name: "preventDefault", description: "Suppress the default action when the binding fires.", type: "boolean", default: "true" },
+    { name: "hotkeyLabel", description: "What the shortcut does, listed by `WrHotkey.bindings` for a cheat sheet.", type: "string | null", default: "null" },
+    { name: "(wrHotkeyMatch)", description: "Emits the original KeyboardEvent on match.", type: "KeyboardEvent" },
   ],
   // <wr-icon>
   WrIcon: [
-    {
-      name: 'name',
-      description:
-        'Name the icon was registered under in `provideWrIcons()`. An unregistered name renders nothing and logs in dev mode — ngwr ships no icons itself.',
-      type: 'WrIconName',
-      required: true,
-    },
+    { name: "name", description: "Name the icon was registered under in `provideWrIcons()`. An unregistered name renders nothing and logs in dev mode — ngwr ships no icons itself.", type: "WrIconName", required: true },
   ],
   // <wr-image-cropper>
   WrImageCropper: [
-    {
-      name: 'src',
-      description: 'Image source — URL string, `File`, or `Blob`.',
-      type: 'string | File | Blob | null',
-      default: 'null',
-    },
-    {
-      name: 'aspectRatio',
-      description: 'Aspect ratio (width / height). `null` = free.',
-      type: 'number | null',
-      default: 'null',
-    },
-    { name: 'minWidth', description: 'Minimum crop width in display pixels.', type: 'number', default: '32' },
-    { name: 'minHeight', description: 'Minimum crop height in display pixels.', type: 'number', default: '32' },
-    {
-      name: 'outputType',
-      description: 'Default output type for `(cropped)`.',
-      type: 'WrImageOutputType',
-      default: "'image/png'",
-    },
-    {
-      name: 'outputQuality',
-      description: 'JPEG / WebP quality for `(cropped)` in [0, 1].',
-      type: 'number',
-      default: '0.92',
-    },
-    {
-      name: 'maxOutputSize',
-      description:
-        "Longest side of the exported image, in pixels — for `(cropped)`, `toBlob()` and `toDataUrl()` alike. A crop larger than this is scaled down to fit, keeping its aspect ratio; a smaller one is exported as it is, never upscaled. The crop itself — `cropRect()`, in source pixels — is not affected. `null` (or anything that is not a positive number) exports at the source image's own resolution.",
-      type: 'number | null',
-      default: 'null',
-    },
-    { name: '(cropped)', description: 'Emits a Blob after each drag end.', type: 'Blob' },
-    {
-      name: '(loadError)',
-      description:
-        'Fires once when the browser cannot decode the current `src` — a format it does not support, a broken file, a URL that fails. Nothing is rendered for it; show your own message. A new `src` clears the failure.',
-      type: 'WrImageLoadError',
-    },
+    { name: "src", description: "Image source — URL string, `File`, or `Blob`.", type: "string | File | Blob | null", default: "null" },
+    { name: "aspectRatio", description: "Aspect ratio (width / height). `null` = free.", type: "number | null", default: "null" },
+    { name: "minWidth", description: "Minimum crop width in display pixels.", type: "number", default: "32" },
+    { name: "minHeight", description: "Minimum crop height in display pixels.", type: "number", default: "32" },
+    { name: "outputType", description: "Default output type for `(cropped)`.", type: "WrImageOutputType", default: "'image/png'" },
+    { name: "outputQuality", description: "JPEG / WebP quality for `(cropped)` in [0, 1].", type: "number", default: "0.92" },
+    { name: "maxOutputSize", description: "Longest side of the exported image, in pixels — for `(cropped)`, `toBlob()` and `toDataUrl()` alike. A crop larger than this is scaled down to fit, keeping its aspect ratio; a smaller one is exported as it is, never upscaled. The crop itself — `cropRect()`, in source pixels — is not affected. `null` (or anything that is not a positive number) exports at the source image's own resolution.", type: "number | null", default: "null" },
+    { name: "(cropped)", description: "Emits a Blob after each drag end.", type: "Blob" },
+    { name: "(loadError)", description: "Fires once when the browser cannot decode the current `src` — a format it does not support, a broken file, a URL that fails. Nothing is rendered for it; show your own message. A new `src` clears the failure.", type: "WrImageLoadError" },
   ],
   // <input[wrInput], textarea[wrInput]>
   WrInput: [
-    { name: 'size', description: 'Control size.', type: 'WrInputSize', default: "'md'" },
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
+    { name: "size", description: "Control size.", type: "WrInputSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
   ],
   // <wr-input-group>
   WrInputGroup: [
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
-    {
-      name: 'clearable',
-      description:
-        'Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing empties the field through an `input` event, so whatever is bound to it (`ngModel`, `[formField]`, an `(input)` listener) hears it as an edit, and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears it.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'clearLabel',
-      description: 'Clear (×) button aria-label. Falls back to `common.clear`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loading',
-      description: 'Show a spinner after the field and mark the field `aria-busy`. The field stays editable.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: '(cleared)', description: 'Emitted after the clear (×) button emptied the field.', type: 'void' },
+    { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing empties the field through an `input` event, so whatever is bound to it (`ngModel`, `[formField]`, an `(input)` listener) hears it as an edit, and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears it.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner after the field and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
+    { name: "(cleared)", description: "Emitted after the clear (×) button emptied the field.", type: "void" },
   ],
   // <wr-input-number>
   WrInputNumber: [
-    {
-      name: 'mode',
-      description:
-        "What `value` holds. `'number'` is the engine's double. `'decimal'` keeps the typed digits exact as a canonical string (`'1234.56'`: a `.` for the point, no grouping), reads a decimal comma and pasted spaces, and steps, clamps and rounds through `wrDecimal` from `ngwr/utils`, so `0.2` stepped by `0.1` is `'0.3'`. A lone `.` or `,` is read in the locale's role: its decimal separator is a point, its grouping character is grouping when exactly three digits follow it (`1,234` in en-US is `'1234'`, but `0,125` is `'0.125'`) and a point otherwise. With both present, the last one is the point: `1,234.56` and `1.234,56` are `'1234.56'`. Grouping comes in threes, so `1.2.3` is unreadable and the committed value stays, as it does for any text the field cannot read.",
-      type: 'M',
-      default: "'number'",
-    },
-    {
-      name: 'min',
-      description: 'Minimum allowed value, a number in either mode.',
-      type: 'NonNullable<WrInputNumberValue<M>> | undefined',
-      default: '-Infinity',
-    },
-    {
-      name: 'max',
-      description: 'Maximum allowed value, a number in either mode.',
-      type: 'NonNullable<WrInputNumberValue<M>> | undefined',
-      default: 'Infinity',
-    },
-    { name: 'step', description: 'Step used by stepper buttons + arrow keys.', type: 'number', default: '1' },
-    {
-      name: 'decimals',
-      description:
-        'Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the digits shown once the field reformats on blur. `null` keeps the entered precision and formats with up to 20. Clamped to 0–100, the range `Intl.NumberFormat`\'s `minimumFractionDigits` / `maximumFractionDigits` accept — because it is the one numeric input on this component that had no transform, and the value goes straight into the formatter, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]="-1"` bound from a config object took the whole component down on blur.',
-      type: 'number | null',
-      default: 'null',
-    },
-    { name: 'showSteppers', description: 'Render the ▲▼ stepper column.', type: 'boolean', default: 'true' },
-    {
-      name: 'size',
-      description: "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract.",
-      type: 'WrInputSize',
-      default: "'md'",
-    },
-    { name: 'block', description: "Stretch the field to fill its parent's width.", type: 'boolean', default: 'false' },
-    {
-      name: 'rounded',
-      description: 'Pill-shaped corners — forwarded to the group AND the field.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'prefix', description: 'Optional prefix label (e.g. `"$"`).', type: 'string', default: "''" },
-    { name: 'suffix', description: 'Optional suffix label (e.g. `"kg"`).', type: 'string', default: "''" },
-    { name: 'placeholder', description: 'Placeholder shown when the input is empty.', type: 'string', default: "''" },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name for the field. Unset, the field is named by whatever labels it — there is deliberately no fallback here. It used to mirror the `placeholder`, and an `aria-label` OUTRANKS a `<label>` in the accname order: inside a `<wr-form-field label="Quantity">` the very input that adopts the field\'s id announced the placeholder ("0") instead, and a placeholder disappears as soon as the user types. Standalone nothing was lost by dropping it — an input with no other name already falls back to its own `placeholder` attribute, which is the name axe\'s `label` rule accepts too.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'incrementLabel',
-      description: 'Increment button aria-label. Falls back to `inputNumber.increment`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'decrementLabel',
-      description: 'Decrement button aria-label. Falls back to `inputNumber.decrement`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'clearable',
-      description:
-        'Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `null`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'clearLabel',
-      description: 'Clear (×) button aria-label. Falls back to `common.clear`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loading',
-      description: 'Show a spinner after the field and mark the field `aria-busy`. The field stays editable.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    {
-      name: 'readonly',
-      description: 'Read-only — values cannot be changed (steppers + typing disabled).',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'value',
-      description:
-        "The value, `null` when empty: a `number` in `'number'` mode, a canonical decimal string in `'decimal'` mode. Bound by `[formField]`, or two-way via `[(value)]`.",
-      type: 'WrInputNumberValue<M>',
-      default: 'null',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.',
-      type: 'void',
-    },
+    { name: "mode", description: "What `value` holds. `'number'` is the engine's double. `'decimal'` keeps the typed digits exact as a canonical string (`'1234.56'`: a `.` for the point, no grouping), reads a decimal comma and pasted spaces, and steps, clamps and rounds through `wrDecimal` from `ngwr/utils`, so `0.2` stepped by `0.1` is `'0.3'`. A lone `.` or `,` is read in the locale's role: its decimal separator is a point, its grouping character is grouping when exactly three digits follow it (`1,234` in en-US is `'1234'`, but `0,125` is `'0.125'`) and a point otherwise. With both present, the last one is the point: `1,234.56` and `1.234,56` are `'1234.56'`. Grouping comes in threes, so `1.2.3` is unreadable and the committed value stays, as it does for any text the field cannot read.", type: "M", default: "'number'" },
+    { name: "min", description: "Minimum allowed value, a number in either mode.", type: "NonNullable<WrInputNumberValue<M>> | undefined", default: "-Infinity" },
+    { name: "max", description: "Maximum allowed value, a number in either mode.", type: "NonNullable<WrInputNumberValue<M>> | undefined", default: "Infinity" },
+    { name: "step", description: "Step used by stepper buttons + arrow keys.", type: "number", default: "1" },
+    { name: "decimals", description: "Fixed number of decimals. Rounds the value as it is COMMITTED, and fixes the digits shown once the field reformats on blur. `null` keeps the entered precision and formats with up to 20. Clamped to 0–100, the range `Intl.NumberFormat`'s `minimumFractionDigits` / `maximumFractionDigits` accept — because it is the one numeric input on this component that had no transform, and the value goes straight into the formatter, which THROWS a `RangeError` outside that range rather than degrading. A `[decimals]=\"-1\"` bound from a config object took the whole component down on blur.", type: "number | null", default: "null" },
+    { name: "showSteppers", description: "Render the ▲▼ stepper column.", type: "boolean", default: "true" },
+    { name: "size", description: "Control size — forwarded to the field's `[size]`, and shares the `--wr-control-*` contract.", type: "WrInputSize", default: "'md'" },
+    { name: "block", description: "Stretch the field to fill its parent's width.", type: "boolean", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners — forwarded to the group AND the field.", type: "boolean", default: "false" },
+    { name: "prefix", description: "Optional prefix label (e.g. `\"$\"`).", type: "string", default: "''" },
+    { name: "suffix", description: "Optional suffix label (e.g. `\"kg\"`).", type: "string", default: "''" },
+    { name: "placeholder", description: "Placeholder shown when the input is empty.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name for the field. Unset, the field is named by whatever labels it — there is deliberately no fallback here. It used to mirror the `placeholder`, and an `aria-label` OUTRANKS a `<label>` in the accname order: inside a `<wr-form-field label=\"Quantity\">` the very input that adopts the field's id announced the placeholder (\"0\") instead, and a placeholder disappears as soon as the user types. Standalone nothing was lost by dropping it — an input with no other name already falls back to its own `placeholder` attribute, which is the name axe's `label` rule accepts too.", type: "string | null", default: "null" },
+    { name: "incrementLabel", description: "Increment button aria-label. Falls back to `inputNumber.increment`.", type: "string | null", default: "null" },
+    { name: "decrementLabel", description: "Decrement button aria-label. Falls back to `inputNumber.decrement`.", type: "string | null", default: "null" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `null`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner after the field and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Read-only — values cannot be changed (steppers + typing disabled).", type: "boolean", default: "false" },
+    { name: "value", description: "The value, `null` when empty: a `number` in `'number'` mode, a canonical decimal string in `'decimal'` mode. Bound by `[formField]`, or two-way via `[(value)]`.", type: "WrInputNumberValue<M>", default: "null" },
+    { name: "(touch)", description: "Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-input-otp>
   WrInputOtp: [
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name of the whole strip. Falls back to `inputOtp.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'length', description: 'Number of cells to render. Clamped to `[1, 20]`.', type: 'number', default: '6' },
-    { name: 'mode', description: 'Character set per cell.', type: 'WrInputOtpMode', default: "'numeric'" },
-    {
-      name: 'size',
-      description:
-        'Control size — shares the `--wr-control-*` contract. A box carries no size of its own: the host modifier sets `--wr-input-otp-size` / `-font` / `-radius` / `-gap` and every box reads them from the cascade, so one value sizes the whole strip however many boxes `length` renders.',
-      type: 'WrInputOtpSize',
-      default: "'md'",
-    },
-    {
-      name: 'rounded',
-      description: 'Pill-shaped corners. Every box takes them, so a square box draws a circle.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'mask', description: 'Mask the typed characters like a password.', type: 'boolean', default: 'false' },
-    {
-      name: 'disabled',
-      description:
-        "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse edits while every box stays focusable and the code still submits. Bound automatically from the field's readonly state when used with `[formField]`. Each box is a real text input, so this is the native `readonly` attribute — arrow keys, Home / End and selection keep working, which is the whole difference from `disabled`. Paste is cancelled too, since a `paste` still reaches a read-only input even though typing does not.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'placeholder', description: 'Character shown in empty cells.', type: 'string', default: "'•'" },
-    {
-      name: 'value',
-      description: 'The entered code. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: '(completed)',
-      description:
-        'Fires on every change made while every cell holds a character — so correcting a digit of an already-complete code emits again. Not latched on the incomplete-to-complete transition: a host auto-submitting on it has to guard its own re-entry, and gets the corrected code for free.',
-      type: 'string',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
+    { name: "ariaLabel", description: "Accessible name of the whole strip. Falls back to `inputOtp.label`.", type: "string | null", default: "null" },
+    { name: "length", description: "Number of cells to render. Clamped to `[1, 20]`.", type: "number", default: "6" },
+    { name: "mode", description: "Character set per cell.", type: "WrInputOtpMode", default: "'numeric'" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract. A box carries no size of its own: the host modifier sets `--wr-input-otp-size` / `-font` / `-radius` / `-gap` and every box reads them from the cascade, so one value sizes the whole strip however many boxes `length` renders.", type: "WrInputOtpSize", default: "'md'" },
+    { name: "rounded", description: "Pill-shaped corners. Every box takes them, so a square box draws a circle.", type: "boolean", default: "false" },
+    { name: "mask", description: "Mask the typed characters like a password.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while every box stays focusable and the code still submits. Bound automatically from the field's readonly state when used with `[formField]`. Each box is a real text input, so this is the native `readonly` attribute — arrow keys, Home / End and selection keep working, which is the whole difference from `disabled`. Paste is cancelled too, since a `paste` still reaches a read-only input even though typing does not.", type: "boolean", default: "false" },
+    { name: "placeholder", description: "Character shown in empty cells.", type: "string", default: "'•'" },
+    { name: "value", description: "The entered code. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
+    { name: "(completed)", description: "Fires on every change made while every cell holds a character — so correcting a digit of an already-complete code emits again. Not latched on the incomplete-to-complete transition: a host auto-submitting on it has to guard its own re-entry, and gets the corrected code for free.", type: "string" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <[wrInView]>
   WrInView: [
-    {
-      name: '(wrInView)',
-      description: 'Fires with `true` when the host enters the viewport and `false` when it leaves.',
-      type: 'boolean',
-    },
-    {
-      name: 'wrInViewThreshold',
-      description:
-        'The share of the host, from 0 to 1, that must be visible to count as in view. Read once, when the host first renders. A host taller than the viewport never reaches a threshold of 1.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'wrInViewOnce',
-      description: 'Stop watching after the first entry. Bare `wrInViewOnce` is on.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "(wrInView)", description: "Fires with `true` when the host enters the viewport and `false` when it leaves.", type: "boolean" },
+    { name: "wrInViewThreshold", description: "The share of the host, from 0 to 1, that must be visible to count as in view. Read once, when the host first renders. A host taller than the viewport never reaches a threshold of 1.", type: "number", default: "0" },
+    { name: "wrInViewOnce", description: "Stop watching after the first entry. Bare `wrInViewOnce` is on.", type: "boolean", default: "false" },
   ],
   // <wr-kbd>
   WrKbd: [
-    { name: 'size', description: 'Visual size variant.', type: 'WrKbdSize', default: "'md'" },
-    {
-      name: 'chord',
-      description: "A chord to print in place of the content: `'mod+k'`.",
-      type: 'WrHotkeySpec | null',
-      default: 'null',
-    },
+    { name: "size", description: "Visual size variant.", type: "WrKbdSize", default: "'md'" },
+    { name: "chord", description: "A chord to print in place of the content: `'mod+k'`.", type: "WrHotkeySpec | null", default: "null" },
   ],
   // <wr-knob>
   WrKnob: [
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name — the role needs one. Falls back to `knob.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'min', description: 'Minimum allowed value.', type: 'number | undefined', default: '0' },
-    { name: 'max', description: 'Maximum allowed value.', type: 'number | undefined', default: '100' },
-    { name: 'step', description: 'Step granularity.', type: 'number', default: '1' },
-    { name: 'size', description: 'Dial diameter in CSS pixels.', type: 'number', default: '120' },
-    { name: 'strokeWidth', description: 'Stroke width of the dial arc, in CSS pixels.', type: 'number', default: '8' },
-    {
-      name: 'trackColor',
-      description: 'Track (unfilled) color.',
-      type: 'string',
-      default: 'color-mix(in srgb, var(--wr-border-base) 60%, transparent)',
-    },
-    { name: 'valueColor', description: 'Filled-arc color.', type: 'string', default: 'var(--wr-color-primary)' },
-    { name: 'showValue', description: 'Show the value text in the center.', type: 'boolean', default: 'true' },
-    {
-      name: 'suffix',
-      description: "Optional suffix appended to the center text (e.g. `'%'`).",
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'readonly',
-      description: 'Read-only — disables interaction but keeps the visual.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    { name: 'value', description: 'Bound by `[formField]`, or two-way via `[(value)]`.', type: 'number', default: '0' },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
+    { name: "ariaLabel", description: "Accessible name — the role needs one. Falls back to `knob.label`.", type: "string | null", default: "null" },
+    { name: "min", description: "Minimum allowed value.", type: "number | undefined", default: "0" },
+    { name: "max", description: "Maximum allowed value.", type: "number | undefined", default: "100" },
+    { name: "step", description: "Step granularity.", type: "number", default: "1" },
+    { name: "size", description: "Dial diameter in CSS pixels.", type: "number", default: "120" },
+    { name: "strokeWidth", description: "Stroke width of the dial arc, in CSS pixels.", type: "number", default: "8" },
+    { name: "trackColor", description: "Track (unfilled) color.", type: "string", default: "color-mix(in srgb, var(--wr-border-base) 60%, transparent)" },
+    { name: "valueColor", description: "Filled-arc color.", type: "string", default: "var(--wr-color-primary)" },
+    { name: "showValue", description: "Show the value text in the center.", type: "boolean", default: "true" },
+    { name: "suffix", description: "Optional suffix appended to the center text (e.g. `'%'`).", type: "string", default: "''" },
+    { name: "readonly", description: "Read-only — disables interaction but keeps the visual.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "value", description: "Bound by `[formField]`, or two-way via `[(value)]`.", type: "number", default: "0" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-layout-sider>
   WrLayoutSider: [
-    { name: 'collapsed', description: 'Two-way bindable collapsed state.', type: 'boolean', default: 'false' },
-    { name: 'width', description: 'Width when expanded. Any CSS length.', type: 'string', default: "'16rem'" },
-    {
-      name: 'collapsedWidth',
-      description: 'Width when collapsed. Any CSS length. `0` to fully hide.',
-      type: 'string',
-      default: "'4rem'",
-    },
-    {
-      name: 'reverse',
-      description: 'Place the sider on the right edge instead of the left.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: '(collapsedChanged)',
-      description: 'Emits whenever `collapsed` changes (in addition to the two-way `[(collapsed)]`).',
-      type: 'boolean',
-    },
+    { name: "collapsed", description: "Two-way bindable collapsed state.", type: "boolean", default: "false" },
+    { name: "width", description: "Width when expanded. Any CSS length.", type: "string", default: "'16rem'" },
+    { name: "collapsedWidth", description: "Width when collapsed. Any CSS length. `0` to fully hide.", type: "string", default: "'4rem'" },
+    { name: "reverse", description: "Place the sider on the right edge instead of the left.", type: "boolean", default: "false" },
+    { name: "(collapsedChanged)", description: "Emits whenever `collapsed` changes (in addition to the two-way `[(collapsed)]`).", type: "boolean" },
   ],
   // <wr-lightbox>
   WrLightbox: [
-    {
-      name: 'openLabel',
-      description: 'Accessible name of the thumbnail button. Falls back to `alt`, then `image.open`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'closeLabel',
-      description: "Accessible name of the viewer's close button. Falls back to `image.close`, then `'Close preview'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'src', description: 'Image source.', type: 'string', required: true },
-    {
-      name: 'alt',
-      description: 'Alt text. Required for a11y; falls back to an empty string.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'preview',
-      description:
-        'Lighter source for the THUMBNAIL — a small or blurred copy, so the grid does not pull full-size images. The viewer always shows `src`; the thumbnail does not swap to it later.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'disablePreview', description: 'Disable the click-to-zoom lightbox.', type: 'boolean', default: 'false' },
-    {
-      name: 'caption',
-      description: 'Caption shown under the full image in the lightbox.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'aspectRatio',
-      description:
-        "Reserve space before the image resolves by fixing the thumbnail's `aspect-ratio` (e.g. `'16 / 9'`, `'4 / 3'`, or a number like `1.5`). Prevents the layout jump when the intrinsic image size isn't known up front — pair it with a `width` and the box keeps its height from first paint.",
-      type: 'string | number | null',
-      default: 'null',
-    },
-    {
-      name: 'autoFocus',
-      description:
-        "Where focus goes when the viewer opens. `'dialog'` puts it on the viewer itself, with no ring, so the keyboard is inside and no button is lit; `'first-tabbable'` puts it on the Close button; `false` leaves it on the thumbnail. The viewer traps Tab in every mode, and closing returns focus to the thumbnail.",
-      type: 'WrOverlayAutoFocus',
-      default: "'dialog'",
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the viewer's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    {
-      name: 'group',
-      description:
-        'Gallery name. Every `wr-lightbox` with the same group, in document order, can be paged through from whichever one was opened. A lightbox with `disablePreview` stays out of it.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loop',
-      description: 'Wrap from the last image of the group to the first, and back.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'previousLabel',
-      description: "Accessible name of the viewer's previous button. Falls back to `common.previous`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextLabel',
-      description: "Accessible name of the viewer's next button. Falls back to `common.next`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "openLabel", description: "Accessible name of the thumbnail button. Falls back to `alt`, then `image.open`.", type: "string | null", default: "null" },
+    { name: "closeLabel", description: "Accessible name of the viewer's close button. Falls back to `image.close`, then `'Close preview'`.", type: "string | null", default: "null" },
+    { name: "src", description: "Image source.", type: "string", required: true },
+    { name: "alt", description: "Alt text. Required for a11y; falls back to an empty string.", type: "string", default: "''" },
+    { name: "preview", description: "Lighter source for the THUMBNAIL — a small or blurred copy, so the grid does not pull full-size images. The viewer always shows `src`; the thumbnail does not swap to it later.", type: "string | null", default: "null" },
+    { name: "disablePreview", description: "Disable the click-to-zoom lightbox.", type: "boolean", default: "false" },
+    { name: "caption", description: "Caption shown under the full image in the lightbox.", type: "string", default: "''" },
+    { name: "aspectRatio", description: "Reserve space before the image resolves by fixing the thumbnail's `aspect-ratio` (e.g. `'16 / 9'`, `'4 / 3'`, or a number like `1.5`). Prevents the layout jump when the intrinsic image size isn't known up front — pair it with a `width` and the box keeps its height from first paint.", type: "string | number | null", default: "null" },
+    { name: "autoFocus", description: "Where focus goes when the viewer opens. `'dialog'` puts it on the viewer itself, with no ring, so the keyboard is inside and no button is lit; `'first-tabbable'` puts it on the Close button; `false` leaves it on the thumbnail. The viewer traps Tab in every mode, and closing returns focus to the thumbnail.", type: "WrOverlayAutoFocus", default: "'dialog'" },
+    { name: "panelClass", description: "Extra CSS classes for the viewer's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "group", description: "Gallery name. Every `wr-lightbox` with the same group, in document order, can be paged through from whichever one was opened. A lightbox with `disablePreview` stays out of it.", type: "string | null", default: "null" },
+    { name: "loop", description: "Wrap from the last image of the group to the first, and back.", type: "boolean", default: "false" },
+    { name: "previousLabel", description: "Accessible name of the viewer's previous button. Falls back to `common.previous`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Accessible name of the viewer's next button. Falls back to `common.next`.", type: "string | null", default: "null" },
   ],
   // <wr-line-chart>
   WrLineChart: [
-    {
-      name: 'series',
-      description:
-        "One entry per line. A series with no `color` takes the next entry from the chart's fallback palette, so several lines are distinguishable unconfigured.",
-      type: 'readonly WrLineSeries[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the chart. The legend carries the series NAMES only — the numbers are nowhere in text unless `dataTable` puts them there — so without this the plot is nothing at all to a screen reader. Falls back to `lineChart.label`, or to `lineChart.areaLabel` with `showArea`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes every number the chart shows: the y-axis ticks and the tooltip values. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'xLabels',
-      description:
-        "Labels for the X axis (one per data point). Printed every one while the widest fits between two points, and every n-th otherwise. An x past the end of this list is named by its position, counting from 1, in `LOCALE_ID`'s digits, in the tooltip and the data table.",
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    { name: 'height', description: 'Chart pixel height.', type: 'number', default: '240' },
-    {
-      name: 'showGrid',
-      description:
-        "Draw the gridlines: one across the plot at every tick of the y axis, in `--wr-line-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`; the one at zero is drawn in `--wr-line-chart-zero-color`. The scale's numbers are `showAxis`.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showAxis',
-      description:
-        "Print the y axis' scale: a number beside the plot at every tick. Off, the gutter goes and the drawing takes its width. The x labels under the plot are `xLabels`.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showLegend',
-      description:
-        "Show the legend. `'auto'` shows it when there is something to tell apart - two series or more - and leaves it out for a single series, which has nothing to key; `true` shows it for one series too.",
-      type: "boolean | 'auto'",
-      default: "'auto'",
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides a series from outside.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the lines give way to the loading message, over the grid and the axis the chart keeps.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description: "The chart's data failed to load: the lines give way to the error message. `loading` wins over it.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown with nothing to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toggleableLegend',
-      description:
-        'Make each legend row a toggle button that shows and hides its series, through `hiddenSeries`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per series.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSeries',
-      description:
-        'The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values. It draws no line and no dots, it has no row or ring in the tooltip, and the y axis is fitted to the series still shown, so hiding a large series lets the small ones fill the plot. The x axis does not change, because its length belongs to the chart (`xLabels`) rather than to one series, and the lines still shown keep their positions. The legend keeps the hidden series\' row, struck through, so it can be shown again; the row says "hidden" to a screen reader as well, through `aria-pressed` on a toggle and a visually hidden word otherwise. With every series hidden the plot is the empty 0 to 1 frame. A position past the end of `series` is kept and ignored.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'showDots',
-      description:
-        'Show dots at each data point. Under `decimate` the dots are left out once the points sit closer than a dot is wide, where they would touch and read as a thicker line.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'decimate',
-      description:
-        "Draw a dense series from fewer points. Once a series has more than two points for every pixel of the drawing's width, each pixel column keeps its first, lowest, highest and last point and the rest are not drawn: every stroke inside a column lands on the same pixels, so the line on screen is the same and its path is a fraction of the size. The peaks, the first point and the last always survive, and a hole in the data still breaks the line. The dots thin with the line, and go altogether once the points are closer than a dot is wide. The axis, the tooltip and the data table always read every point. Off draws every point as given.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showArea',
-      description:
-        "Fill the space under each line, down to zero, which makes this an area chart. Each unbroken run of a series is one fill (`.wr-line-chart__area`) in the series' colour at `--wr-line-chart-area-opacity`. A hole in the data breaks the fill as it breaks the line, and a lone point between two holes has nothing to fill. Every fill is drawn under every line, so the lines and their dashes stay on top and the series are still told apart by shape where the fills overlap. The y axis takes zero in, since the fills reach it: an all-negative series fills up to a zero at the top of the plot. The plot's name falls back to `lineChart.areaLabel`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'stacked',
-      description:
-        "Stack the series on each other in order, so at every x each series is drawn on top of the ones before it and the top line reads the total. Positive values stack up from zero and negative values stack down from it, each sign on its own, so no band crosses another at a point. A hole, or the missing end of a shorter series, adds nothing to the stack and breaks that series' own line. The lines, the dots, the hover markers and the y axis follow the stacked tops; the tooltip and the data table keep each series' own value, which is the figure a reader asks for. A series hidden through `hiddenSeries` leaves the stack. With `showArea` each band fills from the series below to its own line, and the fill is stronger, since the bands do not overlap.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render the chart's figures as a table that only assistive technology reaches: a row per x, headed by its x label, and a column per series shown, every value written the way the tooltip writes it. A hole is an empty cell. The plot is one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the plot, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A stacked chart's table keeps each series' own values, and a hidden series leaves it.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show the hover readout: the crosshair, the point markers and the tooltip, which is the chip every chart shares, with the x label as its heading and a row per series. Off drops all three, since a crosshair with no values beside it points at nothing. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
+    { name: "series", description: "One entry per line. A series with no `color` takes the next entry from the chart's fallback palette, so several lines are distinguishable unconfigured.", type: "readonly WrLineSeries[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart. The legend carries the series NAMES only — the numbers are nowhere in text unless `dataTable` puts them there — so without this the plot is nothing at all to a screen reader. Falls back to `lineChart.label`, or to `lineChart.areaLabel` with `showArea`.", type: "string | null", default: "null" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the y-axis ticks and the tooltip values. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter.", type: "((value: number) => string) | null", default: "null" },
+    { name: "xLabels", description: "Labels for the X axis (one per data point). Printed every one while the widest fits between two points, and every n-th otherwise. An x past the end of this list is named by its position, counting from 1, in `LOCALE_ID`'s digits, in the tooltip and the data table.", type: "readonly string[]", default: "[]" },
+    { name: "height", description: "Chart pixel height.", type: "number", default: "240" },
+    { name: "showGrid", description: "Draw the gridlines: one across the plot at every tick of the y axis, in `--wr-line-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`; the one at zero is drawn in `--wr-line-chart-zero-color`. The scale's numbers are `showAxis`.", type: "boolean", default: "true" },
+    { name: "showAxis", description: "Print the y axis' scale: a number beside the plot at every tick. Off, the gutter goes and the drawing takes its width. The x labels under the plot are `xLabels`.", type: "boolean", default: "true" },
+    { name: "showLegend", description: "Show the legend. `'auto'` shows it when there is something to tell apart - two series or more - and leaves it out for a single series, which has nothing to key; `true` shows it for one series too.", type: "boolean | 'auto'", default: "'auto'" },
+    { name: "legendPosition", description: "Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides a series from outside.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the chart's data is in flight: the lines give way to the loading message, over the grid and the axis the chart keeps.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the lines give way to the error message. `loading` wins over it.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown with nothing to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "toggleableLegend", description: "Make each legend row a toggle button that shows and hides its series, through `hiddenSeries`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per series.", type: "boolean", default: "false" },
+    { name: "hiddenSeries", description: "The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values. It draws no line and no dots, it has no row or ring in the tooltip, and the y axis is fitted to the series still shown, so hiding a large series lets the small ones fill the plot. The x axis does not change, because its length belongs to the chart (`xLabels`) rather than to one series, and the lines still shown keep their positions. The legend keeps the hidden series' row, struck through, so it can be shown again; the row says \"hidden\" to a screen reader as well, through `aria-pressed` on a toggle and a visually hidden word otherwise. With every series hidden the plot is the empty 0 to 1 frame. A position past the end of `series` is kept and ignored.", type: "readonly number[]", default: "[]" },
+    { name: "showDots", description: "Show dots at each data point. Under `decimate` the dots are left out once the points sit closer than a dot is wide, where they would touch and read as a thicker line.", type: "boolean", default: "true" },
+    { name: "decimate", description: "Draw a dense series from fewer points. Once a series has more than two points for every pixel of the drawing's width, each pixel column keeps its first, lowest, highest and last point and the rest are not drawn: every stroke inside a column lands on the same pixels, so the line on screen is the same and its path is a fraction of the size. The peaks, the first point and the last always survive, and a hole in the data still breaks the line. The dots thin with the line, and go altogether once the points are closer than a dot is wide. The axis, the tooltip and the data table always read every point. Off draws every point as given.", type: "boolean", default: "true" },
+    { name: "showArea", description: "Fill the space under each line, down to zero, which makes this an area chart. Each unbroken run of a series is one fill (`.wr-line-chart__area`) in the series' colour at `--wr-line-chart-area-opacity`. A hole in the data breaks the fill as it breaks the line, and a lone point between two holes has nothing to fill. Every fill is drawn under every line, so the lines and their dashes stay on top and the series are still told apart by shape where the fills overlap. The y axis takes zero in, since the fills reach it: an all-negative series fills up to a zero at the top of the plot. The plot's name falls back to `lineChart.areaLabel`.", type: "boolean", default: "false" },
+    { name: "stacked", description: "Stack the series on each other in order, so at every x each series is drawn on top of the ones before it and the top line reads the total. Positive values stack up from zero and negative values stack down from it, each sign on its own, so no band crosses another at a point. A hole, or the missing end of a shorter series, adds nothing to the stack and breaks that series' own line. The lines, the dots, the hover markers and the y axis follow the stacked tops; the tooltip and the data table keep each series' own value, which is the figure a reader asks for. A series hidden through `hiddenSeries` leaves the stack. With `showArea` each band fills from the series below to its own line, and the fill is stronger, since the bands do not overlap.", type: "boolean", default: "false" },
+    { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per x, headed by its x label, and a column per series shown, every value written the way the tooltip writes it. A hole is an empty cell. The plot is one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the plot, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A stacked chart's table keeps each series' own values, and a hidden series leaves it.", type: "boolean", default: "false" },
+    { name: "tooltip", description: "Show the hover readout: the crosshair, the point markers and the tooltip, which is the chip every chart shares, with the x label as its heading and a row per series. Off drops all three, since a crosshair with no values beside it points at nothing. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
   ],
   // <wr-list>
   WrList: [
-    {
-      name: 'bordered',
-      description: 'Wrap the list in a card-style border + radius.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'dividers', description: 'Draw a thin divider between items.', type: 'boolean', default: 'false' },
-    { name: 'dense', description: 'Use compact padding on every item.', type: 'boolean', default: 'false' },
-    { name: 'ariaLabel', description: 'Optional accessible label for the list.', type: 'string', default: "''" },
+    { name: "bordered", description: "Wrap the list in a card-style border + radius.", type: "boolean", default: "false" },
+    { name: "dividers", description: "Draw a thin divider between items.", type: "boolean", default: "false" },
+    { name: "dense", description: "Use compact padding on every item.", type: "boolean", default: "false" },
+    { name: "ariaLabel", description: "Optional accessible label for the list.", type: "string", default: "''" },
   ],
   // <wr-list-item>
   WrListItem: [
-    {
-      name: 'interactive',
-      description: 'Adds hover / cursor styles + keyboard activation.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'disabled',
-      description: 'Visual disabled state. Suppresses hover + keyboard activation.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "interactive", description: "Adds hover / cursor styles + keyboard activation.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Visual disabled state. Suppresses hover + keyboard activation.", type: "boolean", default: "false" },
   ],
   // <wr-loading-bar>
   WrLoadingBarComponent: [
-    {
-      name: 'color',
-      description: 'Bar colour. Defaults to the primary brand colour.',
-      type: 'string',
-      default: "'var(--wr-color-primary)'",
-    },
-    { name: 'height', description: 'Bar height.', type: 'string', default: "'2px'" },
+    { name: "color", description: "Bar colour. Defaults to the primary brand colour.", type: "string", default: "'var(--wr-color-primary)'" },
+    { name: "height", description: "Bar height.", type: "string", default: "'2px'" },
   ],
   // <wr-load-state>
   WrLoadState: [
-    {
-      name: 'status',
-      description: 'The state, when the app decides it. Ignored while `resource` is set.',
-      type: 'WrLoadStateStatus | null',
-      default: 'null',
-    },
-    {
-      name: 'resource',
-      description:
-        'The resource to read the state from: `resource()`, `rxResource()` and `httpResource()` alike. The retry button calls its `reload()`.',
-      type: 'Resource<T | undefined> | null',
-      default: 'null',
-    },
-    {
-      name: 'isEmpty',
-      description:
-        'Decides whether a settled value shows the empty slot instead of the content. The default is empty for `null`, `undefined` and an empty array.',
-      type: '(value: T | undefined) => boolean',
-      default: 'isEmptyValue',
-    },
-    { name: 'lines', description: 'How many lines the default skeleton draws.', type: 'number', default: '3' },
-    {
-      name: 'errorLabel',
-      description: "The failure's title. Falls back to `loadState.failed`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'retryLabel',
-      description: "The retry button's label. Falls back to `loadState.retry`, then `'Try again'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The default empty slot's title. Falls back to `empty.noData` through `<wr-empty>`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: '(retry)',
-      description:
-        'Emitted when the retry button is pressed, once per press that starts a retry. With a `resource`, `reload()` has been called as well.',
-      type: 'void',
-    },
+    { name: "status", description: "The state, when the app decides it. Ignored while `resource` is set.", type: "WrLoadStateStatus | null", default: "null" },
+    { name: "resource", description: "The resource to read the state from: `resource()`, `rxResource()` and `httpResource()` alike. The retry button calls its `reload()`.", type: "Resource<T | undefined> | null", default: "null" },
+    { name: "isEmpty", description: "Decides whether a settled value shows the empty slot instead of the content. The default is empty for `null`, `undefined` and an empty array.", type: "(value: T | undefined) => boolean", default: "isEmptyValue" },
+    { name: "lines", description: "How many lines the default skeleton draws.", type: "number", default: "3" },
+    { name: "errorLabel", description: "The failure's title. Falls back to `loadState.failed`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "retryLabel", description: "The retry button's label. Falls back to `loadState.retry`, then `'Try again'`.", type: "string | null", default: "null" },
+    { name: "emptyLabel", description: "The default empty slot's title. Falls back to `empty.noData` through `<wr-empty>`.", type: "string | null", default: "null" },
+    { name: "(retry)", description: "Emitted when the retry button is pressed, once per press that starts a retry. With a `resource`, `reload()` has been called as well.", type: "void" },
   ],
   // <ng-template[wrLoadStateContent]>
   WrLoadStateContent: [
-    {
-      name: 'wrLoadStateContentOf',
-      description:
-        "The resource the template draws, for the type checker: nothing reads it at runtime. Bind the same resource as the wrapper's `[resource]`.",
-      type: 'Resource<T | undefined> | null | undefined',
-      default: 'undefined',
-    },
+    { name: "wrLoadStateContentOf", description: "The resource the template draws, for the type checker: nothing reads it at runtime. Bind the same resource as the wrapper's `[resource]`.", type: "Resource<T | undefined> | null | undefined", default: "undefined" },
   ],
   // <wr-marquee>
   WrMarquee: [
-    {
-      name: 'items',
-      description: 'The links, in the order they pass.',
-      type: 'readonly WrMarqueeItem[]',
-      required: true,
-    },
-    { name: 'speed', description: 'How fast the row travels, in px per second.', type: 'number', default: '40' },
-    { name: 'label', description: 'The accessible name of the list.', type: 'string | null', default: 'null' },
-    {
-      name: 'pausable',
-      description:
-        "Renders the pause button at the row's end, the way to stop a row that runs on (WCAG 2.2.2). Hover and focus pause the row with or without it.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'pauseLabel',
-      description:
-        'The pause button\'s name while the row moves. Unset, the `marquee.pause` string of the i18n catalog, "Pause" in English.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'playLabel',
-      description:
-        'The pause button\'s name while the row stands. Unset, the `marquee.play` string of the i18n catalog, "Play" in English.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "items", description: "The links, in the order they pass.", type: "readonly WrMarqueeItem[]", required: true },
+    { name: "speed", description: "How fast the row travels, in px per second.", type: "number", default: "40" },
+    { name: "label", description: "The accessible name of the list.", type: "string | null", default: "null" },
+    { name: "pausable", description: "Renders the pause button at the row's end, the way to stop a row that runs on (WCAG 2.2.2). Hover and focus pause the row with or without it.", type: "boolean", default: "false" },
+    { name: "pauseLabel", description: "The pause button's name while the row moves. Unset, the `marquee.pause` string of the i18n catalog, \"Pause\" in English.", type: "string | null", default: "null" },
+    { name: "playLabel", description: "The pause button's name while the row stands. Unset, the `marquee.play` string of the i18n catalog, \"Play\" in English.", type: "string | null", default: "null" },
   ],
   // <[wrMention]>
   WrMention: [
-    {
-      name: 'wrMentionItems',
-      description: 'Items to filter against the typed query.',
-      type: 'readonly T[]',
-      default: '[]',
-    },
-    {
-      name: 'triggers',
-      description: 'Trigger characters that open the panel.',
-      type: 'readonly string[]',
-      default: "['@']",
-    },
-    {
-      name: 'displayWith',
-      description: 'Maps an item to its display label.',
-      type: '(item: T) => string',
-      default: '`item.label`',
-    },
-    {
-      name: 'valueWith',
-      description:
-        'Returns the text to insert into the textarea on commit. Receives the picked item and the trigger char.',
-      type: '((item: T, trigger: string) => string) | null',
-      default: '`${trigger}${displayWith(item)}`',
-    },
-    {
-      name: 'filterWith',
-      description: 'Custom filter.',
-      type: '((query: string, item: T) => boolean) | null',
-      default: 'case-insensitive `includes` over `displayWith(item)`.',
-    },
-    { name: 'maxResults', description: 'Maximum number of items shown in the panel.', type: 'number', default: '8' },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the suggestion panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    {
-      name: '(wrMentionSelected)',
-      description: 'Emits the selected item, trigger, and query whenever the user commits.',
-      type: 'WrMentionCommit<T>',
-    },
+    { name: "wrMentionItems", description: "Items to filter against the typed query.", type: "readonly T[]", default: "[]" },
+    { name: "triggers", description: "Trigger characters that open the panel.", type: "readonly string[]", default: "['@']" },
+    { name: "displayWith", description: "Maps an item to its display label.", type: "(item: T) => string", default: "`item.label`" },
+    { name: "valueWith", description: "Returns the text to insert into the textarea on commit. Receives the picked item and the trigger char.", type: "((item: T, trigger: string) => string) | null", default: "`${trigger}${displayWith(item)}`" },
+    { name: "filterWith", description: "Custom filter.", type: "((query: string, item: T) => boolean) | null", default: "case-insensitive `includes` over `displayWith(item)`." },
+    { name: "maxResults", description: "Maximum number of items shown in the panel.", type: "number", default: "8" },
+    { name: "panelClass", description: "Extra CSS classes for the suggestion panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "(wrMentionSelected)", description: "Emits the selected item, trigger, and query whenever the user commits.", type: "WrMentionCommit<T>" },
   ],
   // <[wrMeta]>
   WrMetaBinding: [
-    {
-      name: 'wrMeta',
-      description:
-        'The tags to write while this element is alive — title, description, Open Graph. They are reverted when it is destroyed, so a route can own its own.',
-      type: 'WrMetaConfig',
-      required: true,
-    },
+    { name: "wrMeta", description: "The tags to write while this element is alive — title, description, Open Graph. They are reverted when it is destroyed, so a route can own its own.", type: "WrMetaConfig", required: true },
   ],
   // <wr-meter-group>
   WrMeterGroup: [
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name — the role needs one. Also the caption of the data table. Falls back to `meterGroup.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'segments',
-      description:
-        'The parts of the bar, in order. Each segment is drawn as its share of `max` when set, else of the sum of the segments shown, so they need not add up to anything in particular.',
-      type: 'readonly WrMeterSegment[]',
-      default: '[]',
-    },
-    {
-      name: 'max',
-      description: 'Explicit total, a capacity the segments fill. `0` (default) uses the sum of the segments shown.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'showLegend',
-      description:
-        "Show the labelled legend. `'auto'` leaves it out for a single segment, which has nothing to tell apart; `true` shows it for one too, since the row carries the value.",
-      type: "boolean | 'auto'",
-      default: 'true',
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the legend sits: `bottom` or `top` of the bar as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSegments` still hides a segment from outside.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the meter's data is in flight: the bar empties and the loading message takes the legend's place.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The meter's data failed to load: the bar empties and the error message takes the legend's place. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown when there is no segment. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'showValues',
-      description: "Show each segment's value in the legend, next to its label.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'toggleableLegend',
-      description:
-        'Make each legend row a toggle button that shows and hides its segment, through `hiddenSegments`. A row is a `<button aria-pressed>`, pressed while its segment is shown, so the legend becomes one tab stop per segment.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSegments',
-      description:
-        "The positions in `segments` of the segments that are hidden. Positions rather than labels, since two segments may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSegments)]`. A hidden segment is left out of the bar and out of the sum. With no `max`, the segments still shown share the whole bar between them, each at its share of their own total, as `wr-donut-chart`'s slices do: the bar is the whole of what it draws. An explicit `max` is a capacity rather than a sum, so it stays, and the hidden segment's share becomes empty track. Either way the bar announces the total of the segments shown (`aria-valuenow`, `aria-valuetext`), since that is what it draws, and the tooltip cannot open on a segment that is not drawn. The legend keeps the hidden segment's row, struck through and with its own value, so it can be shown again; the row says \"hidden\" to a screen reader as well, through `aria-pressed` on a toggle and a visually hidden word otherwise. A position past the end of `segments` is kept and ignored.",
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the segment's label and value on hover. It replaces the band's `title`, which is written only while this is off — or the browser would open a second copy a moment later. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes every value in the legend, the tooltip and the data table, and the total the bar announces as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render the meter's figures as a table that only assistive technology reaches: a row per segment shown, headed by its label, with its value as the legend writes it and its share of the total the bar is drawn against, a percentage in `LOCALE_ID`: of `max` when one is set, else of the sum of the segments shown. A segment hidden through `hiddenSegments` has no row, and one that draws nothing has an empty share. The values are listed whatever `showValues` says. The table gives way with the legend while the meter is empty, `loading` or in `error`. The bar announces the total alone, and the legend is optional, so without the table the segments' figures may be nowhere a screen reader can walk. It is rendered beside the bar, clipped to nothing: it takes no room, draws nothing and holds no tab stop.",
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "ariaLabel", description: "Accessible name — the role needs one. Also the caption of the data table. Falls back to `meterGroup.label`.", type: "string | null", default: "null" },
+    { name: "segments", description: "The parts of the bar, in order. Each segment is drawn as its share of `max` when set, else of the sum of the segments shown, so they need not add up to anything in particular.", type: "readonly WrMeterSegment[]", default: "[]" },
+    { name: "max", description: "Explicit total, a capacity the segments fill. `0` (default) uses the sum of the segments shown.", type: "number", default: "0" },
+    { name: "showLegend", description: "Show the labelled legend. `'auto'` leaves it out for a single segment, which has nothing to tell apart; `true` shows it for one too, since the row carries the value.", type: "boolean | 'auto'", default: "true" },
+    { name: "legendPosition", description: "Where the legend sits: `bottom` or `top` of the bar as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSegments` still hides a segment from outside.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the meter's data is in flight: the bar empties and the loading message takes the legend's place.", type: "boolean", default: "false" },
+    { name: "error", description: "The meter's data failed to load: the bar empties and the error message takes the legend's place. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown when there is no segment. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "showValues", description: "Show each segment's value in the legend, next to its label.", type: "boolean", default: "true" },
+    { name: "toggleableLegend", description: "Make each legend row a toggle button that shows and hides its segment, through `hiddenSegments`. A row is a `<button aria-pressed>`, pressed while its segment is shown, so the legend becomes one tab stop per segment.", type: "boolean", default: "false" },
+    { name: "hiddenSegments", description: "The positions in `segments` of the segments that are hidden. Positions rather than labels, since two segments may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSegments)]`. A hidden segment is left out of the bar and out of the sum. With no `max`, the segments still shown share the whole bar between them, each at its share of their own total, as `wr-donut-chart`'s slices do: the bar is the whole of what it draws. An explicit `max` is a capacity rather than a sum, so it stays, and the hidden segment's share becomes empty track. Either way the bar announces the total of the segments shown (`aria-valuenow`, `aria-valuetext`), since that is what it draws, and the tooltip cannot open on a segment that is not drawn. The legend keeps the hidden segment's row, struck through and with its own value, so it can be shown again; the row says \"hidden\" to a screen reader as well, through `aria-pressed` on a toggle and a visually hidden word otherwise. A position past the end of `segments` is kept and ignored.", type: "readonly number[]", default: "[]" },
+    { name: "tooltip", description: "Show a tooltip with the segment's label and value on hover. It replaces the band's `title`, which is written only while this is off — or the browser would open a second copy a moment later. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes every value in the legend, the tooltip and the data table, and the total the bar announces as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`. `aria-valuenow` stays a number.", type: "((value: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the meter's figures as a table that only assistive technology reaches: a row per segment shown, headed by its label, with its value as the legend writes it and its share of the total the bar is drawn against, a percentage in `LOCALE_ID`: of `max` when one is set, else of the sum of the segments shown. A segment hidden through `hiddenSegments` has no row, and one that draws nothing has an empty share. The values are listed whatever `showValues` says. The table gives way with the legend while the meter is empty, `loading` or in `error`. The bar announces the total alone, and the legend is optional, so without the table the segments' figures may be nowhere a screen reader can walk. It is rendered beside the bar, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
   // <wr-option>
   WrOption: [
-    {
-      name: 'value',
-      description: 'The value contributed when this option is chosen. Required.',
-      type: 'unknown',
-      required: true,
-    },
-    { name: 'disabled', description: 'Disable this option.', type: 'boolean', default: 'false' },
-    {
-      name: 'label',
-      description:
-        "The text the select reports for this option — the trigger label, the chip, the chip's remove label and the search filter all read it. Unset (or empty), the option's own text is used, as it always was. Set it when the row shows more than the name: a projected email under a person, a count beside a category. It does NOT rename the row itself — the option's accessible name stays the text it draws, since a screen reader user browsing the list should hear what a sighted one reads there.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "value", description: "The value contributed when this option is chosen. Required.", type: "unknown", required: true },
+    { name: "disabled", description: "Disable this option.", type: "boolean", default: "false" },
+    { name: "label", description: "The text the select reports for this option — the trigger label, the chip, the chip's remove label and the search filter all read it. Unset (or empty), the option's own text is used, as it always was. Set it when the row shows more than the name: a projected email under a person, a count beside a category. It does NOT rename the row itself — the option's accessible name stays the text it draws, since a screen reader user browsing the list should hear what a sighted one reads there.", type: "string | null", default: "null" },
   ],
   // <wr-option-group>
   WrOptionGroup: [
-    { name: 'label', description: 'Section heading shown above the options.', type: 'string', required: true },
+    { name: "label", description: "Section heading shown above the options.", type: "string", required: true },
   ],
   // <wr-orbit>
   WrOrbit: [
-    {
-      name: 'text',
-      description:
-        'The text around the ring, separators included, ending on the separator that joins its end to its start.',
-      type: 'string',
-      required: true,
-    },
-    {
-      name: 'label',
-      description: 'What a screen reader hears. Defaults to the text with its trailing separator cut.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'size',
-      description: "The box, in px. Unset, the stylesheet's `--wr-orbit-size` decides.",
-      type: 'unknown',
-      default: 'null',
-    },
-    {
-      name: 'speed',
-      description: 'Turn at rest, in degrees per second; negative turns the other way, zero sits still.',
-      type: 'number',
-      default: '10',
-    },
-    {
-      name: 'hoverSpeed',
-      description: 'Turn under a pointer or with focus in the host, in degrees per second.',
-      type: 'number',
-      default: '40',
-    },
+    { name: "text", description: "The text around the ring, separators included, ending on the separator that joins its end to its start.", type: "string", required: true },
+    { name: "label", description: "What a screen reader hears. Defaults to the text with its trailing separator cut.", type: "string | null", default: "null" },
+    { name: "size", description: "The box, in px. Unset, the stylesheet's `--wr-orbit-size` decides.", type: "unknown", default: "null" },
+    { name: "speed", description: "Turn at rest, in degrees per second; negative turns the other way, zero sits still.", type: "number", default: "10" },
+    { name: "hoverSpeed", description: "Turn under a pointer or with focus in the host, in degrees per second.", type: "number", default: "40" },
   ],
   // <wr-page-header>
   WrPageHeader: [
-    { name: 'title', description: 'Primary title shown as an h1.', type: 'string', default: "''" },
-    { name: 'subtitle', description: 'Secondary line below the title.', type: 'string', default: "''" },
-    {
-      name: 'responsive',
-      description:
-        "Stack the title and actions vertically when the header's own box is too narrow to sit them side by side (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'compact',
-      description:
-        'One-line head: the breadcrumbs beside the title instead of above it, the subtitle after the title, a smaller title. Wraps when there is no room.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'sticky',
-      description:
-        'Keep the header in view while the page scrolls (`position: sticky` at `--wr-page-header-sticky-top`, under `--wr-page-header-sticky-z`).',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'bleed',
-      description:
-        'Run over the padding of the box the header tops, to the top and both side edges, by `--wr-page-header-bleed` (the content padding inside `wr-layout-content`, zero elsewhere until set).',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "title", description: "Primary title shown as an h1.", type: "string", default: "''" },
+    { name: "subtitle", description: "Secondary line below the title.", type: "string", default: "''" },
+    { name: "responsive", description: "Stack the title and actions vertically when the header's own box is too narrow to sit them side by side (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
+    { name: "compact", description: "One-line head: the breadcrumbs beside the title instead of above it, the subtitle after the title, a smaller title. Wraps when there is no room.", type: "boolean", default: "false" },
+    { name: "sticky", description: "Keep the header in view while the page scrolls (`position: sticky` at `--wr-page-header-sticky-top`, under `--wr-page-header-sticky-z`).", type: "boolean", default: "false" },
+    { name: "bleed", description: "Run over the padding of the box the header tops, to the top and both side edges, by `--wr-page-header-bleed` (the content padding inside `wr-layout-content`, zero elsewhere until set).", type: "boolean", default: "false" },
   ],
   // <wr-pagination>
   WrPagination: [
-    {
-      name: 'page',
-      description:
-        "Currently displayed page (1-based). Two-way bindable. `page` rather than `currentPage` since v14, so this and `<wr-table>` — which renders one of these in its own footer — spell the two concepts they share one way each. It also names the output: a `model()` called `X` forces `(XChange)`, so the old name produced `(currentPageChange)` against the table's `(pageChange)`.",
-      type: 'number',
-      default: '1',
-    },
-    { name: 'pageSize', description: 'Items per page. Two-way bindable.', type: 'number', default: '10' },
-    { name: 'total', description: 'Total item count across all pages.', type: 'number', default: '0' },
-    {
-      name: 'pageSizeOptions',
-      description: 'Options shown in the page-size dropdown.',
-      type: 'readonly number[]',
-      default: '[10, 20, 50, 100]',
-    },
-    { name: 'showSizeChanger', description: 'Render the page-size dropdown.', type: 'boolean', default: 'false' },
-    { name: 'showTotal', description: 'Render the "X–Y of Z" total label.', type: 'boolean', default: 'false' },
-    { name: 'align', description: 'Horizontal alignment.', type: 'WrPaginationAlign', default: "'start'" },
-    {
-      name: 'size',
-      description: 'Size variant — cascades to every internal button.',
-      type: 'WrPaginationSize',
-      default: "'sm'",
-    },
-    { name: 'shape', description: 'Cell corner treatment.', type: 'WrPaginationShape', default: "'rounded'" },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    {
-      name: 'responsive',
-      description:
-        "Collapse to a compact `‹ page / total ›` pager when the control's own box is too narrow for the full numbered strip (a container query on its own width, not the viewport).",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hideOnSinglePage',
-      description:
-        'Render nothing while everything fits on one page, an empty list included. The host stays in the DOM with `display: none`: no layout box, no tab stop, no landmark, and the total label goes with the strip. With `showSizeChanger` it hides only when the smallest size on offer also gives one page, so choosing a large size cannot remove the way back.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'prevLabel',
-      description: 'Previous-page button aria-label. Falls back to `pagination.prev`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'nextLabel',
-      description: 'Next-page button aria-label. Falls back to `pagination.next`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'itemsPerPageLabel',
-      description: '"Items per page" label. Falls back to `pagination.itemsPerPage`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'label',
-      description: 'Accessible name for the `role="navigation"` host. Falls back to `pagination.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "page", description: "Currently displayed page (1-based). Two-way bindable. `page` rather than `currentPage` since v14, so this and `<wr-table>` — which renders one of these in its own footer — spell the two concepts they share one way each. It also names the output: a `model()` called `X` forces `(XChange)`, so the old name produced `(currentPageChange)` against the table's `(pageChange)`.", type: "number", default: "1" },
+    { name: "pageSize", description: "Items per page. Two-way bindable.", type: "number", default: "10" },
+    { name: "total", description: "Total item count across all pages.", type: "number", default: "0" },
+    { name: "pageSizeOptions", description: "Options shown in the page-size dropdown.", type: "readonly number[]", default: "[10, 20, 50, 100]" },
+    { name: "showSizeChanger", description: "Render the page-size dropdown.", type: "boolean", default: "false" },
+    { name: "showTotal", description: "Render the \"X–Y of Z\" total label.", type: "boolean", default: "false" },
+    { name: "align", description: "Horizontal alignment.", type: "WrPaginationAlign", default: "'start'" },
+    { name: "size", description: "Size variant — cascades to every internal button.", type: "WrPaginationSize", default: "'sm'" },
+    { name: "shape", description: "Cell corner treatment.", type: "WrPaginationShape", default: "'rounded'" },
+    { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "responsive", description: "Collapse to a compact `‹ page / total ›` pager when the control's own box is too narrow for the full numbered strip (a container query on its own width, not the viewport).", type: "boolean", default: "false" },
+    { name: "hideOnSinglePage", description: "Render nothing while everything fits on one page, an empty list included. The host stays in the DOM with `display: none`: no layout box, no tab stop, no landmark, and the total label goes with the strip. With `showSizeChanger` it hides only when the smallest size on offer also gives one page, so choosing a large size cannot remove the way back.", type: "boolean", default: "false" },
+    { name: "prevLabel", description: "Previous-page button aria-label. Falls back to `pagination.prev`.", type: "string | null", default: "null" },
+    { name: "nextLabel", description: "Next-page button aria-label. Falls back to `pagination.next`.", type: "string | null", default: "null" },
+    { name: "itemsPerPageLabel", description: "\"Items per page\" label. Falls back to `pagination.itemsPerPage`.", type: "string | null", default: "null" },
+    { name: "label", description: "Accessible name for the `role=\"navigation\"` host. Falls back to `pagination.label`.", type: "string | null", default: "null" },
   ],
   // <wr-password-toggle>
   WrPasswordToggle: [
-    { name: 'for', description: 'Reference to the linked password input.', type: 'HTMLInputElement', required: true },
-    {
-      name: 'showPasswordLabel',
-      description: 'Accessible name while the password is hidden. Falls back to `input.showPassword`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'hidePasswordLabel',
-      description: 'Accessible name while the password is revealed. Falls back to `input.hidePassword`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "for", description: "Reference to the linked password input.", type: "HTMLInputElement", required: true },
+    { name: "showPasswordLabel", description: "Accessible name while the password is hidden. Falls back to `input.showPassword`.", type: "string | null", default: "null" },
+    { name: "hidePasswordLabel", description: "Accessible name while the password is revealed. Falls back to `input.hidePassword`.", type: "string | null", default: "null" },
   ],
   // <[wrPopconfirm]>
   WrPopconfirm: [
-    { name: 'wrPopconfirm', description: 'Confirmation message.', type: 'string', required: true },
-    {
-      name: 'position',
-      description:
-        'Anchor side and alignment, the twelve placements `wr-popover` takes; the panel flips to another side when this one has no room.',
-      type: 'WrPopconfirmPosition',
-      default: "'top'",
-    },
-    {
-      name: 'confirmText',
-      description: 'Confirm button text. Falls back to `popconfirm.confirm`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'cancelText',
-      description: 'Cancel button text. Falls back to `popconfirm.cancel`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the confirmation dialog. `role="dialog"` with no name announces as a bare "dialog". Falls back to `popconfirm.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'confirmColor', description: 'Color of the confirm button.', type: 'WrColor', default: "'primary'" },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the confirmation bubble's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    {
-      name: 'wrPopconfirmAutoFocus',
-      description:
-        "Where focus goes when the panel opens. `'dialog'` puts it on the panel itself, with no ring, so Tab reaches Cancel and no button is lit; `'first-tabbable'` puts it on Cancel; `false` leaves it on the trigger, and Tab from there walks into the panel. Closing hands focus back to the trigger in every mode. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.",
-      type: 'WrOverlayAutoFocus',
-      default: "'dialog'",
-    },
-    {
-      name: 'wrPopconfirmDisabled',
-      description:
-        "Turns the question off: a click on the host opens nothing and is left to propagate, `open()` does nothing, and an open panel closes without `cancelled`. The host publishes no popup ARIA meanwhile and carries `wr-popconfirm-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it, so the button still takes its own `(click)` — the way to skip the question when there is nothing to confirm.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: '(confirmed)', description: 'Fires when the user clicks confirm.', type: 'void' },
-    { name: '(cancelled)', description: 'Fires when the user clicks cancel or dismisses the overlay.', type: 'void' },
+    { name: "wrPopconfirm", description: "Confirmation message.", type: "string", required: true },
+    { name: "position", description: "Anchor side and alignment, the twelve placements `wr-popover` takes; the panel flips to another side when this one has no room.", type: "WrPopconfirmPosition", default: "'top'" },
+    { name: "confirmText", description: "Confirm button text. Falls back to `popconfirm.confirm`.", type: "string | null", default: "null" },
+    { name: "cancelText", description: "Cancel button text. Falls back to `popconfirm.cancel`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the confirmation dialog. `role=\"dialog\"` with no name announces as a bare \"dialog\". Falls back to `popconfirm.label`.", type: "string | null", default: "null" },
+    { name: "confirmColor", description: "Color of the confirm button.", type: "WrColor", default: "'primary'" },
+    { name: "panelClass", description: "Extra CSS classes for the confirmation bubble's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "wrPopconfirmAutoFocus", description: "Where focus goes when the panel opens. `'dialog'` puts it on the panel itself, with no ring, so Tab reaches Cancel and no button is lit; `'first-tabbable'` puts it on Cancel; `false` leaves it on the trigger, and Tab from there walks into the panel. Closing hands focus back to the trigger in every mode. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.", type: "WrOverlayAutoFocus", default: "'dialog'" },
+    { name: "wrPopconfirmDisabled", description: "Turns the question off: a click on the host opens nothing and is left to propagate, `open()` does nothing, and an open panel closes without `cancelled`. The host publishes no popup ARIA meanwhile and carries `wr-popconfirm-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it, so the button still takes its own `(click)` — the way to skip the question when there is nothing to confirm.", type: "boolean", default: "false" },
+    { name: "(confirmed)", description: "Fires when the user clicks confirm.", type: "void" },
+    { name: "(cancelled)", description: "Fires when the user clicks cancel or dismisses the overlay.", type: "void" },
   ],
   // <[wrPopover]>
   WrPopover: [
-    {
-      name: 'wrPopover',
-      description:
-        'Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.',
-      type: 'TemplateRef<unknown> | string',
-      required: true,
-    },
-    {
-      name: 'mode',
-      description:
-        "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover / keyboard-focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host. A button or link host with no accessible name (no text, `aria-label`, `aria-labelledby` or `title`) is named by the text instead, through `aria-label`, and gets no `aria-describedby`. Your own `aria-label` always wins; when it equals the text, the host is not described by it a second time.",
-      type: "'popover' | 'tooltip'",
-      default: "'popover'",
-    },
-    {
-      name: 'trigger',
-      description:
-        'How the popover opens. Ignored in tooltip mode — a tooltip is always hover plus keyboard focus. A `hover` popover still opens from the keyboard, with Enter or Space on the trigger, and then takes focus the way a click one does.',
-      type: "'click' | 'hover'",
-      default: "'click'",
-    },
-    {
-      name: 'position',
-      description: 'Anchor side.',
-      type: 'WrPopoverPosition | null',
-      default: "'bottom' for popover, 'top' for tooltip",
-    },
-    { name: 'showDelay', description: 'Tooltip only — delay before showing, in ms.', type: 'number', default: '120' },
-    { name: 'hideDelay', description: 'Tooltip only — delay before hiding, in ms.', type: 'number', default: '60' },
-    {
-      name: 'wrPopoverOrigin',
-      description:
-        "Tooltip only — the element the tooltip is for, when that is not the host. The panel is placed against it, and its hover and focus show and hide the tooltip the way the host's do. Setting it shows the tooltip after `showDelay`: name the element once the pointer or the focus is on it. It lets one tooltip serve many elements, as `wr-table` does for its header hints and truncated cells: the owner listens once, and binds this to the element under the pointer and `wrPopover` to its text. `aria-describedby` stays on the host, so the owner names or describes the element itself.",
-      type: 'HTMLElement | null',
-      default: 'null',
-    },
-    {
-      name: 'wrPopoverDisabled',
-      description:
-        "Turns the trigger off: no hover, focus, click or key opens the panel, `open()` and `toggle()` do nothing, and an open panel closes. The host publishes no popup ARIA meanwhile and carries `wr-popover-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it, so a button keeps working as a button. Typical use is a tooltip that only shows for truncated text.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Popover mode only — accessible name of the panel. `role="dialog"` with no name announces as a bare "dialog", so the catalog\'s `popover.label` is used when nothing is given. A popover has no universal name; whenever the panel has a heading or a purpose, pass it.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'wrPopoverAutoFocus',
-      description:
-        "Popover mode only: where focus goes when a click or the keyboard opens the panel. `false` leaves it on the trigger, and Tab from there walks into the panel; `'dialog'` puts it on the panel itself, with no ring; `'first-tabbable'` on the first control inside. An element marked `cdkFocusInitial` in the content takes focus in every mode. A pointer hovering a `trigger=\"hover\"` popover never moves focus. Closing hands focus back to the trigger whenever it was inside. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.",
-      type: 'WrOverlayAutoFocus',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the popover's (or tooltip's) overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    { name: '(opened)', description: 'Fires after the panel opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the panel closes.', type: 'void' },
+    { name: "wrPopover", description: "Content to render inside the panel. - In **popover** mode (default): pass a `TemplateRef`. - In **tooltip** mode: pass a plain string.", type: "TemplateRef<unknown> | string", required: true },
+    { name: "mode", description: "Shape preset. - `'popover'` (default) — template content, click trigger, dialog semantics. - `'tooltip'` — text content, hover / keyboard-focus trigger, `role=\"tooltip\"`, `aria-describedby` on the host. A button or link host with no accessible name (no text, `aria-label`, `aria-labelledby` or `title`) is named by the text instead, through `aria-label`, and gets no `aria-describedby`. Your own `aria-label` always wins; when it equals the text, the host is not described by it a second time.", type: "'popover' | 'tooltip'", default: "'popover'" },
+    { name: "trigger", description: "How the popover opens. Ignored in tooltip mode — a tooltip is always hover plus keyboard focus. A `hover` popover still opens from the keyboard, with Enter or Space on the trigger, and then takes focus the way a click one does.", type: "'click' | 'hover'", default: "'click'" },
+    { name: "position", description: "Anchor side.", type: "WrPopoverPosition | null", default: "'bottom' for popover, 'top' for tooltip" },
+    { name: "showDelay", description: "Tooltip only — delay before showing, in ms.", type: "number", default: "120" },
+    { name: "hideDelay", description: "Tooltip only — delay before hiding, in ms.", type: "number", default: "60" },
+    { name: "wrPopoverOrigin", description: "Tooltip only — the element the tooltip is for, when that is not the host. The panel is placed against it, and its hover and focus show and hide the tooltip the way the host's do. Setting it shows the tooltip after `showDelay`: name the element once the pointer or the focus is on it. It lets one tooltip serve many elements, as `wr-table` does for its header hints and truncated cells: the owner listens once, and binds this to the element under the pointer and `wrPopover` to its text. `aria-describedby` stays on the host, so the owner names or describes the element itself.", type: "HTMLElement | null", default: "null" },
+    { name: "wrPopoverDisabled", description: "Turns the trigger off: no hover, focus, click or key opens the panel, `open()` and `toggle()` do nothing, and an open panel closes. The host publishes no popup ARIA meanwhile and carries `wr-popover-trigger--disabled`. The host's own `disabled` stays yours: the directive never sets it, so a button keeps working as a button. Typical use is a tooltip that only shows for truncated text.", type: "boolean", default: "false" },
+    { name: "ariaLabel", description: "Popover mode only — accessible name of the panel. `role=\"dialog\"` with no name announces as a bare \"dialog\", so the catalog's `popover.label` is used when nothing is given. A popover has no universal name; whenever the panel has a heading or a purpose, pass it.", type: "string | null", default: "null" },
+    { name: "wrPopoverAutoFocus", description: "Popover mode only: where focus goes when a click or the keyboard opens the panel. `false` leaves it on the trigger, and Tab from there walks into the panel; `'dialog'` puts it on the panel itself, with no ring; `'first-tabbable'` on the first control inside. An element marked `cdkFocusInitial` in the content takes focus in every mode. A pointer hovering a `trigger=\"hover\"` popover never moves focus. Closing hands focus back to the trigger whenever it was inside. Prefixed because the directive sits on your own element, where an `autoFocus` attribute would also be the native `autofocus`.", type: "WrOverlayAutoFocus", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the popover's (or tooltip's) overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array.", type: "WrClassInput", default: "null" },
+    { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
   ],
   // <wr-progress>
   WrProgress: [
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name — `role="progressbar"` needs one. Falls back to `progress.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'color', description: 'Bar color.', type: 'WrColor', default: "'primary'" },
-    {
-      name: 'size',
-      description: 'Bar thickness: 4px, 8px or 12px, through `--wr-progress-height`.',
-      type: 'WrProgressSize',
-      default: "'md'",
-    },
-    { name: 'value', description: 'Progress value, clamped to `[0, 100]`.', type: 'number', default: '0' },
-    {
-      name: 'indeterminate',
-      description:
-        'Show that work is running without saying how far it has got: the bar sweeps, `value` is ignored and `aria-valuenow` is left off, which is how a progressbar says its value is unknown.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'marks',
-      description:
-        'Points drawn on the track: a tick at each `value`, on the 0 to 100 scale of `value`, and its `label` under the bar when it has one. A mark outside the range, or with no number, is not drawn. Positions mirror under `dir="rtl"`. A label stays inside the bar: centred on its tick mid-track, leaning inward towards the ends. One that would touch the label before it is hidden and its tick kept, so the earlier mark wins. Marks do not change the value the progressbar announces. The ticks are hidden from assistive tech; the labels are its description (`aria-describedby`), because ARIA treats the content of a progressbar as presentational and would not read them otherwise. `indeterminate` draws no marks: it has no scale to place them on.',
-      type: 'readonly WrProgressMark[]',
-      default: '[]',
-    },
+    { name: "ariaLabel", description: "Accessible name — `role=\"progressbar\"` needs one. Falls back to `progress.label`.", type: "string | null", default: "null" },
+    { name: "color", description: "Bar color.", type: "WrColor", default: "'primary'" },
+    { name: "size", description: "Bar thickness: 4px, 8px or 12px, through `--wr-progress-height`.", type: "WrProgressSize", default: "'md'" },
+    { name: "value", description: "Progress value, clamped to `[0, 100]`.", type: "number", default: "0" },
+    { name: "indeterminate", description: "Show that work is running without saying how far it has got: the bar sweeps, `value` is ignored and `aria-valuenow` is left off, which is how a progressbar says its value is unknown.", type: "boolean", default: "false" },
+    { name: "marks", description: "Points drawn on the track: a tick at each `value`, on the 0 to 100 scale of `value`, and its `label` under the bar when it has one. A mark outside the range, or with no number, is not drawn. Positions mirror under `dir=\"rtl\"`. A label stays inside the bar: centred on its tick mid-track, leaning inward towards the ends. One that would touch the label before it is hidden and its tick kept, so the earlier mark wins. Marks do not change the value the progressbar announces. The ticks are hidden from assistive tech; the labels are its description (`aria-describedby`), because ARIA treats the content of a progressbar as presentational and would not read them otherwise. `indeterminate` draws no marks: it has no scale to place them on.", type: "readonly WrProgressMark[]", default: "[]" },
   ],
   // <wr-pull-to-refresh>
   WrPullToRefresh: [
-    {
-      name: 'refreshing',
-      description:
-        'Whether the refresh is in flight — drives the spinner. Set `true` in your `refresh` handler and `false` when the work resolves.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'disabled', description: 'Disable the gesture entirely.', type: 'boolean', default: 'false' },
-    {
-      name: 'threshold',
-      description: 'Distance (px) the pull must reach for a release to trigger `refresh`.',
-      type: 'number',
-      default: '64',
-    },
-    {
-      name: '(refresh)',
-      description: 'Fires once each time the user pulls past `threshold` and releases.',
-      type: 'void',
-    },
+    { name: "refreshing", description: "Whether the refresh is in flight — drives the spinner. Set `true` in your `refresh` handler and `false` when the work resolves.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable the gesture entirely.", type: "boolean", default: "false" },
+    { name: "threshold", description: "Distance (px) the pull must reach for a release to trigger `refresh`.", type: "number", default: "64" },
+    { name: "(refresh)", description: "Fires once each time the user pulls past `threshold` and releases.", type: "void" },
   ],
   // <wr-qr>
   WrQr: [
-    { name: 'value', description: 'Text or URL to encode. Required.', type: 'string', required: true },
-    {
-      name: 'level',
-      description: "Error correction level. Use `'H'` if you overlay an icon.",
-      type: 'WrQrErrorLevel',
-      default: "'M'",
-    },
-    { name: 'size', description: 'Side length of the rendered canvas, in pixels.', type: 'number', default: '160' },
-    {
-      name: 'padding',
-      description:
-        'Outer quiet-zone padding, in BITMAP units — not the CSS pixels `size` is in. The canvas is drawn at ten bitmap units per QR module and then scaled to `size`, so the default 10 is exactly one module, and what it comes to on screen shrinks as the payload grows and the code gains modules. `iconSize` is the other way round, in CSS pixels, and is scaled into the bitmap on the way in. The QR spec asks for a four-module quiet zone, i.e. `40`. One module is enough for a phone decoder reading a screen, where the page around the canvas extends the margin anyway; raise it for a code that will be printed small or sit on a busy background.',
-      type: 'number',
-      default: '10',
-    },
-    {
-      name: 'color',
-      description:
-        'Module (dot) color. Any CSS colour, `var()` and `light-dark()` included: it is resolved against the canvas when the code is drawn, and redrawn only when an input changes, so a colour scheme switched afterwards is not followed. Keep the modules much darker than the background, or phones will not read the code.',
-      type: 'string',
-      default: "'#000000'",
-    },
-    {
-      name: 'bgColor',
-      description: 'Background color of the canvas + host. Any CSS colour, resolved the way `color` is.',
-      type: 'string',
-      default: "'#ffffff'",
-    },
-    {
-      name: 'iconUrl',
-      description: 'Optional image URL or data URL to overlay in the center.',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'iconSize', description: 'Center icon size in logical pixels.', type: 'number', default: '42' },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name. A QR code is content — it usually encodes a URL — and a `<canvas>` carries no implicit role and no text alternative, so without a name it is nothing at all to a screen reader. Say what the code is FOR when you can. Falls back to `qr.label`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "value", description: "Text or URL to encode. Required.", type: "string", required: true },
+    { name: "level", description: "Error correction level. Use `'H'` if you overlay an icon.", type: "WrQrErrorLevel", default: "'M'" },
+    { name: "size", description: "Side length of the rendered canvas, in pixels.", type: "number", default: "160" },
+    { name: "padding", description: "Outer quiet-zone padding, in BITMAP units — not the CSS pixels `size` is in. The canvas is drawn at ten bitmap units per QR module and then scaled to `size`, so the default 10 is exactly one module, and what it comes to on screen shrinks as the payload grows and the code gains modules. `iconSize` is the other way round, in CSS pixels, and is scaled into the bitmap on the way in. The QR spec asks for a four-module quiet zone, i.e. `40`. One module is enough for a phone decoder reading a screen, where the page around the canvas extends the margin anyway; raise it for a code that will be printed small or sit on a busy background.", type: "number", default: "10" },
+    { name: "color", description: "Module (dot) color. Any CSS colour, `var()` and `light-dark()` included: it is resolved against the canvas when the code is drawn, and redrawn only when an input changes, so a colour scheme switched afterwards is not followed. Keep the modules much darker than the background, or phones will not read the code.", type: "string", default: "'#000000'" },
+    { name: "bgColor", description: "Background color of the canvas + host. Any CSS colour, resolved the way `color` is.", type: "string", default: "'#ffffff'" },
+    { name: "iconUrl", description: "Optional image URL or data URL to overlay in the center.", type: "string | null", default: "null" },
+    { name: "iconSize", description: "Center icon size in logical pixels.", type: "number", default: "42" },
+    { name: "ariaLabel", description: "Accessible name. A QR code is content — it usually encodes a URL — and a `<canvas>` carries no implicit role and no text alternative, so without a name it is nothing at all to a screen reader. Say what the code is FOR when you can. Falls back to `qr.label`.", type: "string | null", default: "null" },
   ],
   // <wr-radar-chart>
   WrRadarChart: [
-    {
-      name: 'axes',
-      description:
-        "The axes' names, clockwise from twelve o'clock. A series takes one value per axis, in this order. Three at least: with fewer the chart draws the grid and no series.",
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'series',
-      description:
-        'One polygon per series. A series with no `color` takes the next colour of the chart palette, `--wr-chart-1` to `--wr-chart-8`, and each takes the next dash, the first one solid.',
-      type: 'readonly WrRadarSeries[]',
-      default: '[]',
-    },
-    {
-      name: 'variant',
-      description:
-        "How the series are drawn. `'polygon'` joins each series' values into a polygon, one vertex per axis. `'polar-area'` gives each axis an equal-angle wedge per series whose AREA is the value — the radius grows with the square root of the value, so the ink a wedge paints is proportional to what it stands for — with the series overlaid. The legend, the toggle, the tooltip and the data table are the same in both.",
-      type: 'WrRadarVariant',
-      default: "'polygon'",
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name of the drawing. The shapes carry no text and the legend has the series names only, so this is where to say what the chart shows — or turn on `dataTable`. Falls back to `radarChart.label`, or to `radarChart.polarAreaLabel` in the polar-area variant, which is also the data table's caption.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'max',
-      description:
-        'The value of the outer ring. `0` fits the scale to the series shown, on a readable step and including zero; a value above `0` fixes it, from zero at the centre — a score out of 100, a rating out of 5 — with its rings on a readable step that divides it (see `rings`). A value outside a fixed scale is drawn on its edge, and the tooltip and the data table still give its own figure.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'rings',
-      description:
-        'About how many rings the grid draws between the centre and the outer ring, each on a readable step — 1, 2, 2.5 or 5 times a power of ten. A fitted scale aims for this many and rounds its step up onto that ladder. A fixed `max` takes the step that divides it into the count nearest this one, the fewer on a tie, so a rating out of 5 gets a ring per point and a score out of 100 a ring per 25; only a `max` that no such step divides, such as 37, is cut into exactly this many equal rings. Whole numbers from 1 to 10.',
-      type: 'number',
-      default: '4',
-    },
-    {
-      name: 'size',
-      description:
-        "The drawing's diameter in CSS pixels, at least 120. The axis names sit in a gutter round it, so the chart is wider than this by the gutter on either side; in a narrower container the drawing shrinks to fit.",
-      type: 'number',
-      default: '280',
-    },
-    {
-      name: 'showGrid',
-      description: 'Show the rings, the spokes and the ring values. The axis names stay.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showLegend',
-      description:
-        "Show the legend. `'auto'` shows it when there is something to tell apart - two series or more - and leaves it out for a single one; `true` shows it for one series too.",
-      type: "boolean | 'auto'",
-      default: "'auto'",
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides a series from outside.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the series give way to the loading message, over the web and the axis names the chart had.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the series give way to the error message. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toggleableLegend',
-      description:
-        'Make each legend row a toggle button that shows and hides its series, through `hiddenSeries`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per series.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSeries',
-      description:
-        'The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values: it draws no polygon and no dots, it has no row in the tooltip and no column in the data table, and a fitted scale is fitted to the series still shown. The axes do not change, since they belong to the chart rather than to one series. The legend keeps the hidden series\' row, struck through, so it can be shown again; the row says "hidden" to a screen reader as well. A position past the end of `series` is kept and ignored.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'showDots',
-      description:
-        "Show a dot at every value: on the polygon's vertex, or in the polar-area variant on the middle of the wedge's arc, where the value reads against the rings.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showArea',
-      description:
-        'Fill each closed polygon with its colour, faintly (`--wr-radar-chart-area-opacity`), under every outline — the name the line chart and the sparkline give the same fill. A series with a missing value is never filled, whatever this says: its outline is open. In the polar-area variant every wedge is filled, since the outline round them always closes, and a missing value is a missing wedge.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip for the axis nearest the pointer: its name, and every series' value on it; an axis no series shown has a value on opens none. Pointer only — the data table is where the same numbers are for a keyboard or a screen reader. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes every number the chart shows: the ring values, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ring values (`1.2K`) unless the full numbers are shorter.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        'Render the chart\'s figures as a table that only assistive technology reaches: a row per axis, headed by its name, and a column per series shown, every value written the way the tooltip writes it. A missing value is an empty cell. The drawing is one named `role="img"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A hidden series leaves it.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "axes", description: "The axes' names, clockwise from twelve o'clock. A series takes one value per axis, in this order. Three at least: with fewer the chart draws the grid and no series.", type: "readonly string[]", default: "[]" },
+    { name: "series", description: "One polygon per series. A series with no `color` takes the next colour of the chart palette, `--wr-chart-1` to `--wr-chart-8`, and each takes the next dash, the first one solid.", type: "readonly WrRadarSeries[]", default: "[]" },
+    { name: "variant", description: "How the series are drawn. `'polygon'` joins each series' values into a polygon, one vertex per axis. `'polar-area'` gives each axis an equal-angle wedge per series whose AREA is the value — the radius grows with the square root of the value, so the ink a wedge paints is proportional to what it stands for — with the series overlaid. The legend, the toggle, the tooltip and the data table are the same in both.", type: "WrRadarVariant", default: "'polygon'" },
+    { name: "ariaLabel", description: "Accessible name of the drawing. The shapes carry no text and the legend has the series names only, so this is where to say what the chart shows — or turn on `dataTable`. Falls back to `radarChart.label`, or to `radarChart.polarAreaLabel` in the polar-area variant, which is also the data table's caption.", type: "string | null", default: "null" },
+    { name: "max", description: "The value of the outer ring. `0` fits the scale to the series shown, on a readable step and including zero; a value above `0` fixes it, from zero at the centre — a score out of 100, a rating out of 5 — with its rings on a readable step that divides it (see `rings`). A value outside a fixed scale is drawn on its edge, and the tooltip and the data table still give its own figure.", type: "number", default: "0" },
+    { name: "rings", description: "About how many rings the grid draws between the centre and the outer ring, each on a readable step — 1, 2, 2.5 or 5 times a power of ten. A fitted scale aims for this many and rounds its step up onto that ladder. A fixed `max` takes the step that divides it into the count nearest this one, the fewer on a tie, so a rating out of 5 gets a ring per point and a score out of 100 a ring per 25; only a `max` that no such step divides, such as 37, is cut into exactly this many equal rings. Whole numbers from 1 to 10.", type: "number", default: "4" },
+    { name: "size", description: "The drawing's diameter in CSS pixels, at least 120. The axis names sit in a gutter round it, so the chart is wider than this by the gutter on either side; in a narrower container the drawing shrinks to fit.", type: "number", default: "280" },
+    { name: "showGrid", description: "Show the rings, the spokes and the ring values. The axis names stay.", type: "boolean", default: "true" },
+    { name: "showLegend", description: "Show the legend. `'auto'` shows it when there is something to tell apart - two series or more - and leaves it out for a single one; `true` shows it for one series too.", type: "boolean | 'auto'", default: "'auto'" },
+    { name: "legendPosition", description: "Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides a series from outside.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the chart's data is in flight: the series give way to the loading message, over the web and the axis names the chart had.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the series give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "toggleableLegend", description: "Make each legend row a toggle button that shows and hides its series, through `hiddenSeries`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per series.", type: "boolean", default: "false" },
+    { name: "hiddenSeries", description: "The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values: it draws no polygon and no dots, it has no row in the tooltip and no column in the data table, and a fitted scale is fitted to the series still shown. The axes do not change, since they belong to the chart rather than to one series. The legend keeps the hidden series' row, struck through, so it can be shown again; the row says \"hidden\" to a screen reader as well. A position past the end of `series` is kept and ignored.", type: "readonly number[]", default: "[]" },
+    { name: "showDots", description: "Show a dot at every value: on the polygon's vertex, or in the polar-area variant on the middle of the wedge's arc, where the value reads against the rings.", type: "boolean", default: "true" },
+    { name: "showArea", description: "Fill each closed polygon with its colour, faintly (`--wr-radar-chart-area-opacity`), under every outline — the name the line chart and the sparkline give the same fill. A series with a missing value is never filled, whatever this says: its outline is open. In the polar-area variant every wedge is filled, since the outline round them always closes, and a missing value is a missing wedge.", type: "boolean", default: "true" },
+    { name: "tooltip", description: "Show a tooltip for the axis nearest the pointer: its name, and every series' value on it; an axis no series shown has a value on opens none. Pointer only — the data table is where the same numbers are for a keyboard or a screen reader. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the ring values, the tooltip and the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ring values (`1.2K`) unless the full numbers are shorter.", type: "((value: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per axis, headed by its name, and a column per series shown, every value written the way the tooltip writes it. A missing value is an empty cell. The drawing is one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop. A hidden series leaves it.", type: "boolean", default: "false" },
   ],
   // <wr-radio>
   WrRadio: [
-    {
-      name: 'id',
-      description:
-        'Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.',
-      type: 'string',
-      default: "wrRandomId('wr-radio')",
-    },
-    { name: 'value', description: 'Value selected when this radio is checked.', type: 'unknown', required: true },
-    {
-      name: 'icon',
-      description:
-        'Optional icon name rendered inside the dot when checked, in place of the default solid circle. Use any registered NGWR icon.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract. Set per option; the group has no `size`.',
-      type: 'WrRadioSize',
-      default: "'md'",
-    },
-    {
-      name: 'disabled',
-      description:
-        'Disable just this option. The group can also be disabled as a whole via `<wr-radio-group disabled>`; either source disables this radio.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "wrRandomId('wr-radio')" },
+    { name: "value", description: "Value selected when this radio is checked.", type: "unknown", required: true },
+    { name: "icon", description: "Optional icon name rendered inside the dot when checked, in place of the default solid circle. Use any registered NGWR icon.", type: "WrIconName | null", default: "null" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Set per option; the group has no `size`.", type: "WrRadioSize", default: "'md'" },
+    { name: "disabled", description: "Disable just this option. The group can also be disabled as a whole via `<wr-radio-group disabled>`; either source disables this radio.", type: "boolean", default: "false" },
   ],
   // <wr-radio-group>
   WrRadioGroup: [
-    {
-      name: 'name',
-      description:
-        "Shared `name` attribute. Defaults to a random id so multiple groups on the same page don't collide. (Also the `FormUiControl.name` slot.)",
-      type: 'string',
-      default: "wrRandomId('wr-radio-group')",
-    },
-    {
-      name: 'options',
-      description:
-        'Option array. Each item is rendered as a `<wr-radio>` whose value is the item, or `[valueWith]` of it, and whose label comes from `[displayWith]`, before any projected `<wr-radio>` children.',
-      type: 'readonly T[]',
-      default: '[]',
-    },
-    {
-      name: 'displayWith',
-      description: 'Maps an `[options]` item to its label.',
-      type: '(item: T) => string',
-      default: 'String',
-    },
-    {
-      name: 'valueWith',
-      description:
-        'Maps an `[options]` item to the value the model holds, so a list of objects can bind an id. Values are compared with `===`. Without it an item is its own value.',
-      type: '((item: T) => V) | null',
-      default: 'null',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable the whole group. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse selection changes while every option stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Native radios ignore the `readonly` attribute, so the group cancels the activation instead and mirrors the state as `aria-readonly`, which role `radiogroup` supports.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'value',
-      description: "The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`.",
-      type: 'V | null',
-      default: 'null',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted on blur from any child so a bound field can mark itself touched.',
-      type: 'void',
-    },
+    { name: "name", description: "Shared `name` attribute. Defaults to a random id so multiple groups on the same page don't collide. (Also the `FormUiControl.name` slot.)", type: "string", default: "wrRandomId('wr-radio-group')" },
+    { name: "options", description: "Option array. Each item is rendered as a `<wr-radio>` whose value is the item, or `[valueWith]` of it, and whose label comes from `[displayWith]`, before any projected `<wr-radio>` children.", type: "readonly T[]", default: "[]" },
+    { name: "displayWith", description: "Maps an `[options]` item to its label.", type: "(item: T) => string", default: "String" },
+    { name: "valueWith", description: "Maps an `[options]` item to the value the model holds, so a list of objects can bind an id. Values are compared with `===`. Without it an item is its own value.", type: "((item: T) => V) | null", default: "null" },
+    { name: "disabled", description: "Disable the whole group. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse selection changes while every option stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Native radios ignore the `readonly` attribute, so the group cancels the activation instead and mirrors the state as `aria-readonly`, which role `radiogroup` supports.", type: "boolean", default: "false" },
+    { name: "value", description: "The selected radio's value. Bound by `[formField]`, or two-way via `[(value)]`.", type: "V | null", default: "null" },
+    { name: "(touch)", description: "Emitted on blur from any child so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-rating>
   WrRating: [
-    { name: 'count', description: 'Total number of slots.', type: 'number', default: '5' },
-    {
-      name: 'step',
-      description: 'Step granularity — `1` for whole stars, `0.5` for halves.',
-      type: '0.5 | 1',
-      default: '1',
-    },
-    {
-      name: 'readonly',
-      description: 'Read-only — value is displayed but not interactive.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'size', description: 'Control size — scales the icons + gaps.', type: 'WrRatingSize', default: "'md'" },
-    {
-      name: 'ariaLabel',
-      description: "Accessible label. Falls back to `rating.label`, then `'Rating'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'value',
-      description: 'The rating. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'number | null',
-      default: 'null',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
+    { name: "count", description: "Total number of slots.", type: "number", default: "5" },
+    { name: "step", description: "Step granularity — `1` for whole stars, `0.5` for halves.", type: "0.5 | 1", default: "1" },
+    { name: "readonly", description: "Read-only — value is displayed but not interactive.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size — scales the icons + gaps.", type: "WrRatingSize", default: "'md'" },
+    { name: "ariaLabel", description: "Accessible label. Falls back to `rating.label`, then `'Rating'`.", type: "string | null", default: "null" },
+    { name: "value", description: "The rating. Bound by `[formField]`, or two-way via `[(value)]`.", type: "number | null", default: "null" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <[wrResizable]>
   WrResizable: [
-    {
-      name: 'edge',
-      description:
-        'The edge that drags. `start` and `end` resize the width and mirror under RTL; `top` and `bottom` resize the height.',
-      type: 'WrResizableEdge',
-      default: "'end'",
-    },
-    {
-      name: 'size',
-      description:
-        'The size in pixels. Two-way bindable. `null` means not set yet: the element keeps the size its CSS gives it until the first resize. `sizeChange` fires when a drag is released, on each key and on a reset, never during a drag: bind `resizing` for that.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'minSize',
-      description:
-        "Smallest size: pixels, or a percentage of the parent's matching dimension (`'20%'`). `null` for none.",
-      type: 'WrResizableLimit | null',
-      default: '0',
-    },
-    {
-      name: 'maxSize',
-      description: "Largest size: pixels, or a percentage of the parent's matching dimension. `null` for none.",
-      type: 'WrResizableLimit | null',
-      default: "'100%'",
-    },
-    {
-      name: 'defaultSize',
-      description:
-        'The size Enter and a double click on the handle go back to. `null` goes back to what the element started with: the `size` bound at creation, or its CSS size when there was none.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'step',
-      description: 'Pixels an arrow key moves the edge. Shift moves it ten times as far.',
-      type: 'number',
-      default: '10',
-    },
-    {
-      name: 'persistKey',
-      description:
-        "Saves the size under this key through `WrStorage` (which adds the app's prefix) when a resize ends, and restores it on creation.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'collapsed',
-      description:
-        'Shrinks the element to zero and hides the handle. `size` is left alone, so the element is back at its size when this turns off.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'disabled', description: 'Keeps the size and stops the handle.', type: 'boolean', default: 'false' },
-    {
-      name: 'resizeLabel',
-      description:
-        'Accessible name of the handle. A focusable `role="separator"` is an interactive widget, so it needs one. Falls back to `resizable.handle`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: '(resizing)',
-      description: 'The size in pixels on every move of a drag, before `sizeChange` settles it on release.',
-      type: 'number',
-    },
+    { name: "edge", description: "The edge that drags. `start` and `end` resize the width and mirror under RTL; `top` and `bottom` resize the height.", type: "WrResizableEdge", default: "'end'" },
+    { name: "size", description: "The size in pixels. Two-way bindable. `null` means not set yet: the element keeps the size its CSS gives it until the first resize. `sizeChange` fires when a drag is released, on each key and on a reset, never during a drag: bind `resizing` for that.", type: "number | null", default: "null" },
+    { name: "minSize", description: "Smallest size: pixels, or a percentage of the parent's matching dimension (`'20%'`). `null` for none.", type: "WrResizableLimit | null", default: "0" },
+    { name: "maxSize", description: "Largest size: pixels, or a percentage of the parent's matching dimension. `null` for none.", type: "WrResizableLimit | null", default: "'100%'" },
+    { name: "defaultSize", description: "The size Enter and a double click on the handle go back to. `null` goes back to what the element started with: the `size` bound at creation, or its CSS size when there was none.", type: "number | null", default: "null" },
+    { name: "step", description: "Pixels an arrow key moves the edge. Shift moves it ten times as far.", type: "number", default: "10" },
+    { name: "persistKey", description: "Saves the size under this key through `WrStorage` (which adds the app's prefix) when a resize ends, and restores it on creation.", type: "string | null", default: "null" },
+    { name: "collapsed", description: "Shrinks the element to zero and hides the handle. `size` is left alone, so the element is back at its size when this turns off.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Keeps the size and stops the handle.", type: "boolean", default: "false" },
+    { name: "resizeLabel", description: "Accessible name of the handle. A focusable `role=\"separator\"` is an interactive widget, so it needs one. Falls back to `resizable.handle`.", type: "string | null", default: "null" },
+    { name: "(resizing)", description: "The size in pixels on every move of a drag, before `sizeChange` settles it on release.", type: "number" },
   ],
   // <wr-result>
   WrResult: [
-    {
-      name: 'title',
-      description:
-        'The headline — the outcome in a few words. Pair it with `description` for the detail; a result with neither renders the illustration alone.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'description',
-      description:
-        'Secondary line under the title. Say what happens next, not what went wrong again — the title has already said it.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'status',
-      description:
-        'Which illustration and tint to draw. `empty` is the quiet one, for a list with nothing in it rather than for something that failed.',
-      type: 'WrResultStatus',
-      default: "'info'",
-    },
+    { name: "title", description: "The headline — the outcome in a few words. Pair it with `description` for the detail; a result with neither renders the illustration alone.", type: "string", default: "''" },
+    { name: "description", description: "Secondary line under the title. Say what happens next, not what went wrong again — the title has already said it.", type: "string", default: "''" },
+    { name: "status", description: "Which illustration and tint to draw. `empty` is the quiet one, for a list with nothing in it rather than for something that failed.", type: "WrResultStatus", default: "'info'" },
   ],
   // <wr-result-403>
   WrResult403: [
-    {
-      name: 'title',
-      description: 'The big figure. Defaults to `403`; override it for a localised or differently-worded page.',
-      type: 'string',
-      default: "'403'",
-    },
-    {
-      name: 'description',
-      description: 'Body text. Falls back to `result.forbidden` from WrI18n.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "title", description: "The big figure. Defaults to `403`; override it for a localised or differently-worded page.", type: "string", default: "'403'" },
+    { name: "description", description: "Body text. Falls back to `result.forbidden` from WrI18n.", type: "string | null", default: "null" },
   ],
   // <wr-result-404>
   WrResult404: [
-    {
-      name: 'title',
-      description: 'The big figure. Defaults to `404`; override it for a localised or differently-worded page.',
-      type: 'string',
-      default: "'404'",
-    },
-    {
-      name: 'description',
-      description: 'Body text. Falls back to `result.notFound` from WrI18n.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "title", description: "The big figure. Defaults to `404`; override it for a localised or differently-worded page.", type: "string", default: "'404'" },
+    { name: "description", description: "Body text. Falls back to `result.notFound` from WrI18n.", type: "string | null", default: "null" },
   ],
   // <wr-result-500>
   WrResult500: [
-    {
-      name: 'title',
-      description: 'The big figure. Defaults to `500`; override it for a localised or differently-worded page.',
-      type: 'string',
-      default: "'500'",
-    },
-    {
-      name: 'description',
-      description: 'Body text. Falls back to `result.serverError` from WrI18n.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "title", description: "The big figure. Defaults to `500`; override it for a localised or differently-worded page.", type: "string", default: "'500'" },
+    { name: "description", description: "Body text. Falls back to `result.serverError` from WrI18n.", type: "string | null", default: "null" },
   ],
   // <wr-reveal>
   WrReveal: [
-    {
-      name: 'text',
-      description: 'The text of this run. Breaking spaces stay real spaces, so it wraps as plain text would.',
-      type: 'string',
-      required: true,
-    },
-    {
-      name: 'by',
-      description:
-        'What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.',
-      type: 'WrRevealBy',
-      default: "'letters'",
-    },
-    {
-      name: 'masked',
-      description:
-        'Each word clips its pieces at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'start',
-      description:
-        "The index of this run's first piece. A headline made of several runs passes each one the count the runs before it used, so they play as one sequence.",
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'stagger',
-      description:
-        "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 28 for letters, 70 for words. Either way the sequence up to this run's last piece spreads over 1.2 s at most; a long sequence of several runs sets the same `stagger` on each, so the gap is one gap.",
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'delay',
-      description: 'Pause before the first piece of the sequence, in ms.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'trigger',
-      description:
-        '`load` plays from first paint, with no script. `view` keeps the pieces visible and arms them the first time most of the host is in the viewport; an `__item` outside the host does not follow it.',
-      type: 'WrRevealTrigger',
-      default: "'load'",
-    },
+    { name: "text", description: "The text of this run. Breaking spaces stay real spaces, so it wraps as plain text would.", type: "string", required: true },
+    { name: "by", description: "What enters one at a time: a grapheme, or a word. In letter mode the letters of one word sit in a no-wrap wrapper, so a word never breaks across lines mid-word.", type: "WrRevealBy", default: "'letters'" },
+    { name: "masked", description: "Each word clips its pieces at a padded line box, so a letter comes up from under the line instead of fading in where it stands. Descenders and accents at rest sit inside the padding.", type: "boolean", default: "false" },
+    { name: "start", description: "The index of this run's first piece. A headline made of several runs passes each one the count the runs before it used, so they play as one sequence.", type: "number", default: "0" },
+    { name: "stagger", description: "Gap between the start of one piece and the next, in ms. Unset, the mode decides: 28 for letters, 70 for words. Either way the sequence up to this run's last piece spreads over 1.2 s at most; a long sequence of several runs sets the same `stagger` on each, so the gap is one gap.", type: "number | null", default: "null" },
+    { name: "delay", description: "Pause before the first piece of the sequence, in ms.", type: "number", default: "0" },
+    { name: "trigger", description: "`load` plays from first paint, with no script. `view` keeps the pieces visible and arms them the first time most of the host is in the viewport; an `__item` outside the host does not follow it.", type: "WrRevealTrigger", default: "'load'" },
   ],
   // <wr-ripple-grid>
   WrRippleGrid: [
-    { name: 'spacing', description: 'Distance between two grid lines, in px.', type: 'number', default: '32' },
+    { name: "spacing", description: "Distance between two grid lines, in px.", type: "number", default: "32" },
   ],
   // <wr-rotate-reveal>
   WrRotateReveal: [
-    {
-      name: 'words',
-      description: 'The words, in the order they show. The first is what the server and a still page show.',
-      type: 'readonly string[]',
-      required: true,
-    },
-    {
-      name: 'hold',
-      description: 'How long a word stands before the next replaces it, in ms.',
-      type: 'number',
-      default: '2400',
-    },
-    {
-      name: 'delay',
-      description:
-        "Pause before the first word's hold starts counting, in ms, from the moment the host is in view: room for an entrance above it to finish.",
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'loop',
-      description: 'Keep cycling instead of stopping on the first word after one pass through the list.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'conjunctionLabel',
-      description:
-        'The word between the last two words of the phrase a screen reader hears: "A, B and C". Unset, the `rotateReveal.conjunction` string of the i18n catalog, "and" in English.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "words", description: "The words, in the order they show. The first is what the server and a still page show.", type: "readonly string[]", required: true },
+    { name: "hold", description: "How long a word stands before the next replaces it, in ms.", type: "number", default: "2400" },
+    { name: "delay", description: "Pause before the first word's hold starts counting, in ms, from the moment the host is in view: room for an entrance above it to finish.", type: "number", default: "0" },
+    { name: "loop", description: "Keep cycling instead of stopping on the first word after one pass through the list.", type: "boolean", default: "false" },
+    { name: "conjunctionLabel", description: "The word between the last two words of the phrase a screen reader hears: \"A, B and C\". Unset, the `rotateReveal.conjunction` string of the i18n catalog, \"and\" in English.", type: "string | null", default: "null" },
   ],
   // <wr-scatter-chart>
   WrScatterChart: [
-    {
-      name: 'series',
-      description:
-        "One entry per series. A series with no `color` takes the next entry from the chart's palette, and every series takes the next marker shape, so several series are told apart unconfigured.",
-      type: 'readonly WrScatterSeries[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the chart. The legend carries the series NAMES only — the values are nowhere in text unless `dataTable` puts them there — so say what the chart shows. Falls back to `scatterChart.label` ("Scatter chart").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'xLabel',
-      description:
-        'The x axis\' name. Drawn under the axis only when given; either way it names the x row of the tooltip and the x column of the data table, which fall back to `scatterChart.x` ("X").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'yLabel',
-      description:
-        'The y axis\' name. Drawn above the axis only when given; either way it names the y row of the tooltip and the y column of the data table, which fall back to `scatterChart.y` ("Y").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'sizeLabel',
-      description:
-        'What a point\'s `size` measures. It names the size row of the tooltip and the size column of the data table, which appear only when a point has a size, and falls back to `scatterChart.size` ("Size").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        "Writes every number the chart shows — the axis ticks, the tooltip and the data table — and is told which number it is writing: `'x'`, `'y'` or `'size'`, so the two axes can carry different units. A `(value) => string` written for another chart fits too. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter.",
-      type: '((value: number, axis: WrScatterAxis) => string) | null',
-      default: 'null',
-    },
-    { name: 'height', description: "The plot's height in px, at least 80.", type: 'number', default: '240' },
-    {
-      name: 'showGrid',
-      description:
-        "Draw the gridlines: one across the plot at every tick of the y axis, in `--wr-scatter-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`; the one at zero is drawn in `--wr-scatter-chart-zero-color`. The lines up the plot at the x ticks are drawn `transparent` unless `--wr-scatter-chart-grid-x-color` gives them a colour. The scales' numbers are `showAxis`.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showAxis',
-      description:
-        "Print both axes' scales: a number beside the plot at every y tick and under it at every x tick. Off, the gutter and the strip go and the drawing takes their room. The axes' names are `xLabel` and `yLabel`.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showLegend',
-      description:
-        "Show the legend. `'auto'` shows it when there is something to tell apart - two series or more - and leaves it out for a single series, which has nothing to key; `true` shows it for one series too.",
-      type: "boolean | 'auto'",
-      default: "'auto'",
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides a series from outside.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the points give way to the loading message, over the grid and the axes the chart keeps.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description: "The chart's data failed to load: the points give way to the error message. `loading` wins over it.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown with nothing to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toggleableLegend',
-      description:
-        'Make each legend row a toggle button that shows and hides its series, through `hiddenSeries`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per series.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hiddenSeries',
-      description:
-        'The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values: it draws no points, the tooltip cannot land on them, the data table drops its rows, and both axes and the bubble scale are fitted to the series still shown, so hiding an outlier lets the rest fill the plot. Its legend row stays, struck through, so it can be shown again. With every series hidden the plot is the empty 0 to 1 frame. A position past the end of `series` is kept and ignored.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the series, x, y and size of the point under the pointer. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render every point's values as a table only assistive technology reaches, beside the drawing: one group of rows per series shown, headed by the series' name, a row per point, and a column for x, for y and, when a point has one, for size. The drawing is one named image, so without it the values are nowhere a screen reader can walk.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'maxRadius',
-      description:
-        'The radius, in px, the largest `size` shown is drawn at. Every other sized point is scaled by AREA against it — a point of half the size has half the area, not half the radius — and none is drawn under 4px. At least 4.',
-      type: 'number',
-      default: '20',
-    },
+    { name: "series", description: "One entry per series. A series with no `color` takes the next entry from the chart's palette, and every series takes the next marker shape, so several series are told apart unconfigured.", type: "readonly WrScatterSeries[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart. The legend carries the series NAMES only — the values are nowhere in text unless `dataTable` puts them there — so say what the chart shows. Falls back to `scatterChart.label` (\"Scatter chart\").", type: "string | null", default: "null" },
+    { name: "xLabel", description: "The x axis' name. Drawn under the axis only when given; either way it names the x row of the tooltip and the x column of the data table, which fall back to `scatterChart.x` (\"X\").", type: "string | null", default: "null" },
+    { name: "yLabel", description: "The y axis' name. Drawn above the axis only when given; either way it names the y row of the tooltip and the y column of the data table, which fall back to `scatterChart.y` (\"Y\").", type: "string | null", default: "null" },
+    { name: "sizeLabel", description: "What a point's `size` measures. It names the size row of the tooltip and the size column of the data table, which appear only when a point has a size, and falls back to `scatterChart.size` (\"Size\").", type: "string | null", default: "null" },
+    { name: "valueFormat", description: "Writes every number the chart shows — the axis ticks, the tooltip and the data table — and is told which number it is writing: `'x'`, `'y'` or `'size'`, so the two axes can carry different units. A `(value) => string` written for another chart fits too. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, with compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter.", type: "((value: number, axis: WrScatterAxis) => string) | null", default: "null" },
+    { name: "height", description: "The plot's height in px, at least 80.", type: "number", default: "240" },
+    { name: "showGrid", description: "Draw the gridlines: one across the plot at every tick of the y axis, in `--wr-scatter-chart-grid-color`, which defaults to the chart theme's `--wr-chart-grid`; the one at zero is drawn in `--wr-scatter-chart-zero-color`. The lines up the plot at the x ticks are drawn `transparent` unless `--wr-scatter-chart-grid-x-color` gives them a colour. The scales' numbers are `showAxis`.", type: "boolean", default: "true" },
+    { name: "showAxis", description: "Print both axes' scales: a number beside the plot at every y tick and under it at every x tick. Off, the gutter and the strip go and the drawing takes their room. The axes' names are `xLabel` and `yLabel`.", type: "boolean", default: "true" },
+    { name: "showLegend", description: "Show the legend. `'auto'` shows it when there is something to tell apart - two series or more - and leaves it out for a single series, which has nothing to key; `true` shows it for one series too.", type: "boolean | 'auto'", default: "'auto'" },
+    { name: "legendPosition", description: "Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all - `hiddenSeries` still hides a series from outside.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the chart's data is in flight: the points give way to the loading message, over the grid and the axes the chart keeps.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the points give way to the error message. `loading` wins over it.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown with nothing to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "toggleableLegend", description: "Make each legend row a toggle button that shows and hides its series, through `hiddenSeries`. A row is a `<button aria-pressed>`, pressed while its series is shown, so the legend becomes one tab stop per series.", type: "boolean", default: "false" },
+    { name: "hiddenSeries", description: "The positions in `series` of the series that are hidden. Positions rather than labels, since two series may share a label. A toggleable legend writes it, and a host may bind it with or without one: `[(hiddenSeries)]`. A hidden series is left out of everything that reads its values: it draws no points, the tooltip cannot land on them, the data table drops its rows, and both axes and the bubble scale are fitted to the series still shown, so hiding an outlier lets the rest fill the plot. Its legend row stays, struck through, so it can be shown again. With every series hidden the plot is the empty 0 to 1 frame. A position past the end of `series` is kept and ignored.", type: "readonly number[]", default: "[]" },
+    { name: "tooltip", description: "Show a tooltip with the series, x, y and size of the point under the pointer. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "dataTable", description: "Render every point's values as a table only assistive technology reaches, beside the drawing: one group of rows per series shown, headed by the series' name, a row per point, and a column for x, for y and, when a point has one, for size. The drawing is one named image, so without it the values are nowhere a screen reader can walk.", type: "boolean", default: "false" },
+    { name: "maxRadius", description: "The radius, in px, the largest `size` shown is drawn at. Every other sized point is scaled by AREA against it — a point of half the size has half the area, not half the radius — and none is drawn under 4px. At least 4.", type: "number", default: "20" },
   ],
   // <wr-schema-form>
   WrSchemaForm: [
-    {
-      name: 'field',
-      description: 'The form to draw — the value `form()` returned, or any object-valued field inside one.',
-      type: 'FieldTree<T>',
-      required: true,
-    },
-    {
-      name: 'columns',
-      description: 'Grid columns. A field spans one of them unless its spec says otherwise.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'addLabel',
-      description: 'Text of the button that adds an item to a repeating group. Falls back to `common.add`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'removeLabel',
-      description: 'Text of the button that removes one item of a repeating group. Falls back to `common.remove`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "field", description: "The form to draw — the value `form()` returned, or any object-valued field inside one.", type: "FieldTree<T>", required: true },
+    { name: "columns", description: "Grid columns. A field spans one of them unless its spec says otherwise.", type: "number", default: "1" },
+    { name: "addLabel", description: "Text of the button that adds an item to a repeating group. Falls back to `common.add`.", type: "string | null", default: "null" },
+    { name: "removeLabel", description: "Text of the button that removes one item of a repeating group. Falls back to `common.remove`.", type: "string | null", default: "null" },
   ],
   // <[wrScrollFollow]>
   WrScrollFollow: [
-    {
-      name: 'wrScrollFollow',
-      description:
-        '`false` switches it off and hands scroll anchoring back to the browser. Bare `wrScrollFollow` is on.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'wrScrollFollowThreshold',
-      description: 'How close to the end, in pixels, the reader has to scroll back for the following to resume.',
-      type: 'number',
-      default: '80',
-    },
+    { name: "wrScrollFollow", description: "`false` switches it off and hands scroll anchoring back to the browser. Bare `wrScrollFollow` is on.", type: "boolean", default: "true" },
+    { name: "wrScrollFollowThreshold", description: "How close to the end, in pixels, the reader has to scroll back for the following to resume.", type: "number", default: "80" },
   ],
   // <wr-segmented>
   WrSegmented: [
-    {
-      name: 'options',
-      description: 'The segments to render.',
-      type: 'readonly WrSegmentedOption<T>[]',
-      required: true,
-    },
-    {
-      name: 'value',
-      description:
-        "The picked segment's `value`, `null` when nothing is selected. Bound by `[formField]`, or two-way via `[(value)]`.",
-      type: 'T | null',
-      default: 'null',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted when focus leaves the strip, so a bound field can mark itself touched.',
-      type: 'void',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable the whole control. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        'Refuse changes while every segment stays focusable and the value still submits. Bound automatically from the field\'s readonly state when used with `[formField]`. NOTHING is mirrored into ARIA here, deliberately: the strip is a `role="group"` of `aria-pressed` buttons, and ARIA defines `aria-readonly` for neither role — it is a state of `checkbox` / `radiogroup` / `textbox` and their kin, and it is not global. `aria-disabled` is the only attribute that would apply to a button, and it says the wrong thing: these segments are still focusable and the value still submits. So the state is honest in the DOM (`wr-segmented--readonly`) and silent in the accessibility tree rather than announced with a word that means something else.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: 'WrSegmentedSize',
-      default: "'md'",
-    },
-    {
-      name: 'block',
-      description: "Stretch the strip to fill its parent's width, shared equally by the segments.",
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "options", description: "The segments to render.", type: "readonly WrSegmentedOption<T>[]", required: true },
+    { name: "value", description: "The picked segment's `value`, `null` when nothing is selected. Bound by `[formField]`, or two-way via `[(value)]`.", type: "T | null", default: "null" },
+    { name: "(touch)", description: "Emitted when focus leaves the strip, so a bound field can mark itself touched.", type: "void" },
+    { name: "disabled", description: "Disable the whole control. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while every segment stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. NOTHING is mirrored into ARIA here, deliberately: the strip is a `role=\"group\"` of `aria-pressed` buttons, and ARIA defines `aria-readonly` for neither role — it is a state of `checkbox` / `radiogroup` / `textbox` and their kin, and it is not global. `aria-disabled` is the only attribute that would apply to a button, and it says the wrong thing: these segments are still focusable and the value still submits. So the state is honest in the DOM (`wr-segmented--readonly`) and silent in the accessibility tree rather than announced with a word that means something else.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSegmentedSize", default: "'md'" },
+    { name: "block", description: "Stretch the strip to fill its parent's width, shared equally by the segments.", type: "boolean", default: "false" },
   ],
   // <wr-select>
   WrSelect: [
-    {
-      name: 'placeholder',
-      description: 'Placeholder shown when no option is selected. Falls back to `select.placeholder`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'clearLabel',
-      description: 'Clear-selection (×) button aria-label. Falls back to `select.clearSelection`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — `role="combobox"` on an empty trigger otherwise has no name at all, which is the common case before anything is selected.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable the select. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse changes while the trigger stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only select does not open — and with it go the clear button, the chip ×, the tag draft and the search query. The text-input shapes take the native `readonly` attribute, which is what keeps them focusable and selectable where `disabled` would not; every shape mirrors `aria-readonly`, which role `combobox` supports.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'block', description: "Stretch the select to fill its parent's width.", type: 'boolean', default: 'false' },
-    { name: 'rounded', description: 'Pill-shaped corners on the trigger.', type: 'boolean', default: 'false' },
-    {
-      name: 'size',
-      description:
-        "Control size — shares the `--wr-control-*` contract. Read by the trigger's host classes AND by the overlay panel, which builds its size modifier separately.",
-      type: 'WrSelectSize',
-      default: "'md'",
-    },
-    {
-      name: 'mode',
-      description:
-        "Behavior mode. `<wr-select>` is the unified combobox primitive — pick the shape via `[mode]`: - `'single'` (default) — one value, no input. Classic dropdown. - `'multi'` — array value, chips on the trigger. - `'search'` — type-ahead with sync filter or async loader. - `'tag'` — free-text + chips.",
-      type: 'WrSelectMode | null',
-      default: 'null',
-    },
-    {
-      name: 'searchable',
-      description:
-        'Add a type-ahead filter without changing the value shape — the missing multi-with-search combination, since `[mode]` picks exactly one shape: ```html <wr-select mode="multi" searchable [(value)]="categories">…</wr-select> ``` On `multi` the trigger keeps its chips and grows an inline text field (the shape `tag` mode already uses); on `single` it is equivalent to `mode="search"`. Every search input (`[loader]`, `[debounceMs]`, `[minChars]`, the `(searchChange)` output, …) applies either way. Ignored in `tag` mode, which owns its own input.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'searchQuery',
-      description:
-        'The live search query. Empty string = no filter. Exposed via context so each `<wr-option>` can self-hide non-matching rows. Two-way bindable, so the query can be owned or reset from outside: `[(searchQuery)]="query"`. For server-side search prefer the debounced {@link searchChange} output — `searchQueryChange` fires on every keystroke.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'options',
-      description:
-        'Option array, in every mode with a panel. Each item is rendered as a `<wr-option>` whose value is the item, or `[valueWith]` of it, and whose label comes from `[displayWith]`, before any projected `<wr-option>` children; a search query filters both lists alike. Ignored in `tag` mode, which has no panel.',
-      type: 'readonly T[]',
-      default: '[]',
-    },
-    {
-      name: 'displayWith',
-      description:
-        'Maps an `[options]` item to its label: on its row, on the trigger when it is selected, on its chip in multi mode.',
-      type: '(item: T) => string',
-      default: 'String',
-    },
-    {
-      name: 'valueWith',
-      description:
-        'Maps an `[options]` item, or a `[loader]` result, to the value the model holds, so a list of objects can bind an id. The trigger and the chips show the label of the item whose value matches. Values are compared with `===`. Without it an item is its own value. Not read by `freeText`, which commits the typed string, or by `tag` mode, which has no options.',
-      type: '((item: T) => V) | null',
-      default: 'null',
-    },
-    {
-      name: 'loader',
-      description:
-        'Search mode: async loader. When set, the loader is called on every (debounced) keystroke and its result replaces `[options]`. Supports Observables, Promises, and plain arrays.',
-      type: 'WrSelectSearchLoader<T> | null',
-      default: 'null',
-    },
-    {
-      name: 'serverSearch',
-      description:
-        "The option list is already scoped to the query upstream — skip the built-in client-side label filter. Set it when `[options]` is fed from a server via the {@link searchChange} output; the async `[loader]` path implies it. Without this, a server that ranks or fuzzy-matches (returning rows whose labels don't literally contain the query) would have those rows hidden again on the client.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'debounceMs',
-      description: 'Search mode: debounce (ms) applied to the loader.',
-      type: 'number',
-      default: '250',
-    },
-    {
-      name: 'minChars',
-      description: 'Search mode: minimum query length before the panel opens / loader fires.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'freeText',
-      description:
-        'Search mode: allow values not in the options list. The trimmed query becomes the form value on Enter, when the panel is open and no option is highlighted (Enter on a highlighted option picks it), and on blur, Tab included, unless focus left for a click in the panel. An empty query commits nothing and keeps the value.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'virtualScroll',
-      description:
-        'Window the option panel so thousands of `[options]` keep only ~one viewport of rows in the DOM, with or without search (`tag` mode has no panel). Opt-in and OFF by default. Engages ONLY on the pure data-array tier — it silently falls back to the full render when static `<wr-option>` children are projected. While on, rows are plain `role="option"` elements (no `<wr-option>`), navigated via `aria-activedescendant`, selected by value.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rowHeight',
-      description:
-        'Uniform option-row height in px for the virtual window. `0` (default) measures the first rendered row once and reuses it, so it adapts to the control size. Read only when `virtualScroll` engages.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'viewportHeight',
-      description: 'Height of the virtual scroll viewport — a number (px) or any CSS length.',
-      type: 'number | string',
-      default: '256',
-    },
-    {
-      name: 'overscan',
-      description: 'Extra rows kept above/below the virtual viewport.',
-      type: 'number',
-      default: '6',
-    },
-    {
-      name: 'noResultsText',
-      description:
-        'Search mode: text shown when the filter / loader returns nothing. Falls back to `select.noResults`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingText',
-      description: 'Search mode: text shown while the async loader is in flight. Falls back to `select.loading`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadErrorText',
-      description:
-        'Search mode: text shown in place of the "no results" row when the async loader fails. Falls back to `select.loadError`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'retryable',
-      description:
-        'Search mode: let a failed load be tried again, for the same query, while the panel has nothing else to offer. The error row draws a Try again button, and Enter in the field reaches it, except under `freeText`, where Enter still commits the typed text. Without it the row only reports the failure; the next keystroke tries again either way.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'retryText',
-      description: 'Search mode: label of the retry action on the error row. Falls back to `select.retry`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'resultsText',
-      description:
-        'Search mode: what a screen reader hears once a search has settled on some options. `{{count}}` is their number. Falls back to `select.results`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: '(searchChange)',
-      description:
-        "Debounced search query, gated to searchable selects. Emits on every settled change — including the empty string when the field is cleared — so a store-backed option list can stay in sync and reset itself. `[debounceMs]` controls the delay; `[minChars]` does NOT gate it, for the same reason the `[loader]` path clears its results below that threshold. This is the hook for server-side search: dispatch on `(searchChange)`, feed the results back through `[options]` (plus `[serverSearch]`), and drive the panel's progress row with `[loading]`. Prefer it over the model's raw `(searchQueryChange)`, which fires on every keystroke.",
-      type: 'string',
-    },
-    {
-      name: 'loading',
-      description:
-        "Show the panel's progress row. Independent of `[loader]`, which raises and lowers its own flag — use this when the options come from a store fed by the {@link searchChange} output.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'separators',
-      description:
-        "Tag mode: keys / characters that commit the current draft into a chip. `'Enter'` is the key name; everything else is a literal character watched in keypresses and pastes.",
-      type: 'readonly string[]',
-      default: "['Enter', ',']",
-    },
-    {
-      name: 'allowDuplicates',
-      description: 'Tag mode: allow the same value to appear more than once.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'validate',
-      description:
-        'Tag mode: custom validator — return `true` to accept the value, `false` to silently reject. Receives the trimmed draft + the existing chips.',
-      type: 'WrSelectTagValidator | null',
-      default: 'null',
-    },
-    {
-      name: 'clearable',
-      description:
-        'Show a clear (×) button once at least one option is selected. NOT multi-only, which this said for a long time and which the template refutes: only the button trigger gates on `isMulti()`, so the chips trigger AND a single `mode="search"` / `[searchable]` select carry it too. The wording mattered little while the default was `true`; it decides what a reader expects to lose now that it is not. The default changed from `true` to `false`: the affordance is opt-in, so a trigger that grew an × on its own no longer does — pass `clearable` to keep it. In `search` mode this also gates Backspace-to-clear on an empty field, since that key is the keyboard twin of this button.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        "Extra CSS classes for the dropdown panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. The pane is a positioning wrapper carrying the gap above the list; the box that paints is `.wr-select-panel` inside it, so a rule meant for the surface reads `.my-class .wr-select-panel`.",
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    {
-      name: 'position',
-      description:
-        "Side of the trigger the panel opens on. A side with no room gives way to the other, so `'top'` still drops below at the top of the viewport.",
-      type: 'WrSelectPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'maxItems',
-      description:
-        'Cap on selected items (multi mode). `0` = unlimited. Once reached, the unselected options are marked unavailable — `aria-disabled` and the disabled look — and refuse a pick until one is removed.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'selectAll',
-      description:
-        'Multi mode: a first, pinned "Select all" row in the panel. It toggles every enabled option the panel is offering, so under a search only the ones the query matches, and with `virtualScroll` the whole filtered list rather than the rendered rows. It adds in display order and stops at `maxItems`; a second press, with nothing left to add, takes the offered options out again. A selection the search is hiding is never touched. The row is a `role="option"`, since a listbox owns nothing else, and says its state through `aria-checked`: `true` when every offered option is selected, `mixed` when some are, `false` when none. The arrows and Home reach it like any row and Enter or Space toggles it. Not drawn in single mode, in tag mode, or while the panel offers no option.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'selectAllLabel',
-      description: "Text of the select-all row. Falls back to `select.selectAll`, then `'Select all'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'maxTagCount',
-      description:
-        'Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'value',
-      description:
-        'Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly V[]`. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'V | readonly V[] | null',
-      default: 'null',
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted on blur / commit so a bound field can mark itself touched.',
-      type: 'void',
-    },
-    { name: '(opened)', description: 'Fires after the panel opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the panel closes.', type: 'void' },
+    { name: "placeholder", description: "Placeholder shown when no option is selected. Falls back to `select.placeholder`.", type: "string | null", default: "null" },
+    { name: "clearLabel", description: "Clear-selection (×) button aria-label. Falls back to `select.clearSelection`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the trigger. Falls back to the placeholder, then to `select.label` — `role=\"combobox\"` on an empty trigger otherwise has no name at all, which is the common case before anything is selected.", type: "string | null", default: "null" },
+    { name: "disabled", description: "Disable the select. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes while the trigger stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The panel is where every edit happens, so a read-only select does not open — and with it go the clear button, the chip ×, the tag draft and the search query. The text-input shapes take the native `readonly` attribute, which is what keeps them focusable and selectable where `disabled` would not; every shape mirrors `aria-readonly`, which role `combobox` supports.", type: "boolean", default: "false" },
+    { name: "block", description: "Stretch the select to fill its parent's width.", type: "boolean", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners on the trigger.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract. Read by the trigger's host classes AND by the overlay panel, which builds its size modifier separately.", type: "WrSelectSize", default: "'md'" },
+    { name: "mode", description: "Behavior mode. `<wr-select>` is the unified combobox primitive — pick the shape via `[mode]`: - `'single'` (default) — one value, no input. Classic dropdown. - `'multi'` — array value, chips on the trigger. - `'search'` — type-ahead with sync filter or async loader. - `'tag'` — free-text + chips.", type: "WrSelectMode | null", default: "null" },
+    { name: "searchable", description: "Add a type-ahead filter without changing the value shape — the missing multi-with-search combination, since `[mode]` picks exactly one shape: ```html <wr-select mode=\"multi\" searchable [(value)]=\"categories\">…</wr-select> ``` On `multi` the trigger keeps its chips and grows an inline text field (the shape `tag` mode already uses); on `single` it is equivalent to `mode=\"search\"`. Every search input (`[loader]`, `[debounceMs]`, `[minChars]`, the `(searchChange)` output, …) applies either way. Ignored in `tag` mode, which owns its own input.", type: "boolean", default: "false" },
+    { name: "searchQuery", description: "The live search query. Empty string = no filter. Exposed via context so each `<wr-option>` can self-hide non-matching rows. Two-way bindable, so the query can be owned or reset from outside: `[(searchQuery)]=\"query\"`. For server-side search prefer the debounced {@link searchChange} output — `searchQueryChange` fires on every keystroke.", type: "string", default: "''" },
+    { name: "options", description: "Option array, in every mode with a panel. Each item is rendered as a `<wr-option>` whose value is the item, or `[valueWith]` of it, and whose label comes from `[displayWith]`, before any projected `<wr-option>` children; a search query filters both lists alike. Ignored in `tag` mode, which has no panel.", type: "readonly T[]", default: "[]" },
+    { name: "displayWith", description: "Maps an `[options]` item to its label: on its row, on the trigger when it is selected, on its chip in multi mode.", type: "(item: T) => string", default: "String" },
+    { name: "valueWith", description: "Maps an `[options]` item, or a `[loader]` result, to the value the model holds, so a list of objects can bind an id. The trigger and the chips show the label of the item whose value matches. Values are compared with `===`. Without it an item is its own value. Not read by `freeText`, which commits the typed string, or by `tag` mode, which has no options.", type: "((item: T) => V) | null", default: "null" },
+    { name: "loader", description: "Search mode: async loader. When set, the loader is called on every (debounced) keystroke and its result replaces `[options]`. Supports Observables, Promises, and plain arrays.", type: "WrSelectSearchLoader<T> | null", default: "null" },
+    { name: "serverSearch", description: "The option list is already scoped to the query upstream — skip the built-in client-side label filter. Set it when `[options]` is fed from a server via the {@link searchChange} output; the async `[loader]` path implies it. Without this, a server that ranks or fuzzy-matches (returning rows whose labels don't literally contain the query) would have those rows hidden again on the client.", type: "boolean", default: "false" },
+    { name: "debounceMs", description: "Search mode: debounce (ms) applied to the loader.", type: "number", default: "250" },
+    { name: "minChars", description: "Search mode: minimum query length before the panel opens / loader fires.", type: "number", default: "0" },
+    { name: "freeText", description: "Search mode: allow values not in the options list. The trimmed query becomes the form value on Enter, when the panel is open and no option is highlighted (Enter on a highlighted option picks it), and on blur, Tab included, unless focus left for a click in the panel. An empty query commits nothing and keeps the value.", type: "boolean", default: "false" },
+    { name: "virtualScroll", description: "Window the option panel so thousands of `[options]` keep only ~one viewport of rows in the DOM, with or without search (`tag` mode has no panel). Opt-in and OFF by default. Engages ONLY on the pure data-array tier — it silently falls back to the full render when static `<wr-option>` children are projected. While on, rows are plain `role=\"option\"` elements (no `<wr-option>`), navigated via `aria-activedescendant`, selected by value.", type: "boolean", default: "false" },
+    { name: "rowHeight", description: "Uniform option-row height in px for the virtual window. `0` (default) measures the first rendered row once and reuses it, so it adapts to the control size. Read only when `virtualScroll` engages.", type: "number", default: "0" },
+    { name: "viewportHeight", description: "Height of the virtual scroll viewport — a number (px) or any CSS length.", type: "number | string", default: "256" },
+    { name: "overscan", description: "Extra rows kept above/below the virtual viewport.", type: "number", default: "6" },
+    { name: "noResultsText", description: "Search mode: text shown when the filter / loader returns nothing. Falls back to `select.noResults`.", type: "string | null", default: "null" },
+    { name: "loadingText", description: "Search mode: text shown while the async loader is in flight. Falls back to `select.loading`.", type: "string | null", default: "null" },
+    { name: "loadErrorText", description: "Search mode: text shown in place of the \"no results\" row when the async loader fails. Falls back to `select.loadError`.", type: "string | null", default: "null" },
+    { name: "retryable", description: "Search mode: let a failed load be tried again, for the same query, while the panel has nothing else to offer. The error row draws a Try again button, and Enter in the field reaches it, except under `freeText`, where Enter still commits the typed text. Without it the row only reports the failure; the next keystroke tries again either way.", type: "boolean", default: "false" },
+    { name: "retryText", description: "Search mode: label of the retry action on the error row. Falls back to `select.retry`.", type: "string | null", default: "null" },
+    { name: "resultsText", description: "Search mode: what a screen reader hears once a search has settled on some options. `{{count}}` is their number. Falls back to `select.results`.", type: "string | null", default: "null" },
+    { name: "(searchChange)", description: "Debounced search query, gated to searchable selects. Emits on every settled change — including the empty string when the field is cleared — so a store-backed option list can stay in sync and reset itself. `[debounceMs]` controls the delay; `[minChars]` does NOT gate it, for the same reason the `[loader]` path clears its results below that threshold. This is the hook for server-side search: dispatch on `(searchChange)`, feed the results back through `[options]` (plus `[serverSearch]`), and drive the panel's progress row with `[loading]`. Prefer it over the model's raw `(searchQueryChange)`, which fires on every keystroke.", type: "string" },
+    { name: "loading", description: "Show the panel's progress row. Independent of `[loader]`, which raises and lowers its own flag — use this when the options come from a store fed by the {@link searchChange} output.", type: "boolean", default: "false" },
+    { name: "separators", description: "Tag mode: keys / characters that commit the current draft into a chip. `'Enter'` is the key name; everything else is a literal character watched in keypresses and pastes.", type: "readonly string[]", default: "['Enter', ',']" },
+    { name: "allowDuplicates", description: "Tag mode: allow the same value to appear more than once.", type: "boolean", default: "false" },
+    { name: "validate", description: "Tag mode: custom validator — return `true` to accept the value, `false` to silently reject. Receives the trimmed draft + the existing chips.", type: "WrSelectTagValidator | null", default: "null" },
+    { name: "clearable", description: "Show a clear (×) button once at least one option is selected. NOT multi-only, which this said for a long time and which the template refutes: only the button trigger gates on `isMulti()`, so the chips trigger AND a single `mode=\"search\"` / `[searchable]` select carry it too. The wording mattered little while the default was `true`; it decides what a reader expects to lose now that it is not. The default changed from `true` to `false`: the affordance is opt-in, so a trigger that grew an × on its own no longer does — pass `clearable` to keep it. In `search` mode this also gates Backspace-to-clear on an empty field, since that key is the keyboard twin of this button.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the dropdown panel's overlay pane. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. The pane is a positioning wrapper carrying the gap above the list; the box that paints is `.wr-select-panel` inside it, so a rule meant for the surface reads `.my-class .wr-select-panel`.", type: "WrClassInput", default: "null" },
+    { name: "position", description: "Side of the trigger the panel opens on. A side with no room gives way to the other, so `'top'` still drops below at the top of the viewport.", type: "WrSelectPosition", default: "'bottom'" },
+    { name: "maxItems", description: "Cap on selected items (multi mode). `0` = unlimited. Once reached, the unselected options are marked unavailable — `aria-disabled` and the disabled look — and refuse a pick until one is removed.", type: "number", default: "0" },
+    { name: "selectAll", description: "Multi mode: a first, pinned \"Select all\" row in the panel. It toggles every enabled option the panel is offering, so under a search only the ones the query matches, and with `virtualScroll` the whole filtered list rather than the rendered rows. It adds in display order and stops at `maxItems`; a second press, with nothing left to add, takes the offered options out again. A selection the search is hiding is never touched. The row is a `role=\"option\"`, since a listbox owns nothing else, and says its state through `aria-checked`: `true` when every offered option is selected, `mixed` when some are, `false` when none. The arrows and Home reach it like any row and Enter or Space toggles it. Not drawn in single mode, in tag mode, or while the panel offers no option.", type: "boolean", default: "false" },
+    { name: "selectAllLabel", description: "Text of the select-all row. Falls back to `select.selectAll`, then `'Select all'`.", type: "string | null", default: "null" },
+    { name: "maxTagCount", description: "Maximum number of chips rendered before collapsing the rest into a `+N more` indicator. `0` = render every chip.", type: "number", default: "0" },
+    { name: "value", description: "Unified value. Single mode holds a scalar (or `null`); multi / tag mode holds `readonly V[]`. Bound by `[formField]`, or two-way via `[(value)]`.", type: "V | readonly V[] | null", default: "null" },
+    { name: "(touch)", description: "Emitted on blur / commit so a bound field can mark itself touched.", type: "void" },
+    { name: "(opened)", description: "Fires after the panel opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the panel closes.", type: "void" },
   ],
   // <wr-sidebar>
   WrSidebar: [
-    {
-      name: 'entries',
-      description:
-        'The navigation tree. An entry with `children` is a group, which opens on click and on its own when the current route is below it.',
-      type: 'readonly WrSidebarEntry[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name for the navigation landmark. Falls back to `sidebar.label`, then `\'Sidebar\'`: a page with a sidebar AND a table of contents has two navigation landmarks, and an unnamed one is announced as just "navigation".',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'defaultGroupIcon',
-      description: 'Icon for a group that names none. `null` draws no icon.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'defaultItemIcon',
-      description: 'Icon for a page that names none. `null` draws no icon.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'autoExpand',
-      description:
-        'Open every group above the current route, once per navigation: a group the user closes stays closed until the route changes.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'autoCollapse',
-      description:
-        'Close the groups the previous navigation opened when the next one leaves them, so a long nav does not keep every visited section expanded. A group the user opened or closed by hand is never closed for them. Needs `autoExpand`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'activeTone',
-      description:
-        "How the current page is painted: the primary tint, or with `'neutral'` a grey one that leaves the primary to the page's own actions. Either way the four `--wr-sidebar-row-active-*` hooks take any colour.",
-      type: 'WrSidebarActiveTone',
-      default: "'primary'",
-    },
+    { name: "entries", description: "The navigation tree. An entry with `children` is a group, which opens on click and on its own when the current route is below it.", type: "readonly WrSidebarEntry[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `sidebar.label`, then `'Sidebar'`: a page with a sidebar AND a table of contents has two navigation landmarks, and an unnamed one is announced as just \"navigation\".", type: "string | null", default: "null" },
+    { name: "defaultGroupIcon", description: "Icon for a group that names none. `null` draws no icon.", type: "string | null", default: "null" },
+    { name: "defaultItemIcon", description: "Icon for a page that names none. `null` draws no icon.", type: "string | null", default: "null" },
+    { name: "autoExpand", description: "Open every group above the current route, once per navigation: a group the user closes stays closed until the route changes.", type: "boolean", default: "true" },
+    { name: "autoCollapse", description: "Close the groups the previous navigation opened when the next one leaves them, so a long nav does not keep every visited section expanded. A group the user opened or closed by hand is never closed for them. Needs `autoExpand`.", type: "boolean", default: "false" },
+    { name: "activeTone", description: "How the current page is painted: the primary tint, or with `'neutral'` a grey one that leaves the primary to the page's own actions. Either way the four `--wr-sidebar-row-active-*` hooks take any colour.", type: "WrSidebarActiveTone", default: "'primary'" },
   ],
   // <wr-skeleton>
   WrSkeleton: [
-    {
-      name: 'color',
-      description:
-        'Intent tint for the placeholder. `null`, the default, paints the neutral gray a placeholder almost always wants. It used to default to the `light` intent, chosen because that one token was theme-stable — slate-300 on white, slate-800 on near-black. The neutral ramp does that job now and does it by construction, so the default is the absence of an intent rather than a particular one. An intent here tints a thing that is not yet content, so reach for it only when the placeholder stands in for something the colour already identifies.',
-      type: 'WrColor | null',
-      default: 'null',
-    },
-    { name: 'animated', description: 'Whether the shimmer animation runs.', type: 'boolean', default: 'true' },
-    {
-      name: 'lines',
-      description:
-        'Draw a paragraph: this many text lines, each `--wr-skeleton-height` tall and `--wr-skeleton-line-gap` apart, the last one `--wr-skeleton-last-line-width` wide. `0`, the default, keeps the one block. The host stays the only thing a screen reader hears: the lines are empty boxes, so `aria-busy` is read once however many there are.',
-      type: 'number',
-      default: '0',
-    },
+    { name: "color", description: "Intent tint for the placeholder. `null`, the default, paints the neutral gray a placeholder almost always wants. It used to default to the `light` intent, chosen because that one token was theme-stable — slate-300 on white, slate-800 on near-black. The neutral ramp does that job now and does it by construction, so the default is the absence of an intent rather than a particular one. An intent here tints a thing that is not yet content, so reach for it only when the placeholder stands in for something the colour already identifies.", type: "WrColor | null", default: "null" },
+    { name: "animated", description: "Whether the shimmer animation runs.", type: "boolean", default: "true" },
+    { name: "lines", description: "Draw a paragraph: this many text lines, each `--wr-skeleton-height` tall and `--wr-skeleton-line-gap` apart, the last one `--wr-skeleton-last-line-width` wide. `0`, the default, keeps the one block. The host stays the only thing a screen reader hears: the lines are empty boxes, so `aria-busy` is read once however many there are.", type: "number", default: "0" },
   ],
   // <wr-slider>
   WrSlider: [
-    { name: 'min', description: 'Lower bound.', type: 'WrSliderValue | undefined', default: '0' },
-    { name: 'max', description: 'Upper bound.', type: 'WrSliderValue | undefined', default: '100' },
-    { name: 'step', description: 'Step size for keyboard and drag.', type: 'number', default: '1' },
-    { name: 'range', description: 'Render two thumbs and emit `[low, high]`.', type: 'boolean', default: 'false' },
-    {
-      name: 'disabled',
-      description:
-        "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse value changes while the thumbs stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The thumbs keep their tab stop and keep announcing their value — arrow keys, Home / End and the pointer simply move nothing — which is the whole difference from `disabled`, where they would leave the tab order entirely. Mirrored as `aria-readonly`, which role `slider` supports.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'showValue', description: 'Render the current value below the track.', type: 'boolean', default: 'true' },
-    {
-      name: 'labelWith',
-      description:
-        'Maps a value to the text of the value label, and to `aria-valuetext` on the thumb, so a screen reader hears what the label shows. In range mode each end is mapped on its own. Unset, the label prints the number and the thumb announces `aria-valuenow`.',
-      type: '(value: number) => string',
-    },
-    {
-      name: 'marks',
-      description:
-        'Stops drawn on the track: a tick at each `value`, and its `label` under the track when it has one. A mark outside `[min, max]` is not drawn. The thumb announces the label of the mark it stands on as `aria-valuetext`, ahead of `labelWith`.',
-      type: 'readonly WrSliderMark[]',
-      default: '[]',
-    },
-    {
-      name: 'snapToMarks',
-      description:
-        'Restrict the value to the marks: a drag lands on the nearest one and the keyboard moves from mark to mark, whatever `step` says. Without marks it does nothing.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'orientation',
-      description:
-        "Axis of the track. `vertical` runs from the bottom (min) to the top (max), as tall as `--wr-slider-vertical-height`, with the value and the marks' labels beside it.",
-      type: "'horizontal' | 'vertical'",
-      default: "'horizontal'",
-    },
-    {
-      name: 'size',
-      description: "Control size: the track's thickness, the thumb, the marks and both kinds of label text.",
-      type: 'WrSliderSize',
-      default: "'md'",
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'upperLabel',
-      description: 'Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'value',
-      description:
-        'Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `range`: a plain `number`, or `[low, high]` in range mode.',
-      type: 'WrSliderValue',
-      default: '0',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
+    { name: "min", description: "Lower bound.", type: "WrSliderValue | undefined", default: "0" },
+    { name: "max", description: "Upper bound.", type: "WrSliderValue | undefined", default: "100" },
+    { name: "step", description: "Step size for keyboard and drag.", type: "number", default: "1" },
+    { name: "range", description: "Render two thumbs and emit `[low, high]`.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable interaction. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse value changes while the thumbs stay focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. The thumbs keep their tab stop and keep announcing their value — arrow keys, Home / End and the pointer simply move nothing — which is the whole difference from `disabled`, where they would leave the tab order entirely. Mirrored as `aria-readonly`, which role `slider` supports.", type: "boolean", default: "false" },
+    { name: "showValue", description: "Render the current value below the track.", type: "boolean", default: "true" },
+    { name: "labelWith", description: "Maps a value to the text of the value label, and to `aria-valuetext` on the thumb, so a screen reader hears what the label shows. In range mode each end is mapped on its own. Unset, the label prints the number and the thumb announces `aria-valuenow`.", type: "(value: number) => string" },
+    { name: "marks", description: "Stops drawn on the track: a tick at each `value`, and its `label` under the track when it has one. A mark outside `[min, max]` is not drawn. The thumb announces the label of the mark it stands on as `aria-valuetext`, ahead of `labelWith`.", type: "readonly WrSliderMark[]", default: "[]" },
+    { name: "snapToMarks", description: "Restrict the value to the marks: a drag lands on the nearest one and the keyboard moves from mark to mark, whatever `step` says. Without marks it does nothing.", type: "boolean", default: "false" },
+    { name: "orientation", description: "Axis of the track. `vertical` runs from the bottom (min) to the top (max), as tall as `--wr-slider-vertical-height`, with the value and the marks' labels beside it.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
+    { name: "size", description: "Control size: the track's thickness, the thumb, the marks and both kinds of label text.", type: "WrSliderSize", default: "'md'" },
+    { name: "ariaLabel", description: "Accessible name of the thumb — the single one, or the LOWER one in range mode. Falls back to `slider.label` / `slider.lower`.", type: "string | null", default: "null" },
+    { name: "upperLabel", description: "Accessible name of the upper thumb in range mode. Falls back to `slider.upper`.", type: "string | null", default: "null" },
+    { name: "value", description: "Current value. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `range`: a plain `number`, or `[low, high]` in range mode.", type: "WrSliderValue", default: "0" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-sortable-list>
   WrSortableList: [
-    {
-      name: 'items',
-      description: 'Items to render. Two-way — emits the reordered array on drop.',
-      type: 'T[]',
-      required: true,
-    },
-    {
-      name: 'orientation',
-      description: "Layout direction. Drives CDK's `cdkDropListOrientation`.",
-      type: "'vertical' | 'horizontal'",
-      default: "'vertical'",
-    },
-    { name: 'disabled', description: 'Disable all dragging.', type: 'boolean', default: 'false' },
-    {
-      name: 'lockAxis',
-      description: 'Locked axis — restrict drag movement to one axis even diagonally.',
-      type: "'x' | 'y' | undefined",
-      default: 'undefined',
-    },
-    {
-      name: 'dragStartDelay',
-      description:
-        'Delay (ms) before a drag begins after the pointer goes down. The touch delay is the fix for the classic CDK touch snag: without it, the `touch-action: none` CDK puts on each item blocks scrolling the list on a phone. With a small touch delay, a quick swipe scrolls and a brief hold starts the drag; mouse stays instant. Pass a single number to apply one delay to both pointers.',
-      type: 'number | { touch: number; mouse: number }',
-      default: '{ touch: 150, mouse: 0 }',
-    },
-    {
-      name: 'group',
-      description:
-        'Name of the group this list belongs to. Lists with the same group exchange items, wherever they sit in the page.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'canEnter',
-      description:
-        'Refuses an item coming from another list of the group, by drag and by keyboard alike. An item can always return to the list it left.',
-      type: 'WrSortableCanEnter<T> | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name of the list. A keyboard move into this list announces it; without one the announcement falls back to the list's position in the group.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'id',
-      description: "The host's `id`, and what tells the lists of a `move` apart. Generated when omitted.",
-      type: 'string',
-    },
-    {
-      name: '(reorder)',
-      description: 'Fired after a successful reorder with the new array + indices. Not fired for a move between lists.',
-      type: 'WrSortableReorderEvent<T>',
-    },
-    {
-      name: '(move)',
-      description:
-        'Fired once on the list an item ARRIVED in from another list of the group, after both lists have written `items`. The list it left emits nothing but `itemsChange`.',
-      type: 'WrSortableMoveEvent<T>',
-    },
+    { name: "items", description: "Items to render. Two-way — emits the reordered array on drop.", type: "T[]", required: true },
+    { name: "orientation", description: "Layout direction. Drives CDK's `cdkDropListOrientation`.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
+    { name: "disabled", description: "Disable all dragging.", type: "boolean", default: "false" },
+    { name: "lockAxis", description: "Locked axis — restrict drag movement to one axis even diagonally.", type: "'x' | 'y' | undefined", default: "undefined" },
+    { name: "dragStartDelay", description: "Delay (ms) before a drag begins after the pointer goes down. The touch delay is the fix for the classic CDK touch snag: without it, the `touch-action: none` CDK puts on each item blocks scrolling the list on a phone. With a small touch delay, a quick swipe scrolls and a brief hold starts the drag; mouse stays instant. Pass a single number to apply one delay to both pointers.", type: "number | { touch: number; mouse: number }", default: "{ touch: 150, mouse: 0 }" },
+    { name: "group", description: "Name of the group this list belongs to. Lists with the same group exchange items, wherever they sit in the page.", type: "string | null", default: "null" },
+    { name: "canEnter", description: "Refuses an item coming from another list of the group, by drag and by keyboard alike. An item can always return to the list it left.", type: "WrSortableCanEnter<T> | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the list. A keyboard move into this list announces it; without one the announcement falls back to the list's position in the group.", type: "string | null", default: "null" },
+    { name: "id", description: "The host's `id`, and what tells the lists of a `move` apart. Generated when omitted.", type: "string" },
+    { name: "(reorder)", description: "Fired after a successful reorder with the new array + indices. Not fired for a move between lists.", type: "WrSortableReorderEvent<T>" },
+    { name: "(move)", description: "Fired once on the list an item ARRIVED in from another list of the group, after both lists have written `items`. The list it left emits nothing but `itemsChange`.", type: "WrSortableMoveEvent<T>" },
   ],
   // <wr-sparkline>
   WrSparkline: [
-    {
-      name: 'data',
-      description:
-        'The values, left to right. Evenly spaced — a sparkline carries no x axis, so pass an already-ordered series rather than points with their own timestamps.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name. A sparkline usually sits beside the number it summarises, where announcing it again is noise — so it is `aria-hidden` by default and becomes a named `role="img"` only when a consumer says what it shows. It is also the caption of the data table, which an unnamed sparkline does not render.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'color',
-      description:
-        'Stroke colour. The first colour of the chart palette, which is the brand colour unless the theme says otherwise.',
-      type: 'string',
-      default: "'var(--wr-chart-1)'",
-    },
-    {
-      name: 'strokeWidth',
-      description:
-        'Line thickness in CSS pixels — `vector-effect="non-scaling-stroke"` keeps it at that width whatever the box is stretched to, so it is NOT in viewBox units.',
-      type: 'number',
-      default: '1.5',
-    },
-    {
-      name: 'showArea',
-      description: 'Fill the area below the line, faintly (`--wr-sparkline-area-opacity`).',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'showTip', description: 'Show a dot at the last data point.', type: 'boolean', default: 'true' },
-    { name: 'width', description: 'CSS width.', type: 'string', default: "'8rem'" },
-    { name: 'height', description: 'CSS height.', type: 'string', default: "'2rem'" },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the value of the point nearest the pointer, marking that point, and named by `ariaLabel` when one is given. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        'Writes the value in the tooltip and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.',
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        'Render the sparkline\'s values as a table that only assistive technology reaches: a row per point drawn, headed by its position in the series, counted from one, with its value as the tooltip writes it. A value that is not a number is not drawn and has no row. Only with `ariaLabel`, which is the table\'s caption: a sparkline with no name is decoration, hidden from a screen reader as a whole, and renders no table. The drawing is one named `role="img"`, which carries the name and no figure, so without the table the values are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop. The table is a real `<table>` inside the host, so under SSR keep a sparkline that renders one out of a `<p>`: the HTML parser ends a paragraph at a table, and hydration then meets a tree the server did not render.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "data", description: "The values, left to right. Evenly spaced — a sparkline carries no x axis, so pass an already-ordered series rather than points with their own timestamps.", type: "readonly number[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name. A sparkline usually sits beside the number it summarises, where announcing it again is noise — so it is `aria-hidden` by default and becomes a named `role=\"img\"` only when a consumer says what it shows. It is also the caption of the data table, which an unnamed sparkline does not render.", type: "string | null", default: "null" },
+    { name: "color", description: "Stroke colour. The first colour of the chart palette, which is the brand colour unless the theme says otherwise.", type: "string", default: "'var(--wr-chart-1)'" },
+    { name: "strokeWidth", description: "Line thickness in CSS pixels — `vector-effect=\"non-scaling-stroke\"` keeps it at that width whatever the box is stretched to, so it is NOT in viewBox units.", type: "number", default: "1.5" },
+    { name: "showArea", description: "Fill the area below the line, faintly (`--wr-sparkline-area-opacity`).", type: "boolean", default: "false" },
+    { name: "showTip", description: "Show a dot at the last data point.", type: "boolean", default: "true" },
+    { name: "width", description: "CSS width.", type: "string", default: "'8rem'" },
+    { name: "height", description: "CSS height.", type: "string", default: "'2rem'" },
+    { name: "tooltip", description: "Show a tooltip with the value of the point nearest the pointer, marking that point, and named by `ariaLabel` when one is given. Pointer only. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes the value in the tooltip and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.", type: "((value: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the sparkline's values as a table that only assistive technology reaches: a row per point drawn, headed by its position in the series, counted from one, with its value as the tooltip writes it. A value that is not a number is not drawn and has no row. Only with `ariaLabel`, which is the table's caption: a sparkline with no name is decoration, hidden from a screen reader as a whole, and renders no table. The drawing is one named `role=\"img\"`, which carries the name and no figure, so without the table the values are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop. The table is a real `<table>` inside the host, so under SSR keep a sparkline that renders one out of a `<p>`: the HTML parser ends a paragraph at a table, and hydration then meets a tree the server did not render.", type: "boolean", default: "false" },
   ],
   // <wr-speed-dial>
   WrSpeedDial: [
-    {
-      name: 'actions',
-      description:
-        'The buttons that fan out when the dial opens, in order from the trigger outwards. Each needs a label: it is the accessible name as well as the tooltip.',
-      type: 'readonly WrSpeedDialAction[]',
-      default: '[]',
-    },
-    {
-      name: 'triggerLabel',
-      description:
-        "Accessible name of the trigger. Falls back to `speedDial.label`, then `'Actions'` — the trigger is icon-only, so without this it has no name at all.",
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'direction', description: 'Direction the actions fan out.', type: 'WrSpeedDialDirection', default: "'up'" },
-    { name: 'open', description: 'Two-way bindable open state.', type: 'boolean', default: 'false' },
-    { name: 'icon', description: 'Icon for the main trigger button.', type: 'WrIconName', default: "'add'" },
-    { name: 'disabled', description: 'Disable interaction.', type: 'boolean', default: 'false' },
-    {
-      name: 'safeArea',
-      description:
-        'Pad the host toward the dial `direction` with `env(safe-area-inset-*)`. Only matters when the consumer pins the dial to that edge of the viewport; otherwise it has no effect.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'closeOnOutsideClick',
-      description: 'Close the open dial on a pointer press outside it. Focus stays where the user clicked.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: '(pick)', description: 'Fires when the user picks one of the actions.', type: 'WrSpeedDialAction' },
+    { name: "actions", description: "The buttons that fan out when the dial opens, in order from the trigger outwards. Each needs a label: it is the accessible name as well as the tooltip.", type: "readonly WrSpeedDialAction[]", default: "[]" },
+    { name: "triggerLabel", description: "Accessible name of the trigger. Falls back to `speedDial.label`, then `'Actions'` — the trigger is icon-only, so without this it has no name at all.", type: "string | null", default: "null" },
+    { name: "direction", description: "Direction the actions fan out.", type: "WrSpeedDialDirection", default: "'up'" },
+    { name: "open", description: "Two-way bindable open state.", type: "boolean", default: "false" },
+    { name: "icon", description: "Icon for the main trigger button.", type: "WrIconName", default: "'add'" },
+    { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
+    { name: "safeArea", description: "Pad the host toward the dial `direction` with `env(safe-area-inset-*)`. Only matters when the consumer pins the dial to that edge of the viewport; otherwise it has no effect.", type: "boolean", default: "false" },
+    { name: "closeOnOutsideClick", description: "Close the open dial on a pointer press outside it. Focus stays where the user clicked.", type: "boolean", default: "false" },
+    { name: "(pick)", description: "Fires when the user picks one of the actions.", type: "WrSpeedDialAction" },
   ],
   // <wr-spinner>
   WrSpinner: [
-    {
-      name: 'size',
-      description: 'Size variant. Em-based — scales with surrounding font-size.',
-      type: 'WrSpinnerSize',
-      default: "'md'",
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name for the live region. Falls back to `spinner.label`, then `'Loading'` — which the host used to carry as a hard-coded attribute, while the catalog had the translated key for it all along.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "size", description: "Size variant. Em-based — scales with surrounding font-size.", type: "WrSpinnerSize", default: "'md'" },
+    { name: "ariaLabel", description: "Accessible name for the live region. Falls back to `spinner.label`, then `'Loading'` — which the host used to carry as a hard-coded attribute, while the catalog had the translated key for it all along.", type: "string | null", default: "null" },
   ],
   // <wr-splitter>
   WrSplitter: [
-    {
-      name: 'position',
-      description: 'Position of the divider as a percentage (0–100). Two-way bindable.',
-      type: 'number',
-      default: '50',
-    },
-    {
-      name: 'orientation',
-      description:
-        "Divider direction: - `'horizontal'` — vertical divider, drags L/R (panes side by side). - `'vertical'` — horizontal divider, drags U/D (panes stacked).",
-      type: "'horizontal' | 'vertical'",
-      default: "'horizontal'",
-    },
-    { name: 'minPosition', description: 'Minimum allowed position.', type: 'number', default: '0' },
-    { name: 'maxPosition', description: 'Maximum allowed position.', type: 'number', default: '100' },
-    { name: 'disabled', description: 'Disable dragging.', type: 'boolean', default: 'false' },
-    {
-      name: 'dividerLabel',
-      description:
-        'Accessible name of the divider. A focusable `role="separator"` is an interactive widget, so it needs one — without it a screen reader reaching the divider announces nothing but "separator" and its number. Falls back to `splitter.divider`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "position", description: "Position of the divider as a percentage (0–100). Two-way bindable.", type: "number", default: "50" },
+    { name: "orientation", description: "Divider direction: - `'horizontal'` — vertical divider, drags L/R (panes side by side). - `'vertical'` — horizontal divider, drags U/D (panes stacked).", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
+    { name: "minPosition", description: "Minimum allowed position.", type: "number", default: "0" },
+    { name: "maxPosition", description: "Maximum allowed position.", type: "number", default: "100" },
+    { name: "disabled", description: "Disable dragging.", type: "boolean", default: "false" },
+    { name: "dividerLabel", description: "Accessible name of the divider. A focusable `role=\"separator\"` is an interactive widget, so it needs one — without it a screen reader reaching the divider announces nothing but \"separator\" and its number. Falls back to `splitter.divider`.", type: "string | null", default: "null" },
   ],
   // <wr-statistic>
   WrStatistic: [
-    {
-      name: 'label',
-      description:
-        'The caption above the figure — what the number counts. Keep it short; the value is the thing being read, and this names it.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'value',
-      description: 'The number (or string) to display in the main slot.',
-      type: 'number | string | null',
-      default: 'null',
-    },
-    { name: 'prefix', description: "Prefix glyph / symbol (e.g. `'$'`).", type: 'string', default: "''" },
-    { name: 'suffix', description: "Suffix glyph / unit (e.g. `'%'`, `'kg'`).", type: 'string', default: "''" },
-    {
-      name: 'precision',
-      description: 'Fixed number of decimals applied to numeric values.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'animate',
-      description:
-        'Count up to a new numeric `value` instead of swapping instantly. Always off for string values or under `prefers-reduced-motion`.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'duration', description: 'Count-up duration (ms).', type: 'number', default: '700' },
-    {
-      name: 'delta',
-      description:
-        'Optional delta vs previous period — shown as `+x.x%` (or `-x.x%`). Use `deltaSuffix` to change the trailing unit.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'deltaSuffix',
-      description: "Unit appended to the delta value. Falls back to `statistic.deltaSuffix`, then `'%'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "label", description: "The caption above the figure — what the number counts. Keep it short; the value is the thing being read, and this names it.", type: "string", default: "''" },
+    { name: "value", description: "The number (or string) to display in the main slot.", type: "number | string | null", default: "null" },
+    { name: "prefix", description: "Prefix glyph / symbol (e.g. `'$'`).", type: "string", default: "''" },
+    { name: "suffix", description: "Suffix glyph / unit (e.g. `'%'`, `'kg'`).", type: "string", default: "''" },
+    { name: "precision", description: "Fixed number of decimals applied to numeric values.", type: "number", default: "0" },
+    { name: "animate", description: "Count up to a new numeric `value` instead of swapping instantly. Always off for string values or under `prefers-reduced-motion`.", type: "boolean", default: "true" },
+    { name: "duration", description: "Count-up duration (ms).", type: "number", default: "700" },
+    { name: "delta", description: "Optional delta vs previous period — shown as `+x.x%` (or `-x.x%`). Use `deltaSuffix` to change the trailing unit.", type: "number | null", default: "null" },
+    { name: "deltaSuffix", description: "Unit appended to the delta value. Falls back to `statistic.deltaSuffix`, then `'%'`.", type: "string | null", default: "null" },
   ],
   // <wr-statistic-countdown>
   WrStatisticCountdown: [
-    {
-      name: 'target',
-      description: 'Target date / timestamp the countdown is running down to.',
-      type: 'Date | string | number',
-      required: true,
-    },
-    { name: 'label', description: 'Label rendered above the value.', type: 'string', default: "''" },
-    {
-      name: 'format',
-      description:
-        'Format string. Tokens: `D`/`DD` (days), `H`/`HH` (hours), `m`/`mm` (minutes), `s`/`ss` (seconds), `SSS` (milliseconds). Double-letter forms zero-pad to width 2. A unit the format leaves out is carried into the next larger one it shows, so `HH:mm:ss` reads `73:00:00` with three days and an hour left.',
-      type: 'string',
-      default: "'HH:mm:ss'",
-    },
-    {
-      name: 'endText',
-      description: 'Optional text shown once the countdown reaches zero.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tickMs',
-      description:
-        'Tick interval in ms. Drop to ~16 for `SSS` (millisecond display). Floored at one frame — `0` (or an unparseable value) asked `setInterval` to run as fast as the browser would allow, which is a busy loop, not a countdown.',
-      type: 'number',
-      default: '1000',
-    },
-    {
-      name: '(countdownEnd)',
-      description:
-        'Fires once for each target that is reached, or that has already passed when it is set, mount included, so an app reloaded after expiry still hears it. A new future target counts down again and fires again.',
-      type: 'void',
-    },
+    { name: "target", description: "Target date / timestamp the countdown is running down to.", type: "Date | string | number", required: true },
+    { name: "label", description: "Label rendered above the value.", type: "string", default: "''" },
+    { name: "format", description: "Format string. Tokens: `D`/`DD` (days), `H`/`HH` (hours), `m`/`mm` (minutes), `s`/`ss` (seconds), `SSS` (milliseconds). Double-letter forms zero-pad to width 2. A unit the format leaves out is carried into the next larger one it shows, so `HH:mm:ss` reads `73:00:00` with three days and an hour left.", type: "string", default: "'HH:mm:ss'" },
+    { name: "endText", description: "Optional text shown once the countdown reaches zero.", type: "string | null", default: "null" },
+    { name: "tickMs", description: "Tick interval in ms. Drop to ~16 for `SSS` (millisecond display). Floored at one frame — `0` (or an unparseable value) asked `setInterval` to run as fast as the browser would allow, which is a busy loop, not a countdown.", type: "number", default: "1000" },
+    { name: "(countdownEnd)", description: "Fires once for each target that is reached, or that has already passed when it is set, mount included, so an app reloaded after expiry still hears it. A new future target counts down again and fires again.", type: "void" },
   ],
   // <wr-statistic-group>
   WrStatisticGroup: [
-    {
-      name: 'min',
-      description:
-        'Minimum width of each column before the grid reflows to fewer columns. Any CSS length — smaller packs more cards per row.',
-      type: 'string',
-      default: "'12rem'",
-    },
-    {
-      name: 'columns',
-      description:
-        'Cap on how many columns ever sit side by side on a wide container. `0` (default) leaves it uncapped — fit as many `min`-wide columns as the width allows.',
-      type: 'number',
-      default: '0',
-    },
+    { name: "min", description: "Minimum width of each column before the grid reflows to fewer columns. Any CSS length — smaller packs more cards per row.", type: "string", default: "'12rem'" },
+    { name: "columns", description: "Cap on how many columns ever sit side by side on a wide container. `0` (default) leaves it uncapped — fit as many `min`-wide columns as the width allows.", type: "number", default: "0" },
   ],
   // <wr-step>
   WrStep: [
-    { name: 'label', description: 'Header label.', type: 'string', default: "''" },
-    { name: 'description', description: 'Secondary text shown under the label.', type: 'string', default: "''" },
-    { name: 'optional', description: 'Marks the step as optional in the header.', type: 'boolean', default: 'false' },
-    {
-      name: 'completed',
-      description:
-        'Override completion state. When unset, the stepper auto-derives it from the active index (any step before `active` is completed).',
-      type: 'boolean | null',
-      default: 'null',
-    },
-    {
-      name: 'disabled',
-      description: 'Disables the header — also blocks header clicks.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "label", description: "Header label.", type: "string", default: "''" },
+    { name: "description", description: "Secondary text shown under the label.", type: "string", default: "''" },
+    { name: "optional", description: "Marks the step as optional in the header.", type: "boolean", default: "false" },
+    { name: "completed", description: "Override completion state. When unset, the stepper auto-derives it from the active index (any step before `active` is completed).", type: "boolean | null", default: "null" },
+    { name: "disabled", description: "Disables the header — also blocks header clicks.", type: "boolean", default: "false" },
   ],
   // <wr-stepper>
   WrStepper: [
-    { name: 'active', description: 'Index of the currently visible step.', type: 'number', default: '0' },
-    {
-      name: 'orientation',
-      description: 'Layout direction.',
-      type: "'horizontal' | 'vertical'",
-      default: "'horizontal'",
-    },
-    { name: 'linear', description: 'Lock steps after the latest completed one.', type: 'boolean', default: 'false' },
-    {
-      name: 'responsive',
-      description:
-        'Drop a horizontal stepper to a vertical layout when its own box is too narrow for the row (a container query on its own width, not the viewport — so it adapts inside a narrow column or side panel). No effect when `orientation` is already `vertical`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'optionalLabel',
-      description:
-        "The word of the \"optional\" badge, which sits inside the header button's label and so is part of each optional step's accessible name. One input on the stepper covers every step. Falls back to `stepper.optional`, then `'optional'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'completedLabel',
-      description:
-        "The word a completed step's header button carries after its label, visually hidden: the check mark that replaces the number is `aria-hidden`. Falls back to `stepper.completed`, then `'completed'`.",
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "active", description: "Index of the currently visible step.", type: "number", default: "0" },
+    { name: "orientation", description: "Layout direction.", type: "'horizontal' | 'vertical'", default: "'horizontal'" },
+    { name: "linear", description: "Lock steps after the latest completed one.", type: "boolean", default: "false" },
+    { name: "responsive", description: "Drop a horizontal stepper to a vertical layout when its own box is too narrow for the row (a container query on its own width, not the viewport — so it adapts inside a narrow column or side panel). No effect when `orientation` is already `vertical`.", type: "boolean", default: "false" },
+    { name: "optionalLabel", description: "The word of the \"optional\" badge, which sits inside the header button's label and so is part of each optional step's accessible name. One input on the stepper covers every step. Falls back to `stepper.optional`, then `'optional'`.", type: "string | null", default: "null" },
+    { name: "completedLabel", description: "The word a completed step's header button carries after its label, visually hidden: the check mark that replaces the number is `aria-hidden`. Falls back to `stepper.completed`, then `'completed'`.", type: "string | null", default: "null" },
   ],
   // <wr-switch>
   WrSwitch: [
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name for a switch used WITHOUT projected text. The wrapping `<label>` names the control whenever content is projected; with none, the label is empty and the input has no name at all.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'id',
-      description:
-        'Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.',
-      type: 'string',
-      default: "wrRandomId('wr-switch')",
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable the switch. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native checkbox ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since the key arrives as a click — and mirrors the state as `aria-readonly`, which role `switch` supports.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: 'WrSwitchSize',
-      default: "'md'",
-    },
-    {
-      name: 'checked',
-      description: 'On / off state. Bound by `[formField]`, or two-way via `[(checked)]`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
+    { name: "ariaLabel", description: "Accessible name for a switch used WITHOUT projected text. The wrapping `<label>` names the control whenever content is projected; with none, the label is empty and the input has no name at all.", type: "string | null", default: "null" },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "wrRandomId('wr-switch')" },
+    { name: "disabled", description: "Disable the switch. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native checkbox ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since the key arrives as a click — and mirrors the state as `aria-readonly`, which role `switch` supports.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSwitchSize", default: "'md'" },
+    { name: "checked", description: "On / off state. Bound by `[formField]`, or two-way via `[(checked)]`.", type: "boolean", default: "false" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-tab>
   WrTab: [
-    { name: 'title', description: 'Visible label on the tab strip.', type: 'string', required: true },
-    {
-      name: 'key',
-      description: 'Stable identifier used by the parent to track the active tab. Auto-generated if omitted.',
-      type: 'string',
-      default: "wrRandomId('wr-tab')",
-    },
-    {
-      name: 'routerLink',
-      description: 'Router target — when set, the tab becomes a `[routerLink]` link.',
-      type: 'string | readonly string[] | null',
-      default: 'null',
-    },
-    {
-      name: 'exact',
-      description:
-        'Router tab only: select it on its own path, not on the paths below it, so an "Overview" tab at `/project/42` is not selected on `/project/42/settings`. Query params, fragment and matrix params are matched as without it.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'count',
-      description:
-        'A count after the label, as a small badge: unread messages, results. `null` (default) shows nothing, `0` shows `0`. The tab\'s accessible name becomes the label and the count, "Inbox, 3".',
-      type: 'number | null',
-      default: 'null',
-    },
-    { name: 'disabled', description: 'Disable the tab.', type: 'boolean', default: 'false' },
+    { name: "title", description: "Visible label on the tab strip.", type: "string", required: true },
+    { name: "key", description: "Stable identifier used by the parent to track the active tab. Auto-generated if omitted.", type: "string", default: "wrRandomId('wr-tab')" },
+    { name: "routerLink", description: "Router target — when set, the tab becomes a `[routerLink]` link.", type: "string | readonly string[] | null", default: "null" },
+    { name: "exact", description: "Router tab only: select it on its own path, not on the paths below it, so an \"Overview\" tab at `/project/42` is not selected on `/project/42/settings`. Query params, fragment and matrix params are matched as without it.", type: "boolean", default: "false" },
+    { name: "count", description: "A count after the label, as a small badge: unread messages, results. `null` (default) shows nothing, `0` shows `0`. The tab's accessible name becomes the label and the count, \"Inbox, 3\".", type: "number | null", default: "null" },
+    { name: "disabled", description: "Disable the tab.", type: "boolean", default: "false" },
   ],
   // <wr-table>
   WrTable: [
-    {
-      name: 'columns',
-      description:
-        'Column definitions, keyed by row property name. Typed against the row `[items]` carries, so a column\'s `format` sees it: `WrTableColumns<User>` binds to `[items]="users"` and to nothing else, while a bare `WrTableColumns` still binds anywhere.',
-      type: 'WrTableColumns<T>',
-      required: true,
-    },
-    {
-      name: 'items',
-      description:
-        'Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. `T` is inferred from here, and it is constrained to `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.',
-      type: 'readonly T[] | null | undefined',
-      default: 'null',
-    },
-    {
-      name: 'search',
-      description:
-        "Client-side text search. A row stays when the text some searchable column shows contains the query, ignoring case and accents: the column's `format` over the value, else the value as text. A missing value shows nothing, so its `empty` placeholder is not searched. Columns that take part: the ones on screen, less `actions` columns and `searchable: false`. An empty or blank query is no search. The table filters nothing else itself, so a search runs over whatever `items` holds: filter and sort `items` as before, the search narrows the result. It comes before paging, so the pager counts the matches and the page returns to 1 when the query changes, and `toCsv()`, the summary row and the select-all scope see the matching rows only. In tree mode a parent stays while it or any descendant matches and shows only the children that stay; it keeps its open state, so a parent kept for a deep match may need opening. Server mode (`total` set) holds one page and ignores it. A selection survives a search: rows it hides stay selected, and the count, the bar's `$implicit` and `toCsv({ selectedOnly })` all use the whole selection.",
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'loading',
-      description: 'Mark the table as loading; `loadingMode` picks how it shows.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'loadingMode',
-      description:
-        "How `loading` shows. `'overlay'` veils the table under a spinner. `'bar'` runs a thin progress bar along the top edge and leaves the rows as they are, for a table that refreshes while it is being read. `'auto'` is the overlay while no row is shown and the bar once rows are. The host carries `aria-busy` in every form.",
-      type: 'WrTableLoadingMode',
-      default: "'auto'",
-    },
-    {
-      name: 'responsive',
-      description:
-        "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'reorderable',
-      description: 'Enable drag-to-reorder on the column headers.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'columnOrder',
-      description:
-        "Two-way bindable column order — an array of column keys. Reflects and drives the header order: the table falls back to declaration order for any key not listed, and updates this on drag. Bind it to persist a user's arrangement.",
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'hiddenColumns',
-      description:
-        "Two-way bindable hidden columns, an array of column keys. A hidden column renders nothing: no header, no cell, no summary, no `<col>`. Its sort and its filter selection stay as they are, and `toCsv()` leaves it out. A column with `hideable: false` is shown whatever this lists, and so is the first column when the list would leave none. Bind it beside `columnOrder` to persist a user's arrangement.",
-      type: 'readonly string[]',
-      default: '[]',
-    },
-    {
-      name: 'columnChooser',
-      description:
-        "Show a toolbar above the table with a button that opens the column chooser: one checkbox per column, in column order, named by the column's title. A `hideable: false` column and the last visible one cannot be unchecked. Each toggle writes `hiddenColumns`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rowSelection',
-      description:
-        "Row selection with a leading checkbox column — `'multiple'` adds a select-all header; `'single'` keeps one row selected.",
-      type: "'single' | 'multiple' | null",
-      default: 'null (off)',
-    },
-    {
-      name: 'selectAllScope',
-      description:
-        "What the header select-all covers. `'page'` is the rows on screen: the current page, less a collapsed group's rows and a closed parent's children. `'all'` is the same rule over every page of `items`, so the box reads checked only when all of them are selected, mixed when some are, and one click selects or clears them all. Either way a selected key that is not in the scope stays selected. The table filters nothing itself: `items` is already what the filters left, so `'all'` never reaches a row a filter removed. Group band checkboxes keep their page scope, since grouping runs after pagination. In server mode (`total` set) the table holds one page and cannot name the rows of the others, so `'all'` behaves as `'page'` there.",
-      type: "'page' | 'all'",
-      default: "'page'",
-    },
-    {
-      name: 'rowClass',
-      description:
-        "Extra CSS classes per body row, from the row and its drawn index. The `<tr>` is ngwr's own element and there is no template slot that renders as one, so this is the only way to mark a row — overdue, unsaved, over budget — without a rule that has to re-derive the condition in CSS. It does NOT touch the detail row an expanded row opens, the group header or the summary row: each of those is a sibling `<tr>` with its own meaning, and a row predicate that painted them too would stripe a table's totals.",
-      type: 'WrTableRowClass | null',
-      default: 'null',
-    },
-    {
-      name: 'rowKey',
-      description:
-        'How to identify a row for selection — a property name or a function. Unset uses the row object itself (fine for a stable row array).',
-      type: 'string | ((row: Record<string, unknown>) => unknown) | null',
-      default: 'null',
-    },
-    {
-      name: 'selection',
-      description: 'Two-way bindable selected row keys.',
-      type: 'readonly unknown[]',
-      default: '[]',
-    },
-    {
-      name: 'expanded',
-      description: 'Two-way bindable expanded row keys (needs a `[wrTableExpand]` template).',
-      type: 'readonly unknown[]',
-      default: '[]',
-    },
-    {
-      name: 'groupBy',
-      description:
-        'Group rows under collapsible band headers — a row property name, or a function returning the group value. `null` (default) renders the table exactly as before. Grouping runs AFTER pagination: it buckets the rows on the current page in first-appearance order (it never re-sorts your data — same contract as `[(sort)]`), so a group straddling a page boundary shows a band on both pages, and per-group counts / subtotals are page-scoped. Sort `items` by the same key upstream to keep groups whole, or pair with `pageSize = 0`. Group values are compared by identity (`Map`/`Set`, SameValueZero) — return a primitive, exactly as for `rowKey`. Objects / `Date`s bucket by reference.',
-      type: 'string | ((row: Record<string, unknown>) => unknown) | null',
-      default: 'null',
-    },
-    {
-      name: 'childrenKey',
-      description:
-        "Render the rows as a hierarchy: names the property (or computes the array) holding each row's children. `items` then means the ROOTS, and the forest is flattened depth-first into the same `<tbody>` — child rows are ordinary `<tr>`s going through the same cell loop, so column pin / resize / drag-reorder and `[wrTableCell]` templates keep working at every depth. Open state reuses the `expanded` model and row identity reuses `rowKey`, so a tree needs no second key space. Everything collapsed is the default. **Mutually exclusive with `groupBy`** — a forest has no flat list to bucket, so grouping wins and the hierarchy is ignored while it is set. Also mutually exclusive with `[wrTableExpand]` detail rows: both own the row's disclosure affordance. `pageSize` pages the ROOTS; a root brings its open descendants with it. The function form RETURNS `WrTableRow`s, matching `[items]`: a return is covariant, so an array of `interface`-typed children satisfies it. Declared as records it did not, and a forest that bound to `[items]` could not hand its children back out. The PARAMETER stays `Record<string, unknown>` — that side is contravariant, and widening it would reject the callbacks that compile today while leaving `row['reports']` unindexable. See {@link WrTableRow}.",
-      type: 'string | ((row: Record<string, unknown>) => readonly WrTableRow[] | null | undefined) | null',
-      default: 'null',
-    },
-    {
-      name: 'treeColumn',
-      description:
-        'Which column carries the indent and the expand toggle. Keyed, not positional, so it survives a `columnOrder` drag. Defaults to whichever column renders first.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toggleRowLabel',
-      description:
-        'The action word that names a parent row\'s expand toggle. The row\'s own label cell is joined to it, so the toggle reads "Toggle child rows Engineering" rather than one name shared by every row. Falls back to `table.toggleRow`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'collapsedGroups',
-      description:
-        'Two-way bindable collapsed group values (the values `groupBy` returns). Keyed by value, so a collapsed group stays collapsed across page changes and re-sorts. Empty (the default) shows every group expanded.',
-      type: 'readonly unknown[]',
-      default: '[]',
-    },
-    {
-      name: 'groupSummary',
-      description:
-        "Render an aggregate row under each group using the same `column.summary` definitions as the grand footer, computed over that group's rows on the current page. No-op unless at least one column defines a `summary`. The grand `<tfoot>` is unaffected and still aggregates the whole client dataset — with client-side pagination the two describe different scopes, so pair grouping with `pageSize = 0` when you need them to reconcile. A summary FUNCTION tells the two apart by its second argument, `{ scope: 'group' | 'total' }` — see `WrTableSummaryContext`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'showGroupCount',
-      description: 'Show the page-scoped row-count badge in each group band.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'sort',
-      description: 'Two-way bindable sort array. Order in array = application order.',
-      type: 'readonly WrTableSortState[]',
-      default: '[]',
-    },
-    {
-      name: 'emptyLabel',
-      description: 'Text shown when there are no rows. Falls back to `table.empty`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'sortLabel',
-      description: "Accessible name of a column's sort button. Falls back to `table.sort`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'selectAllLabel',
-      description: 'Accessible name of the select-all checkbox. Falls back to `table.selectAll`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'selectRowLabel',
-      description:
-        'The action word that names a row\'s select checkbox. The row\'s label cell is joined to it through `aria-labelledby` — "Select row Ada" — since one name repeated down every row tells a screen reader nothing about which row a box belongs to. Falls back to `table.selectRow`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'expandRowLabel',
-      description:
-        "The action word that names a row's detail toggle, joined to the row's label cell like `selectRowLabel`. Falls back to `table.expandRow`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'selectGroupLabel',
-      description:
-        'The action word that names a group band\'s select checkbox. The group\'s label is joined to it — "Select group EMEA". Falls back to `table.selectGroup`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toggleGroupLabel',
-      description:
-        "The action word that names a group band's collapse toggle, joined to the group's label like `selectGroupLabel`. Falls back to `table.toggleGroup`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: 'Accessible name of the loading overlay or bar. Falls back to `table.loading`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'selectedLabel',
-      description:
-        "Text of the selection bar's count, with `{{count}}` where the number goes. Falls back to `table.selected`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'clearSelectionLabel',
-      description: "Text of the selection bar's clear button. Falls back to `table.clearSelection`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'columnsLabel',
-      description: "Text of the column chooser's button and name of its panel. Falls back to `table.columns`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: '(filterChange)',
-      description: "Fires whenever a column's filter selection changes.",
-      type: 'WrTableFilterChange',
-    },
-    {
-      name: 'state',
-      description:
-        "Restores the table in one write: the sort, each column's filter selection, the page, the page size, the column order and the hidden columns. A saved view binds here. It is applied when the bound object changes, so hand it a new object to restore the same view a second time; a key left out keeps what the table has. The models it writes fire their own `*Change`, and `pageSizeChange` fires for a new size; `filterChange` and `stateChange` do not, since the host already holds what it restored. Pairs with `stateChange` as `[(state)]`.",
-      type: 'Partial<WrTableState> | null',
-      default: 'null',
-    },
-    {
-      name: '(stateChange)',
-      description:
-        'Fires with the whole state after a change the reader makes: a sort, a filter, a page, a page size, a column drag, a column shown or hidden. One action is one event, so a new page size that also moves the page fires once. A write from the host, through `state` or a model, does not fire.',
-      type: 'WrTableState',
-    },
-    {
-      name: '(rowClick)',
-      description:
-        "Fires when a body row is clicked, with the row, its index in `items` and the click. Group bands, summary rows and detail rows do not fire it. A click on an interactive element inside the row is that element's own and does not fire: a button, a link, a form field, a label, `[role=button]`, editable content, the table's own toggles and its selection and expand cells. Mark anything else with the `wrTableIgnoreRowClick` attribute, which needs no import: `<app-menu wrTableIgnoreRowClick />`. Pointer only: a row takes no focus and no key for it, so give the same action a control of its own in the row (a link or a button in a cell) for keyboard and screen reader users, or use `rowLink` when the row leads to a URL. The table adds no cursor either: style `.wr-table__tr--clickable`. While it is bound the rows wear `wr-table__tr--clickable` and tint on hover. A row with a `rowLink` does not fire it for a click that follows the link.",
-      type: 'WrTableRowClick<T>',
-    },
-    {
-      name: 'rowLink',
-      description:
-        'Makes a row a link: a function from the row to its href, or to `null` for a row that leads nowhere. Each linked row renders one real `<a>` laid under its cells, so Enter, middle click, ctrl / cmd click and "copy link" work anywhere on the row, and the row is one tab stop. The link is named by the row\'s label cell: the tree column in tree mode, else the first column. Controls in the row stay their own: the same list `rowClick` skips, with `wrTableIgnoreRowClick` for anything else. A plain href loads the page. In a routed app add `WrTableRouting` from `ngwr/table/router` to the table, and the value becomes a router link: a URL string or an array of commands. Linked rows wear `wr-table__tr--link` and tint on hover.',
-      type: 'WrTableRowLink<T> | null',
-      default: 'null',
-    },
-    {
-      name: 'pageSize',
-      description:
-        'Rows per page. Set to `0` (default) to disable client-side pagination and render every row at once.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'pageSizeOptions',
-      description:
-        'Sizes the pager offers in a size menu. Empty (default) shows no menu. A size the reader picks pages the rows at once and fires `pageSizeChange`, so `[(pageSize)]` keeps it on the host; the page moves to keep the first visible row on screen.',
-      type: 'readonly number[]',
-      default: '[]',
-    },
-    {
-      name: 'paginationSize',
-      description: 'Size of the pager under the table: its cells and its size menu.',
-      type: 'WrPaginationSize',
-      default: "'sm'",
-    },
-    {
-      name: '(pageSizeChange)',
-      description: "Fires with the size the reader picks in the pager's size menu.",
-      type: 'number',
-    },
-    { name: 'page', description: 'Two-way bindable 1-based current page.', type: 'number', default: '1' },
-    {
-      name: 'total',
-      description:
-        "Total row count for server-side pagination — when set, the table shows the pager but does NOT slice `items` (you provide the current page's slice yourself and react to `(page)` changes). Spelled `total` / `page` to match `<wr-pagination>`, which is the control this input renders. The two used to disagree about both words — `totalItems` / `page` here against `total` / `currentPage` there — which is a real cost for two components designed to sit on one screen. `null` rather than `0` is the difference that remains, and it carries meaning: it is the OFF switch for server mode, where the pager's own `total` is a count and `0` means an empty list.",
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'virtualScroll',
-      description:
-        'Window the `<tbody>` so a table of thousands of rows keeps only ~one viewport of `<tr>`s in the DOM. Opt-in and OFF by default — a table without it renders byte-identically to today. Engages ONLY on the flat, fixed-height tier: it silently falls back to the full render whenever a variable-height layout is active — `groupBy`, tree rows (`childrenKey`), a `[wrTableExpand]` template, `responsive` card mode, or a visible pager (`pageSize > 0` / `total`). While on, it forces fixed layout for stable column widths and assumes a uniform row height (see `rowHeight`). Intended as static config. Give columns an explicit `width` so the frozen layout is exact (a virtualized table always renders fixed-layout); toggling it off at runtime leaves the frozen widths in place as column minimums.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rowHeight',
-      description:
-        'Uniform body-row height in px used to map scroll offset to row index. `0` (default) measures the first rendered row once — matching the density at that point — and reuses it; pass an explicit value to remove the post-hydration measure and make SSR pixel-exact (recommended if the density can change at runtime). Read only when `virtualScroll` is on. Keep virtualized cells single-line and no taller than this — a taller custom `[wrTableCell]` template drifts the window.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'stickyHeader',
-      description:
-        'Gives the table its own vertical scroll area, with the header row stuck to its top and the summary footer to its bottom, in every mode: plain, paged, grouped, tree, with pinned columns or selection. The pager stays below the scroll area. `viewportHeight` sizes it. A virtualized table already scrolls this way, so the input adds nothing there.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'viewportHeight',
-      description:
-        "Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a short table shrinks to fit; a long one caps and scrolls). `'fill'` takes the height the parent has left instead: the parent must be a flex column with a definite height (every flex ancestor up the chain needs `min-height: 0`), or a block with a definite height. The table then never shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the server prerender the exact first window of a virtualized table.",
-      type: 'number | string',
-      default: '480',
-    },
-    {
-      name: 'overscan',
-      description: 'Extra rows kept rendered above and below the viewport as scroll headroom.',
-      type: 'number',
-      default: '6',
-    },
-    {
-      name: 'truncate',
-      description:
-        "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (`layout=\"fixed\"`, and a resized or virtualized one has it).",
-      type: 'WrTableTruncate | null',
-      default: 'null',
-    },
-    {
-      name: 'layout',
-      description:
-        "How the columns are sized. `'auto'` lets the browser size each column to its content. `'fixed'` keeps every column at its `width`, shares what is left between the columns without one, and wraps the text of the header and body cells: sorting or paging never moves a column. A column's `truncate` still cuts its cells to one line. Resizing works in both; a virtualized table keeps its one-line rows.",
-      type: 'WrTableLayout',
-      default: "'auto'",
-    },
-    {
-      name: 'size',
-      description:
-        "How tightly the cells are padded. `'sm'` is the compact table: it sets `--wr-table-cell-padding-y` and `-x` one notch tighter, for header, body and footer cells alike. The app's density still multiplies both, so `sm` is relative to it. Card mode keeps its own padding.",
-      type: 'WrTableSize',
-      default: "'md'",
-    },
-    {
-      name: 'editable',
-      description:
-        'Vetoes the edit of single cells: called with the row and the column key, `false` keeps that cell read-only. Asked only for a column that has a `[wrTableEditCell]` template and does not say `editable: false`.',
-      type: 'WrTableEditable<T> | null',
-      default: 'null',
-    },
-    {
-      name: '(cellEdit)',
-      description:
-        "Emits when a cell edit commits with a value other than the cell's own. The table does not write it: update the data behind `items` in the handler.",
-      type: 'WrTableCellEdit<T>',
-    },
+    { name: "columns", description: "Column definitions, keyed by row property name. Typed against the row `[items]` carries, so a column's `format` sees it: `WrTableColumns<User>` binds to `[items]=\"users\"` and to nothing else, while a bare `WrTableColumns` still binds anywhere.", type: "WrTableColumns<T>", required: true },
+    { name: "items", description: "Row items. `null`/`undefined` renders the empty state; use `[loading]` for the spinner. `T` is inferred from here, and it is constrained to `WrTableRow` (= `object`) rather than `Record<string, unknown>`, so an array of an `interface` binds as readily as an array of a `type` — see {@link WrTableRow} for why those two are not the same to TypeScript.", type: "readonly T[] | null | undefined", default: "null" },
+    { name: "search", description: "Client-side text search. A row stays when the text some searchable column shows contains the query, ignoring case and accents: the column's `format` over the value, else the value as text. A missing value shows nothing, so its `empty` placeholder is not searched. Columns that take part: the ones on screen, less `actions` columns and `searchable: false`. An empty or blank query is no search. The table filters nothing else itself, so a search runs over whatever `items` holds: filter and sort `items` as before, the search narrows the result. It comes before paging, so the pager counts the matches and the page returns to 1 when the query changes, and `toCsv()`, the summary row and the select-all scope see the matching rows only. In tree mode a parent stays while it or any descendant matches and shows only the children that stay; it keeps its open state, so a parent kept for a deep match may need opening. Server mode (`total` set) holds one page and ignores it. A selection survives a search: rows it hides stay selected, and the count, the bar's `$implicit` and `toCsv({ selectedOnly })` all use the whole selection.", type: "string", default: "''" },
+    { name: "loading", description: "Mark the table as loading; `loadingMode` picks how it shows.", type: "boolean", default: "false" },
+    { name: "loadingMode", description: "How `loading` shows. `'overlay'` veils the table under a spinner. `'bar'` runs a thin progress bar along the top edge and leaves the rows as they are, for a table that refreshes while it is being read. `'auto'` is the overlay while no row is shown and the bar once rows are. The host carries `aria-busy` in every form.", type: "WrTableLoadingMode", default: "'auto'" },
+    { name: "responsive", description: "Collapse each row to a labelled card when the table's own box is too narrow for columns (a container query on its own width, not the viewport). Every cell shows its column title as a label.", type: "boolean", default: "false" },
+    { name: "reorderable", description: "Enable drag-to-reorder on the column headers.", type: "boolean", default: "false" },
+    { name: "columnOrder", description: "Two-way bindable column order — an array of column keys. Reflects and drives the header order: the table falls back to declaration order for any key not listed, and updates this on drag. Bind it to persist a user's arrangement.", type: "readonly string[]", default: "[]" },
+    { name: "hiddenColumns", description: "Two-way bindable hidden columns, an array of column keys. A hidden column renders nothing: no header, no cell, no summary, no `<col>`. Its sort and its filter selection stay as they are, and `toCsv()` leaves it out. A column with `hideable: false` is shown whatever this lists, and so is the first column when the list would leave none. Bind it beside `columnOrder` to persist a user's arrangement.", type: "readonly string[]", default: "[]" },
+    { name: "columnChooser", description: "Show a toolbar above the table with a button that opens the column chooser: one checkbox per column, in column order, named by the column's title. A `hideable: false` column and the last visible one cannot be unchecked. Each toggle writes `hiddenColumns`.", type: "boolean", default: "false" },
+    { name: "rowSelection", description: "Row selection with a leading checkbox column — `'multiple'` adds a select-all header; `'single'` keeps one row selected.", type: "'single' | 'multiple' | null", default: "null (off)" },
+    { name: "selectAllScope", description: "What the header select-all covers. `'page'` is the rows on screen: the current page, less a collapsed group's rows and a closed parent's children. `'all'` is the same rule over every page of `items`, so the box reads checked only when all of them are selected, mixed when some are, and one click selects or clears them all. Either way a selected key that is not in the scope stays selected. The table filters nothing itself: `items` is already what the filters left, so `'all'` never reaches a row a filter removed. Group band checkboxes keep their page scope, since grouping runs after pagination. In server mode (`total` set) the table holds one page and cannot name the rows of the others, so `'all'` behaves as `'page'` there.", type: "'page' | 'all'", default: "'page'" },
+    { name: "rowClass", description: "Extra CSS classes per body row, from the row and its drawn index. The `<tr>` is ngwr's own element and there is no template slot that renders as one, so this is the only way to mark a row — overdue, unsaved, over budget — without a rule that has to re-derive the condition in CSS. It does NOT touch the detail row an expanded row opens, the group header or the summary row: each of those is a sibling `<tr>` with its own meaning, and a row predicate that painted them too would stripe a table's totals.", type: "WrTableRowClass | null", default: "null" },
+    { name: "rowKey", description: "How to identify a row for selection — a property name or a function. Unset uses the row object itself (fine for a stable row array).", type: "string | ((row: Record<string, unknown>) => unknown) | null", default: "null" },
+    { name: "selection", description: "Two-way bindable selected row keys.", type: "readonly unknown[]", default: "[]" },
+    { name: "expanded", description: "Two-way bindable expanded row keys (needs a `[wrTableExpand]` template).", type: "readonly unknown[]", default: "[]" },
+    { name: "groupBy", description: "Group rows under collapsible band headers — a row property name, or a function returning the group value. `null` (default) renders the table exactly as before. Grouping runs AFTER pagination: it buckets the rows on the current page in first-appearance order (it never re-sorts your data — same contract as `[(sort)]`), so a group straddling a page boundary shows a band on both pages, and per-group counts / subtotals are page-scoped. Sort `items` by the same key upstream to keep groups whole, or pair with `pageSize = 0`. Group values are compared by identity (`Map`/`Set`, SameValueZero) — return a primitive, exactly as for `rowKey`. Objects / `Date`s bucket by reference.", type: "string | ((row: Record<string, unknown>) => unknown) | null", default: "null" },
+    { name: "childrenKey", description: "Render the rows as a hierarchy: names the property (or computes the array) holding each row's children. `items` then means the ROOTS, and the forest is flattened depth-first into the same `<tbody>` — child rows are ordinary `<tr>`s going through the same cell loop, so column pin / resize / drag-reorder and `[wrTableCell]` templates keep working at every depth. Open state reuses the `expanded` model and row identity reuses `rowKey`, so a tree needs no second key space. Everything collapsed is the default. **Mutually exclusive with `groupBy`** — a forest has no flat list to bucket, so grouping wins and the hierarchy is ignored while it is set. Also mutually exclusive with `[wrTableExpand]` detail rows: both own the row's disclosure affordance. `pageSize` pages the ROOTS; a root brings its open descendants with it. The function form RETURNS `WrTableRow`s, matching `[items]`: a return is covariant, so an array of `interface`-typed children satisfies it. Declared as records it did not, and a forest that bound to `[items]` could not hand its children back out. The PARAMETER stays `Record<string, unknown>` — that side is contravariant, and widening it would reject the callbacks that compile today while leaving `row['reports']` unindexable. See {@link WrTableRow}.", type: "string | ((row: Record<string, unknown>) => readonly WrTableRow[] | null | undefined) | null", default: "null" },
+    { name: "treeColumn", description: "Which column carries the indent and the expand toggle. Keyed, not positional, so it survives a `columnOrder` drag. Defaults to whichever column renders first.", type: "string | null", default: "null" },
+    { name: "toggleRowLabel", description: "The action word that names a parent row's expand toggle. The row's own label cell is joined to it, so the toggle reads \"Toggle child rows Engineering\" rather than one name shared by every row. Falls back to `table.toggleRow`.", type: "string | null", default: "null" },
+    { name: "collapsedGroups", description: "Two-way bindable collapsed group values (the values `groupBy` returns). Keyed by value, so a collapsed group stays collapsed across page changes and re-sorts. Empty (the default) shows every group expanded.", type: "readonly unknown[]", default: "[]" },
+    { name: "groupSummary", description: "Render an aggregate row under each group using the same `column.summary` definitions as the grand footer, computed over that group's rows on the current page. No-op unless at least one column defines a `summary`. The grand `<tfoot>` is unaffected and still aggregates the whole client dataset — with client-side pagination the two describe different scopes, so pair grouping with `pageSize = 0` when you need them to reconcile. A summary FUNCTION tells the two apart by its second argument, `{ scope: 'group' | 'total' }` — see `WrTableSummaryContext`.", type: "boolean", default: "false" },
+    { name: "showGroupCount", description: "Show the page-scoped row-count badge in each group band.", type: "boolean", default: "true" },
+    { name: "sort", description: "Two-way bindable sort array. Order in array = application order.", type: "readonly WrTableSortState[]", default: "[]" },
+    { name: "emptyLabel", description: "Text shown when there are no rows. Falls back to `table.empty`.", type: "string | null", default: "null" },
+    { name: "sortLabel", description: "Accessible name of a column's sort button. Falls back to `table.sort`.", type: "string | null", default: "null" },
+    { name: "selectAllLabel", description: "Accessible name of the select-all checkbox. Falls back to `table.selectAll`.", type: "string | null", default: "null" },
+    { name: "selectRowLabel", description: "The action word that names a row's select checkbox. The row's label cell is joined to it through `aria-labelledby` — \"Select row Ada\" — since one name repeated down every row tells a screen reader nothing about which row a box belongs to. Falls back to `table.selectRow`.", type: "string | null", default: "null" },
+    { name: "expandRowLabel", description: "The action word that names a row's detail toggle, joined to the row's label cell like `selectRowLabel`. Falls back to `table.expandRow`.", type: "string | null", default: "null" },
+    { name: "selectGroupLabel", description: "The action word that names a group band's select checkbox. The group's label is joined to it — \"Select group EMEA\". Falls back to `table.selectGroup`.", type: "string | null", default: "null" },
+    { name: "toggleGroupLabel", description: "The action word that names a group band's collapse toggle, joined to the group's label like `selectGroupLabel`. Falls back to `table.toggleGroup`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "Accessible name of the loading overlay or bar. Falls back to `table.loading`.", type: "string | null", default: "null" },
+    { name: "selectedLabel", description: "Text of the selection bar's count, with `{{count}}` where the number goes. Falls back to `table.selected`.", type: "string | null", default: "null" },
+    { name: "clearSelectionLabel", description: "Text of the selection bar's clear button. Falls back to `table.clearSelection`.", type: "string | null", default: "null" },
+    { name: "columnsLabel", description: "Text of the column chooser's button and name of its panel. Falls back to `table.columns`.", type: "string | null", default: "null" },
+    { name: "(filterChange)", description: "Fires whenever a column's filter selection changes.", type: "WrTableFilterChange" },
+    { name: "state", description: "Restores the table in one write: the sort, each column's filter selection, the page, the page size, the column order and the hidden columns. A saved view binds here. It is applied when the bound object changes, so hand it a new object to restore the same view a second time; a key left out keeps what the table has. The models it writes fire their own `*Change`, and `pageSizeChange` fires for a new size; `filterChange` and `stateChange` do not, since the host already holds what it restored. Pairs with `stateChange` as `[(state)]`.", type: "Partial<WrTableState> | null", default: "null" },
+    { name: "(stateChange)", description: "Fires with the whole state after a change the reader makes: a sort, a filter, a page, a page size, a column drag, a column shown or hidden. One action is one event, so a new page size that also moves the page fires once. A write from the host, through `state` or a model, does not fire.", type: "WrTableState" },
+    { name: "(rowClick)", description: "Fires when a body row is clicked, with the row, its index in `items` and the click. Group bands, summary rows and detail rows do not fire it. A click on an interactive element inside the row is that element's own and does not fire: a button, a link, a form field, a label, `[role=button]`, editable content, the table's own toggles and its selection and expand cells. Mark anything else with the `wrTableIgnoreRowClick` attribute, which needs no import: `<app-menu wrTableIgnoreRowClick />`. Pointer only: a row takes no focus and no key for it, so give the same action a control of its own in the row (a link or a button in a cell) for keyboard and screen reader users, or use `rowLink` when the row leads to a URL. The table adds no cursor either: style `.wr-table__tr--clickable`. While it is bound the rows wear `wr-table__tr--clickable` and tint on hover. A row with a `rowLink` does not fire it for a click that follows the link.", type: "WrTableRowClick<T>" },
+    { name: "rowLink", description: "Makes a row a link: a function from the row to its href, or to `null` for a row that leads nowhere. Each linked row renders one real `<a>` laid under its cells, so Enter, middle click, ctrl / cmd click and \"copy link\" work anywhere on the row, and the row is one tab stop. The link is named by the row's label cell: the tree column in tree mode, else the first column. Controls in the row stay their own: the same list `rowClick` skips, with `wrTableIgnoreRowClick` for anything else. A plain href loads the page. In a routed app add `WrTableRouting` from `ngwr/table/router` to the table, and the value becomes a router link: a URL string or an array of commands. Linked rows wear `wr-table__tr--link` and tint on hover.", type: "WrTableRowLink<T> | null", default: "null" },
+    { name: "pageSize", description: "Rows per page. Set to `0` (default) to disable client-side pagination and render every row at once.", type: "number", default: "0" },
+    { name: "pageSizeOptions", description: "Sizes the pager offers in a size menu. Empty (default) shows no menu. A size the reader picks pages the rows at once and fires `pageSizeChange`, so `[(pageSize)]` keeps it on the host; the page moves to keep the first visible row on screen.", type: "readonly number[]", default: "[]" },
+    { name: "paginationSize", description: "Size of the pager under the table: its cells and its size menu.", type: "WrPaginationSize", default: "'sm'" },
+    { name: "(pageSizeChange)", description: "Fires with the size the reader picks in the pager's size menu.", type: "number" },
+    { name: "page", description: "Two-way bindable 1-based current page.", type: "number", default: "1" },
+    { name: "total", description: "Total row count for server-side pagination — when set, the table shows the pager but does NOT slice `items` (you provide the current page's slice yourself and react to `(page)` changes). Spelled `total` / `page` to match `<wr-pagination>`, which is the control this input renders. The two used to disagree about both words — `totalItems` / `page` here against `total` / `currentPage` there — which is a real cost for two components designed to sit on one screen. `null` rather than `0` is the difference that remains, and it carries meaning: it is the OFF switch for server mode, where the pager's own `total` is a count and `0` means an empty list.", type: "number | null", default: "null" },
+    { name: "virtualScroll", description: "Window the `<tbody>` so a table of thousands of rows keeps only ~one viewport of `<tr>`s in the DOM. Opt-in and OFF by default — a table without it renders byte-identically to today. Engages ONLY on the flat, fixed-height tier: it silently falls back to the full render whenever a variable-height layout is active — `groupBy`, tree rows (`childrenKey`), a `[wrTableExpand]` template, `responsive` card mode, or a visible pager (`pageSize > 0` / `total`). While on, it forces fixed layout for stable column widths and assumes a uniform row height (see `rowHeight`). Intended as static config. Give columns an explicit `width` so the frozen layout is exact (a virtualized table always renders fixed-layout); toggling it off at runtime leaves the frozen widths in place as column minimums.", type: "boolean", default: "false" },
+    { name: "rowHeight", description: "Uniform body-row height in px used to map scroll offset to row index. `0` (default) measures the first rendered row once — matching the density at that point — and reuses it; pass an explicit value to remove the post-hydration measure and make SSR pixel-exact (recommended if the density can change at runtime). Read only when `virtualScroll` is on. Keep virtualized cells single-line and no taller than this — a taller custom `[wrTableCell]` template drifts the window.", type: "number", default: "0" },
+    { name: "stickyHeader", description: "Gives the table its own vertical scroll area, with the header row stuck to its top and the summary footer to its bottom, in every mode: plain, paged, grouped, tree, with pinned columns or selection. The pager stays below the scroll area. `viewportHeight` sizes it. A virtualized table already scrolls this way, so the input adds nothing there.", type: "boolean", default: "false" },
+    { name: "viewportHeight", description: "Height of the scroll area when `virtualScroll` or `stickyHeader` is on — a number (px), any CSS length (`'70vh'`) or `'fill'`. A length is applied as `max-height` on `.wr-table__scroll` through `--wr-table-scroll-height` (a short table shrinks to fit; a long one caps and scrolls). `'fill'` takes the height the parent has left instead: the parent must be a flex column with a definite height (every flex ancestor up the chain needs `min-height: 0`), or a block with a definite height. The table then never shrinks below `--wr-table-scroll-min-height`. A numeric px value lets the server prerender the exact first window of a virtualized table.", type: "number | string", default: "480" },
+    { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
+    { name: "truncate", description: "`'tooltip'` cuts every body cell to one line with an ellipsis and shows a cut cell's full text in a tooltip on hover and focus; a cell that fits shows none. A column's own `truncate` wins, and `null` there turns it off for that column. A cell is cut only where its column cannot grow: give the column a `width`, or the table a fixed layout (`layout=\"fixed\"`, and a resized or virtualized one has it).", type: "WrTableTruncate | null", default: "null" },
+    { name: "layout", description: "How the columns are sized. `'auto'` lets the browser size each column to its content. `'fixed'` keeps every column at its `width`, shares what is left between the columns without one, and wraps the text of the header and body cells: sorting or paging never moves a column. A column's `truncate` still cuts its cells to one line. Resizing works in both; a virtualized table keeps its one-line rows.", type: "WrTableLayout", default: "'auto'" },
+    { name: "size", description: "How tightly the cells are padded. `'sm'` is the compact table: it sets `--wr-table-cell-padding-y` and `-x` one notch tighter, for header, body and footer cells alike. The app's density still multiplies both, so `sm` is relative to it. Card mode keeps its own padding.", type: "WrTableSize", default: "'md'" },
+    { name: "editable", description: "Vetoes the edit of single cells: called with the row and the column key, `false` keeps that cell read-only. Asked only for a column that has a `[wrTableEditCell]` template and does not say `editable: false`.", type: "WrTableEditable<T> | null", default: "null" },
+    { name: "(cellEdit)", description: "Emits when a cell edit commits with a value other than the cell's own. The table does not write it: update the data behind `items` in the handler.", type: "WrTableCellEdit<T>" },
   ],
   // <[wrTableCell]>
   WrTableCell: [
-    { name: 'wrTableCell', description: 'Column key the template applies to.', type: 'K', required: true },
-    {
-      name: 'wrTableCellOf',
-      description:
-        "The rows the template draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.",
-      type: 'readonly T[] | null | undefined',
-      default: 'undefined',
-    },
+    { name: "wrTableCell", description: "Column key the template applies to.", type: "K", required: true },
+    { name: "wrTableCellOf", description: "The rows the template draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-column-chooser>
   WrTableColumnChooser: [
-    {
-      name: 'table',
-      description: 'The table whose columns the list shows and hides.',
-      type: 'WrTable<WrSafeAny>',
-      required: true,
-    },
-    {
-      name: 'showAllLabel',
-      description: 'Text of the "Show all" row. Falls back to `table.showAllColumns`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'ariaLabel',
-      description: 'Accessible name of the list. Falls back to `table.columns`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "table", description: "The table whose columns the list shows and hides.", type: "WrTable<WrSafeAny>", required: true },
+    { name: "showAllLabel", description: "Text of the \"Show all\" row. Falls back to `table.showAllColumns`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the list. Falls back to `table.columns`.", type: "string | null", default: "null" },
   ],
   // <[wrTableEditCell]>
   WrTableEditCell: [
-    { name: 'wrTableEditCell', description: 'Column key the editor applies to.', type: 'K', required: true },
-    {
-      name: 'wrTableEditCellOf',
-      description:
-        "The rows the table draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.",
-      type: 'readonly T[] | null | undefined',
-      default: 'undefined',
-    },
+    { name: "wrTableEditCell", description: "Column key the editor applies to.", type: "K", required: true },
+    { name: "wrTableEditCellOf", description: "The rows the table draws, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-filter>
   WrTableFilter: [
-    {
-      name: 'filterLabel',
-      description: 'Accessible name of the filter trigger. Falls back to `table.filter`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'column',
-      description:
-        'The column this filter belongs to, for the trigger\'s accessible name. Without it every filter trigger in a header row announced the same "Filter column", so a screen-reader user tabbing the row heard the same button three times and could not tell which column each one narrowed. The caret and the funnel sit beside the column title, so sighted readers had the context all along; an `aria-label` REPLACES content, so nobody else did.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'noMatchesLabel',
-      description: 'Text shown when the search finds nothing. Falls back to `table.noMatches`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'searchLabel',
-      description:
-        'Placeholder AND accessible name of the search box. Falls back to `table.search`. One string for both because the box has no visible label: the placeholder was its only name, so a hard-coded literal left the control unnamed in every other language rather than merely untranslated.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'resetLabel',
-      description: 'Label of the clear-selection button. Falls back to `table.reset`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'items',
-      description:
-        'The values the column can be filtered by. Shown as a checkbox list, so pass the distinct values rather than one entry per row.',
-      type: 'readonly WrTableFilterItem[]',
-      required: true,
-    },
-    {
-      name: '(selectionChange)',
-      description: 'Fires whenever the selection changes.',
-      type: 'readonly WrTableFilterItem[]',
-    },
+    { name: "filterLabel", description: "Accessible name of the filter trigger. Falls back to `table.filter`.", type: "string | null", default: "null" },
+    { name: "column", description: "The column this filter belongs to, for the trigger's accessible name. Without it every filter trigger in a header row announced the same \"Filter column\", so a screen-reader user tabbing the row heard the same button three times and could not tell which column each one narrowed. The caret and the funnel sit beside the column title, so sighted readers had the context all along; an `aria-label` REPLACES content, so nobody else did.", type: "string", default: "''" },
+    { name: "noMatchesLabel", description: "Text shown when the search finds nothing. Falls back to `table.noMatches`.", type: "string | null", default: "null" },
+    { name: "searchLabel", description: "Placeholder AND accessible name of the search box. Falls back to `table.search`. One string for both because the box has no visible label: the placeholder was its only name, so a hard-coded literal left the control unnamed in every other language rather than merely untranslated.", type: "string | null", default: "null" },
+    { name: "resetLabel", description: "Label of the clear-selection button. Falls back to `table.reset`.", type: "string | null", default: "null" },
+    { name: "items", description: "The values the column can be filtered by. Shown as a checkbox list, so pass the distinct values rather than one entry per row.", type: "readonly WrTableFilterItem[]", required: true },
+    { name: "(selectionChange)", description: "Fires whenever the selection changes.", type: "readonly WrTableFilterItem[]" },
   ],
   // <ng-template[wrTableSelectionBar]>
   WrTableSelectionBar: [
-    {
-      name: 'wrTableSelectionBarOf',
-      description:
-        "The rows the template receives, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.",
-      type: 'readonly T[] | null | undefined',
-      default: 'undefined',
-    },
+    { name: "wrTableSelectionBarOf", description: "The rows the template receives, for the type checker: nothing reads it at runtime. Bind the same array as the table's `[items]`.", type: "readonly T[] | null | undefined", default: "undefined" },
   ],
   // <wr-table-sort>
   WrTableSort: [
-    {
-      name: 'direction',
-      description:
-        "Which way the column is currently sorted, or `null` for unsorted — the three states the indicator cycles through. Drive it from the table's `sort` state.",
-      type: 'WrTableSortDirection',
-      default: 'null',
-    },
+    { name: "direction", description: "Which way the column is currently sorted, or `null` for unsorted — the three states the indicator cycles through. Drive it from the table's `sort` state.", type: "WrTableSortDirection", default: "null" },
   ],
   // <wr-tabs>
   WrTabs: [
-    {
-      name: 'active',
-      description: 'Two-way bindable active tab key (content mode).',
-      type: 'string | null',
-      default: 'null',
-    },
-    { name: 'size', description: 'Visual size variant.', type: 'WrTabsSize', default: "'md'" },
+    { name: "active", description: "Two-way bindable active tab key (content mode).", type: "string | null", default: "null" },
+    { name: "size", description: "Visual size variant.", type: "WrTabsSize", default: "'md'" },
   ],
   // <wr-tag>
   WrTag: [
-    {
-      name: 'color',
-      description:
-        'Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(wrLucideIcons({ \'octagon-alert\': OctagonAlert }))`, then write `<wr-tag color="danger" icon="octagon-alert">Failed</wr-tag>`.',
-      type: 'WrColor | null',
-      default: "'primary'",
-    },
-    {
-      name: 'size',
-      description:
-        'Size variant. `md` is the 22px chip that sits beside an `sm` control, `sm` is 18px and `lg` 30px, the heights of a badge at those sizes.',
-      type: 'WrTagSize',
-      default: "'md'",
-    },
-    {
-      name: 'icon',
-      description:
-        'Icon name shown alongside the content — the one channel besides the label that a tag has, so the one to reach for when colour is carrying a status. Nothing ships built in: register the name through `provideWrIcons` first. The icon is replaced by a spinner when `loading` is true.',
-      type: 'WrIconName | null',
-      default: 'null',
-    },
-    {
-      name: 'iconPosition',
-      description: 'Where the icon/spinner is rendered.',
-      type: 'WrTagIconPosition',
-      default: "'start'",
-    },
-    {
-      name: 'outlined',
-      description: 'Outlined style — colored text and border on a tinted background.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'transparent',
-      description: 'Transparent style — colored text on a low-opacity tint, no border.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'rounded', description: 'Pill-shaped corners.', type: 'boolean', default: 'false' },
-    {
-      name: 'hoverable',
-      description: 'Adds a hover state — use when the tag is interactive (button/link).',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'loading', description: 'Show a spinner in place of the icon.', type: 'boolean', default: 'false' },
-    {
-      name: 'closable',
-      description:
-        'Renders a remove button at the end of the tag. The tag does not remove itself: drop it from your list in `(removed)`. A `loading` tag keeps the button; bind `[closable]="!saving"` to withhold it.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'removeLabel',
-      description:
-        'Accessible name of the remove button. Falls back to the catalog\'s `tag.remove` with the tag\'s own text, "Remove Angular", or to `common.remove` for a tag with no text.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: '(removed)',
-      description:
-        'Emitted when the user removes the tag: a click on the remove button, or Delete / Backspace on it (or on the tag itself, if you made it focusable). The click does not reach a `(click)` on the tag. If the button had focus and the tag is gone after the next render, focus moves to the next tab stop, or the one before it when nothing follows.',
-      type: 'void',
-    },
+    { name: "color", description: "Color variant — decoration or category, never the state on its own. The label carries the state (`Failed`, not a red `Build`): four of the five intents share one lightness and `success` against `danger` is 1.004:1, so a reader who cannot separate red from green cannot tell those two tags apart, and `primary` and `info` are the same blue to everyone. When a tag has to stand for a status by itself, give it an `icon` as well — register one with `provideWrIcons(wrLucideIcons({ 'octagon-alert': OctagonAlert }))`, then write `<wr-tag color=\"danger\" icon=\"octagon-alert\">Failed</wr-tag>`.", type: "WrColor | null", default: "'primary'" },
+    { name: "size", description: "Size variant. `md` is the 22px chip that sits beside an `sm` control, `sm` is 18px and `lg` 30px, the heights of a badge at those sizes.", type: "WrTagSize", default: "'md'" },
+    { name: "icon", description: "Icon name shown alongside the content — the one channel besides the label that a tag has, so the one to reach for when colour is carrying a status. Nothing ships built in: register the name through `provideWrIcons` first. The icon is replaced by a spinner when `loading` is true.", type: "WrIconName | null", default: "null" },
+    { name: "iconPosition", description: "Where the icon/spinner is rendered.", type: "WrTagIconPosition", default: "'start'" },
+    { name: "outlined", description: "Outlined style — colored text and border on a tinted background.", type: "boolean", default: "false" },
+    { name: "transparent", description: "Transparent style — colored text on a low-opacity tint, no border.", type: "boolean", default: "false" },
+    { name: "rounded", description: "Pill-shaped corners.", type: "boolean", default: "false" },
+    { name: "hoverable", description: "Adds a hover state — use when the tag is interactive (button/link).", type: "boolean", default: "false" },
+    { name: "loading", description: "Show a spinner in place of the icon.", type: "boolean", default: "false" },
+    { name: "closable", description: "Renders a remove button at the end of the tag. The tag does not remove itself: drop it from your list in `(removed)`. A `loading` tag keeps the button; bind `[closable]=\"!saving\"` to withhold it.", type: "boolean", default: "false" },
+    { name: "removeLabel", description: "Accessible name of the remove button. Falls back to the catalog's `tag.remove` with the tag's own text, \"Remove Angular\", or to `common.remove` for a tag with no text.", type: "string | null", default: "null" },
+    { name: "(removed)", description: "Emitted when the user removes the tag: a click on the remove button, or Delete / Backspace on it (or on the tag itself, if you made it focusable). The click does not reach a `(click)` on the tag. If the button had focus and the tag is gone after the next render, focus moves to the next tab stop, or the one before it when nothing follows.", type: "void" },
   ],
   // <[wrT]>
   WrTDirective: [
-    { name: 'wrT', description: 'Translation key. Required.', type: 'string', required: true },
-    {
-      name: 'wrTParams',
-      description: 'Interpolation params for `{{name}}` tokens.',
-      type: 'WrI18nParams | null',
-      default: 'null',
-    },
-    {
-      name: 'wrTScope',
-      description: 'Optional scope — scoped lookup first, then root fallback.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'wrTFallback',
-      description: 'Text shown as is when the key is missing; `missingHandler` is not called.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "wrT", description: "Translation key. Required.", type: "string", required: true },
+    { name: "wrTParams", description: "Interpolation params for `{{name}}` tokens.", type: "WrI18nParams | null", default: "null" },
+    { name: "wrTScope", description: "Optional scope — scoped lookup first, then root fallback.", type: "string | null", default: "null" },
+    { name: "wrTFallback", description: "Text shown as is when the key is missing; `missingHandler` is not called.", type: "string | null", default: "null" },
   ],
   // <wr-textarea>
   WrTextarea: [
-    { name: 'placeholder', description: 'Native placeholder text.', type: 'string', default: "''" },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name for the field. Falls back to the placeholder — the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'size',
-      description: 'Control size — shares the `--wr-control-*` contract.',
-      type: 'WrTextareaSize',
-      default: "'md'",
-    },
-    {
-      name: 'rounded',
-      description:
-        'Round the corners to match a row of pill fields. The radius stops at half the height of a one-row field, so a taller box keeps straight sides.',
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'rows', description: 'Visible row count.', type: 'number', default: '3' },
-    { name: 'resizable', description: 'Allow user resize via the corner grip.', type: 'boolean', default: 'true' },
-    {
-      name: 'resize',
-      description: 'Resize direction of the corner grip (the grip icon adapts).',
-      type: 'WrTextareaResize',
-      default: "'vertical'",
-    },
-    { name: 'readonly', description: 'Read-only state.', type: 'boolean', default: 'false' },
-    { name: 'autosize', description: 'Grow the textarea to fit its content.', type: 'boolean', default: 'false' },
-    {
-      name: 'maxRows',
-      description: 'Cap autosize at this many rows. Ignored when `autosize` is false.',
-      type: 'number | null',
-      default: 'null',
-    },
-    {
-      name: 'clearable',
-      description:
-        "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `''`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'clearLabel',
-      description: 'Clear (×) button aria-label. Falls back to `common.clear`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loading',
-      description: "Show a spinner in the field's corner and mark the field `aria-busy`. The field stays editable.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'disabled',
-      description:
-        "Disable the textarea. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'value',
-      description: 'The edited text. Bound by `[formField]`, or two-way via `[(value)]`.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: '(touch)',
-      description: 'Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.',
-      type: 'void',
-    },
+    { name: "placeholder", description: "Native placeholder text.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name for the field. Falls back to the placeholder — the native `<textarea>` lives inside the component, so a `<label for>` outside cannot reach it.", type: "string | null", default: "null" },
+    { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrTextareaSize", default: "'md'" },
+    { name: "rounded", description: "Round the corners to match a row of pill fields. The radius stops at half the height of a one-row field, so a taller box keeps straight sides.", type: "boolean", default: "false" },
+    { name: "rows", description: "Visible row count.", type: "number", default: "3" },
+    { name: "resizable", description: "Allow user resize via the corner grip.", type: "boolean", default: "true" },
+    { name: "resize", description: "Resize direction of the corner grip (the grip icon adapts).", type: "WrTextareaResize", default: "'vertical'" },
+    { name: "readonly", description: "Read-only state.", type: "boolean", default: "false" },
+    { name: "autosize", description: "Grow the textarea to fit its content.", type: "boolean", default: "false" },
+    { name: "maxRows", description: "Cap autosize at this many rows. Ignored when `autosize` is false.", type: "number | null", default: "null" },
+    { name: "clearable", description: "Show a clear (×) button while the field holds text and is neither disabled nor read-only. Clearing sets `value` to `''`, emits `touch` and puts focus back in the field. It is a pointer control: from the keyboard, emptying the field clears the value.", type: "boolean", default: "false" },
+    { name: "clearLabel", description: "Clear (×) button aria-label. Falls back to `common.clear`.", type: "string | null", default: "null" },
+    { name: "loading", description: "Show a spinner in the field's corner and mark the field `aria-busy`. The field stays editable.", type: "boolean", default: "false" },
+    { name: "disabled", description: "Disable the textarea. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "value", description: "The edited text. Bound by `[formField]`, or two-way via `[(value)]`.", type: "string", default: "''" },
+    { name: "(touch)", description: "Emitted on blur, and by the clear (×) button, so a bound field can mark itself touched.", type: "void" },
   ],
   // <wr-thread-lines>
   WrThreadLines: [
-    { name: 'count', description: 'How many strands the bundle has, 128 at most.', type: 'number', default: '72' },
-    { name: 'thickness', description: 'How thick a strand is, in device px.', type: 'number', default: '1' },
-    {
-      name: 'amplitude',
-      description: 'How high the travelling wave lifts the bundle, in CSS px.',
-      type: 'number',
-      default: '16',
-    },
-    {
-      name: 'speed',
-      description: 'How fast the wave travels, a multiplier: one is a wave every nine seconds.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'fray',
-      description: 'How far the strands part by the far end, a multiplier: none keeps them a cord the whole way.',
-      type: 'number',
-      default: '1',
-    },
-    {
-      name: 'angle',
-      description: "The ribbon's tilt, in degrees: positive falls toward the far end, negative rises.",
-      type: 'number',
-      default: '-6',
-    },
-    {
-      name: 'parting',
-      description: 'How strongly the pointer parts the strands, a multiplier: none turns the parting off.',
-      type: 'number',
-      default: '1',
-    },
+    { name: "count", description: "How many strands the bundle has, 128 at most.", type: "number", default: "72" },
+    { name: "thickness", description: "How thick a strand is, in device px.", type: "number", default: "1" },
+    { name: "amplitude", description: "How high the travelling wave lifts the bundle, in CSS px.", type: "number", default: "16" },
+    { name: "speed", description: "How fast the wave travels, a multiplier: one is a wave every nine seconds.", type: "number", default: "1" },
+    { name: "fray", description: "How far the strands part by the far end, a multiplier: none keeps them a cord the whole way.", type: "number", default: "1" },
+    { name: "angle", description: "The ribbon's tilt, in degrees: positive falls toward the far end, negative rises.", type: "number", default: "-6" },
+    { name: "parting", description: "How strongly the pointer parts the strands, a multiplier: none turns the parting off.", type: "number", default: "1" },
   ],
   // <wr-timeline>
   WrTimeline: [
-    {
-      name: 'orientation',
-      description:
-        'Which way the line runs. `horizontal` lays the items out in a row and suits a short, fixed set of steps; a feed of unknown length wants the default.',
-      type: "'vertical' | 'horizontal'",
-      default: "'vertical'",
-    },
+    { name: "orientation", description: "Which way the line runs. `horizontal` lays the items out in a row and suits a short, fixed set of steps; a feed of unknown length wants the default.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
   ],
   // <wr-timeline-item>
   WrTimelineItem: [
-    {
-      name: 'title',
-      description:
-        'The headline for this point on the line. Projected content goes below it as the body, so keep this to what happened.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'time',
-      description:
-        'When it happened, already formatted — the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'color',
-      description:
-        "Tint of this item's dot. Decoration by default: it carries no meaning on its own, so say the state in the title as well if it is one.",
-      type: 'WrTimelineColor',
-      default: "'primary'",
-    },
+    { name: "title", description: "The headline for this point on the line. Projected content goes below it as the body, so keep this to what happened.", type: "string", default: "''" },
+    { name: "time", description: "When it happened, already formatted — the component does no date formatting. Run a `Date` through the `wrDate` pipe on the way in.", type: "string", default: "''" },
+    { name: "color", description: "Tint of this item's dot. Decoration by default: it carries no meaning on its own, so say the state in the title as well if it is one.", type: "WrTimelineColor", default: "'primary'" },
   ],
   // <wr-toast-outlet>
   WrToastOutlet: [
-    {
-      name: 'name',
-      description: 'The channel this outlet renders: the `outlet` of `WrToast.show()`.',
-      type: 'string',
-      required: true,
-    },
-    {
-      name: 'position',
-      description: "Where the stack sits inside the outlet's box.",
-      type: 'WrToastPosition',
-      default: 'the `withToast()` position',
-    },
-    {
-      name: 'mode',
-      description: 'Layout for several toasts: a cascade or a column.',
-      type: 'WrToastMode',
-      default: 'the `withToast()` mode',
-    },
-    {
-      name: 'duration',
-      description: 'Auto-dismiss in ms for a toast that sets none; `0` disables.',
-      type: 'number',
-      default: 'the `withToast()` duration',
-    },
-    {
-      name: 'showProgress',
-      description: 'Render the countdown bar.',
-      type: 'boolean',
-      default: 'the `withToast()` value',
-    },
-    {
-      name: 'showCopy',
-      description: 'Render a copy button on each toast.',
-      type: 'boolean',
-      default: 'the `withToast()` value',
-    },
-    {
-      name: 'showCloseAll',
-      description: 'Render "Close all" once the stack reaches the threshold.',
-      type: 'boolean',
-      default: 'the `withToast()` value',
-    },
-    {
-      name: 'closeAllThreshold',
-      description: 'Minimum stack size before "Close all" appears.',
-      type: 'number',
-      default: 'the `withToast()` value',
-    },
-    {
-      name: 'maxStack',
-      description:
-        'Maximum toasts in the stack; `0` is unlimited. Past it the oldest toast is dropped to make room, once the pointer and focus are out of the stack.',
-      type: 'number',
-      default: 'the `withToast()` value',
-    },
+    { name: "name", description: "The channel this outlet renders: the `outlet` of `WrToast.show()`.", type: "string", required: true },
+    { name: "position", description: "Where the stack sits inside the outlet's box.", type: "WrToastPosition", default: "the `withToast()` position" },
+    { name: "mode", description: "Layout for several toasts: a cascade or a column.", type: "WrToastMode", default: "the `withToast()` mode" },
+    { name: "duration", description: "Auto-dismiss in ms for a toast that sets none; `0` disables.", type: "number", default: "the `withToast()` duration" },
+    { name: "showProgress", description: "Render the countdown bar.", type: "boolean", default: "the `withToast()` value" },
+    { name: "showCopy", description: "Render a copy button on each toast.", type: "boolean", default: "the `withToast()` value" },
+    { name: "showCloseAll", description: "Render \"Close all\" once the stack reaches the threshold.", type: "boolean", default: "the `withToast()` value" },
+    { name: "closeAllThreshold", description: "Minimum stack size before \"Close all\" appears.", type: "number", default: "the `withToast()` value" },
+    { name: "maxStack", description: "Maximum toasts in the stack; `0` is unlimited. Past it the oldest toast is dropped to make room, once the pointer and focus are out of the stack.", type: "number", default: "the `withToast()` value" },
   ],
   // <wr-toolbar>
   WrToolbar: [
-    {
-      name: 'responsive',
-      description:
-        "Stack the zones vertically when the toolbar's own box is too narrow to fit them in a row (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'arrowKeys',
-      description:
-        'Roving focus across the enabled controls of all zones, per the WAI-ARIA toolbar pattern: one tab stop, ArrowRight / ArrowLeft (mirrored under RTL) to step with wrapping, Home / End for the ends. Text fields, native radios and composite widgets (radiogroup, tablist, listbox, ...) are not part of that set: they keep their own tab stop and their own arrow keys, and the arrows skip over them. Tab still reaches every one of them.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "responsive", description: "Stack the zones vertically when the toolbar's own box is too narrow to fit them in a row (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
+    { name: "arrowKeys", description: "Roving focus across the enabled controls of all zones, per the WAI-ARIA toolbar pattern: one tab stop, ArrowRight / ArrowLeft (mirrored under RTL) to step with wrapping, Home / End for the ends. Text fields, native radios and composite widgets (radiogroup, tablist, listbox, ...) are not part of that set: they keep their own tab stop and their own arrow keys, and the arrows skip over them. Tab still reaches every one of them.", type: "boolean", default: "false" },
   ],
   // <wr-transfer>
   WrTransfer: [
-    {
-      name: 'items',
-      description: 'Every row, in either pane. Membership of the right pane is `value`.',
-      type: 'readonly WrTransferItem[]',
-      default: '[]',
-    },
-    {
-      name: 'value',
-      description:
-        'Values currently in the RIGHT pane. Two-way bindable; bound automatically by `[formField]` / `[(ngModel)]`.',
-      type: 'readonly unknown[]',
-      default: '[]',
-    },
-    { name: '(touch)', description: 'Emitted on blur / commit so a bound field marks itself touched.', type: 'void' },
-    { name: 'disabled', description: 'Disable the whole control.', type: 'boolean', default: 'false' },
-    {
-      name: 'readonly',
-      description:
-        "Refuse changes to the value while both panes stay focusable and readable. Bound automatically from the field's readonly state when used with `[formField]`. The move buttons go inert and the row checkboxes go read-only; SEARCH keeps working, because filtering a pane changes what is shown and not what is chosen. No `aria-readonly` on the host: role `group` does not support the state, so each row's checkbox mirrors its own instead.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'size',
-      description:
-        'Control size: the panes, the headings, the rows and the move buttons. The checkboxes, search boxes and buttons inside are `sm` controls at `sm` and `md`, and `md` controls at `lg`.',
-      type: 'WrTransferSize',
-      default: "'md'",
-    },
-    { name: 'searchable', description: 'Show a filter box above each pane.', type: 'boolean', default: 'false' },
-    {
-      name: 'sourceTitle',
-      description: 'Heading above the left pane. Falls back to `transfer.source`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'targetTitle',
-      description: 'Heading above the right pane. Falls back to `transfer.target`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'searchPlaceholder',
-      description: 'Placeholder in both filter boxes. Falls back to `transfer.search`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'emptyText',
-      description: 'Shown in a pane with no rows. Falls back to `transfer.empty`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'selectAllLabel',
-      description:
-        "Accessible name of each pane's select-all checkbox, composed with the pane heading. Falls back to `transfer.selectAll`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toTargetLabel',
-      description: 'Accessible name of the move-right button. Falls back to `transfer.toTarget`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'toSourceLabel',
-      description: 'Accessible name of the move-left button. Falls back to `transfer.toSource`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "items", description: "Every row, in either pane. Membership of the right pane is `value`.", type: "readonly WrTransferItem[]", default: "[]" },
+    { name: "value", description: "Values currently in the RIGHT pane. Two-way bindable; bound automatically by `[formField]` / `[(ngModel)]`.", type: "readonly unknown[]", default: "[]" },
+    { name: "(touch)", description: "Emitted on blur / commit so a bound field marks itself touched.", type: "void" },
+    { name: "disabled", description: "Disable the whole control.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes to the value while both panes stay focusable and readable. Bound automatically from the field's readonly state when used with `[formField]`. The move buttons go inert and the row checkboxes go read-only; SEARCH keeps working, because filtering a pane changes what is shown and not what is chosen. No `aria-readonly` on the host: role `group` does not support the state, so each row's checkbox mirrors its own instead.", type: "boolean", default: "false" },
+    { name: "size", description: "Control size: the panes, the headings, the rows and the move buttons. The checkboxes, search boxes and buttons inside are `sm` controls at `sm` and `md`, and `md` controls at `lg`.", type: "WrTransferSize", default: "'md'" },
+    { name: "searchable", description: "Show a filter box above each pane.", type: "boolean", default: "false" },
+    { name: "sourceTitle", description: "Heading above the left pane. Falls back to `transfer.source`.", type: "string | null", default: "null" },
+    { name: "targetTitle", description: "Heading above the right pane. Falls back to `transfer.target`.", type: "string | null", default: "null" },
+    { name: "searchPlaceholder", description: "Placeholder in both filter boxes. Falls back to `transfer.search`.", type: "string | null", default: "null" },
+    { name: "emptyText", description: "Shown in a pane with no rows. Falls back to `transfer.empty`.", type: "string | null", default: "null" },
+    { name: "selectAllLabel", description: "Accessible name of each pane's select-all checkbox, composed with the pane heading. Falls back to `transfer.selectAll`.", type: "string | null", default: "null" },
+    { name: "toTargetLabel", description: "Accessible name of the move-right button. Falls back to `transfer.toTarget`.", type: "string | null", default: "null" },
+    { name: "toSourceLabel", description: "Accessible name of the move-left button. Falls back to `transfer.toSource`.", type: "string | null", default: "null" },
   ],
   // <wr-tree>
   WrTree: [
-    { name: 'nodes', description: 'Tree data.', type: 'readonly WrTreeNode<TId>[]', default: '[]' },
-    { name: 'selected', description: 'Selected node ids (two-way bindable).', type: 'readonly TId[]', default: '[]' },
-    { name: 'expanded', description: 'Expanded node ids (two-way bindable).', type: 'readonly TId[]', default: '[]' },
-    {
-      name: 'expandOnClick',
-      description:
-        'Opens and closes a node by a click anywhere on its row, not only on the arrow. In `selectionMode="single"` the click selects too. Under `cascade` the checkbox is the way to check a branch, so a click elsewhere on its row only opens it. A disabled node and a leaf behave as without it.',
-      type: 'boolean',
-      default: 'true',
-    },
-    { name: 'selectionMode', description: 'Selection behavior.', type: 'WrTreeSelectionMode', default: "'single'" },
-    {
-      name: 'disabled',
-      description:
-        "Disable the whole tree. Bound automatically from the field's disabled state when used with `[formField]`.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'readonly',
-      description:
-        "Refuse selection changes while the tree stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Expanding and collapsing keep working: a branch is NAVIGATION, not a value, so a read-only tree is still browsable — it is picking and un-picking that stops. In `overlay` mode the trigger additionally refuses to open, because there the panel exists only to choose from and it already shows what is chosen. `aria-readonly` rides on the combobox trigger only; role `tree` does not support the state, so the inline shape has nothing valid to mirror it onto.",
-      type: 'boolean',
-      default: 'false',
-    },
-    { name: 'openOn', description: 'Render shape.', type: "'inline' | 'overlay'", default: "'inline'" },
-    {
-      name: 'size',
-      description: 'Trigger size — shares the `--wr-control-*` contract. The panel keeps its size.',
-      type: 'WrTreeSize',
-      default: "'md'",
-    },
-    {
-      name: 'placeholder',
-      description: 'Placeholder shown on the trigger when no node is selected.',
-      type: 'string',
-      default: "''",
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the overlay trigger. Falls back to the placeholder, then to `select.label` — a `role="combobox"` with nothing selected and no placeholder otherwise has no name at all. An INLINE tree puts it on the `role="tree"` itself, which ARIA requires to have a name — an `aria-label` on the `<wr-tree>` host never reaches it. Inside a `<wr-form-field>` the field\'s label names the tree instead.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'clearable',
-      description: 'Show a clear-all (×) button on the trigger when at least one node is selected.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'maxTagCount',
-      description:
-        'Cap on the number of chips rendered on the trigger before collapsing the rest into `+N more` (multi mode only). `0` = render every chip.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'defaultExpandAll',
-      description: 'Auto-expand every node that has children on first open of the overlay.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'virtualScroll',
-      description:
-        'Window the visible-node list so a large tree keeps only ~one viewport of rows in the DOM. Opt-in and OFF by default — a tree without it renders byte-identically to today. Works in both `inline` and `overlay` shapes; while on, keyboard navigation switches to the `aria-activedescendant` pattern so Arrow / Home / End / Enter keep working across un-rendered rows.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'rowHeight',
-      description:
-        'Uniform row height in px used to map scroll offset to node index. `0` (default) measures the first rendered row once and reuses it, so it adapts to the active density / touch target automatically. Read only when `virtualScroll` is on.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'viewportHeight',
-      description:
-        "Height of the scroll viewport when `virtualScroll` is on — a number (px) or any CSS length (`'60vh'`). A numeric px value lets the server prerender the exact first window.",
-      type: 'number | string',
-      default: '288',
-    },
-    {
-      name: 'overscan',
-      description: 'Extra rows kept rendered above and below the viewport as scroll headroom.',
-      type: 'number',
-      default: '6',
-    },
-    {
-      name: 'autoFocus',
-      description:
-        '`openOn="overlay"` only: focus the cursor row when the panel opens (the list itself in a virtual tree). Off, focus stays on the trigger: ArrowDown, ArrowUp or Tab there move into the panel, and a letter jumps to the row it starts.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'panelClass',
-      description:
-        'Extra CSS classes for the overlay pane, when `openOn` puts the tree in one. The pane is appended to the overlay container, not to this component, so nothing in the consumer\'s own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. Inline trees never open an overlay, so this input does nothing for the default `openOn="inline"` — the host element is right there to take a class of its own.',
-      type: 'WrClassInput',
-      default: 'null',
-    },
-    {
-      name: 'loadChildren',
-      description:
-        'Loads the children of a node that set `hasChildren` and left `children` undefined. Runs once, on the first expand, and the answer is cached by node id: the row shows a loading row meanwhile and an error row with a retry when the loader fails. Accepts an array, a Promise or an Observable.',
-      type: 'WrTreeChildrenLoader<TId> | null',
-      default: 'null',
-    },
-    {
-      name: 'filter',
-      description:
-        'Filter text. While set, only matching nodes and their ancestors show, the ancestors open to reveal the matches and the match is highlighted. `[(expanded)]` is left alone, so clearing the text restores it. Children a `loadChildren` has not fetched yet are not searched.',
-      type: 'string | null',
-      default: "''",
-    },
-    {
-      name: 'filterFn',
-      description: 'Decides whether a node matches `filter`. The default is a case-insensitive substring of the label.',
-      type: 'WrTreeFilterFn<TId> | null',
-      default: 'null',
-    },
-    {
-      name: 'cascade',
-      description:
-        'Cascading checks, in `selectionMode="multi"` only. Every row draws a checkbox and a click toggles it: checking a node checks its loaded, enabled descendants, and an ancestor is checked exactly while all of its enabled children are. An ancestor with only some of them checked announces `aria-checked="mixed"`. The value holds EVERY checked node, parents and leaves alike, never a mixed one. Rows announce `aria-checked` in place of `aria-selected`.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'draggable',
-      description:
-        'Lets rows be moved: dragged between rows to reorder, onto a row to become its child. The keyboard twin is Alt+Enter to pick the row up, the arrows to move it (up and down among siblings, toward the indent into the sibling above, away from it out of the parent), Enter to drop and Escape to cancel. The tree never writes to `nodes`: apply `nodeMove` yourself, with `wrMoveTreeNode`. Off while a `filter` is set, and for rows that came from `loadChildren`, which `nodes` does not hold.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'canDrop',
-      description:
-        'Refuses a drop, by drag and by keyboard alike. A node is never offered its own subtree, so that case does not reach the predicate.',
-      type: 'WrTreeCanDrop<TId> | null',
-      default: 'null',
-    },
-    {
-      name: '(nodeMove)',
-      description: 'Fired once when a row is dropped somewhere new. The tree does not move it: the handler does.',
-      type: 'WrTreeMoveEvent<TId>',
-    },
-    {
-      name: 'value',
-      description:
-        'Form value — the current selection as seen by a bound field. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`: `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both `openOn` modes; `[(selected)]` stays the inline-native API and always carries an array, whatever the selection mode.',
-      type: 'unknown',
-      default: 'undefined',
-    },
-    { name: '(touch)', description: 'Emitted on blur so a bound field can mark itself touched.', type: 'void' },
-    { name: '(opened)', description: 'Fires after the overlay panel opens.', type: 'void' },
-    { name: '(closed)', description: 'Fires after the overlay panel closes.', type: 'void' },
-    {
-      name: 'clearSelectionLabel',
-      description:
-        "Accessible name of the clear button. Falls back to `tree.clearSelection`, then `'Clear selection'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'expandLabel',
-      description: "Accessible name of the toggle of a collapsed node. Falls back to `tree.expand`, then `'Expand'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'collapseLabel',
-      description:
-        "Accessible name of the toggle of an expanded node. Falls back to `tree.collapse`, then `'Collapse'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "Text of the row shown while children load. Falls back to `select.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadErrorLabel',
-      description:
-        "Text of the row shown when `loadChildren` failed. Falls back to `loadState.failed`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'retryLabel',
-      description: "Label of the retry button on that row. Falls back to `loadState.retry`, then `'Try again'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'noMatchesLabel',
-      description: 'Shown in place of the rows when `filter` matches nothing. Falls back to `select.noResults`.',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'moveHelpLabel',
-      description:
-        'The keyboard move, as a screen reader hears it on entering a `draggable` tree. Falls back to `tree.moveKeyHelp`.',
-      type: 'string | null',
-      default: 'null',
-    },
+    { name: "nodes", description: "Tree data.", type: "readonly WrTreeNode<TId>[]", default: "[]" },
+    { name: "selected", description: "Selected node ids (two-way bindable).", type: "readonly TId[]", default: "[]" },
+    { name: "expanded", description: "Expanded node ids (two-way bindable).", type: "readonly TId[]", default: "[]" },
+    { name: "expandOnClick", description: "Opens and closes a node by a click anywhere on its row, not only on the arrow. In `selectionMode=\"single\"` the click selects too. Under `cascade` the checkbox is the way to check a branch, so a click elsewhere on its row only opens it. A disabled node and a leaf behave as without it.", type: "boolean", default: "true" },
+    { name: "selectionMode", description: "Selection behavior.", type: "WrTreeSelectionMode", default: "'single'" },
+    { name: "disabled", description: "Disable the whole tree. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse selection changes while the tree stays focusable and the value still submits. Bound automatically from the field's readonly state when used with `[formField]`. Expanding and collapsing keep working: a branch is NAVIGATION, not a value, so a read-only tree is still browsable — it is picking and un-picking that stops. In `overlay` mode the trigger additionally refuses to open, because there the panel exists only to choose from and it already shows what is chosen. `aria-readonly` rides on the combobox trigger only; role `tree` does not support the state, so the inline shape has nothing valid to mirror it onto.", type: "boolean", default: "false" },
+    { name: "openOn", description: "Render shape.", type: "'inline' | 'overlay'", default: "'inline'" },
+    { name: "size", description: "Trigger size — shares the `--wr-control-*` contract. The panel keeps its size.", type: "WrTreeSize", default: "'md'" },
+    { name: "placeholder", description: "Placeholder shown on the trigger when no node is selected.", type: "string", default: "''" },
+    { name: "ariaLabel", description: "Accessible name of the overlay trigger. Falls back to the placeholder, then to `select.label` — a `role=\"combobox\"` with nothing selected and no placeholder otherwise has no name at all. An INLINE tree puts it on the `role=\"tree\"` itself, which ARIA requires to have a name — an `aria-label` on the `<wr-tree>` host never reaches it. Inside a `<wr-form-field>` the field's label names the tree instead.", type: "string | null", default: "null" },
+    { name: "clearable", description: "Show a clear-all (×) button on the trigger when at least one node is selected.", type: "boolean", default: "true" },
+    { name: "maxTagCount", description: "Cap on the number of chips rendered on the trigger before collapsing the rest into `+N more` (multi mode only). `0` = render every chip.", type: "number", default: "0" },
+    { name: "defaultExpandAll", description: "Auto-expand every node that has children on first open of the overlay.", type: "boolean", default: "false" },
+    { name: "virtualScroll", description: "Window the visible-node list so a large tree keeps only ~one viewport of rows in the DOM. Opt-in and OFF by default — a tree without it renders byte-identically to today. Works in both `inline` and `overlay` shapes; while on, keyboard navigation switches to the `aria-activedescendant` pattern so Arrow / Home / End / Enter keep working across un-rendered rows.", type: "boolean", default: "false" },
+    { name: "rowHeight", description: "Uniform row height in px used to map scroll offset to node index. `0` (default) measures the first rendered row once and reuses it, so it adapts to the active density / touch target automatically. Read only when `virtualScroll` is on.", type: "number", default: "0" },
+    { name: "viewportHeight", description: "Height of the scroll viewport when `virtualScroll` is on — a number (px) or any CSS length (`'60vh'`). A numeric px value lets the server prerender the exact first window.", type: "number | string", default: "288" },
+    { name: "overscan", description: "Extra rows kept rendered above and below the viewport as scroll headroom.", type: "number", default: "6" },
+    { name: "autoFocus", description: "`openOn=\"overlay\"` only: focus the cursor row when the panel opens (the list itself in a virtual tree). Off, focus stays on the trigger: ArrowDown, ArrowUp or Tab there move into the panel, and a letter jumps to the row it starts.", type: "boolean", default: "false" },
+    { name: "panelClass", description: "Extra CSS classes for the overlay pane, when `openOn` puts the tree in one. The pane is appended to the overlay container, not to this component, so nothing in the consumer's own template encloses it and no descendant rule written around the trigger can reach it. This input is the only per-instance handle on it. A space-separated string works as well as an array. Inline trees never open an overlay, so this input does nothing for the default `openOn=\"inline\"` — the host element is right there to take a class of its own.", type: "WrClassInput", default: "null" },
+    { name: "loadChildren", description: "Loads the children of a node that set `hasChildren` and left `children` undefined. Runs once, on the first expand, and the answer is cached by node id: the row shows a loading row meanwhile and an error row with a retry when the loader fails. Accepts an array, a Promise or an Observable.", type: "WrTreeChildrenLoader<TId> | null", default: "null" },
+    { name: "filter", description: "Filter text. While set, only matching nodes and their ancestors show, the ancestors open to reveal the matches and the match is highlighted. `[(expanded)]` is left alone, so clearing the text restores it. Children a `loadChildren` has not fetched yet are not searched.", type: "string | null", default: "''" },
+    { name: "filterFn", description: "Decides whether a node matches `filter`. The default is a case-insensitive substring of the label.", type: "WrTreeFilterFn<TId> | null", default: "null" },
+    { name: "cascade", description: "Cascading checks, in `selectionMode=\"multi\"` only. Every row draws a checkbox and a click toggles it: checking a node checks its loaded, enabled descendants, and an ancestor is checked exactly while all of its enabled children are. An ancestor with only some of them checked announces `aria-checked=\"mixed\"`. The value holds EVERY checked node, parents and leaves alike, never a mixed one. Rows announce `aria-checked` in place of `aria-selected`.", type: "boolean", default: "false" },
+    { name: "draggable", description: "Lets rows be moved: dragged between rows to reorder, onto a row to become its child. The keyboard twin is Alt+Enter to pick the row up, the arrows to move it (up and down among siblings, toward the indent into the sibling above, away from it out of the parent), Enter to drop and Escape to cancel. The tree never writes to `nodes`: apply `nodeMove` yourself, with `wrMoveTreeNode`. Off while a `filter` is set, and for rows that came from `loadChildren`, which `nodes` does not hold.", type: "boolean", default: "false" },
+    { name: "canDrop", description: "Refuses a drop, by drag and by keyboard alike. A node is never offered its own subtree, so that case does not reach the predicate.", type: "WrTreeCanDrop<TId> | null", default: "null" },
+    { name: "(nodeMove)", description: "Fired once when a row is dropped somewhere new. The tree does not move it: the handler does.", type: "WrTreeMoveEvent<TId>" },
+    { name: "value", description: "Form value — the current selection as seen by a bound field. Bound by `[formField]`, or two-way via `[(value)]`. Shape follows `selectionMode`: `TId | null` in single mode, `readonly TId[]` in multi mode. Works in both `openOn` modes; `[(selected)]` stays the inline-native API and always carries an array, whatever the selection mode.", type: "unknown", default: "undefined" },
+    { name: "(touch)", description: "Emitted on blur so a bound field can mark itself touched.", type: "void" },
+    { name: "(opened)", description: "Fires after the overlay panel opens.", type: "void" },
+    { name: "(closed)", description: "Fires after the overlay panel closes.", type: "void" },
+    { name: "clearSelectionLabel", description: "Accessible name of the clear button. Falls back to `tree.clearSelection`, then `'Clear selection'`.", type: "string | null", default: "null" },
+    { name: "expandLabel", description: "Accessible name of the toggle of a collapsed node. Falls back to `tree.expand`, then `'Expand'`.", type: "string | null", default: "null" },
+    { name: "collapseLabel", description: "Accessible name of the toggle of an expanded node. Falls back to `tree.collapse`, then `'Collapse'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "Text of the row shown while children load. Falls back to `select.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "loadErrorLabel", description: "Text of the row shown when `loadChildren` failed. Falls back to `loadState.failed`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "retryLabel", description: "Label of the retry button on that row. Falls back to `loadState.retry`, then `'Try again'`.", type: "string | null", default: "null" },
+    { name: "noMatchesLabel", description: "Shown in place of the rows when `filter` matches nothing. Falls back to `select.noResults`.", type: "string | null", default: "null" },
+    { name: "moveHelpLabel", description: "The keyboard move, as a screen reader hears it on entering a `draggable` tree. Falls back to `tree.moveKeyHelp`.", type: "string | null", default: "null" },
   ],
   // <wr-treemap-chart>
   WrTreemapChart: [
-    {
-      name: 'data',
-      description:
-        "The nodes, top level first. A node with `children` is a group drawn round them, and one without is a leaf drawn at its `value`. Top-level nodes with no `color` take the palette's colours in order.",
-      type: 'readonly WrTreemapNode[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        "Accessible name of the drawing. The tiles carry no text a screen reader reaches, so this is where to say what the chart shows — or turn on `dataTable`. Falls back to `treemapChart.label`, which is also the data table's caption.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'valueLabel',
-      description:
-        'What the values measure — revenue, size on disk — as the heading of the data table\'s value column. Falls back to `treemapChart.value` ("Value").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'height',
-      description: "The plot's height in px, at least 80. Its width is the container's.",
-      type: 'number',
-      default: '280',
-    },
-    {
-      name: 'showLabels',
-      description:
-        "Write the names inside the tiles that have room for them, a group's in a strip along its top. Off, no tile carries text and no group reserves a strip.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showValues',
-      description: "Write each value under its name, and each group's beside its name, where there is room.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showLegend',
-      description:
-        "Key the top-level nodes in a legend: a dot in each one's colour, its name and its value. Off by default, since a tile with room carries its own name. `'auto'` shows it when there are two top-level nodes or more.",
-      type: "boolean | 'auto'",
-      default: 'false',
-    },
-    {
-      name: 'legendPosition',
-      description:
-        'Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all.',
-      type: 'WrChartLegendPosition',
-      default: "'bottom'",
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the tiles give way to the loading message, in the box the chart had.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the tiles give way to the error message. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip for the tile under the pointer: its path from the top-level node, its value, and its share of the whole. Pointer only — the data table is where the same figures are for a keyboard or a screen reader. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        "Writes every value the chart shows: inside the tiles, in the tooltip and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, compact inside the tiles (`1.2K`). A value wider than its tile is left out of it rather than cut. Shares are `percentFormat`'s.",
-      type: '((value: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'percentFormat',
-      description:
-        "Writes every share the chart shows, given as a RATIO — `0.25` for a quarter — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is: in the tooltip and in the data table. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a sliver is not printed as `0%`.",
-      type: '((ratio: number) => string) | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        'Render the chart\'s figures as a table that only assistive technology reaches: a row per node, parents before their children in the data\'s order, headed by its path — `Engineering / Web` — with its value and its share of the whole. A node with no area is listed with an empty share, and a leaf with no value with an empty value too. The drawing is one named `role="img"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "data", description: "The nodes, top level first. A node with `children` is a group drawn round them, and one without is a leaf drawn at its `value`. Top-level nodes with no `color` take the palette's colours in order.", type: "readonly WrTreemapNode[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the drawing. The tiles carry no text a screen reader reaches, so this is where to say what the chart shows — or turn on `dataTable`. Falls back to `treemapChart.label`, which is also the data table's caption.", type: "string | null", default: "null" },
+    { name: "valueLabel", description: "What the values measure — revenue, size on disk — as the heading of the data table's value column. Falls back to `treemapChart.value` (\"Value\").", type: "string | null", default: "null" },
+    { name: "height", description: "The plot's height in px, at least 80. Its width is the container's.", type: "number", default: "280" },
+    { name: "showLabels", description: "Write the names inside the tiles that have room for them, a group's in a strip along its top. Off, no tile carries text and no group reserves a strip.", type: "boolean", default: "true" },
+    { name: "showValues", description: "Write each value under its name, and each group's beside its name, where there is room.", type: "boolean", default: "true" },
+    { name: "showLegend", description: "Key the top-level nodes in a legend: a dot in each one's colour, its name and its value. Off by default, since a tile with room carries its own name. `'auto'` shows it when there are two top-level nodes or more.", type: "boolean | 'auto'", default: "false" },
+    { name: "legendPosition", description: "Where the legend sits: `bottom` or `top` of the chart as a wrapping row, `start` or `end` of it as a column, or `none` for no legend at all.", type: "WrChartLegendPosition", default: "'bottom'" },
+    { name: "loading", description: "A request for the chart's data is in flight: the tiles give way to the loading message, in the box the chart had.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the tiles give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown when there is nothing to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "tooltip", description: "Show a tooltip for the tile under the pointer: its path from the top-level node, its value, and its share of the whole. Pointer only — the data table is where the same figures are for a keyboard or a screen reader. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "valueFormat", description: "Writes every value the chart shows: inside the tiles, in the tooltip and in the data table. `null` uses `Intl.NumberFormat` in `LOCALE_ID`, compact inside the tiles (`1.2K`). A value wider than its tile is left out of it rather than cut. Shares are `percentFormat`'s.", type: "((value: number) => string) | null", default: "null" },
+    { name: "percentFormat", description: "Writes every share the chart shows, given as a RATIO — `0.25` for a quarter — the number `Intl.NumberFormat`'s `percent` style takes, so one of those can be passed as it is: in the tooltip and in the data table. `null` uses that style in `LOCALE_ID`, with up to one fraction digit, and two significant digits below 1% so a sliver is not printed as `0%`.", type: "((ratio: number) => string) | null", default: "null" },
+    { name: "dataTable", description: "Render the chart's figures as a table that only assistive technology reaches: a row per node, parents before their children in the data's order, headed by its path — `Engineering / Web` — with its value and its share of the whole. A node with no area is listed with an empty share, and a leaf with no value with an empty value too. The drawing is one named `role=\"img\"`, which hides everything inside it, so without the table the numbers are nowhere a screen reader can walk. It is rendered beside the drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
   ],
   // <wr-typewriter>
   WrTypewriter: [
-    {
-      name: 'lines',
-      description: 'The lines, in the order they type. The first is what the server and a still page show.',
-      type: 'readonly string[]',
-      required: true,
-    },
-    {
-      name: 'loop',
-      description: 'Cycle through the lines instead of stopping on the last.',
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'hold',
-      description: 'How long a finished line stands before it is deleted for the next, in ms.',
-      type: 'number',
-      default: '1800',
-    },
-    {
-      name: 'delay',
-      description:
-        'Pause before the first character, in ms, from the moment the host is in view: room for the eye to land above it.',
-      type: 'number',
-      default: '0',
-    },
-    {
-      name: 'trigger',
-      description:
-        '`view` types once most of the host is in view and leaves a host that was already in view at boot whole. `load` types at once, wherever the host is.',
-      type: 'WrTypewriterTrigger',
-      default: "'view'",
-    },
+    { name: "lines", description: "The lines, in the order they type. The first is what the server and a still page show.", type: "readonly string[]", required: true },
+    { name: "loop", description: "Cycle through the lines instead of stopping on the last.", type: "boolean", default: "false" },
+    { name: "hold", description: "How long a finished line stands before it is deleted for the next, in ms.", type: "number", default: "1800" },
+    { name: "delay", description: "Pause before the first character, in ms, from the moment the host is in view: room for the eye to land above it.", type: "number", default: "0" },
+    { name: "trigger", description: "`view` types once most of the host is in view and leaves a host that was already in view at boot whole. `load` types at once, wherever the host is.", type: "WrTypewriterTrigger", default: "'view'" },
   ],
   // <[wrTypography]>
   WrTypography: [
-    { name: 'variant', description: 'Visual variant.', type: 'WrTypographyVariant', default: "'body'" },
-    {
-      name: 'tone',
-      description:
-        'Color tone. `null` (default) keeps the variant\'s own color — the page ink for headings and body, the muted role for `lead`, `caption`, `overline` and `list`, primary for links. `tone="base"` pulls a muted variant back to the page ink. Every other tone is emphasis only: a tone never carries a state on its own. Four of the five intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.',
-      type: 'WrTypographyTone | null',
-      default: 'null',
-    },
-    { name: 'align', description: 'Horizontal alignment.', type: 'WrTypographyAlign | null', default: 'null' },
-    { name: 'truncate', description: 'Truncate to single line with ellipsis.', type: 'boolean', default: 'false' },
-    {
-      name: 'mono',
-      description: 'Render with monospace font.',
-      type: 'boolean',
-      default: 'false (auto-true for `code`)',
-    },
-    {
-      name: 'numeric',
-      description: 'Tabular digits: every digit takes the same width, so amounts line up in a column.',
-      type: 'boolean',
-      default: 'false',
-    },
+    { name: "variant", description: "Visual variant.", type: "WrTypographyVariant", default: "'body'" },
+    { name: "tone", description: "Color tone. `null` (default) keeps the variant's own color — the page ink for headings and body, the muted role for `lead`, `caption`, `overline` and `list`, primary for links. `tone=\"base\"` pulls a muted variant back to the page ink. Every other tone is emphasis only: a tone never carries a state on its own. Four of the five intents share one lightness, and `success` against `danger` is 1.05:1 as text, so the words have to name the state (`500 Server Error`, not a red `Request`) — or reach for `<wr-alert>`, which draws a glyph per type.", type: "WrTypographyTone | null", default: "null" },
+    { name: "align", description: "Horizontal alignment.", type: "WrTypographyAlign | null", default: "null" },
+    { name: "truncate", description: "Truncate to single line with ellipsis.", type: "boolean", default: "false" },
+    { name: "mono", description: "Render with monospace font.", type: "boolean", default: "false (auto-true for `code`)" },
+    { name: "numeric", description: "Tabular digits: every digit takes the same width, so amounts line up in a column.", type: "boolean", default: "false" },
   ],
   // <wr-virtual-scroll>
   WrVirtualScroll: [
-    { name: 'items', description: 'Items to render.', type: 'readonly T[]', required: true },
-    {
-      name: 'itemSize',
-      description: 'Per-item pixel height. All rows must be the same height.',
-      type: 'number',
-      default: '32',
-    },
-    {
-      name: 'height',
-      description: "Viewport height. Pass a number (`px`) or any CSS length string (`'80vh'`, `'40rem'`).",
-      type: 'number | string',
-      default: '256',
-    },
-    {
-      name: 'minBufferPx',
-      description:
-        'Pixels of rendered content kept above + below the viewport. CDK keeps adding rows until at least this many pixels are buffered.',
-      type: 'number | undefined',
-      default: 'itemSize * 4',
-    },
-    {
-      name: 'maxBufferPx',
-      description: 'Maximum pixels of buffered content before CDK starts recycling rows. Must be ≥ `minBufferPx`.',
-      type: 'number | undefined',
-      default: 'itemSize * 8',
-    },
-    {
-      name: 'trackBy',
-      description:
-        '`trackBy` function for the inner `*cdkVirtualFor`. Defaults to identity (recreates rows when the item reference changes).',
-      type: 'TrackByFunction<T>',
-      default: '(_, item) => item',
-    },
+    { name: "items", description: "Items to render.", type: "readonly T[]", required: true },
+    { name: "itemSize", description: "Per-item pixel height. All rows must be the same height.", type: "number", default: "32" },
+    { name: "height", description: "Viewport height. Pass a number (`px`) or any CSS length string (`'80vh'`, `'40rem'`).", type: "number | string", default: "256" },
+    { name: "minBufferPx", description: "Pixels of rendered content kept above + below the viewport. CDK keeps adding rows until at least this many pixels are buffered.", type: "number | undefined", default: "itemSize * 4" },
+    { name: "maxBufferPx", description: "Maximum pixels of buffered content before CDK starts recycling rows. Must be ≥ `minBufferPx`.", type: "number | undefined", default: "itemSize * 8" },
+    { name: "trackBy", description: "`trackBy` function for the inner `*cdkVirtualFor`. Defaults to identity (recreates rows when the item reference changes).", type: "TrackByFunction<T>", default: "(_, item) => item" },
   ],
   // <wr-waterfall-chart>
   WrWaterfallChart: [
-    {
-      name: 'steps',
-      description:
-        "The steps, in order. A step without `total` is a change to the running total; a step with it is a bar from zero showing the running total. See {@link WrWaterfallStep} for what a total's `value` does.",
-      type: 'readonly WrWaterfallStep[]',
-      default: '[]',
-    },
-    {
-      name: 'ariaLabel',
-      description:
-        'Accessible name of the chart, and the data table\'s caption. Each step names itself, so say what the chart shows. Falls back to `waterfallChart.label` ("Waterfall chart").',
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'increaseColor',
-      description: 'The colour of a change up. Any CSS colour, `var(--wr-…)` included.',
-      type: 'string',
-      default: "'var(--wr-color-success)'",
-    },
-    {
-      name: 'decreaseColor',
-      description: 'The colour of a change down. Any CSS colour.',
-      type: 'string',
-      default: "'var(--wr-color-danger)'",
-    },
-    {
-      name: 'totalColor',
-      description:
-        'The colour of a total. Any CSS colour. The first colour of the chart palette, which is the brand colour until `--wr-chart-1` is set: a total is neither a gain nor a loss, so it takes no status colour.',
-      type: 'string',
-      default: "'var(--wr-chart-1)'",
-    },
-    { name: 'height', description: "The plot's height in px, at least 80.", type: 'number', default: '240' },
-    {
-      name: 'showGrid',
-      description:
-        "Draw the gridlines: one across the plot at every tick of the value axis, in `--wr-waterfall-chart-grid-color` (the chart theme's `--wr-chart-grid`). The zero line is drawn either way.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showAxis',
-      description: "Print the value axis' scale beside the plot: a number at every tick.",
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'showValues',
-      description:
-        "Print each step's figure past the end of its bar: a change with its sign, over the bar when it runs up and under it when it runs down, and a total with no `+`. Compact from a thousand up (`+1.2K`) by default; with `valueFormat`, whatever it writes for `'label'`, so a formatter can go compact here and stay exact everywhere else. A figure is printed whole or not at all: one wider than its column and a quarter of the gap on either side — which keeps it clear of its neighbours' — is left out rather than cut, since `+$1,…` is not a figure and `−$9…` reads as −$9. The tooltip, the names and the data table carry every figure in full. The sign is one of the two cues besides colour that tell a change up from a change down; the connectors are the other. Off together with `showConnectors`, colour is the only one left on screen. Off by default, as on every chart of the family: the scale, the tooltip and each step's name already carry the figures.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'showConnectors',
-      description:
-        'Draw the thin line that carries each running total across the gap to the next bar, which starts from it. None leads into a total that starts a running total of its own — one before every change, at a value the line would not meet. A change up leaves the line at its bottom and a change down at its top, so the line is one of the two cues besides colour that tell them apart; the signed figures are the other. Off together with `showValues`, colour is the only one left on screen.',
-      type: 'boolean',
-      default: 'true',
-    },
-    {
-      name: 'tooltip',
-      description:
-        "Show a tooltip with the step's change and the running total after it on hover. Pointer only — each step's accessible name already carries both. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.",
-      type: "boolean | 'hoverable'",
-      default: 'true',
-    },
-    {
-      name: 'loading',
-      description:
-        "A request for the chart's data is in flight: the bars give way to the loading message, over the grid and the scale the chart keeps.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'error',
-      description:
-        "The chart's data failed to load: the bars give way to the error message. `loading` wins while both are set.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'emptyLabel',
-      description: "The message shown with no step to draw. Falls back to `chart.empty`, then `'No data'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'loadingLabel',
-      description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'errorLabel',
-      description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.",
-      type: 'string | null',
-      default: 'null',
-    },
-    {
-      name: 'dataTable',
-      description:
-        "Render the chart's figures as a table only assistive technology reaches, beside the drawing: a row per step, headed by its label, with its change (empty on a total) and the running total after it, each written as the tooltip writes it. Each step's accessible name already carries both figures; the table is for a reader who wants to move through them cell by cell, with the column headings read out. It is clipped to nothing: it takes no room, draws nothing and holds no tab stop.",
-      type: 'boolean',
-      default: 'false',
-    },
-    {
-      name: 'valueFormat',
-      description:
-        "Writes every number the chart shows: the figures on the drawing, the axis ticks, the tooltip, the accessible names and the data table. Every figure is handed over as its MAGNITUDE, never below zero, and the chart writes the sign in front: `+` or `−` (U+2212 MINUS SIGN) on a change, `−` on a running total, a total or a tick below zero. So one formatter writes every figure, and one minus sign appears throughout. It is told where the figure goes (see {@link WrWaterfallValueContext}): `'label'` past a bar, where a compact form fits a narrow column; `'tick'` on the value axis; `'value'` in the tooltip, the names and the data table, which a reader goes to for the exact figure. A `(value) => string` written for another chart fits too, and writes all three alike. `null` uses `Intl.NumberFormat` in `LOCALE_ID`: compact past the bars from a thousand up, compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter, and the exact figure everywhere else.",
-      type: '((value: number, context: WrWaterfallValueContext) => string) | null',
-      default: 'null',
-    },
+    { name: "steps", description: "The steps, in order. A step without `total` is a change to the running total; a step with it is a bar from zero showing the running total. See {@link WrWaterfallStep} for what a total's `value` does.", type: "readonly WrWaterfallStep[]", default: "[]" },
+    { name: "ariaLabel", description: "Accessible name of the chart, and the data table's caption. Each step names itself, so say what the chart shows. Falls back to `waterfallChart.label` (\"Waterfall chart\").", type: "string | null", default: "null" },
+    { name: "increaseColor", description: "The colour of a change up. Any CSS colour, `var(--wr-…)` included.", type: "string", default: "'var(--wr-color-success)'" },
+    { name: "decreaseColor", description: "The colour of a change down. Any CSS colour.", type: "string", default: "'var(--wr-color-danger)'" },
+    { name: "totalColor", description: "The colour of a total. Any CSS colour. The first colour of the chart palette, which is the brand colour until `--wr-chart-1` is set: a total is neither a gain nor a loss, so it takes no status colour.", type: "string", default: "'var(--wr-chart-1)'" },
+    { name: "height", description: "The plot's height in px, at least 80.", type: "number", default: "240" },
+    { name: "showGrid", description: "Draw the gridlines: one across the plot at every tick of the value axis, in `--wr-waterfall-chart-grid-color` (the chart theme's `--wr-chart-grid`). The zero line is drawn either way.", type: "boolean", default: "true" },
+    { name: "showAxis", description: "Print the value axis' scale beside the plot: a number at every tick.", type: "boolean", default: "true" },
+    { name: "showValues", description: "Print each step's figure past the end of its bar: a change with its sign, over the bar when it runs up and under it when it runs down, and a total with no `+`. Compact from a thousand up (`+1.2K`) by default; with `valueFormat`, whatever it writes for `'label'`, so a formatter can go compact here and stay exact everywhere else. A figure is printed whole or not at all: one wider than its column and a quarter of the gap on either side — which keeps it clear of its neighbours' — is left out rather than cut, since `+$1,…` is not a figure and `−$9…` reads as −$9. The tooltip, the names and the data table carry every figure in full. The sign is one of the two cues besides colour that tell a change up from a change down; the connectors are the other. Off together with `showConnectors`, colour is the only one left on screen. Off by default, as on every chart of the family: the scale, the tooltip and each step's name already carry the figures.", type: "boolean", default: "false" },
+    { name: "showConnectors", description: "Draw the thin line that carries each running total across the gap to the next bar, which starts from it. None leads into a total that starts a running total of its own — one before every change, at a value the line would not meet. A change up leaves the line at its bottom and a change down at its top, so the line is one of the two cues besides colour that tell them apart; the signed figures are the other. Off together with `showValues`, colour is the only one left on screen.", type: "boolean", default: "true" },
+    { name: "tooltip", description: "Show a tooltip with the step's change and the running total after it on hover. Pointer only — each step's accessible name already carries both. By default the pointer passes under the chip to the chart, so the next section answers at once and the chip closes off the chart; `'hoverable'` lets the pointer rest on the chip instead, as WCAG 1.4.13 asks of a hint.", type: "boolean | 'hoverable'", default: "true" },
+    { name: "loading", description: "A request for the chart's data is in flight: the bars give way to the loading message, over the grid and the scale the chart keeps.", type: "boolean", default: "false" },
+    { name: "error", description: "The chart's data failed to load: the bars give way to the error message. `loading` wins while both are set.", type: "boolean", default: "false" },
+    { name: "emptyLabel", description: "The message shown with no step to draw. Falls back to `chart.empty`, then `'No data'`.", type: "string | null", default: "null" },
+    { name: "loadingLabel", description: "The message shown while `loading`. Falls back to `chart.loading`, then `'Loading…'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The message shown on `error`. Falls back to `chart.error`, then `'Could not load'`.", type: "string | null", default: "null" },
+    { name: "dataTable", description: "Render the chart's figures as a table only assistive technology reaches, beside the drawing: a row per step, headed by its label, with its change (empty on a total) and the running total after it, each written as the tooltip writes it. Each step's accessible name already carries both figures; the table is for a reader who wants to move through them cell by cell, with the column headings read out. It is clipped to nothing: it takes no room, draws nothing and holds no tab stop.", type: "boolean", default: "false" },
+    { name: "valueFormat", description: "Writes every number the chart shows: the figures on the drawing, the axis ticks, the tooltip, the accessible names and the data table. Every figure is handed over as its MAGNITUDE, never below zero, and the chart writes the sign in front: `+` or `−` (U+2212 MINUS SIGN) on a change, `−` on a running total, a total or a tick below zero. So one formatter writes every figure, and one minus sign appears throughout. It is told where the figure goes (see {@link WrWaterfallValueContext}): `'label'` past a bar, where a compact form fits a narrow column; `'tick'` on the value axis; `'value'` in the tooltip, the names and the data table, which a reader goes to for the exact figure. A `(value) => string` written for another chart fits too, and writes all three alike. `null` uses `Intl.NumberFormat` in `LOCALE_ID`: compact past the bars from a thousand up, compact ticks (`1.2K`, `3.4M`) unless the full numbers are shorter, and the exact figure everywhere else.", type: "((value: number, context: WrWaterfallValueContext) => string) | null", default: "null" },
   ],
   // <wr-window>
   WrWindow: [
-    { name: 'model', description: "The window's state and geometry.", type: 'WrWindowModel', required: true },
-    {
-      name: 'windowRef',
-      description: 'The ref, handed to slot templates as `$implicit` and to the manager on activation.',
-      type: 'WrWindowRef<unknown, unknown> | null',
-      default: 'null',
-    },
-    {
-      name: 'injector',
-      description: "The window's injector — what a slot component resolves `WR_WINDOW_REF` from.",
-      type: 'Injector | undefined',
-      default: 'undefined',
-    },
-    {
-      name: 'titleExtra',
-      description: 'Content for the title bar, between the title and the buttons.',
-      type: 'WrWindowSlotContent | null',
-      default: 'null',
-    },
-    {
-      name: 'statusBar',
-      description: 'Content for the status bar.',
-      type: 'WrWindowSlotContent | null',
-      default: 'null',
-    },
-    {
-      name: '(closed)',
-      description:
-        'A REQUEST to close, not the close itself. `WrWindowContainer` binds `(closed)` to `WrWindowRef.close()`, which awaits the `beforeClose` hook and — only if the hook agrees — disposes the overlay, so the owner is what takes the window away and this component never has to hide itself.',
-      type: 'void',
-    },
+    { name: "model", description: "The window's state and geometry.", type: "WrWindowModel", required: true },
+    { name: "windowRef", description: "The ref, handed to slot templates as `$implicit` and to the manager on activation.", type: "WrWindowRef<unknown, unknown> | null", default: "null" },
+    { name: "injector", description: "The window's injector — what a slot component resolves `WR_WINDOW_REF` from.", type: "Injector | undefined", default: "undefined" },
+    { name: "titleExtra", description: "Content for the title bar, between the title and the buttons.", type: "WrWindowSlotContent | null", default: "null" },
+    { name: "statusBar", description: "Content for the status bar.", type: "WrWindowSlotContent | null", default: "null" },
+    { name: "(closed)", description: "A REQUEST to close, not the close itself. `WrWindowContainer` binds `(closed)` to `WrWindowRef.close()`, which awaits the `beforeClose` hook and — only if the hook agrees — disposes the overlay, so the owner is what takes the window away and this component never has to hide itself.", type: "void" },
   ],
   // <wr-window-taskbar>
   WrWindowTaskbar: [
-    {
-      name: 'position',
-      description: 'Edge the taskbar pins itself to.',
-      type: "'top' | 'bottom'",
-      default: "'bottom'",
-    },
-    {
-      name: 'show',
-      description:
-        'Which windows the rail lists: the minimized ones, or every open one with the active window marked (since v15.1).',
-      type: 'WrWindowTaskbarShow',
-      default: "'minimized'",
-    },
-    {
-      name: 'maxTabs',
-      description:
-        'The most tabs the rail shows; the rest fold under a "+N" button that opens them as a menu (since v15.1). The width folds tabs too, whatever this says: the tabs that do not fit beside the button at their own width go under it. `null` leaves it to the width alone.',
-      type: 'number | null',
-      default: 'null',
-    },
+    { name: "position", description: "Edge the taskbar pins itself to.", type: "'top' | 'bottom'", default: "'bottom'" },
+    { name: "show", description: "Which windows the rail lists: the minimized ones, or every open one with the active window marked (since v15.1).", type: "WrWindowTaskbarShow", default: "'minimized'" },
+    { name: "maxTabs", description: "The most tabs the rail shows; the rest fold under a \"+N\" button that opens them as a menu (since v15.1). The width folds tabs too, whatever this says: the tabs that do not fit beside the button at their own width go under it. `null` leaves it to the width alone.", type: "number | null", default: "null" },
   ],
 } satisfies Record<string, readonly DocApiRow[]>;
