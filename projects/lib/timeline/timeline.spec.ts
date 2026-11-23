@@ -49,6 +49,11 @@ describe('WrTimeline', () => {
     expect(host().className).toBe('wr-timeline wr-timeline--horizontal');
   });
 
+  it('is a list of items for assistive technology', () => {
+    expect(host().getAttribute('role')).toBe('list');
+    expect(items().map(i => i.getAttribute('role'))).toEqual(['listitem', 'listitem']);
+  });
+
   it('renders each event with its time, title and content', () => {
     const first = items()[0];
     expect(first.querySelector('.wr-timeline-item__time')!.textContent.trim()).toBe('09:00');

@@ -21,7 +21,7 @@ import type { WrTimelineColor } from './types';
   encapsulation: ViewEncapsulation.None,
   // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
   // where the browser draws it as a tooltip over the whole component.
-  host: { class: 'wr-timeline-item', '[class]': 'classes()', '[attr.title]': 'null' },
+  host: { class: 'wr-timeline-item', role: 'listitem', '[class]': 'classes()', '[attr.title]': 'null' },
 })
 export class WrTimelineItem {
   constructor() {

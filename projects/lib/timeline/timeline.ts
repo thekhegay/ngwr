@@ -26,7 +26,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   selector: 'wr-timeline',
   template: '<ng-content />',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-timeline', '[class]': 'classes()' },
+  host: { class: 'wr-timeline', role: 'list', '[class]': 'classes()' },
 })
 export class WrTimeline {
   constructor() {
