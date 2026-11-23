@@ -278,8 +278,10 @@ export class WrCarousel implements WrCarouselContext {
     effect(() => {
       const max = this.count() - 1;
       if (max < 0) return;
-      const clamped = Math.min(Math.max(0, this.active()), max);
-      if (clamped !== this.active()) this.active.set(clamped);
+      const current = this.active();
+      // NaN and a fraction from the host are repaired here: `Math.min` and `Math.max` keep NaN.
+      const clamped = Number.isFinite(current) ? Math.min(Math.max(0, Math.floor(current)), max) : 0;
+      if (clamped !== current) this.active.set(clamped);
     });
 
     this.destroyRef.onDestroy(() => {
