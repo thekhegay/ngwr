@@ -6,6 +6,7 @@
     role="switch"
     [id]="id()"
     [attr.aria-label]="ariaLabel()"
+    [attr.aria-labelledby]="labelledBy()"
     [checked]="checked()"
     [disabled]="disabled()"
     [attr.aria-readonly]="readonly() || null"
@@ -21,7 +22,7 @@
     <span class="wr-switch__thumb"></span>
   </span>
 
-  <span class="wr-switch__text">
+  <span #text class="wr-switch__text">
     <ng-content />
   </span>
 </label>

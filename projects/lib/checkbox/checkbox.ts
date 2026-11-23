@@ -8,13 +8,16 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  DestroyRef,
   type ElementRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   inject,
   input,
   model,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
@@ -24,6 +27,11 @@ import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_CHECKBOX_GROUP } from './tokens';
+
+/** Whether `el` holds text, or an element with a name of its own, that can label a control. */
+function hasNamingText(el: HTMLElement): boolean {
+  return (el.textContent ?? '').trim() !== '' || el.querySelector('[aria-label], img[alt]:not([alt=""])') !== null;
+}
 
 /**
  * Two-state checkbox.
@@ -91,6 +99,16 @@ export type WrCheckboxSize = 'sm' | 'md' | 'lg';
 export class WrCheckbox implements FormCheckboxControl {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('checkbox');
+
+    afterNextRender(() => {
+      const text = this.textEl().nativeElement;
+      const sync = (): void => this.hasText.set(hasNamingText(text));
+      sync();
+      if (typeof MutationObserver === 'undefined') return;
+      const observer = new MutationObserver(sync);
+      observer.observe(text, { childList: true, characterData: true, subtree: true });
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    });
   }
 
   /**
@@ -205,6 +223,14 @@ export class WrCheckbox implements FormCheckboxControl {
   private readonly group = inject(WR_CHECKBOX_GROUP, { optional: true });
 
   private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
+  private readonly textEl = viewChild.required<ElementRef<HTMLElement>>('text');
+  private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Whether the projected content names the box. Assumed `true` until the first
+   * render has looked, so the server renders the own-label path.
+   */
+  private readonly hasText = signal(true);
 
   /** Rendered "is checked" — reads the group when grouped, else the `checked` model. */
   protected readonly isChecked = computed(() =>
@@ -233,6 +259,19 @@ export class WrCheckbox implements FormCheckboxControl {
   protected readonly ariaInvalid = computed(() => (this.group ? null : this.fieldAria.ariaInvalid()));
   protected readonly describedBy = computed(() => (this.group ? null : this.fieldAria.describedBy()));
   protected readonly ariaRequired = computed(() => (this.group ? null : this.fieldAria.ariaRequired()));
+
+  /**
+   * The input's `aria-labelledby`. The consumer's wins; otherwise a box with no
+   * text of its own and no `ariaLabel` is named by the surrounding field's
+   * label. A box WITH text keeps that text as its name, never joined to the
+   * field's label, and a grouped box leaves the naming to the group.
+   */
+  protected readonly labelledBy = computed(() => {
+    const own = this.ariaLabelledby();
+    if (own) return own;
+    if (this.group || this.hasText() || this.ariaLabel()) return null;
+    return this.fieldAria.labelledBy();
+  });
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
