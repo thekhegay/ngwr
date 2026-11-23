@@ -273,7 +273,7 @@ one component folder. Reach for them instead of hand-rolling:
   the palette, dashes and markers, `useChartNumbers`, `wrChartAxis` and the
   visually hidden `WrChartTable` behind the opt-in `dataTable` input on bar,
   line, scatter, radar, heatmap chart, calendar heatmap, funnel, waterfall,
-  treemap, box plot and candlestick — every export `@internal`, so it stays out of
+  treemap, box plot, candlestick, donut, meter group and sparkline — every export `@internal`, so it stays out of
   `llms-full.txt` and the skill catalog; a chart that renders the table
   positions its host. **The chart theme is that entry point's stylesheet**:
   `--wr-chart-*` on `:root` (grid, axis, zero, label, stroke, marker,
