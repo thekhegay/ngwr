@@ -248,6 +248,20 @@ describe('WrToolbar arrowKeys', () => {
 
   afterEach(() => fixture.destroy());
 
+  it('drops a managed control the consumer gives a negative tabindex later, and keeps that value', async () => {
+    await mount();
+    el('c').setAttribute('tabindex', '-2');
+    el('a').focus();
+    await settle();
+
+    press(el('a'), 'End');
+    expect(document.activeElement?.id).toBe('b');
+    expect(el('c').getAttribute('tabindex')).toBe('-2');
+    fixture.componentInstance.on.set(false);
+    await settle();
+    expect(el('c').getAttribute('tabindex')).toBe('-2');
+  });
+
   it('leaves a control with any negative tabindex of its own out of the roving set', async () => {
     await mount();
     fixture.componentInstance.on.set(false);
