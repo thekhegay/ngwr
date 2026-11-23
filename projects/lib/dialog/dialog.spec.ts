@@ -291,6 +291,26 @@ describe('WrDialog', () => {
     expect(panel()).toBeTruthy();
   });
 
+  it('keeps the page blocked until the last of two stacked dialogs closes', async () => {
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 5000, configurable: true });
+    const blocked = (): boolean => document.documentElement.classList.contains('cdk-global-scrollblock');
+    try {
+      const first = await open();
+      const second = await open();
+      expect(blocked()).toBe(true);
+
+      first.close();
+      await settle();
+      expect(blocked()).toBe(true);
+
+      second.close();
+      await settle();
+      expect(blocked()).toBe(false);
+    } finally {
+      delete (document.documentElement as { scrollHeight?: number }).scrollHeight;
+    }
+  });
+
   it('ignores Escape when closeOnEscape is false', async () => {
     await open({ closeOnEscape: false });
 
