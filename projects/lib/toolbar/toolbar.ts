@@ -30,6 +30,12 @@ const COMPOSITE_SELECTOR = [
   .map(role => `[role="${role}"]`)
   .join(', ');
 
+/** `visibility: hidden` counts as hidden. An engine without `checkVisibility` is taken as visible. */
+function isVisible(el: HTMLElement): boolean {
+  if (typeof el.checkVisibility !== 'function') return true;
+  return el.checkVisibility({ visibilityProperty: true });
+}
+
 const NON_TEXT_INPUTS = new Set(['button', 'checkbox', 'submit', 'reset', 'image', 'color', 'file']);
 
 /**
@@ -113,8 +119,7 @@ export class WrToolbar {
     };
     const controls = (): HTMLElement[] =>
       Array.from(host.querySelectorAll<HTMLElement>(CONTROL_SELECTOR)).filter(el => {
-        if (el.matches(':disabled') || el.closest('[hidden], [inert]') || el.checkVisibility?.() === false)
-          return false;
+        if (el.matches(':disabled') || el.closest('[hidden], [inert]') || !isVisible(el)) return false;
         // A negative tabindex that was not ours is the consumer's: out of the roving set.
         if (el.getAttribute('tabindex') === '-1' && !original.has(el)) return false;
         // A composite widget keeps its own tab stop, so only that stop takes part.
