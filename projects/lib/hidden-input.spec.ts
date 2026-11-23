@@ -2,6 +2,7 @@ import { Component, type Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrCheckbox } from 'ngwr/checkbox';
+import { WrRadio, WrRadioGroup } from 'ngwr/radio';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { compileSass } from './spec-sass';
@@ -22,8 +23,19 @@ import { compileSass } from './spec-sass';
 })
 class CheckboxHost {}
 
+@Component({
+  imports: [WrRadio, WrRadioGroup],
+  template: `<div class="outer">
+    <div class="scroller">
+      <wr-radio-group><wr-radio value="a">Row</wr-radio></wr-radio-group>
+    </div>
+  </div>`,
+})
+class RadioHost {}
+
 const CASES: readonly { name: string; host: Type<unknown>; block: string }[] = [
   { name: 'checkbox', host: CheckboxHost, block: 'wr-checkbox' },
+  { name: 'radio', host: RadioHost, block: 'wr-radio' },
 ];
 
 describe('a visually hidden native input', () => {
