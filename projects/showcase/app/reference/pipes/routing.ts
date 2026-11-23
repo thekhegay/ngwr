@@ -33,6 +33,10 @@ export default [
     loadComponent: () => import('./wr-initials/wr-initials'),
   },
   {
+    path: pipes.wrList.path,
+    loadComponent: () => import('./wr-list/wr-list'),
+  },
+  {
     path: pipes.wrMark.path,
     loadComponent: () => import('./wr-mark/wr-mark'),
   },

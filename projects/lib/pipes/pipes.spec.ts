@@ -11,6 +11,7 @@ import { WrBytes, wrFormatBytes } from './bytes';
 import { WrDate, wrFormatDate } from './date';
 import { WrDuration, wrFormatDuration, wrSplitDuration } from './duration';
 import { WrInitials } from './initials';
+import { WrList, wrFormatList } from './list';
 import { WrMark } from './mark';
 import { WrNumber, wrFormatNumber } from './number';
 import { WrPlural, wrFormatPlural } from './plural';
@@ -561,6 +562,75 @@ describe('wrPlural', () => {
     }
     expect(wrFormatPlural(1000, 'ru', forms)).toBe('1\u00a0000 файлов');
     expect(wrFormatPlural(1000, 'en', { one: 'file', other: 'files' })).toBe('1,000 files');
+  });
+});
+
+describe('wrList', () => {
+  const pipe = (locale: string): WrList => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: locale }] });
+    return TestBed.runInInjectionContext(() => new WrList());
+  };
+  const names = ['Ada', 'Alan', 'Grace'];
+
+  it('joins with the "and" of the locale', () => {
+    expect(pipe('en-US').transform(names)).toBe('Ada, Alan, and Grace');
+    expect(pipe('en-GB').transform(names)).toBe('Ada, Alan and Grace');
+    expect(pipe('ru').transform(['Ада', 'Алан', 'Грейс'])).toBe('Ада, Алан и Грейс');
+    expect(pipe('en-US').transform(['Ada', 'Alan'])).toBe('Ada and Alan');
+  });
+
+  it('joins with "or" as a disjunction', () => {
+    expect(pipe('en-US').transform(names, 'disjunction')).toBe('Ada, Alan, or Grace');
+    expect(pipe('ru').transform(['Ада', 'Алан', 'Грейс'], 'disjunction')).toBe('Ада, Алан или Грейс');
+  });
+
+  it('takes the full options object', () => {
+    expect(pipe('en-US').transform(['5 kg', '200 g'], { type: 'unit', style: 'narrow' })).toBe('5 kg 200 g');
+    expect(pipe('en-US').transform(names, { type: 'disjunction' })).toBe('Ada, Alan, or Grace');
+  });
+
+  it('renders one item as it is and nothing as an empty string', () => {
+    expect(pipe('en-US').transform(['Ada'])).toBe('Ada');
+    expect(pipe('en-US').transform([])).toBe('');
+    expect(pipe('en-US').transform(null)).toBe('');
+    expect(pipe('en-US').transform(undefined)).toBe('');
+  });
+
+  it('leaves blank items out', () => {
+    expect(pipe('en-US').transform(['Ada', '', '  ', 'Grace'])).toBe('Ada and Grace');
+    expect(pipe('en-US').transform(['', ' '])).toBe('');
+  });
+
+  it('reads any iterable, and a lone string as one item', () => {
+    expect(pipe('en-US').transform(new Set(names))).toBe('Ada, Alan, and Grace');
+    expect(pipe('en-US').transform('Ada')).toBe('Ada');
+  });
+
+  it('is the same output as wrFormatList', () => {
+    for (const locale of ['en-US', 'ru', 'de']) {
+      for (const value of [names, ['Ada'], [], null, undefined]) {
+        expect(wrFormatList(value, locale)).toBe(pipe(locale).transform(value));
+        expect(wrFormatList(value, locale, 'disjunction')).toBe(pipe(locale).transform(value, 'disjunction'));
+      }
+    }
+    expect(wrFormatList(names, 'de')).toBe('Ada, Alan und Grace');
+  });
+
+  it('renders in a template', () => {
+    @Component({ imports: [WrList], template: `<p>{{ names() | wrList: 'disjunction' }}</p>` })
+    class Host {
+      readonly names = signal<readonly string[]>(names);
+    }
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'en-US' }] });
+    const fixture = TestBed.createComponent(Host);
+    const host = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    expect(host.textContent).toBe('Ada, Alan, or Grace');
+    fixture.componentInstance.names.set(['Ada', 'Grace']);
+    fixture.detectChanges();
+    expect(host.textContent).toBe('Ada or Grace');
   });
 });
 

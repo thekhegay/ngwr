@@ -9,6 +9,7 @@ export const PIPES_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrDate),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrDuration),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrInitials),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrList),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrMark),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrNumber),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrPlural),

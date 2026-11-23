@@ -73,6 +73,7 @@ export const SINCE = {
   "reference/directives/in-view": "16.7.0",
   "reference/pipes/wr-duration": "15.4.0",
   "reference/pipes/wr-initials": "15.6.0",
+  "reference/pipes/wr-list": "16.9.0",
   "reference/utils/with-render-on-navigation": "16.1.0",
   "reference/utils/wr-action": "15.5.0",
   "reference/utils/wr-decimal": "15.5.0",

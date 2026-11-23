@@ -458,6 +458,9 @@ export const INSTALL = {
   "reference/pipes/wr-initials": [
       { path: "ngwr/pipes", symbols: ["WrInitials"], declarables: ["WrInitials"], styled: false },
   ],
+  "reference/pipes/wr-list": [
+      { path: "ngwr/pipes", symbols: ["WrList", "wrFormatList"], declarables: ["WrList"], styled: false },
+  ],
   "reference/pipes/wr-mark": [
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
       { path: "ngwr/pipes", symbols: ["WrMark"], declarables: ["WrMark"], styled: false },
