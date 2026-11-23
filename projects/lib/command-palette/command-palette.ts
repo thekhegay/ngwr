@@ -185,6 +185,7 @@ export class WrCommandPalette {
 
   protected readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
   protected readonly panelEl = viewChild<ElementRef<HTMLElement>>('panel');
+  private readonly rootEl = viewChild<ElementRef<HTMLElement>>('root');
 
   /** Listbox id (referenced by the input's `aria-controls`). */
   protected readonly listboxId = `wr-command-palette-listbox-${++listboxUid}`;
@@ -334,6 +335,14 @@ export class WrCommandPalette {
           if (this.destroyed) return;
           const host = this.panelEl()?.nativeElement;
           if (!host) return;
+          // Last in the top layer, over any dialog, drawer or popover open now.
+          // Set here and not in the template: a `popover` attribute hides the
+          // element until it is shown, which a browser without the API never does.
+          const root = this.rootEl()?.nativeElement;
+          if (typeof root?.showPopover === 'function') {
+            root.setAttribute('popover', 'manual');
+            root.showPopover();
+          }
           this.focusTrap?.destroy();
           this.focusTrap = this.focusTrapFactory.create(host);
           void this.focusTrap.focusInitialElementWhenReady();

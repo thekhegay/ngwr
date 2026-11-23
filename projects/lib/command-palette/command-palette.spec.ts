@@ -148,6 +148,27 @@ describe('WrCommandPalette', () => {
     expect(fixture.componentInstance.picked).toEqual(['undo']);
   });
 
+  it('joins the top layer when it opens, over a dialog or a popover already there', async () => {
+    const shown: Element[] = [];
+    // jsdom has no popover API; the palette must ask the top layer for itself.
+    (HTMLElement.prototype as { showPopover?: unknown }).showPopover = function (this: Element): void {
+      shown.push(this);
+    };
+    try {
+      fixture.componentInstance.open.set(false);
+      fixture.detectChanges();
+      fixture.componentInstance.open.set(true);
+      fixture.detectChanges();
+      await new Promise<void>(resolve => queueMicrotask(resolve));
+
+      const palette = root().querySelector('.wr-command-palette');
+      expect(palette?.getAttribute('popover')).toBe('manual');
+      expect(shown).toEqual([palette]);
+    } finally {
+      delete (HTMLElement.prototype as { showPopover?: unknown }).showPopover;
+    }
+  });
+
   it('commits on the primary button only', () => {
     for (const button of [1, 2]) {
       options()[2].dispatchEvent(new MouseEvent('mousedown', { button, bubbles: true, cancelable: true }));

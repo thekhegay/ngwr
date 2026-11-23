@@ -23,9 +23,19 @@
   --wr-command-palette-padding-bottom: var(--wr-space-lg);
   --wr-command-palette-font-family: var(--wr-font-family-base);
 
+  // A `popover="manual"` host: the UA sheet shrinks it to its content, centres
+  // it and paints a border, a background and a `Canvas` colour.
   position: fixed;
   inset: 0;
   z-index: 1000;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  overflow: visible;
+  background: none;
+  color: inherit;
   display: flex;
   align-items: flex-start;
   justify-content: center;
