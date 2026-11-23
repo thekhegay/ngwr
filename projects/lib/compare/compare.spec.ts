@@ -240,6 +240,25 @@ describe('WrCompare', () => {
     expect(slider().getAttribute('aria-valuenow')).not.toBe('NaN');
   });
 
+  it('stops following the pointer once it turns disabled mid-drag', () => {
+    measureHost();
+    pointerDown({ clientX: 100 });
+    expect(position()).toBe(50);
+
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+    slider().dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 180 }));
+    fixture.detectChanges();
+    expect(position()).toBe(50);
+
+    // The drag ended, so enabling again does not resume it.
+    fixture.componentInstance.disabled.set(false);
+    fixture.detectChanges();
+    slider().dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 180 }));
+    fixture.detectChanges();
+    expect(position()).toBe(50);
+  });
+
   it('announces a dragged position in whole percent, and steps from there', () => {
     measureHost();
     // 59.99 of 200px is 29.995%: the drag keeps it, a reader is told 30.

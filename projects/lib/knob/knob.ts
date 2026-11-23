@@ -224,6 +224,11 @@ export class WrKnob implements FormValueControl<number> {
 
   protected onPointerMove(event: PointerEvent): void {
     if (!this.dragging) return;
+    // Turned disabled or readonly mid-drag: the gesture is over.
+    if (!this.interactive()) {
+      this.dragging = false;
+      return;
+    }
     this.updateFromPointer(event);
   }
 
