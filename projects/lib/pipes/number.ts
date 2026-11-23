@@ -46,7 +46,7 @@ export function wrFormatNumber(
   styleOrOptions: WrNumberStyle | Intl.NumberFormatOptions = 'decimal',
   currency = 'USD'
 ): string {
-  if (value === null || value === undefined || value === '') return '';
+  if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) return '';
   const text = typeof value === 'string' ? value.trim() : null;
   const n = Number(text ?? value);
   if (!Number.isFinite(n)) return '';
