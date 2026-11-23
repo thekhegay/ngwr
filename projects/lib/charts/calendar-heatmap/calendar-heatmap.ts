@@ -375,7 +375,10 @@ export class WrCalendarHeatmap {
     const firstIso = toIso(from);
     const lastIso = toIso(end);
     const firstTime = start.getTime();
-    const lastTime = end.getTime() + 86_400_000;
+    // The next local midnight, not 24 hours on: a day that ends a DST change is 23 or 25.
+    const after = new Date(end);
+    after.setDate(end.getDate() + 1);
+    const lastTime = after.getTime();
     const map = new Map<string, number>();
     let max = 0;
     for (const d of data) {
