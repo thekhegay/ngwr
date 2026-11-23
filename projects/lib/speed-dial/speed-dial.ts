@@ -10,6 +10,7 @@ import {
   Component,
   ElementRef,
   ViewEncapsulation,
+  afterRenderEffect,
   computed,
   effect,
   inject,
@@ -86,6 +87,12 @@ export class WrSpeedDial {
    */
   readonly safeArea = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Close the open dial on a pointer press outside it. Focus stays where the
+   * user clicked. @default false
+   */
+  readonly closeOnOutsideClick = input(false, { transform: coerceBooleanProperty });
+
   /** Fires when the user picks one of the actions. */
   readonly pick = output<WrSpeedDialAction>();
 
@@ -102,6 +109,18 @@ export class WrSpeedDial {
     // the dial — so being disabled while open left it fanned out with no way back.
     effect(() => {
       if (this.disabled() && this.open()) this.open.set(false);
+    });
+    // After render only: there is no document to listen on the server.
+    afterRenderEffect(onCleanup => {
+      if (!this.open() || !this.closeOnOutsideClick()) return;
+      const doc = this.host.nativeElement.ownerDocument;
+      const onDown = (event: Event): void => {
+        const target = event.target;
+        if (target instanceof Node && this.host.nativeElement.contains(target)) return;
+        this.open.set(false);
+      };
+      doc.addEventListener('pointerdown', onDown, true);
+      onCleanup(() => doc.removeEventListener('pointerdown', onDown, true));
     });
   }
 
