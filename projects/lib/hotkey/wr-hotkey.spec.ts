@@ -347,4 +347,34 @@ describe('WrHotkey', () => {
       }
     });
   });
+
+  it('ignores a key that belongs to an IME composition', () => {
+    const fn = vi.fn();
+    hotkey.bind('enter', fn, { allowInInput: true });
+
+    press({ key: 'Enter', isComposing: true });
+    press({ key: 'Enter', keyCode: 229 });
+    expect(fn).not.toHaveBeenCalled();
+
+    press({ key: 'Enter' });
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fire a global hotkey for typing inside a shadow-DOM input', () => {
+    const fn = vi.fn();
+    hotkey.bind('k', fn);
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const input = document.createElement('input');
+    host.attachShadow({ mode: 'open' }).appendChild(input);
+
+    // `composed` lets the event leave the shadow root, where `target` becomes the host.
+    press({ key: 'k', composed: true }, input);
+    expect(fn).not.toHaveBeenCalled();
+
+    press({ key: 'k', composed: true }, host);
+    expect(fn).toHaveBeenCalledTimes(1);
+    host.remove();
+  });
 });
