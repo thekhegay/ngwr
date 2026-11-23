@@ -148,6 +148,14 @@ describe('WrCommandPalette', () => {
     expect(fixture.componentInstance.picked).toEqual(['undo']);
   });
 
+  it('commits on the primary button only', () => {
+    for (const button of [1, 2]) {
+      options()[2].dispatchEvent(new MouseEvent('mousedown', { button, bubbles: true, cancelable: true }));
+    }
+    fixture.detectChanges();
+    expect(fixture.componentInstance.picked).toEqual([]);
+  });
+
   it('filters on the label, the description, the group and the keywords', () => {
     fixture.componentInstance.items.set([
       { id: 'a', label: 'Alpha', description: 'the first letter' },

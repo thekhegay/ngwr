@@ -445,6 +445,7 @@ export class WrCommandPalette {
   }
 
   protected onItemClick(item: WrCommandItem, event: MouseEvent): void {
+    if (event.button !== 0) return;
     event.preventDefault();
     this.commit(item);
   }
