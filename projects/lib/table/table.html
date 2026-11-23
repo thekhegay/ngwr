@@ -132,6 +132,7 @@
             #thCell
             (click)="onHeaderClick($event, col.key, col.column.sortable)"
             cdkDrag
+            [cdkDragPreviewClass]="size() === 'sm' ? 'wr-table__th--preview-sm' : ''"
             [attr.inert]="selectionBar() ? '' : null"
             [cdkDragDisabled]="!reorderable() || col.pinned"
             (cdkDragStarted)="onColumnDragStart($event)"
@@ -397,6 +398,7 @@
                     <a
                       class="wr-table__row-link"
                       [attr.href]="link.href"
+                      [attr.tabindex]="treeMode() ? -1 : null"
                       [attr.aria-labelledby]="rowLabelId(entry.id)"
                     ></a>
                   }

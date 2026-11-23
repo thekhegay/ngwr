@@ -20,7 +20,7 @@ Coverage today is the pure-logic layer (`ngwr/utils`, `ngwr/validators`,
 `ngwr/platform`, `ngwr/storage`, `ngwr/overlay`, `ngwr/density`,
 `WrWindowManager`, `ngwr/scroll`) and EVERY component with a
 page under `reference/components`, and every entry point has a spec — the
-twenty `ngwr/i18n/<locale>` catalogs through one shared table (see i18n
+`ngwr/i18n/<locale>` catalogs through one shared table (see i18n
 above). (How
 many spec files and how many cases is re-counted by `pnpm gen:quality` into
 `#core/generated/quality` — read it there. This sentence used to restate both,

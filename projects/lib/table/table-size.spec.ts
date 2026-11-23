@@ -1,7 +1,10 @@
+import { CdkDrag } from '@angular/cdk/drag-drop';
 import { Component, signal } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+
+import { compileSass } from '../spec-sass';
 
 import { WrTable } from './table';
 import type { WrTableColumns, WrTableSize } from './types';
@@ -61,5 +64,20 @@ describe('WrTable size', () => {
     expect(table('static').querySelector<HTMLElement>('.wr-table__td')!.getAttribute('style') ?? '').not.toContain(
       'padding'
     );
+  });
+
+  it('gives the header drag preview the sm padding, which lives in <body>', () => {
+    const drags = (): CdkDrag[] =>
+      [...table('bound').querySelectorAll('th.wr-table__th')].map(el =>
+        fixture.debugElement.query(d => d.nativeElement === el).injector.get(CdkDrag)
+      );
+    expect(drags()[0].previewClass).toBeFalsy();
+
+    fixture.componentInstance.size.set('sm');
+    fixture.detectChanges();
+    expect(drags()[0].previewClass).toBe('wr-table__th--preview-sm');
+
+    const css = compileSass(`@use 'table/styles';`);
+    expect(css).toMatch(/\.cdk-drag-preview\.wr-table__th\.wr-table__th--preview-sm\s*\{[^}]*--wr-space-xs/);
   });
 });

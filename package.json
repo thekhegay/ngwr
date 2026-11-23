@@ -87,7 +87,7 @@
     "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.6",
     "@types/semver": "^7.8.0",
-    "@vitest/coverage-v8": "4.1.12",
+    "@vitest/coverage-v8": "5.1.1",
     "angular-eslint": "^22.7.0",
     "axe-core": "^4.14.1",
     "bootstrap-icons": "^1.13.2",
@@ -102,7 +102,7 @@
     "iconoir": "^7.12.2",
     "jsdom": "^31.0.1",
     "lucide": "^1.74.0",
-    "ngtrue": "^0.3.1",
+    "ngtrue": "^0.4.0",
     "playwright": "^1.65.1",
     "prettier": "^3.10.1",
     "prosemirror-commands": "^1.7.2",
@@ -121,6 +121,6 @@
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.73.0",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.1"
   }
 }

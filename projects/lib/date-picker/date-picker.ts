@@ -1138,6 +1138,8 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
     // rewritten ahead of that refusal showed a date the model never took — the date a
     // readonly calendar's day click named, while the form still submitted the old one.
     if (this.readonly() || this.disabled()) return;
+    // A day the value format cannot write is refused like out-of-range text.
+    if (this.holdsDay() && !wrToDay(next)) return;
     this.text.set(this.fieldText.show(next));
     this.commitValue(next);
     this.refuse(null);

@@ -299,6 +299,37 @@ describe('WrScrollFollow', () => {
     expect(follow().following()).toBe(true);
   });
 
+  it('follows again when a reader scrolled up is clamped to the end by shorter content', async () => {
+    await mount(Host);
+
+    scrollTo(60);
+    expect(follow().following()).toBe(false);
+
+    host().rows.set([10, 11, 12, 13, 14, 15]);
+    fixture.detectChanges();
+    scrollTo(top);
+    await settle();
+    expect(follow().following()).toBe(true);
+
+    host().rows.update(rows => [...rows, 16]);
+    await settle();
+    expect(top).toBe(80);
+  });
+
+  it('measures only the rows around the view when it remembers its place', async () => {
+    await mount(Host, h => h.rows.set(Array.from({ length: 400 }, (_, i) => i)));
+    scrollTo(1000);
+
+    const measure = vi.spyOn(Element.prototype, 'getBoundingClientRect');
+    scrollTo(1200);
+
+    // 400 rows, a handful measured.
+    expect(measure.mock.calls.length).toBeLessThan(40);
+    host().rows.update(rows => [-1, -2, ...rows]);
+    await settle();
+    expect(top).toBe(1200 + 2 * ROW);
+  });
+
   it('resumes when the reader scrolls back to within the threshold of the end', async () => {
     await mount(Host);
     scrollTo(0);

@@ -995,6 +995,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** The routing adapter, when `WrTableRouting` from `ngwr/table/router` is on the table. */
   private readonly routing = inject(WR_TABLE_ROUTING, { optional: true });
 
+  private warnedNoRouting = false;
+
   /** The link of every rendered row that has one, so a virtualized body resolves its window only. */
   protected readonly rowLinks = computed<ReadonlyMap<Record<string, unknown>, RowLink>>(() => {
     const links = new Map<Record<string, unknown>, RowLink>();
@@ -1008,7 +1010,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         links.set(row, { href: link, routed: null });
       } else if (routing) {
         links.set(row, { href: routing.href(link), routed: link });
-      } else if (typeof ngDevMode === 'undefined' || ngDevMode) {
+      } else if (!this.warnedNoRouting && (typeof ngDevMode === 'undefined' || ngDevMode)) {
+        this.warnedNoRouting = true;
         // eslint-disable-next-line no-console -- dev-mode validation
         console.error(
           '[NGWR] <wr-table>: `rowLink` returned router commands, but no routing adapter is provided. ' +
@@ -2668,7 +2671,19 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           }
         }
         break;
-      case WR_KEYS.ENTER:
+      case WR_KEYS.ENTER: {
+        // A linked row follows its link, as a click on the anchor does.
+        const anchor = this.rowLinks().has(entry.row)
+          ? els[index].nativeElement.querySelector<HTMLElement>(':scope > td > .wr-table__row-link')
+          : null;
+        if (anchor) {
+          anchor.click();
+          break;
+        }
+        if (!this.rowSelection()) return;
+        this.toggleRow(entry.row, !this.isRowSelected(entry.row));
+        break;
+      }
       case WR_KEYS.SPACE:
         // Selection is the row's own action when the table offers one. Without
         // it the keys do nothing, rather than guessing at a default.

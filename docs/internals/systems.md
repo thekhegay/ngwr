@@ -86,7 +86,7 @@ one component folder. Reach for them instead of hand-rolling:
   into a gitignored folder.
 - **i18n** (`ngwr/i18n`) — the `wrT` pipe + `[wrT]` directive, `WrI18n` service,
   `provideWrI18n()` + `provideWrI18nStaticLoader()`; ngwr's own catalogs at
-  **twenty-two catalogs**, one entry point each (`ngwr/i18n/de`, `ngwr/i18n/ja`,
+  **one catalog per language**, one entry point each (`ngwr/i18n/de`, `ngwr/i18n/ja`,
   …), so an app pays only for the languages it imports, and registered through
   `provideWrI18nBaseCatalogs()`, never spread into the app's (a spread is
   shallow, so a shared namespace silently keeps one side). Codes are LANGUAGES
@@ -97,7 +97,7 @@ one component folder. Reach for them instead of hand-rolling:
   by hand). Every catalog is held to the English key set, to its placeholder
   set, and to being written in its own script by one shared
   `expectCatalogContract` in `i18n/catalog-contract.ts` — `en` and `ru` from
-  their own specs, the other twenty from one table in `i18n/catalogs.spec.ts`,
+  their own specs, the others from one table in `i18n/catalogs.spec.ts`,
   which also fails on a locale folder the table does not name. The contract is
   **not a `.spec.ts`, and that is load-bearing**:
   a file that is both a suite and a module other specs import gets its own
