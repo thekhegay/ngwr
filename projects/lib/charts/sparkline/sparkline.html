@@ -52,3 +52,9 @@
     [style.background]="color()"
   ></span>
 }
+@if (tableData(); as table) {
+  <!-- The values for a screen reader, beside the drawing rather than inside its `img`,
+       which would make them presentational. Clipped to nothing by its own stylesheet, so
+       it takes no room and draws nothing. -->
+  <wr-chart-table [data]="table" />
+}

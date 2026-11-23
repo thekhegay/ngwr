@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Meter Group"
-  updated="16.5.0"
+  updated="16.8.0"
   description="One bar split into labelled parts, with a legend."
   [keywords]="['meter', 'progress', 'wr-meter-group']"
   [labels]="['Display']"
@@ -80,6 +80,23 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per segment shown, with its value and its share of `max` or of the sum. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="dataTableSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-meter-group
+        style="width: 100%"
+        [segments]="quota"
+        [max]="100"
+        ariaLabel="Disk quota"
+        showLegend="false"
+        dataTable
+      />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Accessibility">
     <div class="ngwr-table">
       <table>
@@ -99,7 +116,10 @@
           </tr>
           <tr>
             <th scope="row">Segments</th>
-            <td>Announce nothing of their own. The legend names each one with its value.</td>
+            <td>
+              Announce nothing of their own. The legend names each one with its value, and with the legend or its values
+              off the table <code>dataTable</code> adds is where they are in text.
+            </td>
           </tr>
           <tr>
             <th scope="row">Legend</th>

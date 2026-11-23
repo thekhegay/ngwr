@@ -288,6 +288,8 @@ export const wrAr: WrI18nCatalog = {
   donutChart: {
     label: 'مخطط دائري مجوف',
     pieLabel: 'مخطط دائري',
+    value: 'القيمة',
+    share: 'الحصة',
   },
   chartLegend: {
     toggleLabel: 'إظهار السلاسل أو إخفاؤها',
@@ -537,6 +539,11 @@ export const wrAr: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'مقياس',
+    value: 'القيمة',
+    share: 'الحصة',
+  },
+  sparkline: {
+    value: 'القيمة',
   },
   knob: {
     label: 'القيمة',

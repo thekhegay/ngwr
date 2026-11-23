@@ -22,6 +22,7 @@ const SEGMENTS: readonly WrMeterSegment[] = [
       [showLegend]="showLegend()"
       [showValues]="showValues()"
       [toggleableLegend]="toggleable()"
+      [dataTable]="dataTable()"
       [(hiddenSegments)]="hidden"
     />
   `,
@@ -33,6 +34,7 @@ class Host {
   readonly showValues = signal(true);
   readonly toggleable = signal(false);
   readonly hidden = signal<readonly number[]>([]);
+  readonly dataTable = signal(false);
 }
 
 /**
@@ -150,5 +152,28 @@ describe('WrMeterGroupHarness', () => {
     expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ ariaLabel: /storage/i }))).toBeNull();
     expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ sliceLabel: 'Photos' }))).not.toBeNull();
     expect(await loader.getHarnessOrNull(WrMeterGroupHarness.with({ sliceLabel: 'Music' }))).toBeNull();
+  });
+
+  it('reads the data table, and refuses one that is not rendered', async () => {
+    const harness = await meter();
+    expect(await harness.hasDataTable()).toBe(false);
+    await expect(harness.getTableRows()).rejects.toThrow(/`dataTable` is off/);
+    await expect(harness.getTableColumns()).rejects.toThrow(/`dataTable` is off/);
+
+    fixture.componentInstance.dataTable.set(true);
+    fixture.componentInstance.max.set(200);
+    expect(await harness.getTableColumns()).toEqual(['Value', 'Share']);
+    expect(await harness.getTableRows()).toEqual([
+      { header: 'Apps', cells: ['30', '15%'] },
+      { header: 'Photos', cells: ['50', '25%'] },
+      { header: 'Free', cells: ['20', '10%'] },
+    ]);
+
+    // A hidden segment has no row; `max` is a capacity, so the others keep their share.
+    fixture.componentInstance.hidden.set([1]);
+    expect(await harness.getTableRows()).toEqual([
+      { header: 'Apps', cells: ['30', '15%'] },
+      { header: 'Free', cells: ['20', '10%'] },
+    ]);
   });
 });

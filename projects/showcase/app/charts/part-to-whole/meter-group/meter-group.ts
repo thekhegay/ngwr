@@ -66,6 +66,8 @@ export default class MeterGroupPageComponent {
 ];
 hidden = signal<readonly number[]>([]);`;
 
+  protected readonly dataTableSnippet = `<wr-meter-group [segments]="quota" [max]="100" ariaLabel="Disk quota" showLegend="false" dataTable />`;
+
   protected readonly api = API.WrMeterGroup;
 
   protected readonly typeSnippet = `interface WrMeterSegment {

@@ -285,6 +285,8 @@ export const wrFr: WrI18nCatalog = {
   donutChart: {
     label: 'Graphique en anneau',
     pieLabel: 'Graphique en secteurs',
+    value: 'Valeur',
+    share: 'Part',
   },
   chartLegend: {
     toggleLabel: 'Afficher ou masquer les séries',
@@ -533,6 +535,11 @@ export const wrFr: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Indicateur',
+    value: 'Valeur',
+    share: 'Part',
+  },
+  sparkline: {
+    value: 'Valeur',
   },
   knob: {
     label: 'Valeur',

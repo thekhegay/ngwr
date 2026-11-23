@@ -10,8 +10,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   type ElementRef,
+  LOCALE_ID,
   ViewEncapsulation,
   computed,
+  inject,
   input,
   model,
   viewChild,
@@ -26,13 +28,16 @@ import {
 } from 'ngwr/charts/chart-legend';
 import {
   WrChartState,
+  WrChartTable,
+  type WrChartTableData,
   useChartHover,
   useChartNumbers,
   useChartState,
   wrChartColor,
+  wrChartNumberFormat,
   wrChartRound,
 } from 'ngwr/charts/core';
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nText, wrReadI18nText } from 'ngwr/i18n';
 import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -65,6 +70,11 @@ import type { WrMeterSegment } from './types';
  * bar is an empty track with "No data" under it; `loading` and `error` put their own
  * message there.
  *
+ * **What a screen reader gets.** The bar is a `role="progressbar"` that announces the
+ * total, so each segment's figure is in text only in the legend, which `showLegend` and
+ * `showValues` can leave out. `dataTable` renders every segment shown with its value and
+ * its share of the total as a table a reader can walk cell by cell.
+ *
  * @see https://ngwr.dev/charts/meter-group
  */
 @Component({
@@ -76,7 +86,7 @@ import type { WrMeterSegment } from './types';
     class: 'wr-meter-group wr-chart--legend',
     '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
   },
-  imports: [NgTemplateOutlet, WrChartLegend, WrChartState],
+  imports: [NgTemplateOutlet, WrChartLegend, WrChartState, WrChartTable],
   // The legend's rows keep the classes this chart drew before it drew them through
   // `WrChartLegend`: `.wr-meter-group__legend-item`, `__swatch`, `__legend-label` and
   // `__legend-value`.
@@ -90,7 +100,7 @@ export class WrMeterGroup {
     useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
   }
 
-  /** Accessible name — the role needs one. Falls back to `meterGroup.label`. */
+  /** Accessible name — the role needs one. Also the caption of the data table. Falls back to `meterGroup.label`. */
   readonly ariaLabel = input<string | null>(null);
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'meterGroup.label', 'Meter');
@@ -183,14 +193,40 @@ export class WrMeterGroup {
   readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
-   * Writes every value in the legend and the tooltip, and the total the bar announces
-   * as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.
+   * Writes every value in the legend, the tooltip and the data table, and the total the
+   * bar announces as `aria-valuetext`. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.
    * `aria-valuenow` stays a number.
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  /** Each value as the legend, the tooltip and the bar print it: never compact, in `LOCALE_ID` unless `valueFormat` is given. */
+  /**
+   * Render the meter's figures as a table that only assistive technology reaches: a row
+   * per segment shown, headed by its label, with its value as the legend writes it and
+   * its share of the total the bar is drawn against, a percentage in `LOCALE_ID`: of
+   * `max` when one is set, else of the sum of the segments shown. A segment hidden
+   * through `hiddenSegments` has no row, and one that draws nothing has an empty share.
+   * The values are listed whatever `showValues` says. The table gives way with the legend
+   * while the meter is empty, `loading` or in `error`.
+   *
+   * The bar announces the total alone, and the legend is optional, so without the table
+   * the segments' figures may be nowhere a screen reader can walk. It is rendered beside
+   * the bar, clipped to nothing: it takes no room, draws nothing and holds no tab stop.
+   * @default false
+   */
+  readonly dataTable = input(false, { transform: coerceBooleanProperty });
+
+  /** The headings of the data table's two columns. */
+  private readonly valueName = wrReadI18nText('meterGroup.value', 'Value');
+  private readonly shareName = wrReadI18nText('meterGroup.share', 'Share');
+
+  /** Each value as the legend, the tooltip, the data table and the bar print it: never compact, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
+
+  private readonly locale = inject(LOCALE_ID);
+  /** Shares from one percent up, to one decimal. */
+  private readonly shares = wrChartNumberFormat(this.locale, { style: 'percent', maximumFractionDigits: 1 });
+  /** Shares below one percent, to two significant digits, so a sliver does not read `0%`. */
+  private readonly smallShares = wrChartNumberFormat(this.locale, { style: 'percent', maximumSignificantDigits: 2 });
 
   private readonly barEl = viewChild.required<ElementRef<HTMLElement>>('bar');
   private readonly sliceEls = viewChildren<ElementRef<HTMLElement>>('slice');
@@ -286,6 +322,28 @@ export class WrMeterGroup {
     const values = this.showValues();
     return this.slices().map(({ label, color, text }) => ({ label, color, value: values ? text : null }));
   });
+
+  /**
+   * The figures for `dataTable`: the meter's name as the caption, a row per segment shown,
+   * and its value and its share of the total as the columns.
+   */
+  protected readonly tableData = computed<WrChartTableData>(() => ({
+    caption: this.resolvedAriaLabel(),
+    columns: [this.valueName(), this.shareName()],
+    groups: [
+      {
+        rows: this.slices()
+          .filter(slice => !slice.hidden)
+          .map(slice => {
+            const share = slice.percent / 100;
+            return {
+              header: slice.label,
+              cells: [slice.text, share > 0 ? (share < 0.01 ? this.smallShares : this.shares).format(share) : ''],
+            };
+          }),
+      },
+    ],
+  }));
 
   /**
    * One tooltip for the whole bar, pointing at the hovered band, with the value as

@@ -84,9 +84,8 @@ function tabLeavesPane(pane: HTMLElement, event: KeyboardEvent): boolean {
   host: {
     '(click)': 'toggle()',
     '(keydown.tab)': 'onTriggerTab($event)',
-    // The same two attributes `<wr-popover>`'s trigger carries: without them the
-    // button gave no hint that it opens anything, and never said it was open.
-    '[attr.aria-haspopup]': '"dialog"',
+    // No `aria-haspopup`: the pane is a bare overlay, not a named dialog, so
+    // claiming `dialog` announced one and landed in an unnamed group.
     '[attr.aria-expanded]': 'isOpen()',
     // Which panel, and only while there is one — the same pairing `[wrPopconfirm]`
     // publishes. Without it nothing on the page connects the trigger to the picker

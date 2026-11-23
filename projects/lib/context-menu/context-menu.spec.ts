@@ -356,6 +356,15 @@ describe('WrContextMenu', () => {
       expect(focused()).toBe('More');
     });
 
+    it('leaves an Escape that belongs to an input method alone', async () => {
+      rightClick();
+      document.body.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true, cancelable: true })
+      );
+      await settle();
+      expect(menus()).toHaveLength(1);
+    });
+
     it('closes on Escape and on Tab without moving focus that never entered', async () => {
       const child = target().querySelector<HTMLElement>('.child')!;
       child.focus();
@@ -607,6 +616,18 @@ describe('WrContextMenu', () => {
       expect(itemFor('More')!.getAttribute('aria-expanded')).toBe('false');
       expect(target().getAttribute('aria-controls')).not.toBeNull();
       expect(document.activeElement).toBe(itemFor('More'));
+    });
+
+    it('closes the whole chain on Tab', async () => {
+      rightClick();
+      press(itemFor('More')!, 'ArrowRight');
+      await settle();
+      expect(menus()).toHaveLength(2);
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+      await settle();
+
+      expect(menus()).toHaveLength(0);
     });
 
     it('leaves the cursor where it was when hover opens the submenu', async () => {

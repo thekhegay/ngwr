@@ -7,7 +7,7 @@
 
 import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { type OverlayRef, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import type { OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, type ComponentType } from '@angular/cdk/portal';
 import { Location, isPlatformBrowser } from '@angular/common';
 import {
@@ -25,8 +25,15 @@ import {
 import { WR_BUTTON_SIZE } from 'ngwr/button';
 import { WrI18n } from 'ngwr/i18n';
 import { WrMeta } from 'ngwr/meta';
-import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
-import { wrToClassList } from 'ngwr/utils';
+import {
+  WR_OVERLAY,
+  WrOverlayOrder,
+  WrScrollBlock,
+  wrAppendOverlayClose,
+  wrFocusOverlay,
+  wrFollowDirection,
+} from 'ngwr/overlay';
+import { wrIsComposing, wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
 import type { WrDialogConfirmData } from './confirm/dialog-confirm-data';
@@ -67,7 +74,7 @@ const DEFAULT_BACKDROP_CLASS = 'wr-dialog-backdrop';
 @Service()
 export class WrDialog {
   private readonly overlay = inject(WR_OVERLAY);
-  private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly scrollBlock = inject(WrScrollBlock);
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -91,7 +98,7 @@ export class WrDialog {
   ): WrDialogRef<C, R> {
     const overlayRef: OverlayRef = this.overlay.create({
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
-      scrollStrategy: this.scrollStrategies.block(),
+      scrollStrategy: this.scrollBlock.strategy(),
       hasBackdrop: true,
       backdropClass: DEFAULT_BACKDROP_CLASS,
       panelClass: wrToClassList(
@@ -152,7 +159,7 @@ export class WrDialog {
     }
     if (options.closeOnEscape !== false) {
       overlayRef.keydownEvents().subscribe(event => {
-        if (event.key === 'Escape') {
+        if (event.key === 'Escape' && !wrIsComposing(event)) {
           event.preventDefault();
           dialogRef.close();
         }

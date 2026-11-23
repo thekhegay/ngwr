@@ -284,6 +284,8 @@ export const wrIt: WrI18nCatalog = {
   donutChart: {
     label: 'Grafico ad anello',
     pieLabel: 'Grafico a torta',
+    value: 'Valore',
+    share: 'Quota',
   },
   chartLegend: {
     toggleLabel: 'Mostra o nascondi le serie',
@@ -528,6 +530,11 @@ export const wrIt: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Misuratore',
+    value: 'Valore',
+    share: 'Quota',
+  },
+  sparkline: {
+    value: 'Valore',
   },
   knob: {
     label: 'Valore',

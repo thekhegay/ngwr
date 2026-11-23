@@ -22,14 +22,18 @@
   --wr-tour-spotlight-radius: var(--wr-border-radius-base);
 
   position: fixed;
-  // Below CDK's `.cdk-overlay-container` (1000), deliberately. Both are fixed
-  // children of `<body>`, so at equal z-index the DOM order decides — and the
-  // service appends a fresh cut-out on every step while the container stays put, so
-  // from the second step on the dimming shadow painted OVER the tour's own card.
-  // A `z-index` on `.wr-tour-overlay` cannot help: that sits on the pane INSIDE
-  // the container, whose own stacking context scopes it — which is why the pane
-  // carries none.
+  // The service puts it in the top layer (`popover="manual"`) ahead of the card's
+  // overlay, which joins it later and so paints over it, and over a dialog that
+  // holds the target. No z-index reaches the top layer; this one is for a browser
+  // without it, where it sits below CDK's `.cdk-overlay-container` (1000).
   z-index: 999;
+  // A popover host comes from the UA sheet centred, bordered, padded and filled.
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: none;
   pointer-events: none;
   border-radius: var(--wr-tour-spotlight-radius);
   box-shadow: 0 0 0 9999px color-mix(in srgb, var(--wr-color-backdrop) 55%, transparent);

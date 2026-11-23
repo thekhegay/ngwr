@@ -279,6 +279,8 @@ export const wrCs: WrI18nCatalog = {
   donutChart: {
     label: 'Prstencový graf',
     pieLabel: 'Koláčový graf',
+    value: 'Hodnota',
+    share: 'Podíl',
   },
   chartLegend: {
     toggleLabel: 'Přepnout viditelnost řad',
@@ -514,6 +516,11 @@ export const wrCs: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Měřidlo',
+    value: 'Hodnota',
+    share: 'Podíl',
+  },
+  sparkline: {
+    value: 'Hodnota',
   },
   knob: {
     label: 'Hodnota',

@@ -369,6 +369,8 @@ export const wrEn: WrI18nCatalog = {
   donutChart: {
     label: 'Donut chart',
     pieLabel: 'Pie chart',
+    value: 'Value',
+    share: 'Share',
   },
   // The legend every chart draws, and the one apps place themselves. `toggleLabel`
   // names the list when its rows are buttons; `hidden` is a lowercase status word,
@@ -645,6 +647,11 @@ export const wrEn: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Meter',
+    value: 'Value',
+    share: 'Share',
+  },
+  sparkline: {
+    value: 'Value',
   },
   knob: {
     label: 'Value',

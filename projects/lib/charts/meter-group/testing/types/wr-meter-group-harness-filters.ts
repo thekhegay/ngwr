@@ -22,3 +22,14 @@ export interface WrMeterGroupSlice {
   /** The share of the bar it takes, in percent. */
   readonly percent: number;
 }
+
+/**
+ * One row of the meter's data table (`dataTable`): the segment's label as its row header,
+ * then its value and its share of the total the bar is drawn against.
+ */
+export interface WrMeterGroupTableRow {
+  /** The row header: the segment's label. */
+  readonly header: string;
+  /** Its value and its share, as the meter writes them; `''` where it has none. */
+  readonly cells: readonly string[];
+}

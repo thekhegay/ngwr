@@ -279,6 +279,8 @@ export const wrSv: WrI18nCatalog = {
   donutChart: {
     label: 'Ringdiagram',
     pieLabel: 'Cirkeldiagram',
+    value: 'Värde',
+    share: 'Andel',
   },
   chartLegend: {
     toggleLabel: 'Växla synlighet för serier',
@@ -514,6 +516,11 @@ export const wrSv: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Mätare',
+    value: 'Värde',
+    share: 'Andel',
+  },
+  sparkline: {
+    value: 'Värde',
   },
   knob: {
     label: 'Värde',

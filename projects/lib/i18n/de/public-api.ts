@@ -287,6 +287,8 @@ export const wrDe: WrI18nCatalog = {
   donutChart: {
     label: 'Ringdiagramm',
     pieLabel: 'Kreisdiagramm',
+    value: 'Wert',
+    share: 'Anteil',
   },
   chartLegend: {
     toggleLabel: 'Sichtbarkeit der Datenreihen umschalten',
@@ -532,6 +534,11 @@ export const wrDe: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Messwerte',
+    value: 'Wert',
+    share: 'Anteil',
+  },
+  sparkline: {
+    value: 'Wert',
   },
   knob: {
     label: 'Wert',

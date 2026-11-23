@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 
 import { WR_OVERLAY, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { wrRestoreFocus, wrToClassList } from 'ngwr/utils';
+import { wrIsComposing, wrRestoreFocus, wrToClassList } from 'ngwr/utils';
 
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
 import type { WrTourOptions, WrTourPlacement, WrTourStep } from './types';
@@ -260,7 +260,8 @@ export class WrTour {
     const target = this.resolve(step);
     if (!target) return;
 
-    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+    const reduced = this.document.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: reduced ? 'instant' : 'smooth' });
 
     // The cut-out is a bare element sized to the target with an enormous spread
     // shadow: everything outside it dims, the target itself stays untouched.
@@ -270,6 +271,14 @@ export class WrTour {
     spotlight.className = 'wr-tour__spotlight';
     spotlight.setAttribute('aria-hidden', 'true');
     this.document.body.appendChild(spotlight);
+    // Into the top layer, where a dialog or a drawer holding the target is. It is
+    // promoted before the card's overlay is created, so the card stays above it.
+    // Set here and not in a template: a `popover` attribute hides the element
+    // until it is shown, which a browser without the API never does.
+    if (typeof spotlight.showPopover === 'function') {
+      spotlight.setAttribute('popover', 'manual');
+      spotlight.showPopover();
+    }
     this.spotlight = spotlight;
     this.placeSpotlight(target);
 
@@ -327,7 +336,7 @@ export class WrTour {
     const onKey = (event: KeyboardEvent): void => {
       // The listener is on the document, so a step shown over a dialog would see the
       // Escape that dialog just handled and close the tour too.
-      if (event.key === 'Escape' && !event.defaultPrevented) {
+      if (event.key === 'Escape' && !event.defaultPrevented && !wrIsComposing(event)) {
         event.preventDefault();
         this.stop();
       }

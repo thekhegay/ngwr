@@ -54,6 +54,7 @@ const NON_DECLARABLE: Readonly<Record<string, string>> = {
   WrOverlayOrder: 'a service',
   WrPlatform: 'a service',
   WrScroll: 'a service',
+  WrScrollBlock: 'a service',
   WrStorage: 'a service',
   WrTheme: 'a service',
   WrToast: 'a service',

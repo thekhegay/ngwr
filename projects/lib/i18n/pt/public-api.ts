@@ -283,6 +283,8 @@ export const wrPt: WrI18nCatalog = {
   donutChart: {
     label: 'Gráfico de anel',
     pieLabel: 'Gráfico de pizza',
+    value: 'Valor',
+    share: 'Participação',
   },
   chartLegend: {
     toggleLabel: 'Mostrar ou ocultar séries',
@@ -518,6 +520,11 @@ export const wrPt: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Medidor',
+    value: 'Valor',
+    share: 'Participação',
+  },
+  sparkline: {
+    value: 'Valor',
   },
   knob: {
     label: 'Valor',

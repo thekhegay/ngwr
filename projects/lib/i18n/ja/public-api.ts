@@ -283,6 +283,8 @@ export const wrJa: WrI18nCatalog = {
   donutChart: {
     label: 'ドーナツグラフ',
     pieLabel: '円グラフ',
+    value: '値',
+    share: '割合',
   },
   chartLegend: {
     toggleLabel: '系列の表示を切り替え',
@@ -518,6 +520,11 @@ export const wrJa: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'メーター',
+    value: '値',
+    share: '割合',
+  },
+  sparkline: {
+    value: '値',
   },
   knob: {
     label: '値',

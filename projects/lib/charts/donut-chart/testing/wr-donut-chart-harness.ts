@@ -9,7 +9,21 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
 
-import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './types';
+import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry, WrDonutChartTableRow } from './types';
+
+/**
+ * One body row of the chart's data table, so its header and cells are read off the row
+ * they sit in rather than matched up by position across the whole table.
+ */
+class TableRowHarness extends ComponentHarness {
+  static hostSelector = '.wr-chart-table tbody tr';
+
+  async read(): Promise<WrDonutChartTableRow> {
+    const header = await this.locatorFor('th[scope="row"]')();
+    const cells = await this.locatorForAll('td')();
+    return { header: await header.text(), cells: await Promise.all(cells.map(cell => cell.text())) };
+  }
+}
 
 /**
  * Test harness for `<wr-donut-chart>`.
@@ -19,7 +33,8 @@ import type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './type
  * `aria-label` and nothing else, and a spec cannot get a label or a value off a
  * path's `d`. {@link getLegend} is where the numbers are — which is also the
  * argument for keeping `showLegend` on, since with it off the only other text is
- * whatever {@link getCenterValue} and {@link getCenterLabel} were given.
+ * whatever {@link getCenterValue} and {@link getCenterLabel} were given, unless
+ * `dataTable` is on: {@link getTableRows} then reads every slice shown, with its share.
  *
  * The name is read off the `<svg>` rather than off the surface that wraps it, and
  * the two are not interchangeable: `img` makes its whole subtree presentational, so
@@ -129,6 +144,36 @@ export class WrDonutChartHarness extends ComponentHarness {
     );
   }
 
+  /** Whether the hidden data table is rendered (`dataTable`, while the chart draws its slices). */
+  async hasDataTable(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-chart-table')()) !== null;
+  }
+
+  /**
+   * The data table's column headings: the value's name and the share's.
+   *
+   * Throws when the chart renders no table (`dataTable` off, or a state in the slices'
+   * place) rather than answering with no columns.
+   */
+  async getTableColumns(): Promise<string[]> {
+    await this.assertDataTable('getTableColumns');
+    const headings = await this.locatorForAll('.wr-chart-table thead th[scope="col"]')();
+    return Promise.all(headings.map(heading => heading.text()));
+  }
+
+  /**
+   * The data table's rows, one per slice shown, in the data's own order: its label, its
+   * value and its share of the ring, as a screen reader walks them. A slice hidden
+   * through `hiddenSegments` has no row, and one that draws nothing an empty share.
+   *
+   * Throws when the chart renders no table, for the reason {@link getTableColumns} gives.
+   */
+  async getTableRows(): Promise<WrDonutChartTableRow[]> {
+    await this.assertDataTable('getTableRows');
+    const rows = await this.locatorForAll(TableRowHarness)();
+    return Promise.all(rows.map(row => row.read()));
+  }
+
   /** The big number in the middle, or `null` when the chart has none — a pie never has. */
   async getCenterValue(): Promise<string | null> {
     const center = await this.locatorForOptional('.wr-donut-chart__center-value')();
@@ -162,5 +207,14 @@ export class WrDonutChartHarness extends ComponentHarness {
       );
     }
     return Number.parseFloat(match[1]);
+  }
+
+  private async assertDataTable(method: string): Promise<void> {
+    if (!(await this.hasDataTable())) {
+      throw new Error(
+        `WrDonutChartHarness.${method}(): the chart renders no data table: \`dataTable\` is off, or there ` +
+          'is nothing to tabulate. Ask hasDataTable() first.'
+      );
+    }
   }
 }

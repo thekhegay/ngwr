@@ -7,7 +7,21 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
-import type { WrSparklineHarnessFilters } from './types';
+import type { WrSparklineHarnessFilters, WrSparklineTableRow } from './types';
+
+/**
+ * One body row of the sparkline's data table, so its header and cell are read off the row
+ * they sit in rather than matched up by position across the whole table.
+ */
+class TableRowHarness extends ComponentHarness {
+  static hostSelector = '.wr-chart-table tbody tr';
+
+  async read(): Promise<WrSparklineTableRow> {
+    const header = await this.locatorFor('th[scope="row"]')();
+    const cells = await this.locatorForAll('td')();
+    return { header: await header.text(), cells: await Promise.all(cells.map(cell => cell.text())) };
+  }
+}
 
 /**
  * Test harness for `<wr-sparkline>`.
@@ -23,7 +37,9 @@ import type { WrSparklineHarnessFilters } from './types';
  * assert: it is a rendering detail that changes with the viewBox, the stroke width
  * and the smoothing. What IS worth asserting is whether the parts are there —
  * {@link hasLine}, {@link hasArea}, {@link hasTip} — since each is an input the
- * consumer set, and an empty dataset draws none of them.
+ * consumer set, and an empty dataset draws none of them. The values themselves are in
+ * text only in the data table: {@link getTableRows}, for a named sparkline with
+ * `dataTable` on.
  *
  * @see https://ngwr.dev/guides/testing
  */
@@ -84,5 +100,44 @@ export class WrSparklineHarness extends ComponentHarness {
   async getColor(): Promise<string | null> {
     const line = await this.locatorForOptional('.wr-sparkline__line')();
     return line ? line.getAttribute('stroke') : null;
+  }
+
+  /** Whether the hidden data table is rendered (`dataTable`, on a sparkline with an `ariaLabel`). */
+  async hasDataTable(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-chart-table')()) !== null;
+  }
+
+  /**
+   * The data table's column headings: the value's name.
+   *
+   * Throws when the sparkline renders no table (`dataTable` off, or no `ariaLabel`)
+   * rather than answering with no columns.
+   */
+  async getTableColumns(): Promise<string[]> {
+    await this.assertDataTable('getTableColumns');
+    const headings = await this.locatorForAll('.wr-chart-table thead th[scope="col"]')();
+    return Promise.all(headings.map(heading => heading.text()));
+  }
+
+  /**
+   * The data table's rows, one per point drawn, in order: its position, counted from one,
+   * and its value, as a screen reader walks them.
+   *
+   * Throws when the sparkline renders no table, for the reason {@link getTableColumns}
+   * gives.
+   */
+  async getTableRows(): Promise<WrSparklineTableRow[]> {
+    await this.assertDataTable('getTableRows');
+    const rows = await this.locatorForAll(TableRowHarness)();
+    return Promise.all(rows.map(row => row.read()));
+  }
+
+  private async assertDataTable(method: string): Promise<void> {
+    if (!(await this.hasDataTable())) {
+      throw new Error(
+        `WrSparklineHarness.${method}(): the sparkline renders no data table: \`dataTable\` is off, or it ` +
+          'has no `ariaLabel` to caption one. Ask hasDataTable() first.'
+      );
+    }
   }
 }

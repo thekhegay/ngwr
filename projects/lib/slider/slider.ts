@@ -428,20 +428,38 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   // Interaction
 
   protected onPointerDown(event: PointerEvent, thumb: 'low' | 'high'): void {
-    if (this.disabled() || this.readonly()) return;
+    this.startDrag(event, event.currentTarget as HTMLElement, thumb);
+  }
+
+  protected onTrackPointerDown(event: PointerEvent): void {
+    if (this.disabled() || this.readonly() || !this.isPrimaryPress(event)) return;
+    if ((event.target as HTMLElement).closest('.wr-slider__thumb')) return;
+    const thumb = this.nearestThumb(event);
+    const el = this.track().nativeElement.querySelector<HTMLElement>(`.wr-slider__thumb--${thumb}`);
+    if (el) this.startDrag(event, el, thumb);
+  }
+
+  /** Primary button of the primary pointer: a right-click or a second finger starts nothing. */
+  private isPrimaryPress(event: PointerEvent): boolean {
+    return event.button === 0 && event.isPrimary !== false;
+  }
+
+  private startDrag(event: PointerEvent, target: HTMLElement, thumb: 'low' | 'high'): void {
+    if (this.disabled() || this.readonly() || !this.isPrimaryPress(event)) return;
     event.preventDefault();
-    const target = event.currentTarget as HTMLElement;
-    target.setPointerCapture(event.pointerId);
+    target.setPointerCapture?.(event.pointerId);
     // `preventDefault` above also suppresses the default focus, so the arrows
-    // did nothing after a mouse drag until the thumb was found again with Tab —
-    // while a click on the bare TRACK focused it. Synchronously, not through
-    // `focusThumb`: `event.currentTarget` is already the thumb, so that
-    // helper's `queueMicrotask` would only defer a focus nothing is waiting on.
+    // did nothing after a mouse drag until the thumb was found again with Tab.
     target.focus();
 
-    const move = (e: PointerEvent): void => this.updateFromEvent(e, thumb);
+    const move = (e: PointerEvent): void => {
+      if (e.pointerId !== event.pointerId) return;
+      if (this.disabled() || this.readonly()) return;
+      this.updateFromEvent(e, thumb);
+    };
     const cleanup = (e: PointerEvent): void => {
-      target.releasePointerCapture(e.pointerId);
+      if (e.pointerId !== event.pointerId) return;
+      target.releasePointerCapture?.(e.pointerId);
       target.removeEventListener('pointermove', move);
       target.removeEventListener('pointerup', cleanup);
       target.removeEventListener('pointercancel', cleanup);
@@ -455,14 +473,6 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     // was merely hovering over it, with no button held.
     target.addEventListener('pointercancel', cleanup);
     this.updateFromEvent(event, thumb);
-  }
-
-  protected onTrackPointerDown(event: PointerEvent): void {
-    if (this.disabled() || this.readonly()) return;
-    if ((event.target as HTMLElement).closest('.wr-slider__thumb')) return;
-    const thumb = this.nearestThumb(event);
-    this.updateFromEvent(event, thumb);
-    this.focusThumb(thumb);
   }
 
   protected onKey(event: KeyboardEvent, thumb: 'low' | 'high'): void {
@@ -561,14 +571,6 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     if (!this.range()) return 'low';
     const raw = this.valueAt(event);
     return Math.abs(raw - this.low()) <= Math.abs(raw - this.high()) ? 'low' : 'high';
-  }
-
-  private focusThumb(thumb: 'low' | 'high'): void {
-    queueMicrotask(() => {
-      const root = this.track().nativeElement;
-      const el = root.querySelector<HTMLElement>(`.wr-slider__thumb--${thumb}`);
-      el?.focus();
-    });
   }
 
   private setThumb(thumb: 'low' | 'high', raw: number): void {

@@ -288,6 +288,8 @@ export const wrVi: WrI18nCatalog = {
   donutChart: {
     label: 'Biểu đồ vành khuyên',
     pieLabel: 'Biểu đồ tròn',
+    value: 'Giá trị',
+    share: 'Tỷ lệ',
   },
   chartLegend: {
     toggleLabel: 'Bật/tắt hiển thị chuỗi dữ liệu',
@@ -531,6 +533,11 @@ export const wrVi: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Thước đo',
+    value: 'Giá trị',
+    share: 'Tỷ lệ',
+  },
+  sparkline: {
+    value: 'Giá trị',
   },
   knob: {
     label: 'Giá trị',

@@ -499,10 +499,17 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
   }
 
   private constrain(v: number): number {
-    let next = wrClamp(v, this.minValue(), this.maxValue());
     const d = this.decimals();
-    if (d !== null) next = wrRound(next, d);
-    return next;
+    // Round first: rounding a clamped value could carry it past the bound.
+    const rounded = d === null ? v : wrRound(v, d);
+    const clamped = wrClamp(rounded, this.minValue(), this.maxValue());
+    if (d === null || wrRound(clamped, d) === clamped) return clamped;
+    // A bound off the `decimals` grid: the field would show the rounded text
+    // while the model kept the bound, so step inward to the nearest grid value.
+    const scale = 10 ** d;
+    const onGrid = (x: number, round: (n: number) => number): number =>
+      wrRound(round(wrRound(x * scale, 9)) / scale, d);
+    return clamped === this.maxValue() ? onGrid(clamped, Math.floor) : onGrid(clamped, Math.ceil);
   }
 
   /** `constrain` for a decimal string: the bounds and `decimals` through the decimal core. */
@@ -521,7 +528,8 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
    * The locale's digits to ASCII, its minus sign (U+2212 in sv, fi, …) to a
    * hyphen, and the bidi marks it puts around a negative number dropped — every
    * one of them is in the text this field formats, and neither `Number()` nor
-   * `wrDecimal` reads them.
+   * `wrDecimal` reads them. Fullwidth digits, signs and separators an IME writes
+   * come out as their ASCII forms.
    */
   private toAscii(text: string): string {
     return [...text]
@@ -531,7 +539,11 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
       })
       .join('')
       .replace(/[\u200e\u200f\u061c]/g, '')
-      .replace(/\u2212/g, '-');
+      .replace(/\u2212|\uff0d/g, '-')
+      .replace(/[\uff10-\uff19]/g, ch => String(ch.charCodeAt(0) - 0xff10))
+      .replace(/\uff0b/g, '+')
+      .replace(/\uff0e/g, '.')
+      .replace(/\uff0c/g, ',');
   }
 
   /**
@@ -567,23 +579,49 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     return wrDecimal(text);
   }
 
-  /** Parse a locale-formatted string. Returns `null` for partial / not-yet-numeric input. */
+  /**
+   * Parse a locale-formatted string. Returns `null` for partial, unreadable or
+   * non-decimal text (`0x1F`, `1e3`, `Infinity`). The locale's group character
+   * is read only between groups of three digits, so `3.5` in de is refused
+   * rather than committed as 35.
+   */
   private parse(raw: string): number | null {
     const trimmed = raw.trim();
     if (!trimmed) return null;
-    let normalised = this.toAscii(trimmed);
-    // Strip group separators, normalise the decimal separator to `.`.
+    const halves = this.toAscii(trimmed).split(this.separators.decimal);
+    if (halves.length > 2) return null;
+    let whole = halves[0];
     if (this.group) {
-      normalised = normalised.replace(this.group, '');
-    }
-    if (this.separators.decimal !== '.') {
-      normalised = normalised.split(this.separators.decimal).join('.');
+      const groups = whole.split(this.group);
+      if (groups.length > 1) {
+        if (!this.groupedLikeLocale(groups)) return null;
+        whole = groups.join('');
+      }
     }
     // Partial inputs we don't want to clobber while the user is still typing:
-    // `-`, `-.`, `.`, `1.`, `-1.` etc.
-    if (/^-?\.?$/.test(normalised) || normalised.endsWith('.')) return null;
+    // `-`, `-.`, `.`, `1.`, `-1.` fail the pattern as well.
+    const normalised = halves.length === 2 ? `${whole}.${halves[1]}` : whole;
+    if (!/^[+-]?(\d+(\.\d+)?|\.\d+)$/.test(normalised)) return null;
     const n = Number(normalised);
     return Number.isFinite(n) ? n : null;
+  }
+
+  /**
+   * Whether `groups`, the integer part split at the group character, is what
+   * the locale itself would print for those digits: threes in en-US, `1,23,456`
+   * in en-IN.
+   */
+  private groupedLikeLocale(groups: string[]): boolean {
+    const sign = /^[+-]/.exec(groups[0])?.[0] ?? '';
+    const lead = groups[0].slice(sign.length);
+    const digits = [lead, ...groups.slice(1)].join('');
+    if (!lead || !/^\d+$/.test(digits)) return false;
+    const printed = new Intl.NumberFormat(this.locale, {
+      useGrouping: 'always',
+      maximumFractionDigits: 0,
+    } as unknown as Intl.NumberFormatOptions).format(BigInt(digits));
+    const expected = this.toAscii(printed).split(this.group!);
+    return expected.length === groups.length && expected.every((g, i) => g === (i === 0 ? lead : groups[i]));
   }
 
   /** Format a value using `Intl.NumberFormat` for the active locale. */

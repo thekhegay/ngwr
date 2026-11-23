@@ -390,6 +390,13 @@ describe('[wrColorPickerTrigger] follows a direction flip while its panel is ope
     expect(overlayHost().getAttribute('dir')).toBe('rtl');
   });
 
+  it('does not claim a dialog it does not open', () => {
+    open();
+
+    expect(trigger().hasAttribute('aria-haspopup')).toBe(false);
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('re-anchors the panel against the direction just set', () => {
     open();
     expect(anchoredEdge()).toEqual(['0px', 'auto']);

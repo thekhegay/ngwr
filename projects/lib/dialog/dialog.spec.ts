@@ -148,6 +148,17 @@ describe('WrDialog', () => {
     expect(document.getElementById(labelledBy!)?.textContent?.trim()).toBe('Delete item');
   });
 
+  it('keeps the id of a title that has one, and names the dialog by it', async () => {
+    @Component({ imports: [WrDialogTitle], template: `<h2 wrDialogTitle id="my-title">Own id</h2>` })
+    class OwnId {}
+    fixture.componentInstance.dialog.open(OwnId);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.querySelector('h2')?.id).toBe('my-title');
+    expect(panel()!.getAttribute('aria-labelledby')).toBe('my-title');
+  });
+
   it('names the dialog from whichever title is in the panel right now', async () => {
     // The title belongs to the caller's component, so it can arrive late (an
     // async load behind an `@if`) or go away again while the dialog stays open.
@@ -278,6 +289,37 @@ describe('WrDialog', () => {
     await settle();
 
     expect(panel()).toBeNull();
+  });
+
+  it('leaves an Escape that belongs to an input method alone', async () => {
+    await open();
+
+    panel()!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true, cancelable: true })
+    );
+    await settle();
+
+    expect(panel()).toBeTruthy();
+  });
+
+  it('keeps the page blocked until the last of two stacked dialogs closes', async () => {
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 5000, configurable: true });
+    const blocked = (): boolean => document.documentElement.classList.contains('cdk-global-scrollblock');
+    try {
+      const first = await open();
+      const second = await open();
+      expect(blocked()).toBe(true);
+
+      first.close();
+      await settle();
+      expect(blocked()).toBe(true);
+
+      second.close();
+      await settle();
+      expect(blocked()).toBe(false);
+    } finally {
+      delete (document.documentElement as { scrollHeight?: number }).scrollHeight;
+    }
   });
 
   it('ignores Escape when closeOnEscape is false', async () => {

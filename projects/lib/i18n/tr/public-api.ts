@@ -289,6 +289,8 @@ export const wrTr: WrI18nCatalog = {
   donutChart: {
     label: 'Halka grafiği',
     pieLabel: 'Pasta grafiği',
+    value: 'Değer',
+    share: 'Pay',
   },
   chartLegend: {
     toggleLabel: 'Serilerin görünürlüğünü değiştir',
@@ -539,6 +541,11 @@ export const wrTr: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Ölçer',
+    value: 'Değer',
+    share: 'Pay',
+  },
+  sparkline: {
+    value: 'Değer',
   },
   knob: {
     label: 'Değer',

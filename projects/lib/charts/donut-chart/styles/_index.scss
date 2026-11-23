@@ -4,9 +4,10 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/donut-chart'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
-// The chart theme every hook below defaults to (`--wr-chart-*`), the hover-dim rule and
-// the empty / loading / error message.
-@use '../../core/styles' as core-styles; // WrChartState
+// The chart theme every hook below defaults to (`--wr-chart-*`), the hover-dim rule, the
+// empty / loading / error message, and the `<wr-chart-table>` that `dataTable` renders
+// beside the drawing, which its own sheet clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/donut-chart');
 
 .wr-donut-chart {
@@ -24,6 +25,11 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  // The containing block of the out-of-flow `dataTable` copy, as on every chart that
+  // renders it: a static host lets that 1px box resolve against an ancestor outside the
+  // chart and keep its place in an unpositioned scroller's content. No z-index, so no
+  // stacking context.
+  position: relative;
   // No `gap`: the room between the drawing and the legend is the legend's own margin, on
   // whichever side `legendPosition` puts it. See `&__legend`.
   font-family: var(--wr-donut-chart-font-family);

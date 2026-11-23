@@ -294,6 +294,8 @@ export const wrPl: WrI18nCatalog = {
   donutChart: {
     label: 'Wykres pierścieniowy',
     pieLabel: 'Wykres kołowy',
+    value: 'Wartość',
+    share: 'Udział',
   },
   chartLegend: {
     toggleLabel: 'Przełącz widoczność serii',
@@ -537,6 +539,11 @@ export const wrPl: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Miernik',
+    value: 'Wartość',
+    share: 'Udział',
+  },
+  sparkline: {
+    value: 'Wartość',
   },
   knob: {
     label: 'Wartość',

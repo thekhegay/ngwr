@@ -15,8 +15,19 @@ export interface WrDonutChartHarnessFilters extends BaseHarnessFilters {
   readonly sliceLabel?: string | RegExp;
 }
 
-/** One legend row — the only place a slice's label and value are readable. */
+/** One legend row: a slice's label and value, as the chart prints them. */
 export interface WrDonutChartLegendEntry {
   readonly label: string;
   readonly value: string;
+}
+
+/**
+ * One row of the chart's data table (`dataTable`): the slice's label as its row header,
+ * then its value and its share of the ring.
+ */
+export interface WrDonutChartTableRow {
+  /** The row header: the slice's label. */
+  readonly header: string;
+  /** Its value and its share, as the chart writes them; `''` where it has none. */
+  readonly cells: readonly string[];
 }

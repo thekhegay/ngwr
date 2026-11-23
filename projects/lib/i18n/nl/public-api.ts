@@ -284,6 +284,8 @@ export const wrNl: WrI18nCatalog = {
   donutChart: {
     label: 'Ringdiagram',
     pieLabel: 'Cirkeldiagram',
+    value: 'Waarde',
+    share: 'Aandeel',
   },
   chartLegend: {
     toggleLabel: 'Zichtbaarheid van reeksen wisselen',
@@ -528,6 +530,11 @@ export const wrNl: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Meterbalk',
+    value: 'Waarde',
+    share: 'Aandeel',
+  },
+  sparkline: {
+    value: 'Waarde',
   },
   knob: {
     label: 'Waarde',

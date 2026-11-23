@@ -292,6 +292,8 @@ export const wrHe: WrI18nCatalog = {
   donutChart: {
     label: 'תרשים טבעת',
     pieLabel: 'תרשים עוגה',
+    value: 'ערך',
+    share: 'נתח',
   },
   chartLegend: {
     toggleLabel: 'הצגה או הסתרה של סדרות',
@@ -535,6 +537,11 @@ export const wrHe: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'מד',
+    value: 'ערך',
+    share: 'נתח',
+  },
+  sparkline: {
+    value: 'ערך',
   },
   knob: {
     label: 'ערך',

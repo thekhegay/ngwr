@@ -318,3 +318,185 @@ describe('WrMeterGroup number format', () => {
     expect(bar().getAttribute('aria-valuenow')).toBe('2000');
   });
 });
+
+@Component({
+  imports: [WrMeterGroup],
+  template: `
+    <wr-meter-group
+      [segments]="segments()"
+      [max]="max()"
+      [dataTable]="dataTable()"
+      [showLegend]="showLegend()"
+      [showValues]="showValues()"
+      [ariaLabel]="ariaLabel()"
+      [valueFormat]="valueFormat()"
+      [loading]="loading()"
+      [(hiddenSegments)]="hidden"
+    />
+  `,
+})
+class TableHost {
+  readonly segments = signal<readonly WrMeterSegment[]>(SEGMENTS);
+  readonly max = signal(0);
+  readonly dataTable = signal(true);
+  readonly showLegend = signal(true);
+  readonly showValues = signal(true);
+  readonly ariaLabel = signal<string | null>(null);
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+  readonly loading = signal(false);
+  readonly hidden = signal<readonly number[]>([]);
+}
+
+/**
+ * The figures as a table beside the bar: the `progressbar` announces the total alone, and
+ * the legend, the only other place a segment's value is in text, is optional.
+ */
+describe('WrMeterGroup data table', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TableHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const table = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-chart-table');
+  const text = (selector: string): string[] => [...root().querySelectorAll(selector)].map(el => el.textContent.trim());
+  const rows = (): string[][] =>
+    [...root().querySelectorAll('.wr-chart-table tbody tr')].map(row =>
+      [...row.querySelectorAll('th, td')].map(cell => cell.textContent.trim())
+    );
+  const create = (providers: Parameters<typeof TestBed.configureTestingModule>[0] = {}): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule(providers);
+    fixture = TestBed.createComponent(TableHost);
+    fixture.detectChanges();
+  };
+  const set = (change: (host: TableHost) => void): void => {
+    change(fixture.componentInstance);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('renders a row per segment, with its value and its share of the sum, beside the bar', () => {
+    create();
+    expect(text('.wr-chart-table caption')).toEqual(['Meter']);
+    expect(text('.wr-chart-table thead th[scope="col"]')).toEqual(['Value', 'Share']);
+    expect(rows()).toEqual([
+      ['Used', '60', '75%'],
+      ['Reserved', '20', '25%'],
+    ]);
+    expect(text('.wr-chart-table tbody th[scope="row"]')).toEqual(['Used', 'Reserved']);
+    // Beside the `progressbar`, never inside it: the role makes its children presentational.
+    expect(table()!.closest('[role="progressbar"]')).toBeNull();
+    expect(table()!.parentElement).toBe(root().querySelector('wr-meter-group'));
+  });
+
+  it('renders none while `dataTable` is off, and leaves the rest as it was', () => {
+    create();
+    set(h => h.dataTable.set(false));
+    expect(table()).toBeNull();
+    const off = root().querySelector('wr-meter-group')!.innerHTML;
+    set(h => h.dataTable.set(true));
+    table()!.remove();
+    expect(root().querySelector('wr-meter-group')!.innerHTML).toBe(off);
+  });
+
+  it('writes each share against `max` when one is given', () => {
+    create();
+    set(h => h.max.set(200));
+    expect(rows()).toEqual([
+      ['Used', '60', '30%'],
+      ['Reserved', '20', '10%'],
+    ]);
+  });
+
+  it('carries the figures the legend leaves out: `showLegend` or `showValues` off', () => {
+    create();
+    set(h => h.showLegend.set(false));
+    expect(root().querySelector('.wr-meter-group__legend')).toBeNull();
+    expect(rows()).toHaveLength(2);
+
+    set(h => {
+      h.showLegend.set(true);
+      h.showValues.set(false);
+    });
+    expect(root().querySelector('.wr-meter-group__legend-value')).toBeNull();
+    expect(rows().map(row => row[1])).toEqual(['60', '20']);
+  });
+
+  it('follows the data, the name and the hidden segments', () => {
+    create();
+    set(h => {
+      h.segments.set([
+        { label: 'A', value: 1 },
+        { label: 'B', value: 3 },
+      ]);
+      h.ariaLabel.set('Disk usage');
+    });
+    expect(text('.wr-chart-table caption')).toEqual(['Disk usage']);
+    expect(rows()).toEqual([
+      ['A', '1', '25%'],
+      ['B', '3', '75%'],
+    ]);
+
+    // A hidden segment has no row, and with no `max` the rest share the whole bar.
+    set(h => h.hidden.set([1]));
+    expect(rows()).toEqual([['A', '1', '100%']]);
+  });
+
+  it('keeps a sliver from reading as 0%, and gives a segment with no band no share', () => {
+    create();
+    set(h =>
+      h.segments.set([
+        { label: 'Most', value: 99_960 },
+        { label: 'Sliver', value: 40 },
+        { label: 'Debt', value: -5 },
+      ])
+    );
+    expect(rows()).toEqual([
+      ['Most', '99,960', '100%'],
+      ['Sliver', '40', '0.04%'],
+      ['Debt', '-5', ''],
+    ]);
+  });
+
+  it('writes its numbers as the legend does: LOCALE_ID, then `valueFormat` over it', () => {
+    create({ providers: [{ provide: LOCALE_ID, useValue: 'de' }] });
+    set(h =>
+      h.segments.set([
+        { label: 'A', value: 1234.5 },
+        { label: 'B', value: 3703.5 },
+      ])
+    );
+    const legendValues = (): string[] => text('.wr-meter-group__legend-value');
+    expect(rows()).toEqual([
+      ['A', '1.234,5', '25 %'],
+      ['B', '3.703,5', '75 %'],
+    ]);
+    expect(rows().map(row => row[1])).toEqual(legendValues());
+
+    set(h => h.valueFormat.set(value => `${value} GB`));
+    expect(rows().map(row => row[1])).toEqual(['1234.5 GB', '3703.5 GB']);
+    expect(rows().map(row => row[1])).toEqual(legendValues());
+  });
+
+  it('gives way with the legend under a state, and with no segment', () => {
+    create();
+    set(h => h.loading.set(true));
+    expect(table()).toBeNull();
+    set(h => h.loading.set(false));
+    expect(table()).not.toBeNull();
+    set(h => h.segments.set([]));
+    expect(table()).toBeNull();
+  });
+
+  it('heads its columns from the catalog', async () => {
+    create({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(text('.wr-chart-table caption')).toEqual(['Шкала']);
+    expect(text('.wr-chart-table thead th[scope="col"]')).toEqual(['Значение', 'Доля']);
+  });
+});

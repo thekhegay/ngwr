@@ -220,6 +220,11 @@ export class WrInputOtp implements FormValueControl<string> {
         const raw = v.slice(0, len);
         const next = Array.from({ length: len }, (_, i) => this.sanitiseChar(raw[i] ?? ''));
         this.cells.set(next);
+        // A value cut or normalised (fullwidth digits, a rejected character) is
+        // written back, as the shrink case above does: the boxes must not show
+        // another code than the form submits. The guard above ends the loop.
+        const shown = next.join('');
+        if (shown !== v) this.value.set(shown);
       });
     });
   }
@@ -244,7 +249,7 @@ export class WrInputOtp implements FormValueControl<string> {
     // into the field the IME is still composing in, which aborts the conversion
     // outright — so the box is left alone until the text is real.
     if ((event as InputEvent).isComposing) return;
-    this.commitCell(event.target as HTMLInputElement, index);
+    this.commitCell(event.target as HTMLInputElement, index, event as InputEvent);
   }
 
   /** @see onInput — this is where an IME's text finally arrives. */
@@ -252,11 +257,24 @@ export class WrInputOtp implements FormValueControl<string> {
     this.commitCell(event.target as HTMLInputElement, index);
   }
 
-  private commitCell(target: HTMLInputElement, index: number): void {
+  private commitCell(target: HTMLInputElement, index: number, event?: InputEvent): void {
     if (this.readonly()) {
       // A read-only input refuses typed characters on its own; this covers the
       // synthetic writes a script (or a spec) can still make.
       target.value = this.cells()[index] ?? '';
+      return;
+    }
+    // An SMS or password-manager autofill writes the whole code into one box. A
+    // keystroke into a filled box leaves at most two characters and carries one
+    // of data.
+    // A one-character replacement, a suggestion fixing a box, is a plain edit.
+    const replacesMany = event?.inputType === 'insertReplacementText' && target.value.length > 1;
+    if (target.value.length > 2 || (event?.data?.length ?? 0) > 1 || replacesMany) {
+      const kept = this.spread(target.value);
+      target.value = this.cells()[index] ?? '';
+      if (kept) {
+        afterNextRender(() => this.focusCell(Math.min(kept.length, this.length() - 1)), { injector: this.injector });
+      }
       return;
     }
     // The character just typed is the one before the caret, not the last one in the
@@ -314,15 +332,8 @@ export class WrInputOtp implements FormValueControl<string> {
     event.preventDefault();
     if (this.readonly()) return;
     const text = event.clipboardData?.getData('text') ?? '';
-    const chars = text
-      .split('')
-      .map(c => this.sanitiseChar(c))
-      .filter(c => c.length > 0);
-    if (chars.length === 0) return;
-    const trimmed = chars.slice(0, this.length());
-    const next = Array.from({ length: this.length() }, (_, i) => trimmed[i] ?? '');
-    this.cells.set(next);
-    this.emitChange();
+    const trimmed = this.spread(text);
+    if (trimmed === null) return;
     // `afterNextRender`, not a straight call. `focusCell` ends in `select()`, and
     // under zoneless CD the DOM still holds the PREVIOUS value at this point —
     // change detection runs in a macrotask. So the selection was made over an
@@ -337,6 +348,16 @@ export class WrInputOtp implements FormValueControl<string> {
     afterNextRender(() => this.focusCell(Math.min(trimmed.length, this.length() - 1)), {
       injector: this.injector,
     });
+  }
+
+  /** Spread `text` over the boxes from the first, and return the characters kept, or `null` when none fit the mode. */
+  private spread(text: string): string[] | null {
+    const chars = [...text].map(c => this.sanitiseChar(c)).filter(c => c.length > 0);
+    if (chars.length === 0) return null;
+    const trimmed = chars.slice(0, this.length());
+    this.cells.set(Array.from({ length: this.length() }, (_, i) => trimmed[i] ?? ''));
+    this.emitChange();
+    return trimmed;
   }
 
   /**
@@ -400,7 +421,8 @@ export class WrInputOtp implements FormValueControl<string> {
   /** Drop a character that doesn't match the configured mode. */
   private sanitiseChar(c: string): string {
     if (!c) return '';
-    const one = c.slice(0, 1);
+    // An IME writes fullwidth digits, which `\d` does not match.
+    const one = c.slice(0, 1).replace(/[\uff10-\uff19]/, d => String(d.charCodeAt(0) - 0xff10));
     switch (this.mode()) {
       case 'numeric':
         return /\d/.test(one) ? one : '';

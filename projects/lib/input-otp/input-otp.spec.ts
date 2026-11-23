@@ -155,6 +155,57 @@ describe('WrInputOtp', () => {
     expect(boxes().map(b => b.value)).toEqual(['4', '8', '2', '9', '1', '3']);
   });
 
+  it('spreads a whole code an autofill wrote into one box', () => {
+    // An SMS or password-manager autofill writes the code into the focused box,
+    // which `maxlength="1"` used to cut to its first digit.
+    const box = boxes()[0];
+    box.focus();
+    box.value = '482913';
+    box.dispatchEvent(new InputEvent('input', { bubbles: true, data: '482913' }));
+    fixture.detectChanges();
+
+    expect(boxes()[0].hasAttribute('maxlength')).toBe(false);
+    expect(code()).toBe('482913');
+    expect(boxes().map(b => b.value)).toEqual(['4', '8', '2', '9', '1', '3']);
+  });
+
+  it('reads fullwidth digits as their ASCII forms', () => {
+    typeInto(0, '\uff14');
+    expect(code()).toBe('4');
+
+    typeInto(1, '\uff18');
+    expect(code()).toBe('48');
+  });
+
+  it('cuts an external value longer than the strip and writes it back', () => {
+    fixture.componentInstance.code.set('1234567');
+    fixture.detectChanges();
+
+    expect(boxes().map(b => b.value)).toEqual(['1', '2', '3', '4', '5', '6']);
+    expect(code()).toBe('123456');
+  });
+
+  it('writes back an external value that fits but reads differently', () => {
+    fixture.componentInstance.code.set('\uff11\uff12\uff13\uff14\uff15\uff16');
+    fixture.detectChanges();
+
+    expect(boxes().map(b => b.value)).toEqual(['1', '2', '3', '4', '5', '6']);
+    expect(code()).toBe('123456');
+  });
+
+  it('keeps a one-character replacement a single-cell edit', () => {
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+
+    const box = boxes()[2];
+    box.focus();
+    box.value = '9';
+    box.dispatchEvent(new InputEvent('input', { bubbles: true, data: '9', inputType: 'insertReplacementText' }));
+    fixture.detectChanges();
+
+    expect(code()).toBe('129456');
+  });
+
   it('leaves the landing character SELECTED after a full paste', async () => {
     // `focusCell` ends in `select()`, and under zoneless CD the DOM still holds
     // the previous value when the paste handler runs — change detection is a

@@ -7,7 +7,7 @@
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory, FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { type BlockScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import type { ScrollStrategy } from '@angular/cdk/overlay';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -32,7 +32,7 @@ import { debounce, skip, timer } from 'rxjs';
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
-import { WR_OVERLAY_CONTAINER } from 'ngwr/overlay';
+import { WR_OVERLAY_CONTAINER, WrScrollBlock } from 'ngwr/overlay';
 import { wrIsComposing, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrCommandItem } from './types';
@@ -185,6 +185,7 @@ export class WrCommandPalette {
 
   protected readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
   protected readonly panelEl = viewChild<ElementRef<HTMLElement>>('panel');
+  private readonly rootEl = viewChild<ElementRef<HTMLElement>>('root');
 
   /** Listbox id (referenced by the input's `aria-controls`). */
   protected readonly listboxId = `wr-command-palette-listbox-${++listboxUid}`;
@@ -215,7 +216,7 @@ export class WrCommandPalette {
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly scrollBlockService = inject(WrScrollBlock);
   private readonly overlayContainer = inject(WR_OVERLAY_CONTAINER);
   private bindingHandle: WrHotkeyHandle | null = null;
   private focusTrap: ConfigurableFocusTrap | null = null;
@@ -226,7 +227,7 @@ export class WrCommandPalette {
    * rather than through an overlay, so it borrows the CDK's own block strategy —
    * the one `WrDialog` gets from its overlay.
    */
-  private scrollBlock: BlockScrollStrategy | null = null;
+  private scrollBlock: ScrollStrategy | null = null;
   private previouslyFocused: HTMLElement | null = null;
 
   /**
@@ -328,12 +329,20 @@ export class WrCommandPalette {
         // structural sheet, which the overlay container loads — and an app may
         // open this before it has ever opened an overlay.
         this.overlayContainer.getContainerElement();
-        this.scrollBlock ??= this.scrollStrategies.block();
+        this.scrollBlock ??= this.scrollBlockService.strategy();
         this.scrollBlock.enable();
         queueMicrotask(() => {
           if (this.destroyed) return;
           const host = this.panelEl()?.nativeElement;
           if (!host) return;
+          // Last in the top layer, over any dialog, drawer or popover open now.
+          // Set here and not in the template: a `popover` attribute hides the
+          // element until it is shown, which a browser without the API never does.
+          const root = this.rootEl()?.nativeElement;
+          if (typeof root?.showPopover === 'function') {
+            root.setAttribute('popover', 'manual');
+            root.showPopover();
+          }
           this.focusTrap?.destroy();
           this.focusTrap = this.focusTrapFactory.create(host);
           void this.focusTrap.focusInitialElementWhenReady();
@@ -445,6 +454,7 @@ export class WrCommandPalette {
   }
 
   protected onItemClick(item: WrCommandItem, event: MouseEvent): void {
+    if (event.button !== 0) return;
     event.preventDefault();
     this.commit(item);
   }

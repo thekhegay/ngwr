@@ -221,6 +221,55 @@ describe('WrTour', () => {
     expect(tour.active()).toBe(true);
   });
 
+  it.each([
+    [true, 'instant'],
+    [false, 'smooth'],
+  ])('scrolls to a target with reduced motion %s as %s', (reduced, behavior) => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => ({ matches: reduced }))
+    );
+    try {
+      tour.start(STEPS);
+      sync();
+
+      expect(scroll).toHaveBeenCalledWith(expect.objectContaining({ behavior }));
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('puts the cut-out in the top layer before the card, so the card paints above it', () => {
+    const shown: Element[] = [];
+    // jsdom has no popover API; the CDK and the tour both ask for the top layer.
+    (HTMLElement.prototype as { showPopover?: unknown }).showPopover = function (this: Element): void {
+      shown.push(this);
+    };
+    try {
+      tour.start(STEPS);
+      sync();
+
+      const card = shown.findIndex(el => el.querySelector('.wr-tour-popup'));
+      expect(spotlight()!.getAttribute('popover')).toBe('manual');
+      expect(shown.indexOf(spotlight()!)).toBeGreaterThanOrEqual(0);
+      expect(shown.indexOf(spotlight()!)).toBeLessThan(card);
+    } finally {
+      delete (HTMLElement.prototype as { showPopover?: unknown }).showPopover;
+    }
+  });
+
+  it('leaves an Escape that belongs to an input method alone', () => {
+    tour.start(STEPS);
+    sync();
+
+    const event = escape({ isComposing: true });
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(tour.active()).toBe(true);
+  });
+
   it('hands focus back to whatever opened it', () => {
     const opener = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('#opener')!;
     opener.focus();

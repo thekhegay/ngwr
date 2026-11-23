@@ -360,26 +360,25 @@ describe('WrInputOtpHarness', () => {
     expect(await otp.isComplete()).toBe(true);
   });
 
-  it('reads the boxes, which an external write can leave behind the model', async () => {
+  it('reads the boxes, and an external write is cut to them and written back', async () => {
     const otp = await loader.getHarness(WrInputOtpHarness);
 
     // The control splits an incoming value into boxes, dropping what the mode
-    // rejects and anything past `length`, and never writes the shortened code
-    // back — so the harness (the DOM) and the model disagree, and the model is
-    // the one holding characters no box shows.
+    // rejects and anything past `length`, and writes the shown code back, so
+    // the harness (the DOM) and the model agree.
     host().code.set('12a456');
     fixture.detectChanges();
 
     expect(await otp.getBoxValues()).toEqual(['1', '2', '', '4', '5', '6']);
     expect(await otp.getValue()).toBe('12456');
     expect(await otp.isComplete()).toBe(false);
-    expect(host().code()).toBe('12a456');
+    expect(host().code()).toBe('12456');
 
     host().code.set('1234567890');
     fixture.detectChanges();
 
     expect(await otp.getValue()).toBe('123456');
-    expect(host().code()).toBe('1234567890');
+    expect(host().code()).toBe('123456');
   });
 
   it('refuses to reach for a box that is not there', async () => {

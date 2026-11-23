@@ -279,6 +279,8 @@ export const wrHi: WrI18nCatalog = {
   donutChart: {
     label: 'डोनट चार्ट',
     pieLabel: 'पाई चार्ट',
+    value: 'मान',
+    share: 'हिस्सा',
   },
   chartLegend: {
     toggleLabel: 'सीरीज़ दिखाएँ या छिपाएँ',
@@ -514,6 +516,11 @@ export const wrHi: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'मीटर',
+    value: 'मान',
+    share: 'हिस्सा',
+  },
+  sparkline: {
+    value: 'मान',
   },
   knob: {
     label: 'मान',

@@ -485,3 +485,172 @@ describe('WrDonutChart number format', () => {
     expect(tooltipValue(1)).toBe('0.0004 GB');
   });
 });
+
+@Component({
+  imports: [WrDonutChart],
+  template: `
+    <wr-donut-chart
+      [segments]="segments()"
+      [dataTable]="dataTable()"
+      [showLegend]="showLegend()"
+      [ariaLabel]="ariaLabel()"
+      [valueFormat]="valueFormat()"
+      [loading]="loading()"
+      [(hiddenSegments)]="hidden"
+    />
+  `,
+})
+class TableHost {
+  readonly segments = signal<readonly WrDonutSegment[]>(SEGMENTS);
+  readonly dataTable = signal(true);
+  readonly showLegend = signal<boolean | 'auto'>('auto');
+  readonly ariaLabel = signal<string | null>(null);
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+  readonly loading = signal(false);
+  readonly hidden = signal<readonly number[]>([]);
+}
+
+/**
+ * The figures as a table beside the drawing, for a reader the `img` gives only a name:
+ * the legend is left out for a single slice and with `showLegend` off, and the table is
+ * then the only place the values are in text.
+ */
+describe('WrDonutChart data table', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TableHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const table = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-chart-table');
+  const text = (selector: string): string[] => [...root().querySelectorAll(selector)].map(el => el.textContent.trim());
+  const rows = (): string[][] =>
+    [...root().querySelectorAll('.wr-chart-table tbody tr')].map(row =>
+      [...row.querySelectorAll('th, td')].map(cell => cell.textContent.trim())
+    );
+  const create = (providers: Parameters<typeof TestBed.configureTestingModule>[0] = {}): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule(providers);
+    fixture = TestBed.createComponent(TableHost);
+    fixture.detectChanges();
+  };
+  const set = (change: (host: TableHost) => void): void => {
+    change(fixture.componentInstance);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('renders a row per slice, with its value and its share, beside the drawing', () => {
+    create();
+    expect(text('.wr-chart-table caption')).toEqual(['Donut chart']);
+    expect(text('.wr-chart-table thead th[scope="col"]')).toEqual(['Value', 'Share']);
+    expect(rows()).toEqual([
+      ['Direct', '30', '30%'],
+      ['Search', '50', '50%'],
+      ['Social', '20', '20%'],
+    ]);
+    expect(text('.wr-chart-table tbody th[scope="row"]')).toEqual(['Direct', 'Search', 'Social']);
+    // Beside the `img`, never inside it: the role would make the table presentational.
+    expect(table()!.closest('[role="img"]')).toBeNull();
+    expect(table()!.parentElement).toBe(root().querySelector('wr-donut-chart'));
+  });
+
+  it('renders none while `dataTable` is off, and leaves the rest as it was', () => {
+    create();
+    const before = root().querySelector('.wr-donut-chart__surface')!.outerHTML;
+    set(h => h.dataTable.set(false));
+    expect(table()).toBeNull();
+    expect(root().querySelector('.wr-donut-chart__surface')!.outerHTML).toBe(before);
+  });
+
+  it('carries the figures the legend leaves out: one slice, or `showLegend` off', () => {
+    create();
+    set(h => h.segments.set([{ label: 'Used', value: 60 }]));
+    expect(root().querySelector('.wr-donut-chart__legend')).toBeNull();
+    expect(rows()).toEqual([['Used', '60', '100%']]);
+
+    set(h => {
+      h.segments.set(SEGMENTS);
+      h.showLegend.set(false);
+    });
+    expect(root().querySelector('.wr-donut-chart__legend')).toBeNull();
+    expect(rows()).toHaveLength(3);
+  });
+
+  it('follows the data, the name and the hidden slices', () => {
+    create();
+    set(h => {
+      h.segments.set([
+        { label: 'A', value: 1 },
+        { label: 'B', value: 3 },
+      ]);
+      h.ariaLabel.set('Traffic by source');
+    });
+    expect(text('.wr-chart-table caption')).toEqual(['Traffic by source']);
+    expect(rows()).toEqual([
+      ['A', '1', '25%'],
+      ['B', '3', '75%'],
+    ]);
+
+    // A hidden slice has no row, and the rest share the whole ring, as they are drawn.
+    set(h => h.hidden.set([1]));
+    expect(rows()).toEqual([['A', '1', '100%']]);
+  });
+
+  it('keeps a sliver from reading as 0%, and gives a slice with no arc no share', () => {
+    create();
+    set(h =>
+      h.segments.set([
+        { label: 'Most', value: 99_960 },
+        { label: 'Sliver', value: 40 },
+        { label: 'Debt', value: -5 },
+        { label: 'Unknown', value: Number.NaN },
+      ])
+    );
+    expect(rows()).toEqual([
+      ['Most', '99,960', '100%'],
+      ['Sliver', '40', '0.04%'],
+      ['Debt', '-5', ''],
+      ['Unknown', '', ''],
+    ]);
+  });
+
+  it('writes its numbers as the legend does: LOCALE_ID, then `valueFormat` over it', () => {
+    create({ providers: [{ provide: LOCALE_ID, useValue: 'de' }] });
+    set(h =>
+      h.segments.set([
+        { label: 'A', value: 1234.5 },
+        { label: 'B', value: 3703.5 },
+      ])
+    );
+    const legendValues = (): string[] => text('.wr-donut-chart__legend-value');
+    expect(rows().map(row => row[1])).toEqual(legendValues());
+    expect(rows()).toEqual([
+      ['A', '1.234,5', '25 %'],
+      ['B', '3.703,5', '75 %'],
+    ]);
+
+    set(h => h.valueFormat.set(value => `${value} GB`));
+    expect(rows().map(row => row[1])).toEqual(['1234.5 GB', '3703.5 GB']);
+    expect(rows().map(row => row[1])).toEqual(legendValues());
+  });
+
+  it('gives way with the slices under a state', () => {
+    create();
+    set(h => h.loading.set(true));
+    expect(table()).toBeNull();
+    set(h => h.loading.set(false));
+    expect(table()).not.toBeNull();
+  });
+
+  it('heads its columns from the catalog', async () => {
+    create({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(text('.wr-chart-table caption')).toEqual(['Кольцевая диаграмма']);
+    expect(text('.wr-chart-table thead th[scope="col"]')).toEqual(['Значение', 'Доля']);
+  });
+});

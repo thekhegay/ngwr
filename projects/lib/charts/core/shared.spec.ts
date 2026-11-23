@@ -267,6 +267,22 @@ describe('useChartHover', () => {
     expect(on()).toEqual([]);
   });
 
+  it('lights the marks drawn while a series stays dimmed', async () => {
+    create();
+    over('row-a');
+    expect(on()).toEqual(['row-a', 'a0', 'a1']);
+
+    // The legend row hid the series and showed it again: the bars are new elements.
+    el('a0').replaceWith(Object.assign(document.createElement('i'), { id: 'a0-new' }));
+    el('a0-new').setAttribute('data-wr-series', '0');
+    await Promise.resolve();
+
+    expect(on()).toEqual(['row-a', 'a0-new', 'a1']);
+
+    root().dispatchEvent(new MouseEvent('mouseleave'));
+    expect(on()).toEqual([]);
+  });
+
   it('stops listening when the chart is destroyed', () => {
     create();
     const host = root();

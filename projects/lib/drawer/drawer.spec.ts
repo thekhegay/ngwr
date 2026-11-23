@@ -229,6 +229,17 @@ describe('WrDrawer', () => {
       expect(panel()).toBeNull();
     });
 
+    it('leaves an Escape that belongs to an input method alone', () => {
+      open();
+
+      document.body.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true, cancelable: true })
+      );
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.open()).toBe(true);
+    });
+
     it('ignores Escape when told to', () => {
       fixture.componentInstance.closeOnEscape.set(false);
       fixture.detectChanges();
@@ -803,6 +814,25 @@ describe('WrDrawerTitle template reference', () => {
     const title = fixture.componentInstance.title();
     expect(title).toBeInstanceOf(WrDrawerTitle);
     expect((fixture.nativeElement as HTMLElement).querySelector('h2')?.id).toBe(title.id);
+
+    fixture.destroy();
+  });
+
+  it('keeps an id the consumer set, and publishes it', () => {
+    @Component({
+      imports: [WrDrawerTitle],
+      template: `<h2 wrDrawerTitle id="my-title" #ref="wrDrawerTitle">Filters</h2>`,
+    })
+    class OwnIdHost {
+      readonly title = viewChild.required<WrDrawerTitle>('ref');
+    }
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(OwnIdHost);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('h2')?.id).toBe('my-title');
+    expect(fixture.componentInstance.title().id).toBe('my-title');
 
     fixture.destroy();
   });
