@@ -81,6 +81,22 @@ describe('WrDensity', () => {
     expect(setup({ defaultDensity: 'md' }).current()).toBe('lg');
   });
 
+  it('stores nothing until the user chooses, so a changed default reaches a returning visitor', () => {
+    setup({ defaultDensity: 'md' });
+    expect(engine.length).toBe(0);
+
+    TestBed.resetTestingModule();
+    expect(setup({ defaultDensity: 'sm' }).current()).toBe('sm');
+  });
+
+  it('persists a cycle too', () => {
+    setup({ defaultDensity: 'md' }).cycle();
+    TestBed.tick();
+
+    TestBed.resetTestingModule();
+    expect(setup({ defaultDensity: 'sm' }).current()).toBe('lg');
+  });
+
   it('ignores a persisted value that is not a density', () => {
     engine.setItem('wr-density', JSON.stringify({ v: 'roomy' }));
 
