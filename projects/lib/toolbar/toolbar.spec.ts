@@ -363,6 +363,15 @@ describe('WrToolbar arrowKeys', () => {
     outside.remove();
   });
 
+  it('moves the stop on when the stop becomes inert', async () => {
+    await mount();
+    expect(el('a').getAttribute('tabindex')).toBe('0');
+    el('a').parentElement!.setAttribute('inert', '');
+    await settle();
+    expect(el('a').getAttribute('tabindex')).not.toBe('0');
+    expect(el('text').getAttribute('tabindex')).toBe('0');
+  });
+
   it('puts tabindex back when switched off', async () => {
     await mount();
     fixture.componentInstance.on.set(false);
