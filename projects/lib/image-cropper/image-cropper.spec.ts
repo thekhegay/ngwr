@@ -109,6 +109,19 @@ describe('WrImageCropper', () => {
     expect(w / h).toBeCloseTo(2, 5);
   });
 
+  it('refits the window when the aspect ratio changes after the image loaded', () => {
+    load();
+    expect(cropper().cropRect()).toEqual({ x: 160, y: 160, width: 480, height: 480 });
+
+    fixture.componentInstance.aspectRatio.set(2);
+    fixture.detectChanges();
+
+    const w = Number.parseFloat(window_()!.style.width);
+    const h = Number.parseFloat(window_()!.style.height);
+    expect(w / h).toBeCloseTo(2, 5);
+    expect(cropper().cropRect().width / cropper().cropRect().height).toBeCloseTo(2, 1);
+  });
+
   it('forgets the old geometry the moment the source changes', () => {
     // The crop is measured against the image that was showing. Left in place, `cropRect`
     // kept reporting a rect scaled to the PREVIOUS image for the whole gap between a new
