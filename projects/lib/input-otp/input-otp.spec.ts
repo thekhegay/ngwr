@@ -185,6 +185,27 @@ describe('WrInputOtp', () => {
     expect(code()).toBe('123456');
   });
 
+  it('writes back an external value that fits but reads differently', () => {
+    fixture.componentInstance.code.set('\uff11\uff12\uff13\uff14\uff15\uff16');
+    fixture.detectChanges();
+
+    expect(boxes().map(b => b.value)).toEqual(['1', '2', '3', '4', '5', '6']);
+    expect(code()).toBe('123456');
+  });
+
+  it('keeps a one-character replacement a single-cell edit', () => {
+    fixture.componentInstance.code.set('123456');
+    fixture.detectChanges();
+
+    const box = boxes()[2];
+    box.focus();
+    box.value = '9';
+    box.dispatchEvent(new InputEvent('input', { bubbles: true, data: '9', inputType: 'insertReplacementText' }));
+    fixture.detectChanges();
+
+    expect(code()).toBe('129456');
+  });
+
   it('leaves the landing character SELECTED after a full paste', async () => {
     // `focusCell` ends in `select()`, and under zoneless CD the DOM still holds
     // the previous value when the paste handler runs — change detection is a

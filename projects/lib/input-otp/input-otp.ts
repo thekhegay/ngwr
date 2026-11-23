@@ -220,10 +220,11 @@ export class WrInputOtp implements FormValueControl<string> {
         const raw = v.slice(0, len);
         const next = Array.from({ length: len }, (_, i) => this.sanitiseChar(raw[i] ?? ''));
         this.cells.set(next);
-        // A value longer than the strip is cut, and the model is told, as the
-        // shrink case above does: the boxes must not show a shorter code than
-        // the form submits.
-        if (v.length > len) this.value.set(next.join(''));
+        // A value cut or normalised (fullwidth digits, a rejected character) is
+        // written back, as the shrink case above does: the boxes must not show
+        // another code than the form submits. The guard above ends the loop.
+        const shown = next.join('');
+        if (shown !== v) this.value.set(shown);
       });
     });
   }
@@ -266,7 +267,9 @@ export class WrInputOtp implements FormValueControl<string> {
     // An SMS or password-manager autofill writes the whole code into one box. A
     // keystroke into a filled box leaves at most two characters and carries one
     // of data.
-    if (target.value.length > 2 || (event?.data?.length ?? 0) > 1 || event?.inputType === 'insertReplacementText') {
+    // A one-character replacement, a suggestion fixing a box, is a plain edit.
+    const replacesMany = event?.inputType === 'insertReplacementText' && target.value.length > 1;
+    if (target.value.length > 2 || (event?.data?.length ?? 0) > 1 || replacesMany) {
       const kept = this.spread(target.value);
       target.value = this.cells()[index] ?? '';
       if (kept) {
