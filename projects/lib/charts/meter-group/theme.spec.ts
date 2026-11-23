@@ -199,6 +199,29 @@ describe('WrMeterGroup on the chart theme', () => {
       expect(state()!.textContent.trim()).toBe('Nothing stored');
     });
 
+    it('is a named group with no reading while loading or failed, and a progressbar again after', () => {
+      const reading = (): (string | null)[] =>
+        ['role', 'aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext'].map(name =>
+          bar().getAttribute(name)
+        );
+      expect(bar().getAttribute('role')).toBe('progressbar');
+      expect(bar().getAttribute('aria-valuenow')).not.toBeNull();
+
+      set(h => h.loading.set(true));
+      expect(reading()).toEqual(['group', null, null, null, null]);
+      expect(bar().getAttribute('aria-label')).toBeTruthy();
+
+      set(h => {
+        h.loading.set(false);
+        h.error.set(true);
+      });
+      expect(reading()).toEqual(['group', null, null, null, null]);
+
+      set(h => h.error.set(false));
+      expect(bar().getAttribute('role')).toBe('progressbar');
+      expect(bar().getAttribute('aria-valuenow')).not.toBeNull();
+    });
+
     it('empties the bar for the loading message, and for a failed load as an alert', () => {
       set(h => h.loading.set(true));
       expect(bands()).toHaveLength(0);

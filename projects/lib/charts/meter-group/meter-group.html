@@ -18,15 +18,19 @@
   <ng-container [ngTemplateOutlet]="legend" />
 }
 
+<!-- Loading or failed, there is no total to announce: the bar is a named group, as the
+     gauge's surface is, and the message below it is the live region. An empty meter
+     still reads zero. -->
+@let reading = !shown || shown.kind === 'empty';
 <div
   #bar
   class="wr-meter-group__bar"
-  role="progressbar"
+  [attr.role]="reading ? 'progressbar' : 'group'"
   [attr.aria-label]="resolvedAriaLabel()"
-  [attr.aria-valuemin]="0"
-  [attr.aria-valuemax]="resolvedMax()"
-  [attr.aria-valuenow]="totalValue()"
-  [attr.aria-valuetext]="totalText()"
+  [attr.aria-valuemin]="reading ? 0 : null"
+  [attr.aria-valuemax]="reading ? resolvedMax() : null"
+  [attr.aria-valuenow]="reading ? totalValue() : null"
+  [attr.aria-valuetext]="reading ? totalText() : null"
 >
   <!-- Only the shown segments draw a band; each keeps its segment's own position, which
        is what the tooltip looks it up by. `data-label` is what the harness reads a band's
