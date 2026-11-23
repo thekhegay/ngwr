@@ -317,6 +317,15 @@ describe('drawQrCode', () => {
       expect(calls.map(call => call.op)).toEqual(['drawImage']);
     });
 
+    it.each(['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'hsl(0, 100%, 0%)', 'rgb(0 0 0)'])(
+      'is drawn for the opaque %s',
+      iconBackground => {
+        const { calls } = withIcon({ level: 'H', iconSize: 20, iconBackground });
+
+        expect(calls[0]).toMatchObject({ op: 'fillRect', fill: iconBackground });
+      }
+    );
+
     it('is drawn for a colour that is only partly transparent', () => {
       const { calls } = withIcon({ level: 'H', iconSize: 20, iconBackground: 'rgba(0, 0, 0, 0.5)' });
 
