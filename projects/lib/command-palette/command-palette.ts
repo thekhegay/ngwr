@@ -7,7 +7,7 @@
 
 import { type ConfigurableFocusTrap, ConfigurableFocusTrapFactory, FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { type BlockScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
+import type { ScrollStrategy } from '@angular/cdk/overlay';
 import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
@@ -32,7 +32,7 @@ import { debounce, skip, timer } from 'rxjs';
 import { WrHotkey, type WrHotkeyHandle, type WrHotkeySpec } from 'ngwr/hotkey';
 import { wrReadI18nText, useI18nText } from 'ngwr/i18n';
 import { WrIcon } from 'ngwr/icon';
-import { WR_OVERLAY_CONTAINER } from 'ngwr/overlay';
+import { WR_OVERLAY_CONTAINER, WrScrollBlock } from 'ngwr/overlay';
 import { wrIsComposing, wrCheckStyles, wrRestoreFocus } from 'ngwr/utils';
 
 import type { WrCommandItem } from './types';
@@ -215,7 +215,7 @@ export class WrCommandPalette {
   private readonly destroyRef = inject(DestroyRef);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly scrollBlockService = inject(WrScrollBlock);
   private readonly overlayContainer = inject(WR_OVERLAY_CONTAINER);
   private bindingHandle: WrHotkeyHandle | null = null;
   private focusTrap: ConfigurableFocusTrap | null = null;
@@ -226,7 +226,7 @@ export class WrCommandPalette {
    * rather than through an overlay, so it borrows the CDK's own block strategy —
    * the one `WrDialog` gets from its overlay.
    */
-  private scrollBlock: BlockScrollStrategy | null = null;
+  private scrollBlock: ScrollStrategy | null = null;
   private previouslyFocused: HTMLElement | null = null;
 
   /**
@@ -328,7 +328,7 @@ export class WrCommandPalette {
         // structural sheet, which the overlay container loads — and an app may
         // open this before it has ever opened an overlay.
         this.overlayContainer.getContainerElement();
-        this.scrollBlock ??= this.scrollStrategies.block();
+        this.scrollBlock ??= this.scrollBlockService.strategy();
         this.scrollBlock.enable();
         queueMicrotask(() => {
           if (this.destroyed) return;

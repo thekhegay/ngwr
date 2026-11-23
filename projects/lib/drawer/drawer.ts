@@ -31,7 +31,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOverlayOrder, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, WrOverlayOrder, WrScrollBlock, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
 import { wrIsComposing, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
@@ -185,6 +185,7 @@ export class WrDrawer {
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
   private readonly order = inject(WrOverlayOrder);
+  private readonly scrollBlock = inject(WrScrollBlock);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -307,7 +308,7 @@ export class WrDrawer {
       // A non-modal panel leaves the page scrolling under it: nothing covers
       // the page, so a blocked scroll would only freeze what the reader can
       // still see and click.
-      scrollStrategy: modal ? this.overlay.scrollStrategies.block() : this.overlay.scrollStrategies.noop(),
+      scrollStrategy: modal ? this.scrollBlock.strategy() : this.overlay.scrollStrategies.noop(),
       // The CDK hands Escape to the topmost overlay wherever focus is. That is
       // right for a modal, where focus cannot be anywhere else, and wrong for a
       // panel beside a live page: an Escape meant for a field on the page

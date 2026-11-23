@@ -32,7 +32,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
-import { WR_OVERLAY, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
+import { WR_OVERLAY, type WrOverlayAutoFocus, WrScrollBlock, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
 import { wrIsComposing, wrToClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrLightboxGroups } from './lightbox-groups';
@@ -200,6 +200,7 @@ export class WrLightbox {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly overlay = inject(WR_OVERLAY);
+  private readonly scrollBlock = inject(WrScrollBlock);
   private readonly vcr = inject(ViewContainerRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
@@ -410,7 +411,7 @@ export class WrLightbox {
       hasBackdrop: true,
       backdropClass: 'wr-lightbox-backdrop',
       positionStrategy: this.overlay.position().global().centerHorizontally().centerVertically(),
-      scrollStrategy: this.overlay.scrollStrategies.block(),
+      scrollStrategy: this.scrollBlock.strategy(),
       panelClass: wrToClassList('wr-lightbox-overlay', this.panelClass()),
     });
 

@@ -13,7 +13,14 @@ import { Location, isPlatformBrowser } from '@angular/common';
 import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, inject } from '@angular/core';
 
 import { WrI18n } from 'ngwr/i18n';
-import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
+import {
+  WR_OVERLAY,
+  WrOverlayOrder,
+  WrScrollBlock,
+  wrAppendOverlayClose,
+  wrFocusOverlay,
+  wrFollowDirection,
+} from 'ngwr/overlay';
 import { wrIsComposing, wrToClassList } from 'ngwr/utils';
 
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
@@ -57,6 +64,7 @@ const BACKDROP_CLASS = 'wr-drawer-backdrop';
 export class WrDrawerManager {
   private readonly overlay = inject(WR_OVERLAY);
   private readonly scrollStrategies = inject(ScrollStrategyOptions);
+  private readonly scrollBlock = inject(WrScrollBlock);
   private readonly parentInjector = inject(EnvironmentInjector);
   private readonly focusTrapFactory = inject(ConfigurableFocusTrapFactory);
   private readonly plainFocusTrapFactory = inject(FocusTrapFactory);
@@ -108,7 +116,7 @@ export class WrDrawerManager {
 
     const overlayRef: OverlayRef = this.overlay.create({
       positionStrategy,
-      scrollStrategy: modal ? this.scrollStrategies.block() : this.scrollStrategies.noop(),
+      scrollStrategy: modal ? this.scrollBlock.strategy() : this.scrollStrategies.noop(),
       eventPredicate: modal ? undefined : () => drawerHasFocus(ref) || focusIsLost(),
       hasBackdrop: modal,
       backdropClass: BACKDROP_CLASS,
