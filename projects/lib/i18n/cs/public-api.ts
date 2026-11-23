@@ -516,6 +516,8 @@ export const wrCs: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Měřidlo',
+    value: 'Hodnota',
+    share: 'Podíl',
   },
   knob: {
     label: 'Hodnota',

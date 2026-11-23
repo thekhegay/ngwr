@@ -539,6 +539,8 @@ export const wrAr: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'مقياس',
+    value: 'القيمة',
+    share: 'الحصة',
   },
   knob: {
     label: 'القيمة',

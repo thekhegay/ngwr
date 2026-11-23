@@ -530,6 +530,8 @@ export const wrIt: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Misuratore',
+    value: 'Valore',
+    share: 'Quota',
   },
   knob: {
     label: 'Valore',

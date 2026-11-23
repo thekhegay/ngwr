@@ -516,6 +516,8 @@ export const wrSv: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Mätare',
+    value: 'Värde',
+    share: 'Andel',
   },
   knob: {
     label: 'Värde',

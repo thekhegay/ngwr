@@ -520,6 +520,8 @@ export const wrJa: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'メーター',
+    value: '値',
+    share: '割合',
   },
   knob: {
     label: '値',

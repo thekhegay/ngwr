@@ -537,6 +537,8 @@ export const wrHe: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'מד',
+    value: 'ערך',
+    share: 'נתח',
   },
   knob: {
     label: 'ערך',

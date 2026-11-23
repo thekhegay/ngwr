@@ -535,6 +535,8 @@ export const wrFr: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Indicateur',
+    value: 'Valeur',
+    share: 'Part',
   },
   knob: {
     label: 'Valeur',

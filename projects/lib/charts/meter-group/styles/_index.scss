@@ -4,7 +4,9 @@
 // Styles for the entry points this component's own markup renders. The legend is a
 // `ul[wr-chart-legend]`, so `@use 'ngwr/charts/meter-group'` alone draws it styled.
 @use '../../chart-legend/styles' as chart-legend-styles; // WrChartLegend
-@use '../../core/styles' as core-styles; // WrChartState
+// With `dataTable`, the figures render as a `<wr-chart-table>` beside the bar, which its
+// own sheet clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable, WrChartState
 @include theme.loaded('charts/meter-group');
 
 .wr-meter-group {
@@ -31,6 +33,11 @@
 
   display: flex;
   flex-direction: column;
+  // The containing block of the out-of-flow `dataTable` copy, as on every chart that
+  // renders it: a static host lets that 1px box resolve against an ancestor outside the
+  // chart and keep its place in an unpositioned scroller's content. No z-index, so no
+  // stacking context.
+  position: relative;
   font-family: var(--wr-meter-group-font-family);
   color: var(--wr-meter-group-color);
 

@@ -539,6 +539,8 @@ export const wrPl: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Miernik',
+    value: 'Wartość',
+    share: 'Udział',
   },
   knob: {
     label: 'Wartość',

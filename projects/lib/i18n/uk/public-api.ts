@@ -537,6 +537,8 @@ export const wrUk: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Шкала',
+    value: 'Значення',
+    share: 'Частка',
   },
   knob: {
     label: 'Значення',

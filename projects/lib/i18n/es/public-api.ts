@@ -516,6 +516,8 @@ export const wrEs: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Medidor',
+    value: 'Valor',
+    share: 'Proporción',
   },
   knob: {
     label: 'Valor',
