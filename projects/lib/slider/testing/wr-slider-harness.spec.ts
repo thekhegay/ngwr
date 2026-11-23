@@ -49,7 +49,9 @@ describe('WrSliderHarness', () => {
     const track = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-slider__track')!;
     const event = new Event('pointerdown', { bubbles: true, cancelable: true });
 
-    Object.assign(event, { clientX, clientY: 0 });
+    // A press only starts a drag when it is the primary button of the primary
+    // pointer, which a bare jsdom `Event` does not claim to be.
+    Object.assign(event, { clientX, clientY: 0, button: 0, isPrimary: true, pointerId: 1 });
     track.dispatchEvent(event);
     await fixture.whenStable();
   };
