@@ -780,7 +780,7 @@ export const API = {
     { name: "(rejected)", description: "Emitted when files are rejected for type / size / count reasons.", type: "readonly WrFileUploadRejection[]" },
     { name: "(storedRemove)", description: "Emitted with the descriptor when the remove button of a stored row is pressed.", type: "WrStoredFile" },
     { name: "(retry)", description: "Emitted with the file when the retry button of a failed row is pressed.", type: "File" },
-    { name: "(touch)", description: "Emitted on commit so a bound field can mark itself touched.", type: "void" },
+    { name: "(touch)", description: "Emitted on commit and when focus leaves the drop zone, so a bound field can mark itself touched.", type: "void" },
   ],
   // <[wrFitText]>
   WrFitText: [
@@ -1609,7 +1609,7 @@ export const API = {
   // <wr-switch>
   WrSwitch: [
     { name: "ariaLabel", description: "Accessible name for a switch used WITHOUT projected text. The wrapping `<label>` names the control whenever content is projected; with none, the label is empty and the input has no name at all.", type: "string | null", default: "null" },
-    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it.", type: "string", default: "wrRandomId('wr-switch')" },
+    { name: "id", description: "Stable id used to associate the native input with its label. Lands on the inner `<input>`; the host never keeps it. Left unset inside a `<wr-form-field>`, the input takes the field's `controlId`, so the field's label names a switch that has no text of its own.", type: "string", default: "wrRandomId('wr-switch')" },
     { name: "disabled", description: "Disable the switch. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
     { name: "readonly", description: "Refuse edits while staying focusable and submittable. Bound automatically from the field's readonly state when used with `[formField]`. A native checkbox ignores the `readonly` attribute, so this cancels the click's activation behaviour instead — which covers Space too, since the key arrives as a click — and mirrors the state as `aria-readonly`, which role `switch` supports.", type: "boolean", default: "false" },
     { name: "size", description: "Control size — shares the `--wr-control-*` contract.", type: "WrSwitchSize", default: "'md'" },
