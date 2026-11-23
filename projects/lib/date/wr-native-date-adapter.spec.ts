@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { withDates } from './with-dates';
 import { WrDateAdapter, type WrNativeDateAdapter, wrIsNamedFormat } from './wr-date-adapter';
@@ -633,6 +633,19 @@ describe('WrNativeDateAdapter', () => {
         expect(firstDay('ar-AE')).toBe(1);
         expect(firstDay('de-DE')).toBe(1);
         expect(firstDay('ru')).toBe(1);
+      });
+
+      it('reads the region from the language part, not from an extension key', () => {
+        const locale = vi.spyOn(Intl, 'Locale').mockImplementation(function () {
+          throw new RangeError('unavailable');
+        });
+        try {
+          expect(firstDay('de-u-ca-gregory')).toBe(1);
+          expect(firstDay('en-US-u-ca-gregory')).toBe(0);
+          expect(firstDay('ar-EG-u-nu-latn')).toBe(6);
+        } finally {
+          locale.mockRestore();
+        }
       });
     });
   });

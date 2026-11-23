@@ -723,7 +723,17 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
     }
     // Firefox and Chromium before 130 have no week info: go by the region, with
     // the CLDR first days. A bare `en` maximizes to US.
-    region ??= /[-_]([a-z]{2})(?:[-_]|$)/i.exec(this.locale)?.[1]?.toUpperCase();
+    // Only the language part counts: a singleton such as `u` opens the extensions, whose
+    // keys (`ca`, `nu`) are not regions.
+    if (!region) {
+      for (const part of this.locale.split(/[-_]/).slice(1)) {
+        if (part.length === 1) break;
+        if (/^[a-z]{2}$/i.test(part)) {
+          region = part.toUpperCase();
+          break;
+        }
+      }
+    }
     if (region && SUNDAY_REGIONS.has(region)) return 0;
     if (region && SATURDAY_REGIONS.has(region)) return 6;
     return 1;
