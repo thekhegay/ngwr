@@ -329,6 +329,40 @@ describe('WrMeta', () => {
       expect(content(named('description'))).toBe('Plans for every team.');
     });
 
+    it('leaves a static tag alone while the service never sets that field', () => {
+      for (const [attr, key, value] of [
+        ['name', 'theme-color', '#0b1020'],
+        ['name', 'description', 'from index.html'],
+        ['property', 'og:image', 'https://example.com/a.png'],
+      ]) {
+        const existing = document.createElement('meta');
+        existing.setAttribute(attr, key);
+        existing.setAttribute('content', value);
+        document.head.appendChild(existing);
+      }
+
+      setup().set({ title: 'Pricing' });
+
+      expect(content(named('theme-color'))).toBe('#0b1020');
+      expect(content(named('description'))).toBe('from index.html');
+      expect(content("meta[property='og:image']")).toBe('https://example.com/a.png');
+    });
+
+    it('restores a static tag when the field it overrode is unset again', () => {
+      const existing = document.createElement('meta');
+      existing.setAttribute('name', 'description');
+      existing.setAttribute('content', 'from index.html');
+      document.head.appendChild(existing);
+
+      const meta = setup();
+      meta.set({ description: 'Plans for every team.' });
+      expect(content(named('description'))).toBe('Plans for every team.');
+      meta.reset();
+
+      expect(tags(named('description'))).toHaveLength(1);
+      expect(content(named('description'))).toBe('from index.html');
+    });
+
     it('removes the tag when the metadata no longer carries a description', () => {
       const meta = setup();
       meta.set({ description: 'Plans for every team.' });

@@ -7,7 +7,7 @@
 
 import { DOCUMENT } from '@angular/common';
 import { Injector, Service, computed, effect, inject, signal, untracked } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
+import { Meta, type MetaDefinition, Title } from '@angular/platform-browser';
 
 import { WR_META_DEFAULTS } from './tokens';
 import type { WrMetaConfig, WrMetaHandle } from './types';
@@ -39,7 +39,9 @@ function defined<T extends object>(layer: T | undefined): Partial<T> {
  * The title and the canonical link are diffed against the last applied
  * snapshot and only rewritten when they actually change; the `<meta>` tags
  * are re-resolved by selector on every apply, so an existing tag is updated
- * in place rather than duplicated.
+ * in place rather than duplicated. A tag the document carried (index.html,
+ * server markup) is never removed unless this service wrote it, and goes back
+ * to its original content when the service stops setting it.
  *
  * @example
  * ```ts
@@ -89,6 +91,9 @@ export class WrMeta {
    * only if the document still reads `written`.
    */
   private borrowed: { page: string; written: string } | null = null;
+
+  /** Per tag selector, the content found before this service first wrote it, or null when there was none. */
+  private readonly tagsBeforeFirstWrite = new Map<string, string | null>();
 
   constructor() {
     // Apply defaults immediately on construction.
@@ -277,19 +282,31 @@ export class WrMeta {
   }
 
   private updateName(name: string, content: string | undefined): void {
-    if (content) {
-      this.meta.updateTag({ name, content }, `name='${name}'`);
-    } else {
-      this.meta.removeTag(`name='${name}'`);
-    }
+    this.writeTag({ name, content: content ?? '' }, `name='${name}'`, content);
   }
 
   private updateProp(property: string, content: string | undefined): void {
+    this.writeTag({ property, content: content ?? '' }, `property='${property}'`, content);
+  }
+
+  /**
+   * A tag this service never wrote is left alone, and one it wrote goes back to
+   * what the document carried before the first write (or is removed if it
+   * carried none), the way the title does.
+   */
+  private writeTag(tag: MetaDefinition, selector: string, content: string | undefined): void {
     if (content) {
-      this.meta.updateTag({ property, content }, `property='${property}'`);
-    } else {
-      this.meta.removeTag(`property='${property}'`);
+      if (!this.tagsBeforeFirstWrite.has(selector)) {
+        this.tagsBeforeFirstWrite.set(selector, this.meta.getTag(selector)?.content ?? null);
+      }
+      this.meta.updateTag(tag, selector);
+      return;
     }
+    if (!this.tagsBeforeFirstWrite.has(selector)) return;
+    const before = this.tagsBeforeFirstWrite.get(selector) ?? null;
+    this.tagsBeforeFirstWrite.delete(selector);
+    if (before === null) this.meta.removeTag(selector);
+    else this.meta.updateTag({ ...tag, content: before }, selector);
   }
 
   private diffLink(next: WrMetaConfig): void {
