@@ -125,7 +125,8 @@ describe('a custom missingHandler', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
-    const text = (selector: string): string => fixture.nativeElement.querySelector(selector)?.textContent?.trim() ?? '';
+    const root = fixture.nativeElement as HTMLElement;
+    const text = (selector: string): string => root.querySelector(selector)?.textContent?.trim() ?? '';
     expect(text('.read')).toBe('Expand');
     expect(text('.use')).toBe('Expand');
     expect(text('.missing')).toBe('Nothing here');

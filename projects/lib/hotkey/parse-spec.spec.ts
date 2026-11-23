@@ -28,7 +28,9 @@ describe('wrParseHotkeySpec', () => {
     expect(wrParseHotkeySpec('ctrl+shift++')).toEqual(expected);
     expect(wrParseHotkeySpec('ctrl+shift+plus')).toEqual(expected);
     expect(wrParseHotkeySpec('+')).toMatchObject({ key: '+' });
-    expect(wrMatchesHotkey(press('+', { ctrlKey: true, shiftKey: true }), wrParseHotkeySpec('ctrl+shift++'))).toBe(true);
+    expect(wrMatchesHotkey(press('+', { ctrlKey: true, shiftKey: true }), wrParseHotkeySpec('ctrl+shift++'))).toBe(
+      true
+    );
   });
 
   it('normalizes key aliases to what KeyboardEvent.key actually reports', () => {
