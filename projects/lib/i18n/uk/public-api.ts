@@ -106,6 +106,7 @@ export const wrUk: WrI18nCatalog = {
     toSource: 'Повернути до доступних',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'необов’язково',

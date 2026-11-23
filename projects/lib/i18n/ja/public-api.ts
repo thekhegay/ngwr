@@ -100,6 +100,7 @@ export const wrJa: WrI18nCatalog = {
     toSource: '選択可能へ戻す',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}}：{{search}}',
   },
   form: {
     optional: '任意',

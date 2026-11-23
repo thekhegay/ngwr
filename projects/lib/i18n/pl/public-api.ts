@@ -101,6 +101,7 @@ export const wrPl: WrI18nCatalog = {
     toSource: 'Przenieś do dostępnych',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'opcjonalnie',

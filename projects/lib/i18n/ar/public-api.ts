@@ -98,6 +98,7 @@ export const wrAr: WrI18nCatalog = {
     toSource: 'النقل إلى المتاح',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'اختياري',

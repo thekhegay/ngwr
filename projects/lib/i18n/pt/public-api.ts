@@ -98,6 +98,7 @@ export const wrPt: WrI18nCatalog = {
     toSource: 'Mover para disponíveis',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'opcional',

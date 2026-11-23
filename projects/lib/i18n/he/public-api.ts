@@ -101,6 +101,7 @@ export const wrHe: WrI18nCatalog = {
     toSource: 'העברה לזמינים',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'רשות',
