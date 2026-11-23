@@ -847,6 +847,8 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
       if (isDevMode()) this.warnRefused(error);
       // The model now holds what the screen does not show.
       this.refused.set(true);
+      // So a write back to the shown value is not mistaken for the echo of an edit.
+      this.lastSerialized = value;
       return;
     }
 

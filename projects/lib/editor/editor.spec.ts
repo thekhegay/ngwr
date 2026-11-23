@@ -387,6 +387,20 @@ describe('WrEditor', () => {
       expect(host().value()).toEqual(doc(para(text('Readable!'))));
     });
 
+    it('lifts when the model goes back to the very object that is on screen', async () => {
+      const shown = doc(para(text('Record A body')));
+      await mount(h => h.value.set(shown));
+      host().value.set(foreign);
+      fixture.detectChanges();
+      expect(root().querySelector('wr-editor')!.classList).toContain('wr-editor--refused');
+
+      host().value.set(shown);
+      fixture.detectChanges();
+
+      expect(root().querySelector('wr-editor')!.classList).not.toContain('wr-editor--refused');
+      expect(surface().getAttribute('contenteditable')).toBe('true');
+    });
+
     it('refuses a whole document over one javascript: link, rather than dropping the link', async () => {
       await mount(h => h.value.set(doc(para(text('x', link('javascript:alert(1)'))))));
 
