@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrI18n } from './i18n';
 import { provideWrI18n, provideWrI18nStaticLoader } from './provide-wr-i18n';
@@ -107,5 +107,29 @@ describe('wrReadI18nText', () => {
     // is here so a future tidy-up that unifies the three helpers cannot lose that.
     const fixture = await mount();
     expect(textOf(fixture, '.fmt')).toBe('Удалить Ада');
+  });
+});
+
+describe('a custom missingHandler', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('never reaches the built-in strings, which keep their English default', async () => {
+    const missingHandler = vi.fn((key: string) => `[${key}]`);
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'en', availableLocales: ['en'], missingHandler }),
+        provideWrI18nStaticLoader({ en: {} }),
+      ],
+    });
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const text = (selector: string): string => fixture.nativeElement.querySelector(selector)?.textContent?.trim() ?? '';
+    expect(text('.read')).toBe('Expand');
+    expect(text('.use')).toBe('Expand');
+    expect(text('.missing')).toBe('Nothing here');
+    expect(text('.fmt')).toBe('Remove Ада');
+    expect(missingHandler).not.toHaveBeenCalled();
   });
 });

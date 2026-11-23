@@ -10,6 +10,9 @@ import { type Signal, computed, inject, signal } from '@angular/core';
 import { WrI18n, wrInterpolate } from './i18n';
 import type { WrI18nParams } from './i18n-config';
 
+/** What `WrI18n.t` returns on a miss here: it skips `missingHandler`, and no catalog holds this. */
+const MISS = '\u0000wr-i18n-miss';
+
 /**
  * Helper for component default text. Returns a reactive string that:
  *
@@ -42,10 +45,9 @@ export function useI18nText(binding: Signal<string | null | undefined>, key: str
   return computed(() => {
     const v = binding();
     if (v !== null && v !== undefined && v !== '') return v;
-    const translated = i18n.t(key);
-    // Default missing handler returns the key itself — treat that as "missing"
-    // and use our explicit fallback.
-    return translated === key ? fallback : translated;
+    // A miss answers the sentinel, so a custom `missingHandler` never sees a built-in key.
+    const translated = i18n.t(key, undefined, { fallback: MISS });
+    return translated === MISS ? fallback : translated;
   });
 }
 
@@ -68,8 +70,8 @@ export function wrReadI18nText(key: string, fallback: string): Signal<string> {
   if (!i18n) return computed(() => fallback);
 
   return computed(() => {
-    const v = i18n.t(key);
-    return v === key ? fallback : v;
+    const v = i18n.t(key, undefined, { fallback: MISS });
+    return v === MISS ? fallback : v;
   });
 }
 
@@ -107,7 +109,7 @@ export function useI18nFormatter(key: string, fallback: string): (params?: WrI18
     return (params?: WrI18nParams) => wrInterpolate(fallback, params);
   }
   return (params?: WrI18nParams) => {
-    const v = i18n.t(key, params);
-    return v === key ? wrInterpolate(fallback, params) : v;
+    const v = i18n.t(key, params, { fallback: MISS });
+    return v === MISS ? wrInterpolate(fallback, params) : v;
   };
 }
