@@ -278,7 +278,7 @@ describe('WrColorPickerTriggerHarness', () => {
   it('says what it opens, and whether it is open', async () => {
     const brand = await trigger('Brand');
 
-    expect([await brand.getHasPopup(), await brand.isOpen()]).toEqual(['dialog', false]);
+    expect([await brand.getHasPopup(), await brand.isOpen()]).toEqual([null, false]);
     expect(await brand.getPicker()).toBeNull();
 
     await brand.open();

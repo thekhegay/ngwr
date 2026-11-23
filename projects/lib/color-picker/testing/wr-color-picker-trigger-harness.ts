@@ -129,7 +129,7 @@ export class WrColorPickerTriggerHarness extends ComponentHarness {
     await (await this.host()).sendKeys(TestKey.ESCAPE);
   }
 
-  /** The role the trigger claims to open — `dialog`. */
+  /** The `aria-haspopup` the trigger carries: `null`, since the pane is not a named dialog. */
   async getHasPopup(): Promise<string | null> {
     return (await this.host()).getAttribute('aria-haspopup');
   }
