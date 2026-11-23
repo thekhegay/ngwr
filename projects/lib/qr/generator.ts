@@ -40,7 +40,11 @@ const coverageReported = new Set<string>();
 
 /** `transparent`, or a resolved colour whose alpha is zero. */
 function isTransparent(color: string): boolean {
-  return /^transparent$|[,/]\s*0(?:\.0+)?%?\s*\)$/i.test(color.trim());
+  const value = color.trim().toLowerCase();
+  if (value === 'transparent') return true;
+  // The alpha follows a slash, or is the fourth comma-separated channel: `rgb(0, 0, 0)` is opaque.
+  const alpha = /\/\s*([\d.]+%?)\s*\)$/.exec(value) ?? /^(?:rgba?|hsla?)\((?:[^,]*,){3}\s*([\d.]+%?)\s*\)$/.exec(value);
+  return alpha !== null && parseFloat(alpha[1]) === 0;
 }
 
 /** Latest draw per canvas: an icon that finishes loading after a newer draw must not paint. */
