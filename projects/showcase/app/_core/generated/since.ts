@@ -165,6 +165,7 @@ export const UPDATED = {
   "reference/components/popconfirm": "16.5.0",
   "reference/components/popover": "16.7.0",
   "reference/components/progress": "16.7.0",
+  "reference/components/qrcode": "16.9.0",
   "reference/components/radio": "16.6.0",
   "reference/components/schema-form": "16.9.0",
   "reference/components/segmented": "16.6.0",

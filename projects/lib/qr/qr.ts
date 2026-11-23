@@ -81,6 +81,19 @@ export class WrQr {
   readonly iconSize = input(42, { transform: wrNumAttr(42) });
 
   /**
+   * Colour of the square under the icon. Any CSS colour, resolved the way `color`
+   * is. `null` paints it in `bgColor`; `'transparent'` paints no square, so the icon
+   * sits straight on the modules.
+   *
+   * In dev mode the console warns when the square covers more of the code than
+   * `level` can recover (L 7%, M 15%, Q 25%, H 30%). With no square, the image
+   * itself is what is measured.
+   *
+   * @default null
+   */
+  readonly iconBackground = input<string | null>(null);
+
+  /**
    * Accessible name. A QR code is content — it usually encodes a URL — and a
    * `<canvas>` carries no implicit role and no text alternative, so without a name it
    * is nothing at all to a screen reader. Say what the code is FOR when you can.
@@ -106,6 +119,7 @@ export class WrQr {
         level: this.level(),
         iconUrl: this.iconUrl(),
         iconSize: this.iconSize(),
+        iconBackground: this.iconBackground(),
       };
       if (!this.isBrowser) return;
       const el = this.canvas()?.nativeElement;
@@ -120,10 +134,12 @@ export class WrQr {
       // its previous fill, so a token colour drew every module in the background's
       // colour, or the whole code as one black square. Resolved through the cascade
       // the way the other canvas components do.
+      const bgColor = wrResolveCssColor(el, opts.bgColor, '#ffffff');
       drawQrCode(el, {
         ...opts,
         color: wrResolveCssColor(el, opts.color, '#000000'),
-        bgColor: wrResolveCssColor(el, opts.bgColor, '#ffffff'),
+        bgColor,
+        iconBackground: opts.iconBackground === null ? null : wrResolveCssColor(el, opts.iconBackground, bgColor),
       });
     });
   }

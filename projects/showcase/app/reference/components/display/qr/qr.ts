@@ -22,6 +22,8 @@ export default class QrComponent {
     interactive: `<wr-qr [value]="text()" [size]="180" />
 <input wrInput [(ngModel)]="text" placeholder="Type to encode" />`,
     icon: `<wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="40" />`,
+    iconBackground: `<wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="48" iconBackground="#dbeafe" />
+<wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="48" iconBackground="transparent" />`,
   };
 
   protected readonly api = API.WrQr;
