@@ -13,7 +13,9 @@ import {
   NgZone,
   ViewEncapsulation,
   afterNextRender,
+  Injector,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -99,6 +101,7 @@ export class WrAnchor {
   private readonly platform = inject(WrPlatform);
   private readonly doc = inject(DOCUMENT);
   private readonly zone = inject(NgZone);
+  private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
 
   /**
@@ -158,6 +161,14 @@ export class WrAnchor {
     // found nothing by `getElementById` and left the page with no highlight at
     // all until the reader happened to scroll.
     afterNextRender(() => measure());
+    // The entries, the cursor line or its height changing at rest moves the answer
+    // with no scroll to ask for it.
+    effect(() => {
+      this.flatIds();
+      this.offset();
+      this.hitArea();
+      afterNextRender(() => measure(), { injector: this.injector });
+    });
   }
 
   /** Carries the current path, so a `<base href>` cannot send copy link or a new tab to the site root. */

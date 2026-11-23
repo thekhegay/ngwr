@@ -229,6 +229,22 @@ describe('WrAnchor', () => {
     expect(activeIds()).toEqual(['intro']);
   });
 
+  it('re-measures at rest when the links, offset or hit area change', () => {
+    setTops({ intro: -400, usage: 60, basic: 500, advanced: 600 });
+    fixture.componentInstance.hitArea.set(81);
+    fixture.detectChanges();
+    expect(activeIds()).toEqual(['usage']);
+
+    fixture.componentInstance.hitArea.set(20);
+    fixture.detectChanges();
+    expect(activeIds()).toEqual(['intro']);
+
+    fixture.componentInstance.links.set([{ id: 'basic', label: 'Basic' }]);
+    setTops({ basic: -10 });
+    fixture.detectChanges();
+    expect(activeIds()).toEqual(['basic']);
+  });
+
   it('scrolls to a clicked target instead of letting the browser jump', () => {
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
     fixture.componentInstance.offset.set(80);
