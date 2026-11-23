@@ -156,10 +156,27 @@ export function useChartHover(handlers: WrChartHoverHandlers): void {
   let index: number | null = null;
   let series: string | null = null;
 
+  // Marks drawn while a series is dimmed (a legend row hides it and shows it again with
+  // the pointer still on the row) are new elements that `wrChartDim` never saw: they
+  // would stay faded until the pointer moved. Only watched while a series is dimmed.
+  let relight: MutationObserver | null = null;
+  const watch = (on: boolean): void => {
+    if (!on) {
+      relight?.disconnect();
+      relight = null;
+    } else if (!relight && typeof MutationObserver !== 'undefined') {
+      relight = new MutationObserver(() => {
+        if (series !== null) wrChartDim(host, series);
+      });
+      relight.observe(host, { childList: true, subtree: true });
+    }
+  };
+
   const dim = (key: string | null): void => {
     if (key === series) return;
     series = key;
     wrChartDim(host, key);
+    watch(key !== null);
   };
 
   let current: Element | null = null;
@@ -206,6 +223,7 @@ export function useChartHover(handlers: WrChartHoverHandlers): void {
     host.addEventListener('mouseover', over);
     host.addEventListener('mouseleave', leave);
     destroyRef.onDestroy(() => {
+      watch(false);
       host.removeEventListener('mouseover', over);
       host.removeEventListener('mouseleave', leave);
     });
