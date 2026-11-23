@@ -378,6 +378,12 @@ export class WrContextMenuItem {
     // submenu, or Enter on a leaf. Re-handling it here would close the pane out
     // from under the level it just opened.
     if (event.defaultPrevented) return;
+    // Tab leaves the menu, and the root's own handler never sees it while this
+    // pane is topmost: close the whole chain, as the root alone does.
+    if (event.key === 'Tab') {
+      WrContextMenu.closeActive();
+      return;
+    }
     const active = document.activeElement;
     const focusedPane = active instanceof Element ? active.closest<HTMLElement>('.wr-context-menu-overlay') : null;
     const back = this.isRtl() ? 'ArrowRight' : 'ArrowLeft';
