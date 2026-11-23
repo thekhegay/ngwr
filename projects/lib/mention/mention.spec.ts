@@ -596,6 +596,42 @@ describe('WrMention template reference', () => {
     }
   });
 
+  it('cancels both blur closes when the field blurs twice before the first fires', () => {
+    vi.useFakeTimers();
+    try {
+      field().focus();
+      field().blur();
+      field().focus();
+      field().blur();
+      field().focus();
+      type('hey @');
+      fixture.detectChanges();
+      vi.advanceTimersByTime(200);
+      fixture.detectChanges();
+
+      expect(mention().isOpen()).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('still closes after a blur when text matching a trigger arrives on the unfocused field', () => {
+    vi.useFakeTimers();
+    try {
+      field().focus();
+      field().blur();
+      type('hey @');
+      fixture.detectChanges();
+      expect(mention().isOpen()).toBe(true);
+      vi.advanceTimersByTime(200);
+      fixture.detectChanges();
+
+      expect(mention().isOpen()).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('stays shut when nothing matches, when the field cannot take input, and while open', () => {
     type('hey @zzzz');
     mention().open();
