@@ -94,6 +94,18 @@ describe('wrGetFocusableElements', () => {
   });
 });
 
+describe('wrGetFocusableElements and disabled controls', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('drops a button inside a disabled fieldset', () => {
+    const root = render(`<fieldset disabled><button id="a">a</button></fieldset><button id="b">b</button>`);
+
+    expect(ids(wrGetFocusableElements(root))).toEqual(['b']);
+  });
+});
+
 describe('wrTrapFocus', () => {
   afterEach(() => {
     document.body.innerHTML = '';
@@ -157,6 +169,29 @@ describe('wrTrapFocus', () => {
     const root = render(`<p id="p">text</p>`);
 
     expect(wrTrapFocus(root, tab())).toBe(false);
+  });
+
+  it('skips a button in a disabled fieldset when it picks an end of the list', () => {
+    const root = render(
+      `<fieldset disabled><button id="a">a</button></fieldset><button id="b">b</button><button id="c">c</button>`
+    );
+    root.tabIndex = -1;
+    root.focus();
+    const event = tab();
+
+    expect(wrTrapFocus(root, event)).toBe(true);
+    expect(document.activeElement?.id).toBe('b');
+  });
+
+  it('keeps focus on the container when nothing enabled is left', () => {
+    const root = render(`<fieldset disabled><button id="a">a</button></fieldset>`);
+    root.tabIndex = -1;
+    root.focus();
+    const event = tab();
+
+    expect(wrTrapFocus(root, event)).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(root);
   });
 });
 
