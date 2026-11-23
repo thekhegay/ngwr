@@ -98,6 +98,13 @@
     position: relative;
     isolation: isolate;
   }
+
+  // A control anchored at the floor that opens upward (the speed dial): the
+  // room it opens into sits above it.
+  &--floor {
+    align-items: center;
+    justify-content: flex-end;
+  }
 }
 
 // A box with a panel lying over it, for a demo of something that floats above
