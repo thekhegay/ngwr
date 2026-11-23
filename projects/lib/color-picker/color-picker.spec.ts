@@ -211,6 +211,18 @@ describe('WrColorPicker', () => {
       expect(value()).toBe(before);
     });
 
+    it('stops writing when the control is disabled mid-drag', () => {
+      const bar = place(hue());
+      bar.dispatchEvent(pointer('pointerdown', { clientX: 0 }));
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      const before = value();
+      bar.dispatchEvent(pointer('pointermove', { clientX: 100 }));
+      fixture.detectChanges();
+
+      expect(value()).toBe(before);
+    });
+
     it('stops following a pointer whose gesture was cancelled', () => {
       // `pointercancel` is never followed by a `pointerup`, so the move listener
       // outlived the drag: the surface kept repainting under a hovering pointer.

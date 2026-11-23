@@ -427,7 +427,10 @@ export class WrColorPicker implements FormValueControl<string> {
     const target = event.currentTarget as HTMLElement;
     target.setPointerCapture(event.pointerId);
 
-    const update = (e: PointerEvent): void => this.updateFromEvent(e, target, surface);
+    const update = (e: PointerEvent): void => {
+      if (this.disabled() || this.readonly()) return;
+      this.updateFromEvent(e, target, surface);
+    };
     const cleanup = (e: PointerEvent): void => {
       target.releasePointerCapture(e.pointerId);
       target.removeEventListener('pointermove', update);

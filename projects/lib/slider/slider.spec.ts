@@ -238,6 +238,50 @@ describe('WrSlider', () => {
 
       expect(amount()).toBe(50);
     });
+
+    it('ignores a secondary button and a non-primary pointer', () => {
+      grab(100);
+      expect(amount()).toBe(50);
+
+      grab(150);
+      const el = thumb();
+      el.dispatchEvent(pointer('pointerdown', { clientX: 10, button: 2 }));
+      el.dispatchEvent(pointer('pointerdown', { clientX: 10, isPrimary: false }));
+
+      expect(amount()).toBe(75);
+    });
+
+    it('stops writing when the control is disabled mid-drag', () => {
+      const el = grab(100);
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      el.dispatchEvent(pointer('pointermove', { clientX: 150 }));
+      fixture.detectChanges();
+
+      expect(amount()).toBe(50);
+    });
+
+    it('starts a drag from a press on the track', () => {
+      const track = root().querySelector<HTMLElement>('.wr-slider__track')!;
+      track.getBoundingClientRect = (): DOMRect => ({ left: 0, right: 200, width: 200 }) as DOMRect;
+      track.dispatchEvent(pointer('pointerdown', { clientX: 100 }));
+      fixture.detectChanges();
+      expect(amount()).toBe(50);
+
+      thumb().dispatchEvent(pointer('pointermove', { clientX: 150 }));
+      fixture.detectChanges();
+
+      expect(amount(), 'a press on the track jumped once and let go of the pointer').toBe(75);
+    });
+
+    it('ignores a right-click on the track', () => {
+      const track = root().querySelector<HTMLElement>('.wr-slider__track')!;
+      track.getBoundingClientRect = (): DOMRect => ({ left: 0, right: 200, width: 200 }) as DOMRect;
+      track.dispatchEvent(pointer('pointerdown', { clientX: 150, button: 2 }));
+      fixture.detectChanges();
+
+      expect(amount()).toBe(50);
+    });
   });
 
   /**
