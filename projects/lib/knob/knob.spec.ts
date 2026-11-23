@@ -336,6 +336,17 @@ describe('WrKnob', () => {
     expect(value()).toBe(50);
   });
 
+  it('still marks the field touched when a readonly turn ends the drag', () => {
+    drag(0, -100);
+    expect(fixture.componentInstance.touched).toBe(0);
+
+    fixture.componentInstance.readonly.set(true);
+    fixture.detectChanges();
+    surface().dispatchEvent(new MouseEvent('pointermove', { clientX: 100, clientY: 0, bubbles: true }));
+    surface().dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+    expect(fixture.componentInstance.touched).toBe(1);
+  });
+
   it('lands on the grid from either direction of travel', () => {
     fixture.componentInstance.min.set(5);
     fixture.componentInstance.max.set(105);
