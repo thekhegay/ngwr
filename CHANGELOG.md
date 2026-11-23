@@ -1,5 +1,23 @@
 # Changelog
 
+## [16.7.1](https://github.com/thekhegay/ngwr/compare/v16.7.0...v16.7.1) (2026-11-23)
+
+### Bug Fixes
+
+* **checkbox:** contain the hidden input so focusing it scrolls no outer box ([c7ecbf0](https://github.com/thekhegay/ngwr/commit/c7ecbf092d2091f8469b4d157c9fdf4290b5eace))
+* **date-picker:** a calendar pick past year 9999 holds null, not an empty day ([a459873](https://github.com/thekhegay/ngwr/commit/a459873c454bd134dfd4ea86ec69fb2f787be9b5))
+* **date-picker:** type the value as a date when no value format is bound ([91a86bc](https://github.com/thekhegay/ngwr/commit/91a86bc7a5b3b2b93bc5ed1c99614076f6626291))
+* **popover:** reposition an open tooltip when its text changes ([f6f4262](https://github.com/thekhegay/ngwr/commit/f6f426250742cd4fea429c4bea8246b5e92665dc))
+* **radio:** contain the hidden input so focusing it scrolls no outer box ([8127ef0](https://github.com/thekhegay/ngwr/commit/8127ef0913bcfd7cfda3a5513342605ae31f96b1))
+* refuse an unwritable day pick, read the committed url in router tabs ([da73e46](https://github.com/thekhegay/ngwr/commit/da73e4645a912483feba633c5d7f96b4cfa59b74))
+* **scroll:** find the lowest row in view by bisection instead of walking every row ([9ab92a2](https://github.com/thekhegay/ngwr/commit/9ab92a283737f639896d28d7e1e2503cfac69642))
+* **scroll:** follow again when shorter content clamps a scrolled up reader to the end ([836cade](https://github.com/thekhegay/ngwr/commit/836cadeac8f5dd0163c7874e885e1a85c369e12c))
+* **switch:** contain the hidden input so focusing it scrolls no outer box ([96feda3](https://github.com/thekhegay/ngwr/commit/96feda368da7689cc98dcd40d919ea59358dad14))
+* **table:** header drag preview of a compact table uses the compact padding ([822781f](https://github.com/thekhegay/ngwr/commit/822781f4864648acc7b8741d90fd583ebb82e092))
+* **table:** log the missing routing adapter once per table ([94bce30](https://github.com/thekhegay/ngwr/commit/94bce30b7c4bf04c1504a1a313132547786b1cd3))
+* **table:** tree rows with a link are one tab stop and enter follows the link ([569f32c](https://github.com/thekhegay/ngwr/commit/569f32c1272ac196604885423684cda128b0f998))
+* **tabs:** match router tabs against the last navigation tree ([578009d](https://github.com/thekhegay/ngwr/commit/578009d838c55498f639b3460d06cea7a5de6188))
+
 ## [16.7.0](https://github.com/thekhegay/ngwr/compare/v16.6.0...v16.7.0) (2026-11-20)
 
 ### Features
