@@ -7,7 +7,17 @@
 
 import { coerceNumberProperty } from '@angular/cdk/coercion';
 import { isPlatformBrowser } from '@angular/common';
-import { Directive, ElementRef, PLATFORM_ID, afterEveryRender, effect, inject, input } from '@angular/core';
+import {
+  DestroyRef,
+  Directive,
+  ElementRef,
+  PLATFORM_ID,
+  afterEveryRender,
+  afterNextRender,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 
 /**
  * Auto-grow a `<textarea>` to fit its content. Optional `minRows` /
@@ -40,6 +50,8 @@ export class WrAutosize {
   private readonly el = inject<ElementRef<HTMLTextAreaElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
+  private readonly destroyRef = inject(DestroyRef);
+
   private lastValue: string | null = null;
 
   constructor() {
@@ -52,6 +64,19 @@ export class WrAutosize {
         this.lastValue = value;
         this.resize();
       }
+    });
+    // A narrower or wider box re-wraps the text without any input, so the
+    // width is watched too. Height-only changes are this directive's own writes.
+    afterNextRender(() => {
+      if (typeof ResizeObserver === 'undefined') return;
+      let width = -1;
+      const observer = new ResizeObserver(([entry]) => {
+        if (entry.contentRect.width === width) return;
+        width = entry.contentRect.width;
+        this.resize();
+      });
+      observer.observe(this.el.nativeElement);
+      this.destroyRef.onDestroy(() => observer.disconnect());
     });
     // Resize when `minRows` / `maxRows` change. Read the inputs before the
     // platform check so the effect still tracks them; the measurement itself
