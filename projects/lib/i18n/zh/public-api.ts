@@ -87,6 +87,8 @@ export const wrZh: WrI18nCatalog = {
   stepper: {
     optional: '可选',
     completed: '已完成',
+    error: '错误',
+    warning: '警告',
   },
   transfer: {
     source: '待选',

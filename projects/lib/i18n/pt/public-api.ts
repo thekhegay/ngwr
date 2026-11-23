@@ -87,6 +87,8 @@ export const wrPt: WrI18nCatalog = {
   stepper: {
     optional: 'opcional',
     completed: 'concluído',
+    error: 'erro',
+    warning: 'aviso',
   },
   transfer: {
     source: 'Disponíveis',

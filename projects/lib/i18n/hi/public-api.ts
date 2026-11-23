@@ -87,6 +87,8 @@ export const wrHi: WrI18nCatalog = {
   stepper: {
     optional: 'वैकल्पिक',
     completed: 'पूर्ण',
+    error: 'त्रुटि',
+    warning: 'चेतावनी',
   },
   transfer: {
     source: 'उपलब्ध',

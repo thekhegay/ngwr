@@ -3,7 +3,7 @@
   description="A multi-step flow with numbered headers."
   [keywords]="['stepper', 'wizard', 'wr-stepper']"
   [labels]="['Composite']"
-  updated="16.3.0"
+  updated="16.9.0"
 >
   <ngwr-doc-section title="Basic" description="Bind `[(active)]` to the step index. A header click jumps to its step.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
@@ -43,6 +43,29 @@
         <wr-btn outlined (click)="linearPrev()">Prev</wr-btn>
         <wr-btn outlined (click)="linearNext()">Next</wr-btn>
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Status"
+    description="`status` on a step flags a problem: an error or a warning glyph replaces the number. Navigation stays the same."
+  >
+    <ngwr-doc-code [code]="snippets.status" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-stepper [(active)]="status">
+        <wr-step label="Account">
+          <p>Tell us about your account.</p>
+        </wr-step>
+        <wr-step label="Address" status="error">
+          <p>The postal code is missing.</p>
+        </wr-step>
+        <wr-step label="Payment" status="warning">
+          <p>The card expires this month.</p>
+        </wr-step>
+        <wr-step label="Confirm">
+          <p>Review and submit.</p>
+        </wr-step>
+      </wr-stepper>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -86,8 +109,8 @@
 
   <ngwr-doc-section title="Accessibility">
     <p>
-      The words read with a step's name take a per-instance override on the stepper: <code>optionalLabel</code> and
-      <code>completedLabel</code>.
+      The words read with a step's name take a per-instance override on the stepper: <code>optionalLabel</code>,
+      <code>completedLabel</code>, <code>errorLabel</code> and <code>warningLabel</code>.
     </p>
   </ngwr-doc-section>
 

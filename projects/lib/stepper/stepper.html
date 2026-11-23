@@ -6,6 +6,8 @@
       [class.wr-stepper__header--completed]="isCompleted($index)"
       [class.wr-stepper__header--reachable]="isReachable($index)"
       [class.wr-stepper__header--disabled]="step.disabled()"
+      [class.wr-stepper__header--error]="step.status() === 'error'"
+      [class.wr-stepper__header--warning]="step.status() === 'warning'"
     >
       <button
         type="button"
@@ -15,7 +17,26 @@
         (click)="onHeaderClick($index)"
       >
         <span class="wr-stepper__indicator" aria-hidden="true">
-          @if (isCompleted($index)) {
+          @if (step.status(); as status) {
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              @if (status === 'error') {
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              } @else {
+                <path d="M12 4v9" />
+                <path d="M12 19h.01" />
+              }
+            </svg>
+          } @else if (isCompleted($index)) {
             <svg width="14" height="14" viewBox="0 0 14 14">
               <path
                 d="M3 7.5 L6 10.5 L11 4.5"
@@ -34,6 +55,11 @@
           {{ step.label() }}
           @if (isCompleted($index)) {
             <span class="wr-stepper__sr-only"> {{ resolvedCompletedLabel() }} </span>
+          }
+          @if (step.status(); as status) {
+            <span class="wr-stepper__sr-only">
+              {{ status === 'error' ? resolvedErrorLabel() : resolvedWarningLabel() }}
+            </span>
           }
           @if (step.optional()) {
             <small class="wr-stepper__optional">{{ resolvedOptionalLabel() }}</small>

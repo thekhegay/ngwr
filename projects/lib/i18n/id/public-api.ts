@@ -87,6 +87,8 @@ export const wrId: WrI18nCatalog = {
   stepper: {
     optional: 'opsional',
     completed: 'selesai',
+    error: 'kesalahan',
+    warning: 'peringatan',
   },
   transfer: {
     source: 'Tersedia',

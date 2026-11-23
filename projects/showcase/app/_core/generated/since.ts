@@ -174,7 +174,7 @@ export const UPDATED = {
   "reference/components/slider": "16.3.0",
   "reference/components/sortable-list": "16.2.0",
   "reference/components/speed-dial": "16.9.0",
-  "reference/components/stepper": "16.3.0",
+  "reference/components/stepper": "16.9.0",
   "reference/components/switch": "15.0.0",
   "reference/components/table": "16.7.0",
   "reference/components/tabs": "16.7.0",

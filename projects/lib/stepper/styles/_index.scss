@@ -13,6 +13,12 @@ $header-padding-block: 0.25rem;
   --wr-stepper-indicator-size: 1.75rem;
   --wr-stepper-connector: var(--wr-border-base);
   --wr-stepper-muted: var(--wr-color-on-surface-muted);
+  --wr-stepper-error: var(--wr-color-danger);
+  --wr-stepper-error-ink: var(--wr-color-danger-ink);
+  --wr-stepper-error-soft: var(--wr-color-danger-soft);
+  --wr-stepper-warning: var(--wr-color-warning);
+  --wr-stepper-warning-ink: var(--wr-color-warning-ink);
+  --wr-stepper-warning-soft: var(--wr-color-warning-soft);
   --wr-stepper-gap: var(--wr-space-lg);
   --wr-stepper-font-family: var(--wr-font-family-base);
 
@@ -187,6 +193,25 @@ $header-padding-block: 0.25rem;
     color: var(--wr-color-surface);
   }
 
+  // A `status` repaints whatever the step otherwise is: after the active and
+  // completed rules, so it wins their colours, and with the hover selector
+  // listed so a pointer does not turn the circle primary again. It leaves the
+  // border WIDTH and STYLE alone, so an error on the current step keeps the
+  // doubled ring and a locked one keeps its dashes.
+  &__header--error &__indicator,
+  &__header--error &__header-button:hover:not(:disabled) &__indicator {
+    border-color: var(--wr-stepper-error);
+    color: var(--wr-stepper-error-ink);
+    background: var(--wr-stepper-error-soft);
+  }
+
+  &__header--warning &__indicator,
+  &__header--warning &__header-button:hover:not(:disabled) &__indicator {
+    border-color: var(--wr-stepper-warning);
+    color: var(--wr-stepper-warning-ink);
+    background: var(--wr-stepper-warning-soft);
+  }
+
   &__label {
     // Literal, like `--wr-option-gap` in select: the label and its description
     // sit 1px apart, and the scale starts at 4px — taking `--wr-space-xs` here
@@ -222,6 +247,14 @@ $header-padding-block: 0.25rem;
 
   &__header--active &__label {
     color: var(--wr-color-primary-ink);
+  }
+
+  &__header--error &__label {
+    color: var(--wr-stepper-error-ink);
+  }
+
+  &__header--warning &__label {
+    color: var(--wr-stepper-warning-ink);
   }
 
   // Read, not shown: the "completed" state the check mark draws, in the header

@@ -29,6 +29,7 @@ import {
 export default class StepperPageComponent {
   protected readonly basic = signal(0);
   protected readonly linear = signal(0);
+  protected readonly status = signal(1);
   protected readonly vertical = signal(0);
   protected readonly narrow = signal(0);
   protected readonly linearStepper = viewChild<WrStepper>('linearStepper');
@@ -55,6 +56,13 @@ export default class StepperPageComponent {
 </wr-stepper>
 
 <button (click)="stepper.next()">Next</button>`,
+
+    status: `<wr-stepper [(active)]="step">
+  <wr-step label="Account">…</wr-step>
+  <wr-step label="Address" status="error">…</wr-step>
+  <wr-step label="Payment" status="warning">…</wr-step>
+  <wr-step label="Confirm">…</wr-step>
+</wr-stepper>`,
 
     vertical: `<wr-stepper [(active)]="step" orientation="vertical">
   <wr-step label="Pick a plan">…</wr-step>
@@ -95,6 +103,18 @@ export default class StepperPageComponent {
       type: 'string | null',
       default: 'null',
     },
+    {
+      name: 'errorLabel',
+      description: 'The word read after a step in error. Falls back to `stepper.error`.',
+      type: 'string | null',
+      default: 'null',
+    },
+    {
+      name: 'warningLabel',
+      description: 'The word read after a step in warning. Falls back to `stepper.warning`.',
+      type: 'string | null',
+      default: 'null',
+    },
     { name: 'next() / prev() / goTo(i)', description: 'Imperative navigation.', type: 'method', default: '—' },
     { name: '<wr-step>.label', description: 'Header text.', type: 'string', default: "''" },
     { name: '<wr-step>.description', description: 'Secondary header text.', type: 'string', default: "''" },
@@ -108,6 +128,12 @@ export default class StepperPageComponent {
       name: '<wr-step>.completed',
       description: 'Override completion. When null, derived from `active > index`.',
       type: 'boolean | null',
+      default: 'null',
+    },
+    {
+      name: '<wr-step>.status',
+      description: 'Flags a problem in the header. Does not change navigation.',
+      type: "'error' | 'warning' | null",
       default: 'null',
     },
     { name: '<wr-step>.disabled', description: 'Blocks header clicks.', type: 'boolean', default: 'false' },

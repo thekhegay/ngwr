@@ -11,6 +11,7 @@ import { Component, ViewEncapsulation, computed, inject, input, signal } from '@
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { WR_STEPPER } from './tokens';
+import type { WrStepStatus } from './types';
 
 /**
  * One step in a {@link WrStepper}. Project as a child:
@@ -58,6 +59,15 @@ export class WrStep {
 
   /** Disables the header — also blocks header clicks. */
   readonly disabled = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * A problem to flag in the header: the number or the check mark gives way to
+   * an error or a warning glyph, and the label takes the matching colour. It
+   * changes nothing about navigation.
+   *
+   * @default null
+   */
+  readonly status = input<WrStepStatus | null>(null);
 
   /** Stepper-assigned index. Set by the parent when contentChildren updates. */
   readonly _index = signal(-1);

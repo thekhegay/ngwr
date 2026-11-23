@@ -87,6 +87,8 @@ export const wrRu: WrI18nCatalog = {
   stepper: {
     optional: 'необязательно',
     completed: 'завершено',
+    error: 'ошибка',
+    warning: 'предупреждение',
   },
   transfer: {
     source: 'Доступно',

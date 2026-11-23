@@ -8,9 +8,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { WrStep } from './step';
 import { WrStepper } from './stepper';
 
-type Labels = Partial<Record<'optionalLabel' | 'completedLabel', string>>;
+type Labels = Partial<Record<'optionalLabel' | 'completedLabel' | 'errorLabel' | 'warningLabel', string>>;
 
-const CUSTOM: Labels = { optionalLabel: 'x-optionalLabel', completedLabel: 'x-completedLabel' };
+const CUSTOM: Labels = {
+  optionalLabel: 'x-optionalLabel',
+  completedLabel: 'x-completedLabel',
+  errorLabel: 'x-errorLabel',
+  warningLabel: 'x-warningLabel',
+};
 
 @Component({
   imports: [WrStepper, WrStep],
@@ -19,9 +24,13 @@ const CUSTOM: Labels = { optionalLabel: 'x-optionalLabel', completedLabel: 'x-co
       [active]="1"
       [optionalLabel]="labels().optionalLabel ?? null"
       [completedLabel]="labels().completedLabel ?? null"
+      [errorLabel]="labels().errorLabel ?? null"
+      [warningLabel]="labels().warningLabel ?? null"
     >
       <wr-step label="Account">Account body</wr-step>
       <wr-step label="Address" optional>Address body</wr-step>
+      <wr-step label="Payment" status="error">Payment body</wr-step>
+      <wr-step label="Review" status="warning">Review body</wr-step>
     </wr-stepper>
   `,
 })
@@ -57,7 +66,10 @@ describe('WrStepper per-instance labels', () => {
   const read = (): Promise<Labels> =>
     Promise.resolve({
       optionalLabel: root().querySelector('.wr-stepper__optional')?.textContent.trim() ?? '',
-      completedLabel: root().querySelector('.wr-stepper__sr-only')?.textContent.trim() ?? '',
+      completedLabel:
+        root().querySelector('.wr-stepper__header--completed .wr-stepper__sr-only')?.textContent.trim() ?? '',
+      errorLabel: root().querySelector('.wr-stepper__header--error .wr-stepper__sr-only')?.textContent.trim() ?? '',
+      warningLabel: root().querySelector('.wr-stepper__header--warning .wr-stepper__sr-only')?.textContent.trim() ?? '',
     });
 
   it('prints each input in place of its built-in string', async () => {
@@ -67,6 +79,8 @@ describe('WrStepper per-instance labels', () => {
     expect(await read()).toEqual({
       optionalLabel: 'x-optionalLabel',
       completedLabel: 'x-completedLabel',
+      errorLabel: 'x-errorLabel',
+      warningLabel: 'x-warningLabel',
     });
   });
 
@@ -76,6 +90,8 @@ describe('WrStepper per-instance labels', () => {
     expect(await read()).toEqual({
       optionalLabel: 'optional',
       completedLabel: 'completed',
+      errorLabel: 'error',
+      warningLabel: 'warning',
     });
   });
 
@@ -85,6 +101,8 @@ describe('WrStepper per-instance labels', () => {
     expect(await read()).toEqual({
       optionalLabel: 'необязательно',
       completedLabel: 'завершено',
+      errorLabel: 'ошибка',
+      warningLabel: 'предупреждение',
     });
 
     await set({ optionalLabel: 'x-optionalLabel' });
@@ -92,6 +110,8 @@ describe('WrStepper per-instance labels', () => {
     expect(await read()).toEqual({
       optionalLabel: 'x-optionalLabel',
       completedLabel: 'завершено',
+      errorLabel: 'ошибка',
+      warningLabel: 'предупреждение',
     });
   });
 });

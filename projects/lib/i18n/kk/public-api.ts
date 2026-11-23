@@ -87,6 +87,8 @@ export const wrKk: WrI18nCatalog = {
   stepper: {
     optional: 'міндетті емес',
     completed: 'аяқталды',
+    error: 'қате',
+    warning: 'ескерту',
   },
   transfer: {
     source: 'Қолжетімді',

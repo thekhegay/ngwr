@@ -1600,6 +1600,7 @@ export const API = {
     { name: "optional", description: "Marks the step as optional in the header.", type: "boolean", default: "false" },
     { name: "completed", description: "Override completion state. When unset, the stepper auto-derives it from the active index (any step before `active` is completed).", type: "boolean | null", default: "null" },
     { name: "disabled", description: "Disables the header — also blocks header clicks.", type: "boolean", default: "false" },
+    { name: "status", description: "A problem to flag in the header: the number or the check mark gives way to an error or a warning glyph, and the label takes the matching colour. It changes nothing about navigation.", type: "WrStepStatus | null", default: "null" },
   ],
   // <wr-stepper>
   WrStepper: [
@@ -1609,6 +1610,8 @@ export const API = {
     { name: "responsive", description: "Drop a horizontal stepper to a vertical layout when its own box is too narrow for the row (a container query on its own width, not the viewport — so it adapts inside a narrow column or side panel). No effect when `orientation` is already `vertical`.", type: "boolean", default: "false" },
     { name: "optionalLabel", description: "The word of the \"optional\" badge, which sits inside the header button's label and so is part of each optional step's accessible name. One input on the stepper covers every step. Falls back to `stepper.optional`, then `'optional'`.", type: "string | null", default: "null" },
     { name: "completedLabel", description: "The word a completed step's header button carries after its label, visually hidden: the check mark that replaces the number is `aria-hidden`. Falls back to `stepper.completed`, then `'completed'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The word a step with `status=\"error\"` carries after its label, visually hidden: the glyph that replaces the number is `aria-hidden`. Falls back to `stepper.error`, then `'error'`.", type: "string | null", default: "null" },
+    { name: "warningLabel", description: "The word a step with `status=\"warning\"` carries after its label, visually hidden. Falls back to `stepper.warning`, then `'warning'`.", type: "string | null", default: "null" },
   ],
   // <wr-switch>
   WrSwitch: [

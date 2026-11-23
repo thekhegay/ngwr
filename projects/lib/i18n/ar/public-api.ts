@@ -87,6 +87,8 @@ export const wrAr: WrI18nCatalog = {
   stepper: {
     optional: 'اختياري',
     completed: 'مكتملة',
+    error: 'خطأ',
+    warning: 'تحذير',
   },
   transfer: {
     source: 'المتاح',

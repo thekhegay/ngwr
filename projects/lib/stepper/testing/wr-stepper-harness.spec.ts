@@ -2,7 +2,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { WrStep, WrStepper } from 'ngwr/stepper';
+import { WrStep, type WrStepStatus, WrStepper } from 'ngwr/stepper';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrStepHarness } from './wr-step-harness';
@@ -21,7 +21,9 @@ import { WrStepperHarness } from './wr-stepper-harness';
   template: `
     <wr-stepper [(active)]="active" [linear]="linear()" [orientation]="orientation()" [responsive]="responsive()">
       <wr-step label="Account">Account body</wr-step>
-      <wr-step label="Address" description="Where we ship" [completed]="addressDone()">Address body</wr-step>
+      <wr-step label="Address" description="Where we ship" [completed]="addressDone()" [status]="addressStatus()">
+        Address body
+      </wr-step>
       <wr-step label="Review" optional [disabled]="reviewDisabled()">Review body</wr-step>
     </wr-stepper>
   `,
@@ -33,6 +35,7 @@ class Host {
   readonly orientation = signal<'horizontal' | 'vertical'>('horizontal');
   readonly responsive = signal(false);
   readonly addressDone = signal<boolean | null>(null);
+  readonly addressStatus = signal<WrStepStatus | null>(null);
   readonly reviewDisabled = signal(false);
 }
 
@@ -239,6 +242,27 @@ describe('WrStepperHarness', () => {
     // Focus moved and the wizard did not: the strip is not one roving tab stop, so
     // every reachable header is its own stop and none of them is the selection.
     expect(await stepper.getActiveLabel()).toBe('Account');
+  });
+
+  it('reports the status a step flags, in the announced name and as a filter', async () => {
+    const [account, address] = await stepper.getSteps();
+    expect(await address.getStatus()).toBeNull();
+
+    fixture.componentInstance.addressStatus.set('error');
+    await fixture.whenStable();
+
+    expect(await address.getStatus()).toBe('error');
+    expect(await account.getStatus()).toBeNull();
+    expect(await address.getLabel()).toBe('Address');
+    expect(await address.getAccessibleName()).toBe('Address error Where we ship');
+    expect(await labels({ status: 'error' })).toEqual(['Address']);
+    expect(await labels({ status: null })).toEqual(['Account', 'Review']);
+
+    fixture.componentInstance.addressStatus.set('warning');
+    await fixture.whenStable();
+
+    expect(await address.getStatus()).toBe('warning');
+    expect(await labels({ status: 'warning' })).toEqual(['Address']);
   });
 
   it('narrows steps by label, active, completed, disabled, reachable and optional', async () => {
