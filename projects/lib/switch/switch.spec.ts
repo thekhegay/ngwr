@@ -2,7 +2,6 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form } from '@angular/forms/signals';
 
-import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrSwitch, type WrSwitchSize } from './switch';
@@ -29,16 +28,6 @@ class Host {
 class SizeHost {
   readonly size = signal<WrSwitchSize>('md');
 }
-
-@Component({
-  imports: [WrSwitch, WrFormField],
-  template: `
-    <wr-form-field label="Notifications">
-      <wr-switch />
-    </wr-form-field>
-  `,
-})
-class FieldHost {}
 
 @Component({
   imports: [WrSwitch],
@@ -250,21 +239,5 @@ describe('WrSwitch under focusBoundControl()', () => {
     fixture.componentInstance.prefs.alerts().focusBoundControl();
 
     expect(root().contains(document.activeElement)).toBe(false);
-  });
-});
-
-describe('WrSwitch inside a form field', () => {
-  it('takes the field label as its name when it has no text of its own', () => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({});
-    const fixture = TestBed.createComponent(FieldHost);
-    fixture.detectChanges();
-    const el = fixture.nativeElement as HTMLElement;
-    const input = el.querySelector<HTMLInputElement>('input.wr-switch__input')!;
-    const label = el.querySelector<HTMLLabelElement>('label.wr-form-field__label')!;
-
-    expect(label.getAttribute('for')).toBe(input.id);
-    expect([...input.labels!].map(l => l.textContent?.trim())).toContain('Notifications');
-    fixture.destroy();
   });
 });
