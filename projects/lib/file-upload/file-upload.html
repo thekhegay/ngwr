@@ -10,6 +10,7 @@
   [attr.aria-describedby]="fieldAria.describedBy()"
   (click)="openPicker()"
   (keydown)="onZoneKey($event)"
+  (blur)="touch.emit()"
   (dragenter)="onDragEnter($event)"
   (dragover)="onDragOver($event)"
   (dragleave)="onDragLeave()"

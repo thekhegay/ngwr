@@ -20,10 +20,12 @@ import type { WrFileUploadRejection } from './types';
       [maxFiles]="maxFiles()"
       [disabled]="disabled()"
       (rejected)="rejections.set($event)"
+      (touch)="touched = touched + 1"
     />
   `,
 })
 class Host {
+  touched = 0;
   readonly picked = signal<File | readonly File[] | null>(null);
   readonly multiple = signal(false);
   readonly accept = signal('');
@@ -100,6 +102,13 @@ describe('WrFileUpload', () => {
     expect(zone().hasAttribute('aria-label')).toBe(false);
     expect(zone().getAttribute('aria-labelledby')).toBe(hint.id);
     expect(hint.textContent).toContain('Click to browse');
+  });
+
+  it('is touched when focus leaves the zone, with nothing chosen', () => {
+    zone().dispatchEvent(new FocusEvent('blur'));
+
+    expect(fixture.componentInstance.touched).toBe(1);
+    expect(picked()).toBeNull();
   });
 
   it('hides the real picker behind its own drop zone', () => {
