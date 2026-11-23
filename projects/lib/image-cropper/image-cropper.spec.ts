@@ -738,6 +738,19 @@ describe('WrImageCropper', () => {
       expect(await emitted()).toBe(1);
     });
 
+    it('ends a move drag when the ratio changes, so the next move keeps the refit window', () => {
+      loadImage(400, 250, null);
+      fire('pointerdown', window_()!, centre());
+
+      fixture.componentInstance.aspectRatio.set(2);
+      fixture.detectChanges();
+      const refit = rect();
+      expect(refit.w / refit.h).toBeCloseTo(2, 5);
+
+      fire('pointermove', window_()!, [300, 125]);
+      expect(rect()).toEqual(refit);
+    });
+
     /**
      * An edge handle with a ratio sizes the axis it does not drive. Growing that axis
      * evenly about the midline and capping it at twice the distance to the nearer side

@@ -472,6 +472,8 @@ export class WrImageCropper {
     if (w / ratio > h) w = h * ratio;
     else h = w / ratio;
     if (Math.abs(w - c.w) < 0.01 && Math.abs(h - c.h) < 0.01) return;
+    // A drag measures from `startRect`, so its next move would undo the refit.
+    this.endDrag();
     this.cropDisplay.set({ x: c.x + (c.w - w) / 2, y: c.y + (c.h - h) / 2, w, h });
     void this.emitCropped();
   }
@@ -565,15 +567,21 @@ export class WrImageCropper {
    */
   protected onPointerUp(event: PointerEvent): void {
     if (!this.active || event.pointerId !== this.pointerId) return;
+    this.endDrag();
+    void this.emitCropped();
+  }
+
+  /** Clears the live drag and lets go of its pointer capture. */
+  private endDrag(): void {
     const target = this.captureTarget;
+    const pointerId = this.pointerId;
     this.active = null;
     this.pointerId = null;
     this.captureTarget = null;
     this.overhang = NO_SIDES;
     // Asked first: a capture that is already gone has nothing to release, and releasing
     // one for a pointer that is no longer active throws.
-    if (target?.hasPointerCapture(event.pointerId)) target.releasePointerCapture(event.pointerId);
-    void this.emitCropped();
+    if (pointerId !== null && target?.hasPointerCapture(pointerId)) target.releasePointerCapture(pointerId);
   }
 
   /** How far past each side of the crop window the pointer is, in CSS pixels. */
