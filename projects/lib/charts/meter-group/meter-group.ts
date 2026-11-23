@@ -100,7 +100,7 @@ export class WrMeterGroup {
     useChartHover({ enter: index => this.tip.enter(index), leave: event => this.tip.leave(event) });
   }
 
-  /** Accessible name — the role needs one — and the caption of the data table. Falls back to `meterGroup.label`. */
+  /** Accessible name — the role needs one. Also the caption of the data table. Falls back to `meterGroup.label`. */
   readonly ariaLabel = input<string | null>(null);
 
   protected readonly resolvedAriaLabel = useI18nText(this.ariaLabel, 'meterGroup.label', 'Meter');

@@ -199,7 +199,7 @@ export class WrMeterGroupHarness extends ComponentHarness {
   private async assertDataTable(method: string): Promise<void> {
     if (!(await this.hasDataTable())) {
       throw new Error(
-        `WrMeterGroupHarness.${method}(): the meter renders no data table — \`dataTable\` is off, or there ` +
+        `WrMeterGroupHarness.${method}(): the meter renders no data table: \`dataTable\` is off, or there ` +
           'is nothing to tabulate. Ask hasDataTable() first.'
       );
     }

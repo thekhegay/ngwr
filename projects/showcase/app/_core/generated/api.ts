@@ -1145,7 +1145,7 @@ export const API = {
   ],
   // <wr-meter-group>
   WrMeterGroup: [
-    { name: "ariaLabel", description: "Accessible name — the role needs one — and the caption of the data table. Falls back to `meterGroup.label`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name — the role needs one. Also the caption of the data table. Falls back to `meterGroup.label`.", type: "string | null", default: "null" },
     { name: "segments", description: "The parts of the bar, in order. Each segment is drawn as its share of `max` when set, else of the sum of the segments shown, so they need not add up to anything in particular.", type: "readonly WrMeterSegment[]", default: "[]" },
     { name: "max", description: "Explicit total, a capacity the segments fill. `0` (default) uses the sum of the segments shown.", type: "number", default: "0" },
     { name: "showLegend", description: "Show the labelled legend. `'auto'` leaves it out for a single segment, which has nothing to tell apart; `true` shows it for one too, since the row carries the value.", type: "boolean | 'auto'", default: "true" },

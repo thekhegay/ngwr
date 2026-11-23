@@ -212,7 +212,7 @@ export class WrDonutChartHarness extends ComponentHarness {
   private async assertDataTable(method: string): Promise<void> {
     if (!(await this.hasDataTable())) {
       throw new Error(
-        `WrDonutChartHarness.${method}(): the chart renders no data table — \`dataTable\` is off, or there ` +
+        `WrDonutChartHarness.${method}(): the chart renders no data table: \`dataTable\` is off, or there ` +
           'is nothing to tabulate. Ask hasDataTable() first.'
       );
     }

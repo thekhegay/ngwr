@@ -135,7 +135,7 @@ export class WrSparklineHarness extends ComponentHarness {
   private async assertDataTable(method: string): Promise<void> {
     if (!(await this.hasDataTable())) {
       throw new Error(
-        `WrSparklineHarness.${method}(): the sparkline renders no data table — \`dataTable\` is off, or it ` +
+        `WrSparklineHarness.${method}(): the sparkline renders no data table: \`dataTable\` is off, or it ` +
           'has no `ariaLabel` to caption one. Ask hasDataTable() first.'
       );
     }
