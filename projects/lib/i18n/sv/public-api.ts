@@ -519,6 +519,9 @@ export const wrSv: WrI18nCatalog = {
     value: 'Värde',
     share: 'Andel',
   },
+  sparkline: {
+    value: 'Värde',
+  },
   knob: {
     label: 'Värde',
   },

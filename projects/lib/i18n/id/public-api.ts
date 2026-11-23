@@ -519,6 +519,9 @@ export const wrId: WrI18nCatalog = {
     value: 'Nilai',
     share: 'Porsi',
   },
+  sparkline: {
+    value: 'Nilai',
+  },
   knob: {
     label: 'Nilai',
   },

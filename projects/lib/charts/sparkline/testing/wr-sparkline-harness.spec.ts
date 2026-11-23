@@ -16,6 +16,7 @@ import { WrSparklineHarness } from './wr-sparkline-harness';
       [showArea]="showArea()"
       [showTip]="showTip()"
       [color]="color()"
+      [dataTable]="dataTable()"
     />
   `,
 })
@@ -25,6 +26,7 @@ class Host {
   readonly showArea = signal(false);
   readonly showTip = signal(true);
   readonly color = signal('var(--wr-color-primary)');
+  readonly dataTable = signal(false);
 }
 
 /**
@@ -104,5 +106,26 @@ describe('WrSparklineHarness', () => {
 
     expect(await loader.getHarnessOrNull(WrSparklineHarness.with({ ariaLabel: 'Sales' }))).not.toBeNull();
     expect(await loader.getHarnessOrNull(WrSparklineHarness.with({ ariaLabel: 'Costs' }))).toBeNull();
+  });
+
+  it('reads the data table, and refuses one that is not rendered', async () => {
+    const harness = await sparkline();
+    expect(await harness.hasDataTable()).toBe(false);
+    await expect(harness.getTableRows()).rejects.toThrow(/`dataTable` is off/);
+    await expect(harness.getTableColumns()).rejects.toThrow(/`dataTable` is off/);
+
+    // No name, no table: the sparkline is decoration, hidden as a whole.
+    fixture.componentInstance.dataTable.set(true);
+    expect(await harness.hasDataTable()).toBe(false);
+
+    fixture.componentInstance.ariaLabel.set('Visits');
+    expect(await harness.getTableColumns()).toEqual(['Value']);
+    expect(await harness.getTableRows()).toEqual([
+      { header: '1', cells: ['3'] },
+      { header: '2', cells: ['7'] },
+      { header: '3', cells: ['4'] },
+      { header: '4', cells: ['9'] },
+      { header: '5', cells: ['6'] },
+    ]);
   });
 });

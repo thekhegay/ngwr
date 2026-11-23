@@ -2,6 +2,8 @@ import { Component, LOCALE_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { wrChartColor } from 'ngwr/charts/core';
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
+import { wrRu } from 'ngwr/i18n/ru';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { COMPILE_TIMEOUT, compileSass } from '../../spec-sass';
@@ -464,5 +466,122 @@ describe('WrSparkline stylesheet', { timeout: COMPILE_TIMEOUT }, () => {
   it('loads the chart theme its colour defaults to, and rings the marker with the separator', () => {
     expect(css()).toMatch(/--wr-chart-1:/);
     expect(css()).toMatch(/--wr-sparkline-marker-ring: var\(--wr-chart-separator\)/);
+  });
+});
+
+@Component({
+  imports: [WrSparkline],
+  template: `
+    <wr-sparkline [data]="data()" [dataTable]="dataTable()" [ariaLabel]="ariaLabel()" [valueFormat]="valueFormat()" />
+  `,
+})
+class TableHost {
+  readonly data = signal<readonly number[]>([12, 14, 9]);
+  readonly dataTable = signal(true);
+  readonly ariaLabel = signal<string | null>('Visits this week');
+  readonly valueFormat = signal<((value: number) => string) | null>(null);
+}
+
+/**
+ * The values as a table beside the drawing: a named sparkline is one `img` with a name and
+ * no figure, so the table is the only place its values are in text.
+ */
+describe('WrSparkline data table', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TableHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const table = (): HTMLElement | null => root().querySelector<HTMLElement>('.wr-chart-table');
+  const text = (selector: string): string[] => [...root().querySelectorAll(selector)].map(el => el.textContent.trim());
+  const rows = (): string[][] =>
+    [...root().querySelectorAll('.wr-chart-table tbody tr')].map(row =>
+      [...row.querySelectorAll('th, td')].map(cell => cell.textContent.trim())
+    );
+  const create = (providers: Parameters<typeof TestBed.configureTestingModule>[0] = {}): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule(providers);
+    fixture = TestBed.createComponent(TableHost);
+    fixture.detectChanges();
+  };
+  const set = (change: (host: TableHost) => void): void => {
+    change(fixture.componentInstance);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('renders a row per point, headed by its position, beside the drawing', () => {
+    create();
+    expect(text('.wr-chart-table caption')).toEqual(['Visits this week']);
+    expect(text('.wr-chart-table thead th[scope="col"]')).toEqual(['Value']);
+    expect(rows()).toEqual([
+      ['1', '12'],
+      ['2', '14'],
+      ['3', '9'],
+    ]);
+    expect(text('.wr-chart-table tbody th[scope="row"]')).toEqual(['1', '2', '3']);
+    // Beside the `img`, never inside it: the role would make the table presentational.
+    expect(table()!.closest('[role="img"]')).toBeNull();
+    expect(table()!.parentElement).toBe(root().querySelector('wr-sparkline'));
+  });
+
+  it('renders none while `dataTable` is off, and leaves the drawing as it was', () => {
+    create();
+    const before = root().querySelector('svg')!.outerHTML;
+    set(h => h.dataTable.set(false));
+    expect(table()).toBeNull();
+    expect(root().querySelector('svg')!.outerHTML).toBe(before);
+    expect(root().querySelector('wr-sparkline')!.children).toHaveLength(1);
+  });
+
+  it('renders none for a sparkline with no name, which is hidden as a whole', () => {
+    create();
+    set(h => h.ariaLabel.set(null));
+    expect(root().querySelector('svg')!.getAttribute('aria-hidden')).toBe('true');
+    expect(table()).toBeNull();
+
+    set(h => h.ariaLabel.set('Visits'));
+    expect(text('.wr-chart-table caption')).toEqual(['Visits']);
+  });
+
+  it('follows the data, listing the points as drawn', () => {
+    create();
+    set(h => h.data.set([5, Number.NaN, 7, Number.POSITIVE_INFINITY, 8]));
+    // A value that is not a number is not drawn, so it has no row and takes no position.
+    expect(rows()).toEqual([
+      ['1', '5'],
+      ['2', '7'],
+      ['3', '8'],
+    ]);
+
+    set(h => h.data.set([]));
+    expect(rows()).toEqual([]);
+    expect(text('.wr-chart-table caption')).toEqual(['Visits this week']);
+  });
+
+  it('writes its numbers as the tooltip does: LOCALE_ID, then `valueFormat` over it', () => {
+    create({ providers: [{ provide: LOCALE_ID, useValue: 'de' }] });
+    set(h => h.data.set([1234.5, 0.0004]));
+    expect(rows()).toEqual([
+      ['1', '1.234,5'],
+      ['2', '0,0004'],
+    ]);
+
+    set(h => h.valueFormat.set(value => `€${value.toFixed(2)}`));
+    expect(rows()).toEqual([
+      ['1', '€1234.50'],
+      ['2', '€0.00'],
+    ]);
+  });
+
+  it('heads its column from the catalog', async () => {
+    create({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(text('.wr-chart-table thead th[scope="col"]')).toEqual(['Значение']);
   });
 });

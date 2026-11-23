@@ -6,9 +6,10 @@
  */
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
+import { Component, ElementRef, LOCALE_ID, ViewEncapsulation, computed, inject, input, viewChild } from '@angular/core';
 
-import { useChartNumbers } from 'ngwr/charts/core';
+import { WrChartTable, type WrChartTableData, useChartNumbers, wrChartNumberFormat } from 'ngwr/charts/core';
+import { wrReadI18nText } from 'ngwr/i18n';
 import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -27,6 +28,10 @@ import { wrCheckStyles } from 'ngwr/utils';
  * <wr-sparkline [data]="prices" [showArea]="true" color="var(--wr-color-success)" />
  * ```
  *
+ * **What a screen reader gets.** Nothing by default: the drawing is `aria-hidden` until
+ * `ariaLabel` names it, and then it is one `role="img"` with that name and no figure.
+ * `dataTable` renders the values of a named sparkline as a table a reader can walk.
+ *
  * @see https://ngwr.dev/charts/sparkline
  */
 @Component({
@@ -34,6 +39,7 @@ import { wrCheckStyles } from 'ngwr/utils';
   templateUrl: './sparkline.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-sparkline' },
+  imports: [WrChartTable],
 })
 export class WrSparkline {
   constructor() {
@@ -49,7 +55,8 @@ export class WrSparkline {
   /**
    * Accessible name. A sparkline usually sits beside the number it summarises, where
    * announcing it again is noise — so it is `aria-hidden` by default and becomes a
-   * named `role="img"` only when a consumer says what it shows.
+   * named `role="img"` only when a consumer says what it shows. It is also the caption of
+   * the data table, which an unnamed sparkline does not render.
    */
   readonly ariaLabel = input<string | null>(null);
 
@@ -91,12 +98,37 @@ export class WrSparkline {
   readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
-   * Writes the value in the tooltip. `null` uses `Intl.NumberFormat` in `LOCALE_ID`.
+   * Writes the value in the tooltip and in the data table. `null` uses `Intl.NumberFormat`
+   * in `LOCALE_ID`.
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  /** The value as the tooltip writes it — in full, never compact, to `Intl`'s default precision. */
+  /**
+   * Render the sparkline's values as a table that only assistive technology reaches: a
+   * row per point drawn, headed by its position in the series, counted from one, with its
+   * value as the tooltip writes it. A value that is not a number is not drawn and has no
+   * row.
+   *
+   * Only with `ariaLabel`, which is the table's caption: a sparkline with no name is
+   * decoration, hidden from a screen reader as a whole, and renders no table. The drawing
+   * is one named `role="img"`, which carries the name and no figure, so without the table
+   * the values are nowhere a screen reader can walk. It is rendered beside the drawing,
+   * clipped to nothing: it takes no room, draws nothing and holds no tab stop.
+   *
+   * The table is a real `<table>` inside the host, so under SSR keep a sparkline that
+   * renders one out of a `<p>`: the HTML parser ends a paragraph at a table, and hydration
+   * then meets a tree the server did not render. @default false
+   */
+  readonly dataTable = input(false, { transform: coerceBooleanProperty });
+
+  /** The heading of the data table's one column. */
+  private readonly valueName = wrReadI18nText('sparkline.value', 'Value');
+
+  /** The value as the tooltip and the data table write it — in full, never compact, to `Intl`'s default precision. */
   private readonly numbers = useChartNumbers(this.valueFormat);
+
+  /** A point's position in the series, in `LOCALE_ID`'s digits. */
+  private readonly positions = wrChartNumberFormat(inject(LOCALE_ID));
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly svg = viewChild<ElementRef<SVGSVGElement>>('svg');
@@ -115,6 +147,28 @@ export class WrSparkline {
    * the one under the point it marks.
    */
   private readonly values = computed(() => this.data().filter(v => Number.isFinite(v)));
+
+  /**
+   * The figures for `dataTable`, or `null` while there is no table to render: `dataTable`
+   * is off, or the sparkline has no name to caption it with. A row per point drawn, headed
+   * by its position, and its value as the one column.
+   */
+  protected readonly tableData = computed<WrChartTableData | null>(() => {
+    const caption = this.ariaLabel();
+    if (!this.dataTable() || !caption) return null;
+    return {
+      caption,
+      columns: [this.valueName()],
+      groups: [
+        {
+          rows: this.values().map((value, index) => ({
+            header: this.positions.format(index + 1),
+            cells: [this.numbers.value(value)],
+          })),
+        },
+      ],
+    };
+  });
 
   /** Mapped `{ x, y }` points for the path. */
   protected readonly points = computed(() => {

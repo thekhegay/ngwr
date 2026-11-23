@@ -1,1 +1,1 @@
-export type { WrSparklineHarnessFilters } from './wr-sparkline-harness-filters';
+export type { WrSparklineHarnessFilters, WrSparklineTableRow } from './wr-sparkline-harness-filters';

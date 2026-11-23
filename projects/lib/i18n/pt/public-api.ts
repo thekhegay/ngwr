@@ -523,6 +523,9 @@ export const wrPt: WrI18nCatalog = {
     value: 'Valor',
     share: 'Participação',
   },
+  sparkline: {
+    value: 'Valor',
+  },
   knob: {
     label: 'Valor',
   },

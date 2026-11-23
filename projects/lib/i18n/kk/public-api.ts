@@ -529,6 +529,9 @@ export const wrKk: WrI18nCatalog = {
     value: 'Мәні',
     share: 'Үлесі',
   },
+  sparkline: {
+    value: 'Мәні',
+  },
   knob: {
     label: 'Мәні',
   },

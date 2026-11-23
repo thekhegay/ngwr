@@ -1,8 +1,10 @@
 @use '../../../popover/styles'; // the `.wr-tooltip` chip the hover tooltip renders into
 @use '../../../theme/styles/loaded' as theme;
 
-// The chart theme the line's colour and the marker's ring default to.
-@use '../../core/styles' as core-styles;
+// The chart theme the line's colour and the marker's ring default to, and the
+// `<wr-chart-table>` that `dataTable` renders beside the drawing, which its own sheet
+// clips out of sight.
+@use '../../core/styles' as core-styles; // WrChartTable
 @include theme.loaded('charts/sparkline');
 
 .wr-sparkline {
@@ -12,7 +14,8 @@
   --wr-sparkline-marker-ring: var(--wr-chart-separator);
 
   display: inline-block;
-  // The hover marker is placed from this box's padding edge, measured off the drawing.
+  // The hover marker is placed from this box's padding edge, measured off the drawing. It
+  // is also the containing block of the out-of-flow `dataTable` copy.
   position: relative;
   line-height: 0;
 

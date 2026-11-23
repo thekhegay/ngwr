@@ -540,6 +540,9 @@ export const wrUk: WrI18nCatalog = {
     value: 'Значення',
     share: 'Частка',
   },
+  sparkline: {
+    value: 'Значення',
+  },
   knob: {
     label: 'Значення',
   },

@@ -519,6 +519,9 @@ export const wrCs: WrI18nCatalog = {
     value: 'Hodnota',
     share: 'Podíl',
   },
+  sparkline: {
+    value: 'Hodnota',
+  },
   knob: {
     label: 'Hodnota',
   },
