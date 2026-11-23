@@ -452,7 +452,6 @@ describe('every value control, as a form control', () => {
      */
     const SELF_LABELLED: Readonly<Record<string, string>> = {
       checkbox: 'Agree',
-      switch: 'On',
     };
 
     /**
@@ -490,8 +489,8 @@ describe('every value control, as a form control', () => {
       // and names nothing.
       const unreachable = PROBES.filter(p => {
         // A self-labelling control is exempt because the field above it renders
-        // NO label: `wr-schema-form` resolves `labelAbove` to `''` for exactly
-        // these two kinds, so the composition this host builds — a labelled
+        // NO label: `wr-schema-form` resolves `labelAbove` to `''` for this
+        // kind, so the composition this host builds — a labelled
         // field around a control that already says what it is — is one the
         // library's own consumer never makes. Only this spec does.
         if (p.key in SELF_LABELLED) return false;
