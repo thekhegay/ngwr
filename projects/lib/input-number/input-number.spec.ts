@@ -287,7 +287,10 @@ describe('WrInputNumber', () => {
     type('3');
     blur();
 
-    expect(amount(), 'clamped to 2.5, then rounded up to 3').toBeLessThanOrEqual(2.5);
+    // 2.5 is off the grid of whole numbers, so the value steps inward to 2:
+    // the model and the text the blurred field shows agree.
+    expect(amount()).toBe(2);
+    expect(field().value).toBe('2');
   });
 
   it('refuses text that is not plain decimal notation', () => {
@@ -737,6 +740,18 @@ describe('WrInputNumber reads the locale it formats in', () => {
 
     typeKeys(fixture, '1.234');
     expect(fixture.componentInstance.amount()).toBe(1234);
+  });
+
+  it.each(['en-IN', 'hi-IN'])('reads the locale grouping of %s, typed and pasted', locale => {
+    const fixture = mount(locale);
+    typeKeys(fixture, '1,23,456');
+    expect(fixture.componentInstance.amount()).toBe(123456);
+
+    const input = field(fixture);
+    input.value = '12,34,567';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(fixture.componentInstance.amount()).toBe(1234567);
   });
 
   it('reads back the digits it displays in a locale with its own numerals', () => {

@@ -502,7 +502,13 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     const d = this.decimals();
     // Round first: rounding a clamped value could carry it past the bound.
     const rounded = d === null ? v : wrRound(v, d);
-    return wrClamp(rounded, this.minValue(), this.maxValue());
+    const clamped = wrClamp(rounded, this.minValue(), this.maxValue());
+    if (d === null || wrRound(clamped, d) === clamped) return clamped;
+    // A bound off the `decimals` grid: the field would show the rounded text
+    // while the model kept the bound, so step inward to the nearest grid value.
+    const scale = 10 ** d;
+    const onGrid = (x: number, round: (n: number) => number): number => wrRound(round(wrRound(x * scale, 9)) / scale, d);
+    return clamped === this.maxValue() ? onGrid(clamped, Math.floor) : onGrid(clamped, Math.ceil);
   }
 
   /** `constrain` for a decimal string: the bounds and `decimals` through the decimal core. */
@@ -587,8 +593,7 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     if (this.group) {
       const groups = whole.split(this.group);
       if (groups.length > 1) {
-        const lead = groups[0].replace(/^[+-]/, '');
-        if (!/^\d{1,3}$/.test(lead) || groups.slice(1).some(g => !/^\d{3}$/.test(g))) return null;
+        if (!this.groupedLikeLocale(groups)) return null;
         whole = groups.join('');
       }
     }
@@ -598,6 +603,24 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     if (!/^[+-]?(\d+(\.\d+)?|\.\d+)$/.test(normalised)) return null;
     const n = Number(normalised);
     return Number.isFinite(n) ? n : null;
+  }
+
+  /**
+   * Whether `groups`, the integer part split at the group character, is what
+   * the locale itself would print for those digits: threes in en-US, `1,23,456`
+   * in en-IN.
+   */
+  private groupedLikeLocale(groups: string[]): boolean {
+    const sign = /^[+-]/.exec(groups[0])?.[0] ?? '';
+    const lead = groups[0].slice(sign.length);
+    const digits = [lead, ...groups.slice(1)].join('');
+    if (!lead || !/^\d+$/.test(digits)) return false;
+    const printed = new Intl.NumberFormat(this.locale, {
+      useGrouping: 'always',
+      maximumFractionDigits: 0,
+    } as unknown as Intl.NumberFormatOptions).format(BigInt(digits));
+    const expected = this.toAscii(printed).split(this.group!);
+    return expected.length === groups.length && expected.every((g, i) => g === (i === 0 ? lead : groups[i]));
   }
 
   /** Format a value using `Intl.NumberFormat` for the active locale. */
