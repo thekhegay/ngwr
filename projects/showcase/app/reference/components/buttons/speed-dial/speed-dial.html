@@ -8,7 +8,7 @@
   <ngwr-doc-section title="Basic usage" description="`(pick)` emits the action the user clicks.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="padding-top: 16rem; padding-bottom: 1rem; display: flex; justify-content: center">
+      <div class="ngwr-demo-arena ngwr-demo-arena--floor">
         <wr-speed-dial [actions]="actions" (pick)="onPick($event)" />
       </div>
       @if (lastPick()) {
@@ -40,7 +40,7 @@
   >
     <ngwr-doc-code [code]="snippets.outside" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="padding-top: 16rem; padding-bottom: 1rem; display: flex; justify-content: center">
+      <div class="ngwr-demo-arena ngwr-demo-arena--floor">
         <wr-speed-dial [actions]="actions" closeOnOutsideClick (pick)="onPick($event)" />
       </div>
     </ngwr-doc-snippet>
