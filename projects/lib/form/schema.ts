@@ -109,6 +109,10 @@ export interface WrFieldSpec {
   readonly multiple?: boolean;
   /** For `file`: the native `accept` list, e.g. `'image/*,.pdf'`. */
   readonly accept?: string;
+  /** For `file`: the most bytes one file may have. A larger file is refused. Unset or `0` is no limit. */
+  readonly maxSize?: number;
+  /** For `file` with `multiple`: the most files the field holds. A file past it is refused. Unset or `0` is no limit. */
+  readonly maxFiles?: number;
   /**
    * For `array`: the value a new item starts as. It is what draws the Add
    * button, and an array with no `item` is a fixed list whose items can only be

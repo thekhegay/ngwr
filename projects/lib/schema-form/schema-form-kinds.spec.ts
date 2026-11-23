@@ -23,6 +23,7 @@ interface Account {
   readonly active: WrDateRange | null;
   readonly avatar: File | null;
   readonly attachments: readonly File[];
+  readonly scans: readonly File[];
   readonly tier: string;
   readonly score: number | null;
 }
@@ -44,6 +45,7 @@ const accountSchema = schema<Account>(path => {
   metadata(path.active, WR_FIELD, () => ({ kind: 'daterange', label: 'Active between' }));
   metadata(path.avatar, WR_FIELD, () => ({ kind: 'file', accept: 'image/*' }));
   metadata(path.attachments, WR_FIELD, () => ({ kind: 'file', multiple: true }));
+  metadata(path.scans, WR_FIELD, () => ({ kind: 'file', multiple: true, maxSize: 4, maxFiles: 2 }));
   metadata(path.tier, WR_FIELD, () => ({ kind: 'segmented', options: TIERS }));
   metadata(path.score, WR_FIELD, () => ({ kind: 'rating' }));
 });
@@ -59,6 +61,7 @@ class Host {
     active: [new Date(2025, 0, 14), new Date(2025, 0, 20)],
     avatar: null,
     attachments: [],
+    scans: [],
     tier: 'free',
     score: 2,
   });
@@ -97,13 +100,14 @@ describe('WrSchemaForm kinds', () => {
       'daterange',
       'file',
       'file',
+      'file',
       'segmented',
       'rating',
     ]);
     expect(el.querySelector('wr-select.wr-select--multi')).toBeTruthy();
     expect(el.querySelector('wr-select.wr-select--tag')).toBeTruthy();
     expect(el.querySelector('wr-date-range-picker')).toBeTruthy();
-    expect(el.querySelectorAll('wr-file-upload')).toHaveLength(2);
+    expect(el.querySelectorAll('wr-file-upload')).toHaveLength(3);
     expect(el.querySelector('wr-segmented')).toBeTruthy();
     expect(el.querySelector('wr-rating')).toBeTruthy();
   });
@@ -161,6 +165,26 @@ describe('WrSchemaForm kinds', () => {
     expect(model().attachments).toEqual([photo, terms]);
     // The label above names the drop zone: a `<label for>` cannot reach it.
     expect(await attachments.getLabel()).toContain('Attachments');
+  });
+
+  it('file passes the size and count limits of the spec to the upload', async () => {
+    const [, attachments, scans] = await Promise.all(
+      (await schemaForm.getFields({ kind: 'file' })).map(field => field.getControl('file'))
+    );
+    const small = (name: string): File => new File(['ab'], name);
+    const large = new File(['abcdef'], 'large.pdf');
+    const [one, two, three] = [small('one.pdf'), small('two.pdf'), small('three.pdf')];
+
+    await scans.selectFiles(large, one);
+    expect(model().scans).toEqual([one]);
+    expect(await scans.getFileNames()).toEqual(['one.pdf']);
+
+    await scans.selectFiles(two, three);
+    expect(model().scans).toEqual([one, two]);
+
+    // A spec that names no limit refuses nothing.
+    await attachments.selectFiles(large, one, two, three);
+    expect(model().attachments).toEqual([large, one, two, three]);
   });
 
   it('segmented holds the value of the option picked', async () => {

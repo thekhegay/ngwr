@@ -131,6 +131,8 @@
                 [formField]="f.field"
                 [multiple]="f.spec.multiple ?? false"
                 [accept]="f.spec.accept ?? ''"
+                [maxSize]="f.spec.maxSize ?? 0"
+                [maxFiles]="f.spec.maxFiles ?? 0"
               />
             }
             @default {
