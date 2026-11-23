@@ -26,10 +26,14 @@ class LabelledHost {}
       [step]="step()"
       [disabled]="disabled()"
       [readonly]="readonly()"
+      [decimals]="decimals()"
+      (touch)="touched = touched + 1"
     />
   `,
 })
 class Host {
+  touched = 0;
+  readonly decimals = signal<number | null>(null);
   readonly amount = signal<number | null>(5);
   readonly min = signal<number | undefined>(undefined);
   readonly max = signal<number | undefined>(undefined);
@@ -273,6 +277,39 @@ describe('WrInputNumber', () => {
     // The path that usually escapes: bounds enforced for the buttons but not
     // for typing let a form submit a value the control says is impossible.
     expect(amount()).toBeLessThanOrEqual(10);
+  });
+
+  it('rounds to the places first, so the result never passes a bound', () => {
+    fixture.componentInstance.max.set(2.5);
+    fixture.componentInstance.decimals.set(0);
+    fixture.detectChanges();
+
+    type('3');
+    blur();
+
+    expect(amount(), 'clamped to 2.5, then rounded up to 3').toBeLessThanOrEqual(2.5);
+  });
+
+  it('refuses text that is not plain decimal notation', () => {
+    for (const text of ['0x1F', '0b11', '1e3', 'Infinity']) {
+      type(text);
+      expect(amount(), text).toBe(5);
+    }
+  });
+
+  it('reads fullwidth digits and signs an IME writes', () => {
+    type('\uff11\uff12\uff0e\uff15');
+    expect(amount()).toBe(12.5);
+
+    type('\uff0d\uff13');
+    expect(amount()).toBe(-3);
+  });
+
+  it('keeps focus in the field when a stepper is pressed', () => {
+    const down = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+    stepper('Increment').dispatchEvent(down);
+
+    expect(down.defaultPrevented, 'a pressed stepper took focus, which blurs the field and fires touch').toBe(true);
   });
 
   it('treats an emptied field as no value rather than as zero', () => {
@@ -691,6 +728,15 @@ describe('WrInputNumber reads the locale it formats in', () => {
     typeKeys(fixture, '1 234,5');
 
     expect(fixture.componentInstance.amount()).toBe(1234.5);
+  });
+
+  it.each(['de', 'es', 'pt'])('refuses a group separator that is not between groups of three in %s', locale => {
+    const fixture = mount(locale);
+    typeKeys(fixture, '3.5');
+    expect(fixture.componentInstance.amount(), '3.5 was committed as 35').toBe(3);
+
+    typeKeys(fixture, '1.234');
+    expect(fixture.componentInstance.amount()).toBe(1234);
   });
 
   it('reads back the digits it displays in a locale with its own numerals', () => {
