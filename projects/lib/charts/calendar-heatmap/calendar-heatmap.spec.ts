@@ -118,6 +118,25 @@ describe('WrCalendarHeatmap', () => {
     expect(cellFor('2025-08-11')!.getAttribute('data-value')).toBe('8');
   });
 
+  it('counts the last hour of an end day that is 25 hours long', () => {
+    // The runner's own zone has no DST (see contracts.md), so the zone is swapped for the
+    // case: 2 Nov 2025 is the US fall-back day, local midnight to local midnight is 25 hours.
+    const zone = process.env['TZ'];
+    process.env['TZ'] = 'America/New_York';
+    try {
+      expect(new Date(2025, 10, 2, 12).getTimezoneOffset()).toBe(300);
+      fixture.componentInstance.endDate.set('2025-11-02');
+      // 23:30 local on the end day, written as the instant it is.
+      fixture.componentInstance.data.set([{ date: new Date('2025-11-03T04:30:00Z'), value: 7 }]);
+      fixture.detectChanges();
+
+      expect(cellFor('2025-11-02')!.getAttribute('data-value')).toBe('7');
+    } finally {
+      if (zone === undefined) delete process.env['TZ'];
+      else process.env['TZ'] = zone;
+    }
+  });
+
   it('leaves a day with no entry at zero', () => {
     expect(cellFor('2025-08-13')!.getAttribute('data-value')).toBe('0');
   });
