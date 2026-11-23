@@ -148,6 +148,17 @@ describe('WrDialog', () => {
     expect(document.getElementById(labelledBy!)?.textContent?.trim()).toBe('Delete item');
   });
 
+  it('keeps the id of a title that has one, and names the dialog by it', async () => {
+    @Component({ imports: [WrDialogTitle], template: `<h2 wrDialogTitle id="my-title">Own id</h2>` })
+    class OwnId {}
+    fixture.componentInstance.dialog.open(OwnId);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(document.querySelector('h2')?.id).toBe('my-title');
+    expect(panel()!.getAttribute('aria-labelledby')).toBe('my-title');
+  });
+
   it('names the dialog from whichever title is in the panel right now', async () => {
     // The title belongs to the caller's component, so it can arrive late (an
     // async load behind an `@if`) or go away again while the dialog stays open.

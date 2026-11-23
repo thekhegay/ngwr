@@ -817,6 +817,25 @@ describe('WrDrawerTitle template reference', () => {
 
     fixture.destroy();
   });
+
+  it('keeps an id the consumer set, and publishes it', () => {
+    @Component({
+      imports: [WrDrawerTitle],
+      template: `<h2 wrDrawerTitle id="my-title" #ref="wrDrawerTitle">Filters</h2>`,
+    })
+    class OwnIdHost {
+      readonly title = viewChild.required<WrDrawerTitle>('ref');
+    }
+    TestBed.resetTestingModule();
+
+    const fixture = TestBed.createComponent(OwnIdHost);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('h2')?.id).toBe('my-title');
+    expect(fixture.componentInstance.title().id).toBe('my-title');
+
+    fixture.destroy();
+  });
 });
 
 describe('WrDrawer autoFocus', () => {

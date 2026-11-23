@@ -13,8 +13,8 @@ let uid = 0;
 
 /**
  * Styles a dialog title row. Use on a heading inside an opened dialog.
- * Auto-assigns an `id` so the dialog panel can reference it via
- * `aria-labelledby`.
+ * Keeps an `id` of your own and otherwise assigns one, so the dialog panel
+ * can reference it via `aria-labelledby`.
  *
  * @example
  * ```html
@@ -31,9 +31,18 @@ export class WrDialogTitle {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('dialog');
   }
 
-  /** Generated id used for `aria-labelledby` wiring. */
-  readonly id = `wr-dialog-title-${++uid}`;
-
   /** @internal */
-  readonly elementRef = inject(ElementRef<HTMLElement>);
+  readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  private readonly fallbackId = `wr-dialog-title-${++uid}`;
+
+  /**
+   * The id the dialog's `aria-labelledby` points at: the element's own `id` when
+   * the consumer set one, a generated one otherwise. A getter, read fresh by the
+   * host binding, so a bound `[id]` is honoured too.
+   */
+  get id(): string {
+    const own = this.elementRef.nativeElement.id;
+    return own === '' ? this.fallbackId : own;
+  }
 }

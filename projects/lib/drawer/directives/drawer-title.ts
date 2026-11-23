@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Directive } from '@angular/core';
+import { Directive, ElementRef, inject } from '@angular/core';
 
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -14,8 +14,8 @@ let uid = 0;
 /**
  * Marks an element as the drawer's title row. Applies the `wr-drawer__title`
  * class so the drawer's stylesheet can lay it out alongside content and
- * footer slots. Auto-assigns an `id` so the drawer panel references it via
- * `aria-labelledby`.
+ * footer slots. Keeps an `id` of your own and otherwise assigns one, so the drawer panel
+ * references it via `aria-labelledby`.
  *
  * @example
  * ```html
@@ -35,6 +35,15 @@ export class WrDrawerTitle {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('drawer');
   }
 
-  /** Generated id used by the drawer panel for `aria-labelledby`. */
-  readonly id = `wr-drawer-title-${++uid}`;
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly fallbackId = `wr-drawer-title-${++uid}`;
+
+  /**
+   * The id the drawer panel's `aria-labelledby` points at: the element's own
+   * `id` when the consumer set one, a generated one otherwise. A getter, read
+   * fresh by the host binding, so a bound `[id]` is honoured too.
+   */
+  get id(): string {
+    return this.host.nativeElement.id || this.fallbackId;
+  }
 }
