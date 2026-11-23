@@ -271,6 +271,14 @@ export class WrTour {
     spotlight.className = 'wr-tour__spotlight';
     spotlight.setAttribute('aria-hidden', 'true');
     this.document.body.appendChild(spotlight);
+    // Into the top layer, where a dialog or a drawer holding the target is. It is
+    // promoted before the card's overlay is created, so the card stays above it.
+    // Set here and not in a template: a `popover` attribute hides the element
+    // until it is shown, which a browser without the API never does.
+    if (typeof spotlight.showPopover === 'function') {
+      spotlight.setAttribute('popover', 'manual');
+      spotlight.showPopover();
+    }
     this.spotlight = spotlight;
     this.placeSpotlight(target);
 
