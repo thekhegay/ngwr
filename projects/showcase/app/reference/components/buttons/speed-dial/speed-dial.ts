@@ -55,6 +55,7 @@ export default class SpeedDialPageComponent {
   protected readonly snippets = {
     basic: `<wr-speed-dial [actions]="actions" (pick)="onPick($event)" />`,
     direction: `<wr-speed-dial [actions]="actions" direction="down" />`,
+    outside: `<wr-speed-dial [actions]="actions" closeOnOutsideClick />`,
   };
 
   protected readonly typeSnippet = `interface WrSpeedDialAction {
