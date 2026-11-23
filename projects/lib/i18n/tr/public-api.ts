@@ -541,6 +541,8 @@ export const wrTr: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Ölçer',
+    value: 'Değer',
+    share: 'Pay',
   },
   knob: {
     label: 'Değer',

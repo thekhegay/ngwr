@@ -647,6 +647,8 @@ export const wrEn: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Meter',
+    value: 'Value',
+    share: 'Share',
   },
   knob: {
     label: 'Value',

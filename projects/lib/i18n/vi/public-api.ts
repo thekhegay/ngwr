@@ -533,6 +533,8 @@ export const wrVi: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Thước đo',
+    value: 'Giá trị',
+    share: 'Tỷ lệ',
   },
   knob: {
     label: 'Giá trị',

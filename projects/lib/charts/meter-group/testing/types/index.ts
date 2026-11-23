@@ -1,1 +1,5 @@
-export type { WrMeterGroupHarnessFilters, WrMeterGroupSlice } from './wr-meter-group-harness-filters';
+export type {
+  WrMeterGroupHarnessFilters,
+  WrMeterGroupSlice,
+  WrMeterGroupTableRow,
+} from './wr-meter-group-harness-filters';

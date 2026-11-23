@@ -516,6 +516,8 @@ export const wrHi: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'मीटर',
+    value: 'मान',
+    share: 'हिस्सा',
   },
   knob: {
     label: 'मान',

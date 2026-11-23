@@ -520,6 +520,8 @@ export const wrZhTw: WrI18nCatalog = {
   },
   meterGroup: {
     label: '計量表',
+    value: '值',
+    share: '占比',
   },
   knob: {
     label: '數值',

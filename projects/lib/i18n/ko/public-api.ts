@@ -528,6 +528,8 @@ export const wrKo: WrI18nCatalog = {
   },
   meterGroup: {
     label: '측정값',
+    value: '값',
+    share: '비율',
   },
   knob: {
     label: '값',

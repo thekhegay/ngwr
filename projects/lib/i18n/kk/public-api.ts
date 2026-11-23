@@ -526,6 +526,8 @@ export const wrKk: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Шкала',
+    value: 'Мәні',
+    share: 'Үлесі',
   },
   knob: {
     label: 'Мәні',

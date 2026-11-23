@@ -516,6 +516,8 @@ export const wrId: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Meteran',
+    value: 'Nilai',
+    share: 'Porsi',
   },
   knob: {
     label: 'Nilai',

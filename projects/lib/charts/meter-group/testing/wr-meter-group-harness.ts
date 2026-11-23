@@ -9,7 +9,21 @@ import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
 import { WrChartLegendHarness } from 'ngwr/charts/chart-legend/testing';
 
-import type { WrMeterGroupHarnessFilters, WrMeterGroupSlice } from './types';
+import type { WrMeterGroupHarnessFilters, WrMeterGroupSlice, WrMeterGroupTableRow } from './types';
+
+/**
+ * One body row of the meter's data table, so its header and cells are read off the row
+ * they sit in rather than matched up by position across the whole table.
+ */
+class TableRowHarness extends ComponentHarness {
+  static hostSelector = '.wr-chart-table tbody tr';
+
+  async read(): Promise<WrMeterGroupTableRow> {
+    const header = await this.locatorFor('th[scope="row"]')();
+    const cells = await this.locatorForAll('td')();
+    return { header: await header.text(), cells: await Promise.all(cells.map(cell => cell.text())) };
+  }
+}
 
 /** The share of the bar the component writes onto a band, 0 to 1, out of its inline `style`. */
 const SLICE_SIZE = /(?:^|;)\s*--wr-meter-group-slice-size\s*:\s*([\d.]+)/;
@@ -150,5 +164,44 @@ export class WrMeterGroupHarness extends ComponentHarness {
   async getLegendValues(): Promise<string[]> {
     const values = await this.locatorForAll('.wr-meter-group__legend-value')();
     return Promise.all(values.map(value => value.text()));
+  }
+
+  /** Whether the hidden data table is rendered (`dataTable`, while the meter draws its segments). */
+  async hasDataTable(): Promise<boolean> {
+    return (await this.locatorForOptional('.wr-chart-table')()) !== null;
+  }
+
+  /**
+   * The data table's column headings: the value's name and the share's.
+   *
+   * Throws when the meter renders no table (`dataTable` off, or a state in the legend's
+   * place) rather than answering with no columns.
+   */
+  async getTableColumns(): Promise<string[]> {
+    await this.assertDataTable('getTableColumns');
+    const headings = await this.locatorForAll('.wr-chart-table thead th[scope="col"]')();
+    return Promise.all(headings.map(heading => heading.text()));
+  }
+
+  /**
+   * The data table's rows, one per segment shown, in the data's own order: its label, its
+   * value and its share of the total, as a screen reader walks them. A segment hidden
+   * through `hiddenSegments` has no row, and one that draws nothing an empty share.
+   *
+   * Throws when the meter renders no table, for the reason {@link getTableColumns} gives.
+   */
+  async getTableRows(): Promise<WrMeterGroupTableRow[]> {
+    await this.assertDataTable('getTableRows');
+    const rows = await this.locatorForAll(TableRowHarness)();
+    return Promise.all(rows.map(row => row.read()));
+  }
+
+  private async assertDataTable(method: string): Promise<void> {
+    if (!(await this.hasDataTable())) {
+      throw new Error(
+        `WrMeterGroupHarness.${method}(): the meter renders no data table — \`dataTable\` is off, or there ` +
+          'is nothing to tabulate. Ask hasDataTable() first.'
+      );
+    }
   }
 }

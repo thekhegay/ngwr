@@ -530,6 +530,8 @@ export const wrNl: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Meterbalk',
+    value: 'Waarde',
+    share: 'Aandeel',
   },
   knob: {
     label: 'Waarde',

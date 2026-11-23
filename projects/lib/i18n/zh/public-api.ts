@@ -511,6 +511,8 @@ export const wrZh: WrI18nCatalog = {
   },
   meterGroup: {
     label: '计量条',
+    value: '值',
+    share: '占比',
   },
   knob: {
     label: '数值',

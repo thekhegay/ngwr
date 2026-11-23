@@ -520,6 +520,8 @@ export const wrPt: WrI18nCatalog = {
   },
   meterGroup: {
     label: 'Medidor',
+    value: 'Valor',
+    share: 'Participação',
   },
   knob: {
     label: 'Valor',
