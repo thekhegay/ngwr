@@ -100,6 +100,7 @@ export const wrVi: WrI18nCatalog = {
     toSource: 'Chuyển về danh sách có sẵn',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'tùy chọn',

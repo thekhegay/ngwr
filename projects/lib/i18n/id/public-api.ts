@@ -98,6 +98,7 @@ export const wrId: WrI18nCatalog = {
     toSource: 'Pindahkan ke daftar tersedia',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'opsional',

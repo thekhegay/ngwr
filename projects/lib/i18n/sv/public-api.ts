@@ -98,6 +98,7 @@ export const wrSv: WrI18nCatalog = {
     toSource: 'Flytta till tillgängliga',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'valfritt',

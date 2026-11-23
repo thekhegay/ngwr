@@ -98,6 +98,7 @@ export const wrZhTw: WrI18nCatalog = {
     toSource: '移回可選項目',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}}：{{search}}',
   },
   form: {
     optional: '選填',

@@ -98,6 +98,7 @@ export const wrRu: WrI18nCatalog = {
     toSource: 'Вернуть в доступные',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'необязательно',

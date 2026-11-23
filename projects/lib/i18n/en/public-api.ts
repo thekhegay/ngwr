@@ -142,6 +142,7 @@ export const wrEn: WrI18nCatalog = {
     toSource: 'Move to available',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     // Rendered inside the label's parentheses — `(optional)` — so it is a bare

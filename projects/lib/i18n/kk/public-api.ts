@@ -98,6 +98,7 @@ export const wrKk: WrI18nCatalog = {
     toSource: 'Қолжетімдіге қайтару',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'міндетті емес',

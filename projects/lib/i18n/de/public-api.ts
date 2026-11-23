@@ -98,6 +98,7 @@ export const wrDe: WrI18nCatalog = {
     toSource: 'Aus der Auswahl entfernen',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'optional',

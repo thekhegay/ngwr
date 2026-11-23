@@ -98,6 +98,7 @@ export const wrCs: WrI18nCatalog = {
     toSource: 'Vrátit mezi dostupné',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'nepovinné',

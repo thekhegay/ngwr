@@ -98,6 +98,7 @@ export const wrHi: WrI18nCatalog = {
     toSource: 'उपलब्ध में ले जाएं',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'वैकल्पिक',
