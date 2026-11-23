@@ -15,6 +15,9 @@ import type { WrMetaConfig, WrMetaHandle } from './types';
 /** Set on every tag this service writes, so a client can tell server-written tags from static ones. */
 const MARKER = 'data-wr-meta';
 
+/** On a marked tag that overrode a static one: the static tag's content, so a client can restore it. */
+const BEFORE = 'data-wr-meta-before';
+
 /** Deep-merge two `WrMetaConfig` layers — later wins for scalars + nested groups. */
 function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {
   return {
@@ -300,20 +303,36 @@ export class WrMeta {
   private writeTag(tag: MetaDefinition, selector: string, content: string | undefined): void {
     if (content) {
       if (!this.tagsBeforeFirstWrite.has(selector)) {
-        // A tag carrying the marker was written by this service on the server: not a static one.
+        // A tag carrying the marker was written by this service on the server: not a static one,
+        // though it may carry the static content it overrode.
         const found = this.meta.getTag(selector);
-        this.tagsBeforeFirstWrite.set(selector, found && !found.hasAttribute(MARKER) ? found.content : null);
+        this.tagsBeforeFirstWrite.set(
+          selector,
+          found ? (found.hasAttribute(MARKER) ? found.getAttribute(BEFORE) : found.content) : null
+        );
       }
-      this.meta.updateTag({ ...tag, [MARKER]: '' }, selector);
+      const before = this.tagsBeforeFirstWrite.get(selector) ?? null;
+      this.meta.updateTag({ ...tag, [MARKER]: '', ...(before === null ? {} : { [BEFORE]: before }) }, selector);
       return;
     }
-    if (!this.tagsBeforeFirstWrite.has(selector)) return;
+    if (!this.tagsBeforeFirstWrite.has(selector)) {
+      // Left by the server for a previous page and never written here: not ours to keep.
+      const left = this.meta.getTag(selector);
+      if (left?.hasAttribute(MARKER)) this.unmark(tag, selector, left.getAttribute(BEFORE));
+      return;
+    }
     const before = this.tagsBeforeFirstWrite.get(selector) ?? null;
     this.tagsBeforeFirstWrite.delete(selector);
+    this.unmark(tag, selector, before);
+  }
+
+  /** Puts a tag back to the content it overrode, or removes it when it overrode none. */
+  private unmark(tag: MetaDefinition, selector: string, before: string | null): void {
     if (before === null) this.meta.removeTag(selector);
     else {
       this.meta.updateTag({ ...tag, content: before }, selector);
       this.meta.getTag(selector)?.removeAttribute(MARKER);
+      this.meta.getTag(selector)?.removeAttribute(BEFORE);
     }
   }
 
