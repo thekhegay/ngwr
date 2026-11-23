@@ -161,7 +161,7 @@ const SUNDAY_REGIONS: ReadonlySet<string> = new Set(
 );
 
 /** Regions whose week starts on Saturday in CLDR. */
-const SATURDAY_REGIONS: ReadonlySet<string> = new Set('AE AF BH DJ DZ EG IQ IR JO KW LY OM QA SD SY'.split(' '));
+const SATURDAY_REGIONS: ReadonlySet<string> = new Set('AF BH DJ DZ EG IQ IR JO KW LY OM QA SD SY'.split(' '));
 
 const SHORT_DATE: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
 const CLOCK: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
