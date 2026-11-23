@@ -12,6 +12,9 @@ import { Meta, type MetaDefinition, Title } from '@angular/platform-browser';
 import { WR_META_DEFAULTS } from './tokens';
 import type { WrMetaConfig, WrMetaHandle } from './types';
 
+/** Set on every tag this service writes, so a client can tell server-written tags from static ones. */
+const MARKER = 'data-wr-meta';
+
 /** Deep-merge two `WrMetaConfig` layers — later wins for scalars + nested groups. */
 function merge(base: WrMetaConfig, top: WrMetaConfig): WrMetaConfig {
   return {
@@ -297,16 +300,21 @@ export class WrMeta {
   private writeTag(tag: MetaDefinition, selector: string, content: string | undefined): void {
     if (content) {
       if (!this.tagsBeforeFirstWrite.has(selector)) {
-        this.tagsBeforeFirstWrite.set(selector, this.meta.getTag(selector)?.content ?? null);
+        // A tag carrying the marker was written by this service on the server: not a static one.
+        const found = this.meta.getTag(selector);
+        this.tagsBeforeFirstWrite.set(selector, found && !found.hasAttribute(MARKER) ? found.content : null);
       }
-      this.meta.updateTag(tag, selector);
+      this.meta.updateTag({ ...tag, [MARKER]: '' }, selector);
       return;
     }
     if (!this.tagsBeforeFirstWrite.has(selector)) return;
     const before = this.tagsBeforeFirstWrite.get(selector) ?? null;
     this.tagsBeforeFirstWrite.delete(selector);
     if (before === null) this.meta.removeTag(selector);
-    else this.meta.updateTag({ ...tag, content: before }, selector);
+    else {
+      this.meta.updateTag({ ...tag, content: before }, selector);
+      this.meta.getTag(selector)?.removeAttribute(MARKER);
+    }
   }
 
   private diffLink(next: WrMetaConfig): void {
