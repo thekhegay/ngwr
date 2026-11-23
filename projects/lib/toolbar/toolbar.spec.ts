@@ -302,6 +302,17 @@ describe('WrToolbar arrowKeys', () => {
     expect(document.activeElement).toBe(el('a'));
   });
 
+  it('skips a control that is visibility hidden', async () => {
+    await mount();
+    el('a').style.visibility = 'hidden';
+    el('a').checkVisibility = (): boolean => false;
+    el('b').dispatchEvent(new Event('x'));
+    fixture.componentInstance.extra.set(true);
+    await settle();
+    expect(el('a').getAttribute('tabindex')).not.toBe('0');
+    expect(el('b').getAttribute('tabindex')).toBe('0');
+  });
+
   it('leaves the arrows to a text input', async () => {
     await mount();
     expect(press(el('text'), 'ArrowRight').defaultPrevented).toBe(false);
