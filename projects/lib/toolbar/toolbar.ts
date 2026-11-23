@@ -101,9 +101,10 @@ export class WrToolbar {
   /**
    * Roving focus across the enabled controls of all zones, per the WAI-ARIA toolbar
    * pattern: one tab stop, ArrowRight / ArrowLeft (mirrored under RTL) to step with
-   * wrapping, Home / End for the ends. Arrow keys stay with text fields and with
-   * composite widgets (radiogroup, tablist, listbox, ...), which keep their own tab
-   * stop. @default false
+   * wrapping, Home / End for the ends. Text fields, native radios and composite
+   * widgets (radiogroup, tablist, listbox, ...) are not part of that set: they keep
+   * their own tab stop and their own arrow keys, and the arrows skip over them. Tab
+   * still reaches every one of them. @default false
    */
   readonly arrowKeys = input(false, { transform: coerceBooleanProperty });
 
@@ -113,17 +114,13 @@ export class WrToolbar {
     const original = new Map<HTMLElement, string | null>();
     let stop: HTMLElement | null = null;
 
-    const inComposite = (el: HTMLElement): boolean => {
-      const widget = el.closest(COMPOSITE_SELECTOR);
-      return widget !== null && widget !== host && host.contains(widget);
-    };
     const controls = (): HTMLElement[] =>
       Array.from(host.querySelectorAll<HTMLElement>(CONTROL_SELECTOR)).filter(el => {
         if (el.matches(':disabled') || el.closest('[hidden], [inert]') || !isVisible(el)) return false;
         // A negative tabindex that was not ours is the consumer's: out of the roving set.
         if (el.getAttribute('tabindex') === '-1' && !original.has(el)) return false;
-        // A composite widget keeps its own tab stop, so only that stop takes part.
-        return !inComposite(el) || el.getAttribute('tabindex') !== '-1';
+        // Text fields and composite widgets keep their own tab stop and their own arrows.
+        return !this.ownsArrows(el);
       });
 
     const restore = (el: HTMLElement, value: string | null): void => {
@@ -134,13 +131,13 @@ export class WrToolbar {
     const sync = (): void => {
       const all = controls();
       for (const [el, value] of original) {
-        if (host.contains(el)) continue;
+        // A control that left, or stopped being eligible, gets its own tabindex back.
+        if (all.includes(el)) continue;
         restore(el, value);
         original.delete(el);
       }
       if (!stop || !all.includes(stop)) stop = all[0] ?? null;
       for (const el of all) {
-        if (inComposite(el)) continue;
         if (!original.has(el)) original.set(el, el.getAttribute('tabindex'));
         el.setAttribute('tabindex', el === stop ? '0' : '-1');
       }
@@ -157,7 +154,6 @@ export class WrToolbar {
     const onKeydown = (event: KeyboardEvent): void => {
       const target = event.target;
       if (!(target instanceof HTMLElement) || event.defaultPrevented || wrHasModifier(event)) return;
-      if (this.ownsArrows(target)) return;
       const all = controls();
       const idx = all.indexOf(target);
       if (idx < 0) return;

@@ -269,7 +269,7 @@ describe('WrToolbar arrowKeys', () => {
     fixture.componentInstance.bDisabled.set(true);
     await settle();
     expect(press(el('a'), 'ArrowRight').defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(el('text'));
+    expect(document.activeElement).toBe(el('c'));
     press(el('c'), 'ArrowRight');
     expect(document.activeElement).toBe(el('a'));
     press(el('a'), 'ArrowLeft');
@@ -310,6 +310,20 @@ describe('WrToolbar arrowKeys', () => {
     await settle();
     expect(el('a').getAttribute('tabindex')).not.toBe('0');
     expect(el('b').getAttribute('tabindex')).toBe('0');
+  });
+
+  it('keeps the plain stop reachable while a text input has focus, and never lands in it', async () => {
+    await mount();
+    el('text').focus();
+    await settle();
+    expect(el('a').getAttribute('tabindex')).toBe('0');
+    expect(el('text').hasAttribute('tabindex')).toBe(false);
+    press(el('a'), 'End');
+    expect(document.activeElement).toBe(el('c'));
+    press(el('b'), 'ArrowRight');
+    expect(document.activeElement).toBe(el('c'));
+    press(el('c'), 'ArrowLeft');
+    expect(document.activeElement).toBe(el('b'));
   });
 
   it('leaves the arrows to a text input', async () => {
@@ -369,7 +383,7 @@ describe('WrToolbar arrowKeys', () => {
     el('a').parentElement!.setAttribute('inert', '');
     await settle();
     expect(el('a').getAttribute('tabindex')).not.toBe('0');
-    expect(el('text').getAttribute('tabindex')).toBe('0');
+    expect(el('c').getAttribute('tabindex')).toBe('0');
   });
 
   it('puts tabindex back when switched off', async () => {
