@@ -193,7 +193,8 @@ export class WrToolbar {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['disabled', 'hidden'],
+      // Never `tabindex`: sync writes it, and watching it would loop.
+      attributeFilter: ['disabled', 'hidden', 'inert', 'class', 'style'],
     });
 
     return () => {
