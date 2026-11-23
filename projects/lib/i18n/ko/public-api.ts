@@ -284,6 +284,8 @@ export const wrKo: WrI18nCatalog = {
   donutChart: {
     label: '도넛 차트',
     pieLabel: '원형 차트',
+    value: '값',
+    share: '비율',
   },
   chartLegend: {
     toggleLabel: '계열 표시 전환',

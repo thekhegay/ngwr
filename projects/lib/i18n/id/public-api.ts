@@ -279,6 +279,8 @@ export const wrId: WrI18nCatalog = {
   donutChart: {
     label: 'Diagram donat',
     pieLabel: 'Diagram lingkaran',
+    value: 'Nilai',
+    share: 'Porsi',
   },
   chartLegend: {
     toggleLabel: 'Tampilkan atau sembunyikan seri',

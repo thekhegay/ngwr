@@ -292,6 +292,8 @@ export const wrHe: WrI18nCatalog = {
   donutChart: {
     label: 'תרשים טבעת',
     pieLabel: 'תרשים עוגה',
+    value: 'ערך',
+    share: 'נתח',
   },
   chartLegend: {
     toggleLabel: 'הצגה או הסתרה של סדרות',

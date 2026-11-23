@@ -279,6 +279,8 @@ export const wrSv: WrI18nCatalog = {
   donutChart: {
     label: 'Ringdiagram',
     pieLabel: 'Cirkeldiagram',
+    value: 'Värde',
+    share: 'Andel',
   },
   chartLegend: {
     toggleLabel: 'Växla synlighet för serier',

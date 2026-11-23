@@ -24,6 +24,7 @@ const SEGMENTS: readonly WrDonutSegment[] = [
       [size]="size()"
       [toggleableLegend]="toggleable()"
       [pie]="pie()"
+      [dataTable]="dataTable()"
       [(hiddenSegments)]="hidden"
     />
   `,
@@ -37,6 +38,7 @@ class Host {
   readonly toggleable = signal(false);
   readonly hidden = signal<readonly number[]>([]);
   readonly pie = signal(false);
+  readonly dataTable = signal(false);
 }
 
 /**
@@ -170,6 +172,28 @@ describe('WrDonutChartHarness', () => {
     // The target is a path over the ring too, so a count of every path would say four.
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('.wr-donut-chart__surface path')).toHaveLength(4);
     expect(await (await chart()).getSliceCount()).toBe(3);
+  });
+
+  it('reads the data table, and refuses one that is not rendered', async () => {
+    const harness = await chart();
+    expect(await harness.hasDataTable()).toBe(false);
+    await expect(harness.getTableRows()).rejects.toThrow(/`dataTable` is off/);
+    await expect(harness.getTableColumns()).rejects.toThrow(/`dataTable` is off/);
+
+    fixture.componentInstance.dataTable.set(true);
+    expect(await harness.getTableColumns()).toEqual(['Value', 'Share']);
+    expect(await harness.getTableRows()).toEqual([
+      { header: 'Direct', cells: ['30', '30%'] },
+      { header: 'Search', cells: ['50', '50%'] },
+      { header: 'Social', cells: ['20', '20%'] },
+    ]);
+
+    // A hidden slice has no row, and the rest share the whole ring.
+    fixture.componentInstance.hidden.set([1]);
+    expect(await harness.getTableRows()).toEqual([
+      { header: 'Direct', cells: ['30', '60%'] },
+      { header: 'Social', cells: ['20', '40%'] },
+    ]);
   });
 
   it('matches on the name and on a legend label', async () => {

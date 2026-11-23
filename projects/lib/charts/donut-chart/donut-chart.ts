@@ -7,7 +7,17 @@
 
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, type ElementRef, ViewEncapsulation, computed, input, model, viewChild } from '@angular/core';
+import {
+  Component,
+  type ElementRef,
+  LOCALE_ID,
+  ViewEncapsulation,
+  computed,
+  inject,
+  input,
+  model,
+  viewChild,
+} from '@angular/core';
 
 import {
   WR_CHART_LEGEND_BLOCK,
@@ -15,8 +25,17 @@ import {
   type WrChartLegendItem,
   type WrChartLegendPosition,
 } from 'ngwr/charts/chart-legend';
-import { WrChartState, useChartHover, useChartNumbers, useChartState, wrChartColor } from 'ngwr/charts/core';
-import { useI18nText } from 'ngwr/i18n';
+import {
+  WrChartState,
+  WrChartTable,
+  type WrChartTableData,
+  useChartHover,
+  useChartNumbers,
+  useChartState,
+  wrChartColor,
+  wrChartNumberFormat,
+} from 'ngwr/charts/core';
+import { useI18nText, wrReadI18nText } from 'ngwr/i18n';
 import { useChartTooltip, wrCoerceChartTooltip } from 'ngwr/popover';
 import { wrCheckStyles } from 'ngwr/utils';
 
@@ -72,6 +91,11 @@ const MAX_HIT_ANGLE = Math.PI / 12;
  * and says "No data"; `loading` and `error` put their own message there in place of the
  * slices.
  *
+ * **What a screen reader gets.** The drawing is one named `role="img"`, so the figures are
+ * in text only in the legend, which a single slice and `showLegend="false"` leave out.
+ * `dataTable` renders every slice shown with its value and its share as a table a reader
+ * can walk cell by cell.
+ *
  * @see https://ngwr.dev/charts/donut-chart
  */
 @Component({
@@ -85,7 +109,7 @@ const MAX_HIT_ANGLE = Math.PI / 12;
     '[class.wr-donut-chart--gapless]': 'gapless()',
     '[class.wr-chart--legend-side]': 'legendShown() && legendSide()',
   },
-  imports: [NgTemplateOutlet, WrChartLegend, WrChartState],
+  imports: [NgTemplateOutlet, WrChartLegend, WrChartState, WrChartTable],
   // The legend's rows keep the classes this chart drew before it drew them through
   // `WrChartLegend`: `.wr-donut-chart__legend-item`, `__swatch`, `__legend-label` and
   // `__legend-value`.
@@ -106,9 +130,10 @@ export class WrDonutChart {
   readonly segments = input<readonly WrDonutSegment[]>([]);
 
   /**
-   * Accessible name of the drawing. The arcs carry no text and the legend is optional, so
-   * with `showLegend: false` this and the centre text are the whole of what a screen reader
-   * gets. Falls back to `donutChart.label`, or to `donutChart.pieLabel` with `pie`.
+   * Accessible name of the drawing, and the caption of the data table. The arcs carry no
+   * text and the legend is optional, so with `showLegend: false` this and the centre text
+   * are the whole of what a screen reader gets unless `dataTable` renders the figures.
+   * Falls back to `donutChart.label`, or to `donutChart.pieLabel` with `pie`.
    */
   readonly ariaLabel = input<string | null>(null);
 
@@ -242,13 +267,38 @@ export class WrDonutChart {
   readonly tooltip = input<boolean | 'hoverable', unknown>(true, { transform: wrCoerceChartTooltip });
 
   /**
-   * Writes every value in the legend and the tooltip. `null` uses `Intl.NumberFormat`
-   * in `LOCALE_ID`. The centre text is printed as given.
+   * Writes every value in the legend, the tooltip and the data table. `null` uses
+   * `Intl.NumberFormat` in `LOCALE_ID`. The centre text is printed as given.
    */
   readonly valueFormat = input<((value: number) => string) | null>(null);
 
-  /** Each value as the legend and the tooltip print it: exact, in `LOCALE_ID` unless `valueFormat` is given. */
+  /**
+   * Render the chart's figures as a table that only assistive technology reaches: a row
+   * per slice shown, headed by its label, with its value as the legend writes it and its
+   * share of the ring, a percentage in `LOCALE_ID`. A slice hidden through
+   * `hiddenSegments` has no row, and a slice that draws nothing has an empty share. The
+   * table gives way with the slices while the chart is empty, `loading` or in `error`.
+   *
+   * The drawing is one named `role="img"`, which hides everything inside it, and the
+   * legend is left out for a single slice and with `showLegend` off, so without the table
+   * the numbers may be nowhere a screen reader can walk. It is rendered beside the
+   * drawing, clipped to nothing: it takes no room, draws nothing and holds no tab stop.
+   * @default false
+   */
+  readonly dataTable = input(false, { transform: coerceBooleanProperty });
+
+  /** The headings of the data table's two columns. */
+  private readonly valueName = wrReadI18nText('donutChart.value', 'Value');
+  private readonly shareName = wrReadI18nText('donutChart.share', 'Share');
+
+  /** Each value as the legend, the tooltip and the data table print it: exact, in `LOCALE_ID` unless `valueFormat` is given. */
   private readonly numbers = useChartNumbers(this.valueFormat);
+
+  private readonly locale = inject(LOCALE_ID);
+  /** Shares from one percent up, to one decimal. */
+  private readonly shares = wrChartNumberFormat(this.locale, { style: 'percent', maximumFractionDigits: 1 });
+  /** Shares below one percent, to two significant digits, so a sliver does not read `0%`. */
+  private readonly smallShares = wrChartNumberFormat(this.locale, { style: 'percent', maximumSignificantDigits: 2 });
 
   private readonly hidden = computed(() => new Set(this.hiddenSegments()));
 
@@ -445,6 +495,28 @@ export class WrDonutChart {
     loadingLabel: this.loadingLabel,
     errorLabel: this.errorLabel,
   });
+
+  /**
+   * The figures for `dataTable`: the chart's name as the caption, a row per slice shown,
+   * and its value and its share of the ring as the columns.
+   */
+  protected readonly tableData = computed<WrChartTableData>(() => ({
+    caption: this.resolvedAriaLabel(),
+    columns: [this.valueName(), this.shareName()],
+    groups: [
+      {
+        rows: this.slices()
+          .filter(slice => !slice.hidden)
+          .map(slice => {
+            const share = slice.percent / 100;
+            return {
+              header: slice.label,
+              cells: [slice.text, share > 0 ? (share < 0.01 ? this.smallShares : this.shares).format(share) : ''],
+            };
+          }),
+      },
+    ],
+  }));
 
   /**
    * The whole ring, or the whole disc of a pie, as one path: the frame the chart keeps

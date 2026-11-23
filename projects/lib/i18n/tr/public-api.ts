@@ -289,6 +289,8 @@ export const wrTr: WrI18nCatalog = {
   donutChart: {
     label: 'Halka grafiği',
     pieLabel: 'Pasta grafiği',
+    value: 'Değer',
+    share: 'Pay',
   },
   chartLegend: {
     toggleLabel: 'Serilerin görünürlüğünü değiştir',

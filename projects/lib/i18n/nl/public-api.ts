@@ -284,6 +284,8 @@ export const wrNl: WrI18nCatalog = {
   donutChart: {
     label: 'Ringdiagram',
     pieLabel: 'Cirkeldiagram',
+    value: 'Waarde',
+    share: 'Aandeel',
   },
   chartLegend: {
     toggleLabel: 'Zichtbaarheid van reeksen wisselen',
