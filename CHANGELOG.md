@@ -1,5 +1,43 @@
 # Changelog
 
+## [16.8.0](https://github.com/thekhegay/ngwr/compare/v16.7.1...v16.8.0) (2026-11-23)
+
+### Features
+
+* **donut-chart:** opt-in data table of every slice's value and share ([9823e2e](https://github.com/thekhegay/ngwr/commit/9823e2ea1427c3011b5dec3287936cce5bfc17cf))
+* **meter-group:** opt-in data table of every segment's value and share ([d808274](https://github.com/thekhegay/ngwr/commit/d808274f6455e53e6d9bcfb6cbd9fc9ea2e72cd2))
+* **sparkline:** opt-in data table of every point's value ([37ecdb1](https://github.com/thekhegay/ngwr/commit/37ecdb1fdcb77875a519bbdabd0cc804e0772f42))
+
+### Bug Fixes
+
+* **calendar-heatmap:** count the last hour of a 25-hour end day ([090e6fa](https://github.com/thekhegay/ngwr/commit/090e6fa3b98970e1adeec96369546aa2a1e6d82c))
+* **charts:** light marks drawn while a series stays dimmed ([ac035e6](https://github.com/thekhegay/ngwr/commit/ac035e6a1b4cbb26a386b6a6fe01c8035f871688))
+* **color-picker:** trigger stops claiming a dialog the pane is not ([66cde71](https://github.com/thekhegay/ngwr/commit/66cde7112dde72407743d8c770e65e31846fd196))
+* **command-palette:** commit an option on the primary button only ([5ac1b3d](https://github.com/thekhegay/ngwr/commit/5ac1b3d66aaf10dec45c4f1cbc462c3ee5ddb698))
+* **command-palette:** open in the top layer, over a dialog or a popover ([717f1b4](https://github.com/thekhegay/ngwr/commit/717f1b4735df7ea4d0d3abbddbe675b329922cc5))
+* **context-menu:** tab closes the whole chain from an open submenu ([8e90969](https://github.com/thekhegay/ngwr/commit/8e90969a92ec42b0bf459e319fad353c2d1594b0))
+* **dialog:** keep a consumer id on the dialog and drawer title ([7ff4838](https://github.com/thekhegay/ngwr/commit/7ff4838cbe6b4b34008403edb8455d6ca2d59f99))
+* **file-upload:** emit touch when focus leaves the drop zone ([d245894](https://github.com/thekhegay/ngwr/commit/d245894e0766b71b48f580c225ba6bfbb771b457))
+* **input-number:** step inward off the decimals grid and read the locale grouping ([3e4efb9](https://github.com/thekhegay/ngwr/commit/3e4efb9942b98a90542e8282b458256b986c3ebd))
+* **input-number:** strict plain decimal parsing, round before clamp, steppers keep focus ([c555840](https://github.com/thekhegay/ngwr/commit/c5558404e8a5aa77235b843252ebd43fb5c16671))
+* **input-otp:** spread an autofilled code, read fullwidth digits, cut a long value ([50db9a3](https://github.com/thekhegay/ngwr/commit/50db9a32fdbadbdd55b75acca79b86906128b602))
+* **input-otp:** write back a normalised value, keep a one-character replacement single ([55cdc71](https://github.com/thekhegay/ngwr/commit/55cdc712c2cf98bd8c2b81a0081f3f5b393a821c))
+* **input:** password toggle states its state once, in the label ([0adf033](https://github.com/thekhegay/ngwr/commit/0adf033aeb3969c255c8e46dd8d2f9be0d6edaf5))
+* list the scroll block service for ngwr:use, date-only strings for an ssr heatmap ([c17b427](https://github.com/thekhegay/ngwr/commit/c17b4275313dab36a714ee0cf35c2ca97e9f6b9c))
+* **meter-group:** a named group, not a progressbar, while loading or failed ([2f92d54](https://github.com/thekhegay/ngwr/commit/2f92d5422d4e245cbdb1335b335902ab272beb6a))
+* name a textless checkbox or switch by its form field label ([4f5bcf2](https://github.com/thekhegay/ngwr/commit/4f5bcf2dc8b2bdff1718503c7a4bc754767bbd20))
+* **overlay:** one shared scroll block for every modal, released by the last ([b3e2b13](https://github.com/thekhegay/ngwr/commit/b3e2b13d14480d012725f58288b0bd7bbe3516ff))
+* **overlays:** skip an escape key that belongs to an input method ([77f4ba7](https://github.com/thekhegay/ngwr/commit/77f4ba7acfdfd6b29b16c946712189514766af69))
+* **slider:** a drag ignores pointers other than the one that started it ([143314b](https://github.com/thekhegay/ngwr/commit/143314b48d330b661e64487690870054d64fb6b7))
+* **slider:** primary press only, drag from the track, stop writing once disabled ([5ba20ed](https://github.com/thekhegay/ngwr/commit/5ba20edd06eb81fad2d06a8d264a486470284373))
+* **switch:** take the form field control id so its label names the switch ([10ad634](https://github.com/thekhegay/ngwr/commit/10ad634f653017ce56e3b751642aa5d1ce68eeab))
+* **tour:** put the cut-out in the top layer under the card ([9683441](https://github.com/thekhegay/ngwr/commit/96834418f73545ec2c8e300361adaffee01c3902))
+* **tour:** scroll to a step without animation under reduced motion ([87b4450](https://github.com/thekhegay/ngwr/commit/87b4450c21e8ca0689825384e904613ef8fc410e))
+
+### Reverts
+
+* **switch:** keep its own text as its name, like the checkbox, inside a form field ([ba7dcde](https://github.com/thekhegay/ngwr/commit/ba7dcde2021fc9fb1950870c583cbe8f6a2ea9e8))
+
 ## [16.7.1](https://github.com/thekhegay/ngwr/compare/v16.7.0...v16.7.1) (2026-11-23)
 
 ### Bug Fixes
