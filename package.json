@@ -87,7 +87,7 @@
     "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.6",
     "@types/semver": "^7.8.0",
-    "@vitest/coverage-v8": "4.1.12",
+    "@vitest/coverage-v8": "5.1.1",
     "angular-eslint": "^22.7.0",
     "axe-core": "^4.14.1",
     "bootstrap-icons": "^1.13.2",
@@ -121,6 +121,6 @@
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.73.0",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.1"
   }
 }
