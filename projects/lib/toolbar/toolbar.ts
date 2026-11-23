@@ -126,9 +126,18 @@ export class WrToolbar {
         return !inComposite(el) || el.getAttribute('tabindex') !== '-1';
       });
 
+    const restore = (el: HTMLElement, value: string | null): void => {
+      if (value === null) el.removeAttribute('tabindex');
+      else el.setAttribute('tabindex', value);
+    };
+
     const sync = (): void => {
       const all = controls();
-      for (const el of original.keys()) if (!host.contains(el)) original.delete(el);
+      for (const [el, value] of original) {
+        if (host.contains(el)) continue;
+        restore(el, value);
+        original.delete(el);
+      }
       if (!stop || !all.includes(stop)) stop = all[0] ?? null;
       for (const el of all) {
         if (inComposite(el)) continue;
@@ -191,10 +200,7 @@ export class WrToolbar {
       observer.disconnect();
       host.removeEventListener('focusin', onFocusin);
       host.removeEventListener('keydown', onKeydown);
-      for (const [el, value] of original) {
-        if (value === null) el.removeAttribute('tabindex');
-        else el.setAttribute('tabindex', value);
-      }
+      for (const [el, value] of original) restore(el, value);
       original.clear();
     };
   }
