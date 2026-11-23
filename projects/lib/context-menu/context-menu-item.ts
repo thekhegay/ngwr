@@ -26,7 +26,7 @@ import type { Subscription } from 'rxjs';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WR_OVERLAY, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { WR_LIVE_LOCALE, wrRandomId, wrCheckStyles } from 'ngwr/utils';
+import { WR_LIVE_LOCALE, wrIsComposing, wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WrContextMenu } from './context-menu';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -373,7 +373,7 @@ export class WrContextMenuItem {
    */
   private onSubmenuKeydown(event: KeyboardEvent): void {
     const pane = this.submenuRef?.overlayElement;
-    if (!pane) return;
+    if (!pane || wrIsComposing(event)) return;
     // A row inside the pane already acted on this key — its own → into a deeper
     // submenu, or Enter on a leaf. Re-handling it here would close the pane out
     // from under the level it just opened.

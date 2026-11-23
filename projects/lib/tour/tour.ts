@@ -23,7 +23,7 @@ import {
 } from '@angular/core';
 
 import { WR_OVERLAY, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection, wrMirrorOffsets } from 'ngwr/overlay';
-import { wrRestoreFocus, wrToClassList } from 'ngwr/utils';
+import { wrIsComposing, wrRestoreFocus, wrToClassList } from 'ngwr/utils';
 
 import { WR_TOUR_STEP, WrTourPopup } from './tour-popup';
 import type { WrTourOptions, WrTourPlacement, WrTourStep } from './types';
@@ -327,7 +327,7 @@ export class WrTour {
     const onKey = (event: KeyboardEvent): void => {
       // The listener is on the document, so a step shown over a dialog would see the
       // Escape that dialog just handled and close the tour too.
-      if (event.key === 'Escape' && !event.defaultPrevented) {
+      if (event.key === 'Escape' && !event.defaultPrevented && !wrIsComposing(event)) {
         event.preventDefault();
         this.stop();
       }

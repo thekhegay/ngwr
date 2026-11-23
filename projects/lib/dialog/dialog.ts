@@ -26,7 +26,7 @@ import { WR_BUTTON_SIZE } from 'ngwr/button';
 import { WrI18n } from 'ngwr/i18n';
 import { WrMeta } from 'ngwr/meta';
 import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
-import { wrToClassList } from 'ngwr/utils';
+import { wrIsComposing, wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
 import type { WrDialogConfirmData } from './confirm/dialog-confirm-data';
@@ -152,7 +152,7 @@ export class WrDialog {
     }
     if (options.closeOnEscape !== false) {
       overlayRef.keydownEvents().subscribe(event => {
-        if (event.key === 'Escape') {
+        if (event.key === 'Escape' && !wrIsComposing(event)) {
           event.preventDefault();
           dialogRef.close();
         }

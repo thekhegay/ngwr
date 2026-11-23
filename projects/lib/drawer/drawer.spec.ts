@@ -229,6 +229,17 @@ describe('WrDrawer', () => {
       expect(panel()).toBeNull();
     });
 
+    it('leaves an Escape that belongs to an input method alone', () => {
+      open();
+
+      document.body.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true, cancelable: true })
+      );
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.open()).toBe(true);
+    });
+
     it('ignores Escape when told to', () => {
       fixture.componentInstance.closeOnEscape.set(false);
       fixture.detectChanges();

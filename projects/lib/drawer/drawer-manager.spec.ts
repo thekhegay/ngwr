@@ -253,6 +253,16 @@ describe('WrDrawerManager without a backdrop', () => {
     expect(document.activeElement).toBe(opener);
   });
 
+  it('leaves an Escape that belongs to an input method alone', async () => {
+    await openPanel();
+
+    inside().dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true, cancelable: true })
+    );
+
+    expect(panel()).not.toBeNull();
+  });
+
   it('leaves an Escape pressed on the page to the page', async () => {
     await openPanel();
     field.focus();

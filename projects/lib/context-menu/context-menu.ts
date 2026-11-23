@@ -21,7 +21,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
 
 import { WR_OVERLAY, WrOutsideClick, wrFollowDirection } from 'ngwr/overlay';
-import { WR_LIVE_LOCALE, wrRandomId, wrCheckStyles, wrNoteFocusReturn, wrRestoreFocus } from 'ngwr/utils';
+import {
+  WR_LIVE_LOCALE,
+  wrIsComposing,
+  wrRandomId,
+  wrCheckStyles,
+  wrNoteFocusReturn,
+  wrRestoreFocus,
+} from 'ngwr/utils';
 
 import { WrContextMenuItem } from './context-menu-item';
 import type { WrContextMenuPanel } from './context-menu-panel';
@@ -492,6 +499,7 @@ export class WrContextMenu {
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
+        if (wrIsComposing(event)) return;
         if (event.key === 'Escape') {
           event.preventDefault();
           this.closeOverlay();

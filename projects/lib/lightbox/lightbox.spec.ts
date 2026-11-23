@@ -214,6 +214,13 @@ describe('WrLightbox', () => {
     expect(viewer()).toBeNull();
   });
 
+  it('leaves an Escape that belongs to an input method alone', () => {
+    open();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true }));
+    fixture.detectChanges();
+    expect(viewer()).not.toBeNull();
+  });
+
   it('closes when the image itself is clicked', () => {
     // The full image is styled `cursor: zoom-out`, which is a promise that clicking it
     // closes the viewer — the most common way people dismiss a lightbox. Nothing

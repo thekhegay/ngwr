@@ -33,7 +33,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, type WrOverlayAutoFocus, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
-import { wrToClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrIsComposing, wrToClassList, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrLightboxGroups } from './lightbox-groups';
 
@@ -448,6 +448,7 @@ export class WrLightbox {
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
+        if (wrIsComposing(event)) return;
         if (event.key === 'Escape') {
           event.preventDefault();
           this.open.set(false);

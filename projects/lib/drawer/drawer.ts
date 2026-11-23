@@ -32,7 +32,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOverlayOrder, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
-import { wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import { wrIsComposing, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
@@ -358,7 +358,7 @@ export class WrDrawer {
         .keydownEvents()
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(event => {
-          if (event.key === 'Escape') {
+          if (event.key === 'Escape' && !wrIsComposing(event)) {
             event.preventDefault();
             this.open.set(false);
           }

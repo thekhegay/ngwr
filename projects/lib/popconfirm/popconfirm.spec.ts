@@ -229,6 +229,14 @@ describe('WrPopconfirm', () => {
     expect(log()).toEqual(['cancelled']);
   });
 
+  it('leaves an Escape that belongs to an input method alone', () => {
+    open();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true }));
+    fixture.detectChanges();
+
+    expect(panel()).not.toBeNull();
+  });
+
   it('hands focus back to the trigger when it closes', () => {
     open();
     click(cancel());

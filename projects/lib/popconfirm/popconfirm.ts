@@ -34,7 +34,14 @@ import {
   wrMirrorOffsets,
 } from 'ngwr/overlay';
 import type { WrColor } from 'ngwr/theme';
-import { wrToClassList, wrCheckStyles, type WrClassInput, wrNoteFocusReturn, wrRestoreFocus } from 'ngwr/utils';
+import {
+  wrIsComposing,
+  wrToClassList,
+  wrCheckStyles,
+  type WrClassInput,
+  wrNoteFocusReturn,
+  wrRestoreFocus,
+} from 'ngwr/utils';
 
 import { WrPopconfirmPanel } from './popconfirm-panel';
 import { type WrPopconfirmPosition, wrPopconfirmPositions } from './types';
@@ -303,7 +310,7 @@ export class WrPopconfirm {
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
-        if (event.key === 'Escape') {
+        if (event.key === 'Escape' && !wrIsComposing(event)) {
           event.preventDefault();
           this.dismiss();
         }

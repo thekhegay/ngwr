@@ -221,6 +221,16 @@ describe('WrTour', () => {
     expect(tour.active()).toBe(true);
   });
 
+  it('leaves an Escape that belongs to an input method alone', () => {
+    tour.start(STEPS);
+    sync();
+
+    const event = escape({ isComposing: true });
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(tour.active()).toBe(true);
+  });
+
   it('hands focus back to whatever opened it', () => {
     const opener = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('#opener')!;
     opener.focus();
