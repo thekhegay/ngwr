@@ -411,7 +411,9 @@ describe('WrInputNumberHarness in a comma-decimal locale', () => {
 
     await field.setValue(12.5, 'en-US');
     // `.` is this locale's THOUSANDS separator, so `String(12.5)` typed verbatim
-    // is not twelve and a half — it is a hundred and twenty-five.
-    expect(fixture.componentInstance.amount()).toBe(125);
+    // is not twelve and a half. It is no group of three either, so the field
+    // refuses it and keeps the last number it could read, 12, instead of
+    // committing a hundred and twenty-five.
+    expect(fixture.componentInstance.amount()).toBe(12);
   });
 });
