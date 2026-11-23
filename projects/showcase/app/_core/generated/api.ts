@@ -1550,6 +1550,7 @@ export const API = {
     { name: "icon", description: "Icon for the main trigger button.", type: "WrIconName", default: "'add'" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "safeArea", description: "Pad the host toward the dial `direction` with `env(safe-area-inset-*)`. Only matters when the consumer pins the dial to that edge of the viewport; otherwise it has no effect.", type: "boolean", default: "false" },
+    { name: "closeOnOutsideClick", description: "Close the open dial on a pointer press outside it. Focus stays where the user clicked.", type: "boolean", default: "false" },
     { name: "(pick)", description: "Fires when the user picks one of the actions.", type: "WrSpeedDialAction" },
   ],
   // <wr-spinner>
@@ -1802,6 +1803,7 @@ export const API = {
   // <wr-toolbar>
   WrToolbar: [
     { name: "responsive", description: "Stack the zones vertically when the toolbar's own box is too narrow to fit them in a row (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
+    { name: "arrowKeys", description: "Roving focus across the enabled controls of all zones, per the WAI-ARIA toolbar pattern: one tab stop, ArrowRight / ArrowLeft (mirrored under RTL) to step with wrapping, Home / End for the ends. Arrow keys stay with text fields and with composite widgets (radiogroup, tablist, listbox, ...), which keep their own tab stop.", type: "boolean", default: "false" },
   ],
   // <wr-transfer>
   WrTransfer: [
