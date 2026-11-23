@@ -128,6 +128,22 @@ describe('wrTrapFocus', () => {
     expect(document.activeElement?.id).toBe('b');
   });
 
+  it('pulls focus on the container itself back to an end of the list', () => {
+    const root = render(`<button id="a">a</button><button id="b">b</button>`);
+    root.tabIndex = -1;
+    root.focus();
+    expect(document.activeElement).toBe(root);
+
+    const back = tab(true);
+    expect(wrTrapFocus(root, back)).toBe(true);
+    expect(back.defaultPrevented).toBe(true);
+    expect(document.activeElement?.id).toBe('b');
+
+    root.focus();
+    expect(wrTrapFocus(root, tab())).toBe(true);
+    expect(document.activeElement?.id).toBe('a');
+  });
+
   it('leaves a Tab in the middle of the list to the browser', () => {
     const root = render(`<button id="a">a</button><button id="b">b</button><button id="c">c</button>`);
     root.querySelector<HTMLButtonElement>('#b')!.focus();

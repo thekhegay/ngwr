@@ -104,7 +104,8 @@ export function wrGetFocusableElements(root: HTMLElement): readonly HTMLElement[
 
 /**
  * Trap Tab navigation inside `root` for a keyboard event — call from a
- * `keydown` handler. Cycles focus from first ↔ last focusable element.
+ * `keydown` handler. Cycles focus from first ↔ last focusable element, and from the container itself
+ * into either end.
  * Returns `true` when focus was redirected (event was handled).
  */
 export function wrTrapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
@@ -116,12 +117,14 @@ export function wrTrapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
   const last = focusable[focusable.length - 1];
   const active = document.activeElement as HTMLElement | null;
 
-  if (event.shiftKey && active === first) {
+  // Focus on the container itself (a `tabindex="-1"` panel) sits before the first
+  // element, so Shift+Tab from there would leave the trap.
+  if (event.shiftKey && (active === first || active === root)) {
     event.preventDefault();
     last.focus();
     return true;
   }
-  if (!event.shiftKey && active === last) {
+  if (!event.shiftKey && (active === last || active === root)) {
     event.preventDefault();
     first.focus();
     return true;
