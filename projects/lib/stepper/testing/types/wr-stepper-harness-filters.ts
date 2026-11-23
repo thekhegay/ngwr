@@ -7,6 +7,8 @@
 
 import type { BaseHarnessFilters } from '@angular/cdk/testing';
 
+import type { WrStepStatus } from 'ngwr/stepper';
+
 /** Narrows which `<wr-stepper>` a harness query matches. */
 export interface WrStepperHarnessFilters extends BaseHarnessFilters {
   /**
@@ -48,4 +50,6 @@ export interface WrStepHarnessFilters extends BaseHarnessFilters {
   readonly reachable?: boolean;
   /** Match steps flagged `optional` in the header. */
   readonly optional?: boolean;
+  /** Match steps by the `status` their header flags; `null` matches the steps that flag none. */
+  readonly status?: WrStepStatus | null;
 }

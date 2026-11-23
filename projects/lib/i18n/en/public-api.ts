@@ -131,6 +131,10 @@ export const wrEn: WrI18nCatalog = {
     // Visually hidden after a completed step's label, so the state the check mark
     // draws is announced too. Lowercase for the same reason.
     completed: 'completed',
+    // Visually hidden after the label of a step with a `status`, for the same
+    // reason: the glyph that replaces the number is `aria-hidden`.
+    error: 'error',
+    warning: 'warning',
   },
   transfer: {
     source: 'Available',

@@ -87,6 +87,8 @@ export const wrSv: WrI18nCatalog = {
   stepper: {
     optional: 'valfritt',
     completed: 'slutfört',
+    error: 'fel',
+    warning: 'varning',
   },
   transfer: {
     source: 'Tillgängliga',

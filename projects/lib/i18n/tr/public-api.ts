@@ -87,6 +87,8 @@ export const wrTr: WrI18nCatalog = {
   stepper: {
     optional: 'isteğe bağlı',
     completed: 'tamamlandı',
+    error: 'hata',
+    warning: 'uyarı',
   },
   transfer: {
     source: 'Kullanılabilir',

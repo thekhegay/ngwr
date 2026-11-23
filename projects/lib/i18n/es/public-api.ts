@@ -87,6 +87,8 @@ export const wrEs: WrI18nCatalog = {
   stepper: {
     optional: 'opcional',
     completed: 'completado',
+    error: 'error',
+    warning: 'advertencia',
   },
   transfer: {
     source: 'Disponibles',

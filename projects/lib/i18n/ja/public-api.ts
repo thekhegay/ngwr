@@ -89,6 +89,8 @@ export const wrJa: WrI18nCatalog = {
   stepper: {
     optional: '任意',
     completed: '完了',
+    error: 'エラー',
+    warning: '警告',
   },
   transfer: {
     source: '選択可能',

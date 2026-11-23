@@ -90,6 +90,8 @@ export const wrPl: WrI18nCatalog = {
   stepper: {
     optional: 'opcjonalnie',
     completed: 'ukończono',
+    error: 'błąd',
+    warning: 'ostrzeżenie',
   },
   transfer: {
     source: 'Dostępne',

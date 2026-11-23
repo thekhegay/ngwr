@@ -89,6 +89,8 @@ export const wrVi: WrI18nCatalog = {
   stepper: {
     optional: 'tùy chọn',
     completed: 'đã hoàn thành',
+    error: 'lỗi',
+    warning: 'cảnh báo',
   },
   transfer: {
     source: 'Có sẵn',

@@ -90,6 +90,8 @@ export const wrHe: WrI18nCatalog = {
   stepper: {
     optional: 'רשות',
     completed: 'הושלם',
+    error: 'שגיאה',
+    warning: 'אזהרה',
   },
   transfer: {
     source: 'זמינים',
