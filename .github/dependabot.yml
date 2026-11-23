@@ -11,14 +11,10 @@ updates:
     cooldown:
       default-days: 7
     open-pull-requests-limit: 10
-    # typescript and vitest are held to the peer ranges Angular declares.
+    # typescript is held to the peer range Angular declares.
     ignore:
       - dependency-name: 'typescript'
         versions: ['>=6.1']
-      - dependency-name: 'vitest'
-        versions: ['>=5']
-      - dependency-name: '@vitest/coverage-v8'
-        versions: ['>=5']
     assignees:
       - 'thekhegay'
     labels:

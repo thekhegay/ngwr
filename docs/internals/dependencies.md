@@ -85,11 +85,11 @@ one by one). Angular **tooling** (`@angular/cli`, `@angular/build`,
 Dependabot (grouped, checked daily) handles the PRs — one per group, and `groups` does NOT cross ecosystems, so the npm groups say nothing about GitHub Actions bumps (those have their own group, minor/patch only; a major action bump still arrives alone so it cannot be merged unread). **TypeScript is pinned on purpose** to
 the 6.0 line (a tilde range in `devDependencies`) — Angular 22's peer range is
 `typescript >=6.0 <6.1`, and TypeScript 7 is out. `.github/dependabot.yml`
-carries one `ignore` for it, `>=6.1`, which covers TypeScript 7 too, and holds
-`vitest` below 5 the same way: the unit-test target
-runs through `@angular/build:unit-test`, and `@angular/build` declares a 4.x
-`vitest` peer. Revisit that one when the peer widens. If either bump appears in
-a PR anyway, it came from somewhere other than the bot; don't take it. The matching `@types/node` ignore is GONE — the types and the runtime moved
+carries one `ignore` for it, `>=6.1`, which covers TypeScript 7 too. If such a
+bump appears in a PR anyway, it came from somewhere other than the bot; don't
+take it. `vitest` follows the `vitest` peer of `@angular/build`, since the
+unit-test target runs through `@angular/build:unit-test`: check that peer before
+taking a vitest major. The matching `@types/node` ignore is GONE — the types and the runtime moved
 to 26 together, and they have to keep moving together: types ahead of the
 runtime describe APIs that are not there, which type-checks clean rather than
 failing.
