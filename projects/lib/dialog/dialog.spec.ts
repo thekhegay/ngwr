@@ -280,6 +280,17 @@ describe('WrDialog', () => {
     expect(panel()).toBeNull();
   });
 
+  it('leaves an Escape that belongs to an input method alone', async () => {
+    await open();
+
+    panel()!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true, cancelable: true })
+    );
+    await settle();
+
+    expect(panel()).toBeTruthy();
+  });
+
   it('ignores Escape when closeOnEscape is false', async () => {
     await open({ closeOnEscape: false });
 

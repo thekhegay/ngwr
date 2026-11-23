@@ -14,7 +14,7 @@ import { EnvironmentInjector, Injector, PLATFORM_ID, Service, afterEveryRender, 
 
 import { WrI18n } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOverlayOrder, wrAppendOverlayClose, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
-import { wrToClassList } from 'ngwr/utils';
+import { wrIsComposing, wrToClassList } from 'ngwr/utils';
 
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
 import { WrDrawerRef } from './drawer-ref';
@@ -163,7 +163,7 @@ export class WrDrawerManager {
     }
     if (options.closeOnEscape !== false) {
       overlayRef.keydownEvents().subscribe(event => {
-        if (event.key === 'Escape') {
+        if (event.key === 'Escape' && !wrIsComposing(event)) {
           event.preventDefault();
           drawerRef.close();
         }

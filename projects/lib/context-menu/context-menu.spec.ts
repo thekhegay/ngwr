@@ -356,6 +356,15 @@ describe('WrContextMenu', () => {
       expect(focused()).toBe('More');
     });
 
+    it('leaves an Escape that belongs to an input method alone', async () => {
+      rightClick();
+      document.body.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', isComposing: true, bubbles: true, cancelable: true })
+      );
+      await settle();
+      expect(menus()).toHaveLength(1);
+    });
+
     it('closes on Escape and on Tab without moving focus that never entered', async () => {
       const child = target().querySelector<HTMLElement>('.child')!;
       child.focus();
