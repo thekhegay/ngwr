@@ -538,7 +538,8 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   private show(): void {
     const el = this.host.nativeElement;
     // A blur just before would otherwise close the panel this opens, unless the field is still unfocused.
-    if (el.ownerDocument.activeElement === el) clearTimeout(this.blurClose);
+    // `:focus`, not `activeElement`: inside a shadow root the document reports the host.
+    if (el.matches(':focus')) clearTimeout(this.blurClose);
     const caret = el.selectionStart ?? 0;
     const { top, left, lineHeight } = getCaretCoordinates(el, caret);
     const field = el.getBoundingClientRect();

@@ -1,5 +1,5 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, ViewEncapsulation, inject, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { WrDialog } from 'ngwr/dialog';
@@ -848,5 +848,41 @@ describe('WrMention when the direction flips while the panel is up', () => {
     // follower outliving its panel throws on the next flip — inside change
     // detection, a long way from the field.
     expect(() => flipTo('rtl')).not.toThrow();
+  });
+});
+
+describe('WrMention inside a shadow root', () => {
+  @Component({
+    imports: [WrMention],
+    encapsulation: ViewEncapsulation.ShadowDom,
+    template: `<textarea wrMention [wrMentionItems]="items" #ref="wrMention"></textarea>`,
+  })
+  class ShadowHost {
+    readonly items = PEOPLE;
+    readonly mention = viewChild.required<WrMention>('ref');
+  }
+
+  it('keeps a panel opened right after a refocus, where the document sees only the host', () => {
+    vi.useFakeTimers();
+    try {
+      const fixture = TestBed.createComponent(ShadowHost);
+      fixture.autoDetectChanges();
+      const host = fixture.nativeElement as HTMLElement;
+      const el = host.shadowRoot!.querySelector<HTMLTextAreaElement>('textarea')!;
+      el.focus();
+      el.blur();
+      el.focus();
+      expect(document.activeElement).toBe(host);
+      el.value = 'hey @';
+      el.selectionStart = el.selectionEnd = el.value.length;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      fixture.detectChanges();
+      vi.advanceTimersByTime(200);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.mention().isOpen()).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
