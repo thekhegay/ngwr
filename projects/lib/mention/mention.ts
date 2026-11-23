@@ -375,6 +375,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   /** @internal */
   protected onBlur(): void {
     // Defer so option mousedown lands first.
+    clearTimeout(this.blurClose);
     this.blurClose = setTimeout(() => this.close(), 120);
   }
 
@@ -535,9 +536,9 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   }
 
   private show(): void {
-    // A blur just before would otherwise close the panel this opens.
-    clearTimeout(this.blurClose);
     const el = this.host.nativeElement;
+    // A blur just before would otherwise close the panel this opens, unless the field is still unfocused.
+    if (el.ownerDocument.activeElement === el) clearTimeout(this.blurClose);
     const caret = el.selectionStart ?? 0;
     const { top, left, lineHeight } = getCaretCoordinates(el, caret);
     const field = el.getBoundingClientRect();
