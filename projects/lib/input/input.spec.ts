@@ -266,9 +266,10 @@ describe('WrPasswordToggle', () => {
     expect(toggle().getAttribute('type')).toBe('button');
   });
 
-  it('starts as an unpressed toggle that offers to show the password', () => {
+  it('starts offering to show the password, without a pressed state', () => {
     expect(password().type).toBe('password');
-    expect(toggle().getAttribute('aria-pressed')).toBe('false');
+    // The label carries the state; `aria-pressed` on top would say it twice.
+    expect(toggle().hasAttribute('aria-pressed')).toBe(false);
     expect(toggle().getAttribute('aria-label')).toBe('Show password');
   });
 
@@ -277,13 +278,13 @@ describe('WrPasswordToggle', () => {
     fixture.detectChanges();
 
     expect(password().type).toBe('text');
-    expect(toggle().getAttribute('aria-pressed')).toBe('true');
+    expect(toggle().hasAttribute('aria-pressed')).toBe(false);
     expect(toggle().getAttribute('aria-label')).toBe('Hide password');
 
     toggle().click();
     fixture.detectChanges();
     expect(password().type).toBe('password');
-    expect(toggle().getAttribute('aria-pressed')).toBe('false');
+    expect(toggle().getAttribute('aria-label')).toBe('Show password');
   });
 
   it('hides its glyph from assistive tech, which reads the button instead', () => {
