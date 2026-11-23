@@ -618,6 +618,18 @@ describe('WrContextMenu', () => {
       expect(document.activeElement).toBe(itemFor('More'));
     });
 
+    it('closes the whole chain on Tab', async () => {
+      rightClick();
+      press(itemFor('More')!, 'ArrowRight');
+      await settle();
+      expect(menus()).toHaveLength(2);
+
+      document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+      await settle();
+
+      expect(menus()).toHaveLength(0);
+    });
+
     it('leaves the cursor where it was when hover opens the submenu', async () => {
       rightClick();
       walkIn();
