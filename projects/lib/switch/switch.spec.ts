@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form } from '@angular/forms/signals';
 
+import { WrFormField } from 'ngwr/form';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrSwitch, type WrSwitchSize } from './switch';
@@ -239,5 +240,97 @@ describe('WrSwitch under focusBoundControl()', () => {
     fixture.componentInstance.prefs.alerts().focusBoundControl();
 
     expect(root().contains(document.activeElement)).toBe(false);
+  });
+});
+
+@Component({
+  imports: [WrFormField, WrSwitch],
+  template: `
+    <wr-form-field label="Field label">
+      <wr-switch [ariaLabel]="ariaLabel()">
+        @if (text()) {
+          {{ text() }}
+        }
+      </wr-switch>
+    </wr-form-field>
+  `,
+})
+class FieldNameHost {
+  readonly text = signal('');
+  readonly ariaLabel = signal<string | null>(null);
+}
+
+/**
+ * The field's `<label for>` points at an id the native input does not carry, so
+ * a switch with no text of its own was nameless inside a field. It takes the
+ * field's label then, and only then: own text is its name and the field's
+ * label never joins it.
+ */
+describe('WrSwitch inside a form field', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<FieldNameHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const input = (): HTMLInputElement => root().querySelector<HTMLInputElement>('input.wr-switch__input')!;
+
+  /** `aria-labelledby` resolved to text, else `aria-label`, else the wrapping label's text. */
+  const name = (): string => {
+    const by = input().getAttribute('aria-labelledby');
+    if (by) {
+      return by
+        .split(/\s+/)
+        .map(
+          id =>
+            root()
+              .querySelector(`#${CSS.escape(id)}`)
+              ?.textContent?.trim() ?? ''
+        )
+        .join(' ')
+        .trim();
+    }
+    return input().getAttribute('aria-label') ?? input().closest('label')!.textContent.trim();
+  };
+
+  const settle = async (): Promise<void> => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(FieldNameHost);
+    await settle();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('is named by the field label when it has no text', () => {
+    expect(name()).toBe('Field label');
+  });
+
+  it('keeps its own text as the name, without the field label', async () => {
+    fixture.componentInstance.text.set('Own text');
+    await settle();
+
+    expect(input().hasAttribute('aria-labelledby')).toBe(false);
+    expect(name()).toBe('Own text');
+  });
+
+  it('moves the name back when the text goes away', async () => {
+    fixture.componentInstance.text.set('Own text');
+    await settle();
+    fixture.componentInstance.text.set('');
+    await settle();
+
+    expect(name()).toBe('Field label');
+  });
+
+  it('lets an explicit ariaLabel win over the field label', async () => {
+    fixture.componentInstance.ariaLabel.set('Explicit');
+    await settle();
+
+    expect(input().hasAttribute('aria-labelledby')).toBe(false);
+    expect(name()).toBe('Explicit');
   });
 });

@@ -8,18 +8,27 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
+  DestroyRef,
   type ElementRef,
   ViewEncapsulation,
+  afterNextRender,
   computed,
+  inject,
   input,
   model,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
 import { useFormFieldAria } from 'ngwr/form';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
+
+/** Whether `el` holds text, or an element with a name of its own, that can label a control. */
+function hasNamingText(el: HTMLElement): boolean {
+  return (el.textContent ?? '').trim() !== '' || el.querySelector('[aria-label], img[alt]:not([alt=""])') !== null;
+}
 
 /**
  * Boolean toggle with an iOS-style slider.
@@ -57,6 +66,16 @@ export type WrSwitchSize = 'sm' | 'md' | 'lg';
 export class WrSwitch implements FormCheckboxControl {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('switch');
+
+    afterNextRender(() => {
+      const text = this.textEl().nativeElement;
+      const sync = (): void => this.hasText.set(hasNamingText(text));
+      sync();
+      if (typeof MutationObserver === 'undefined') return;
+      const observer = new MutationObserver(sync);
+      observer.observe(text, { childList: true, characterData: true, subtree: true });
+      this.destroyRef.onDestroy(() => observer.disconnect());
+    });
   }
 
   /**
@@ -106,6 +125,23 @@ export class WrSwitch implements FormCheckboxControl {
   readonly touch = output<void>();
 
   private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
+  private readonly textEl = viewChild.required<ElementRef<HTMLElement>>('text');
+  private readonly destroyRef = inject(DestroyRef);
+
+  /**
+   * Whether the projected content names the switch. Assumed `true` until the
+   * first render has looked, so the server renders the own-label path.
+   */
+  private readonly hasText = signal(true);
+
+  /**
+   * The input's `aria-labelledby`: the surrounding field's label, only for a
+   * switch with no text of its own and no `ariaLabel`. With text, that text is
+   * the name and the field's label is not joined to it.
+   */
+  protected readonly labelledBy = computed(() =>
+    this.hasText() || this.ariaLabel() ? null : this.fieldAria.labelledBy()
+  );
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
