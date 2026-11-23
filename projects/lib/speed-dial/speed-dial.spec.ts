@@ -281,6 +281,20 @@ describe('WrSpeedDial closeOnOutsideClick', () => {
     expect(fixture.componentInstance.open()).toBe(true);
   });
 
+  it('stays open on a pointerdown inside a shadow root around the dial', () => {
+    fixture.componentInstance.outside.set(true);
+    openDial();
+    const shadowHost = document.createElement('div');
+    document.body.append(shadowHost);
+    const shadow = shadowHost.attachShadow({ mode: 'open' });
+    const dial = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-speed-dial')!;
+    shadow.append(dial);
+    const inner = dial.querySelector('.wr-speed-dial__trigger')!;
+    inner.dispatchEvent(new Event('pointerdown', { bubbles: true, composed: true }));
+    expect(fixture.componentInstance.open()).toBe(true);
+    shadowHost.remove();
+  });
+
   it('listens only while open', () => {
     const add = vi.spyOn(document, 'addEventListener');
     const remove = vi.spyOn(document, 'removeEventListener');
