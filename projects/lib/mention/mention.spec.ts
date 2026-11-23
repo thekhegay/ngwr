@@ -578,6 +578,24 @@ describe('WrMention template reference', () => {
     }
   });
 
+  it('keeps a panel opened by typing after a quick refocus', () => {
+    vi.useFakeTimers();
+    try {
+      field().focus();
+      field().blur();
+      field().focus();
+      type('hey @');
+      fixture.detectChanges();
+      expect(mention().isOpen()).toBe(true);
+      vi.advanceTimersByTime(200);
+      fixture.detectChanges();
+
+      expect(mention().isOpen()).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('stays shut when nothing matches, when the field cannot take input, and while open', () => {
     type('hey @zzzz');
     mention().open();
