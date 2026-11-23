@@ -279,6 +279,8 @@ export const wrEs: WrI18nCatalog = {
   donutChart: {
     label: 'Gráfico de anillo',
     pieLabel: 'Gráfico circular',
+    value: 'Valor',
+    share: 'Proporción',
   },
   chartLegend: {
     toggleLabel: 'Mostrar u ocultar series',

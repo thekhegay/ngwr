@@ -284,6 +284,8 @@ export const wrIt: WrI18nCatalog = {
   donutChart: {
     label: 'Grafico ad anello',
     pieLabel: 'Grafico a torta',
+    value: 'Valore',
+    share: 'Quota',
   },
   chartLegend: {
     toggleLabel: 'Mostra o nascondi le serie',

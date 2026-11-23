@@ -1,1 +1,5 @@
-export type { WrDonutChartHarnessFilters, WrDonutChartLegendEntry } from './wr-donut-chart-harness-filters';
+export type {
+  WrDonutChartHarnessFilters,
+  WrDonutChartLegendEntry,
+  WrDonutChartTableRow,
+} from './wr-donut-chart-harness-filters';

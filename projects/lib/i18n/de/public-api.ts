@@ -287,6 +287,8 @@ export const wrDe: WrI18nCatalog = {
   donutChart: {
     label: 'Ringdiagramm',
     pieLabel: 'Kreisdiagramm',
+    value: 'Wert',
+    share: 'Anteil',
   },
   chartLegend: {
     toggleLabel: 'Sichtbarkeit der Datenreihen umschalten',

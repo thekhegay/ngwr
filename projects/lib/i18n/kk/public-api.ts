@@ -283,6 +283,8 @@ export const wrKk: WrI18nCatalog = {
   donutChart: {
     label: 'Сақиналы диаграмма',
     pieLabel: 'Дөңгелек диаграмма',
+    value: 'Мәні',
+    share: 'Үлесі',
   },
   chartLegend: {
     toggleLabel: 'Қатарларды көрсету немесе жасыру',

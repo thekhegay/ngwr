@@ -292,6 +292,8 @@ export const wrUk: WrI18nCatalog = {
   donutChart: {
     label: 'Кільцева діаграма',
     pieLabel: 'Кругова діаграма',
+    value: 'Значення',
+    share: 'Частка',
   },
   chartLegend: {
     toggleLabel: 'Показати або приховати ряди',

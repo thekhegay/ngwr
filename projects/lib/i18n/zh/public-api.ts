@@ -274,6 +274,8 @@ export const wrZh: WrI18nCatalog = {
   donutChart: {
     label: '环形图',
     pieLabel: '饼图',
+    value: '值',
+    share: '占比',
   },
   chartLegend: {
     toggleLabel: '切换系列显示',

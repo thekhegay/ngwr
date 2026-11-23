@@ -60,6 +60,7 @@ export default class DonutChartPageComponent {
 <wr-donut-chart [segments]="segments" error errorLabel="Unavailable" />`,
     toggle: `<wr-donut-chart [segments]="sources" toggleableLegend [(hiddenSegments)]="hidden" />`,
     toggleTs: `hidden = signal<readonly number[]>([]);`,
+    dataTable: `<wr-donut-chart [segments]="sources" ariaLabel="Traffic by source" showLegend="false" dataTable />`,
   };
 
   protected readonly typeSnippet = `interface WrDonutSegment {

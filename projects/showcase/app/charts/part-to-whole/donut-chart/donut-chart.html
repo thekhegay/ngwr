@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Donut Chart"
-  updated="16.5.0"
+  updated="16.8.0"
   description="Parts of a whole as a ring or a pie."
   [keywords]="['donut-chart', 'pie', 'wr-donut-chart']"
   [labels]="['Component']"
@@ -105,6 +105,15 @@
       <wr-donut-chart [segments]="sources" toggleableLegend [(hiddenSegments)]="hiddenSegments" />
     </ngwr-doc-snippet>
   </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Data table"
+    description="`dataTable` adds a table only screen readers reach: a row per slice shown, with its value and its share. Nothing changes on screen."
+  >
+    <ngwr-doc-code [code]="snippets.dataTable" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-donut-chart [segments]="sources" ariaLabel="Traffic by source" showLegend="false" dataTable />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
   <ngwr-doc-section title="Accessibility">
     <div class="ngwr-table">
       <table>
@@ -124,7 +133,10 @@
           </tr>
           <tr>
             <th scope="row">Numbers</th>
-            <td>In the legend, and in the tooltip, which is pointer only.</td>
+            <td>
+              In the legend, in the tooltip, which is pointer only, and in the table <code>dataTable</code> adds. A
+              single slice and <code>showLegend="false"</code> draw no legend, so there the table is the only text.
+            </td>
           </tr>
           <tr>
             <th scope="row">Slices</th>

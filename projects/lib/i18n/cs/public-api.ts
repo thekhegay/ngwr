@@ -279,6 +279,8 @@ export const wrCs: WrI18nCatalog = {
   donutChart: {
     label: 'Prstencový graf',
     pieLabel: 'Koláčový graf',
+    value: 'Hodnota',
+    share: 'Podíl',
   },
   chartLegend: {
     toggleLabel: 'Přepnout viditelnost řad',

@@ -92,3 +92,10 @@
 @if (legendShown() && !legendFirst()) {
   <ng-container [ngTemplateOutlet]="legend" />
 }
+
+@if (dataTable() && !shown) {
+  <!-- The figures for a screen reader, beside the drawing rather than inside its `img`,
+       which would make them presentational. Clipped to nothing by its own stylesheet, so
+       it takes no room and draws nothing. -->
+  <wr-chart-table [data]="tableData()" />
+}
