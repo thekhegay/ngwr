@@ -115,8 +115,8 @@ export class WrSpeedDial {
       if (!this.open() || !this.closeOnOutsideClick()) return;
       const doc = this.host.nativeElement.ownerDocument;
       const onDown = (event: Event): void => {
-        const target = event.target;
-        if (target instanceof Node && this.host.nativeElement.contains(target)) return;
+        // The path, not the target: an open shadow root retargets the event to its host.
+        if (event.composedPath().includes(this.host.nativeElement)) return;
         this.open.set(false);
       };
       doc.addEventListener('pointerdown', onDown, true);
