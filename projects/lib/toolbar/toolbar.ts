@@ -118,7 +118,7 @@ export class WrToolbar {
       Array.from(host.querySelectorAll<HTMLElement>(CONTROL_SELECTOR)).filter(el => {
         if (el.matches(':disabled') || el.closest('[hidden], [inert]') || !isVisible(el)) return false;
         // A negative tabindex that was not ours is the consumer's: out of the roving set.
-        if (el.getAttribute('tabindex') === '-1' && !original.has(el)) return false;
+        if (!original.has(el) && Number(el.getAttribute('tabindex')) < 0) return false;
         // Text fields and composite widgets keep their own tab stop and their own arrows.
         return !this.ownsArrows(el);
       });

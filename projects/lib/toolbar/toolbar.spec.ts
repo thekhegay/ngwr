@@ -248,6 +248,19 @@ describe('WrToolbar arrowKeys', () => {
 
   afterEach(() => fixture.destroy());
 
+  it('leaves a control with any negative tabindex of its own out of the roving set', async () => {
+    await mount();
+    fixture.componentInstance.on.set(false);
+    await settle();
+    el('c').setAttribute('tabindex', '-2');
+    fixture.componentInstance.on.set(true);
+    await settle();
+
+    expect(el('c').getAttribute('tabindex')).toBe('-2');
+    press(el('a'), 'End');
+    expect(document.activeElement?.id).toBe('b');
+  });
+
   it('leaves the toolbar alone while off', async () => {
     await mount();
     fixture.componentInstance.on.set(false);
