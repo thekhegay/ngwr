@@ -535,6 +535,8 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
   }
 
   private show(): void {
+    // A blur just before would otherwise close the panel this opens.
+    clearTimeout(this.blurClose);
     const el = this.host.nativeElement;
     const caret = el.selectionStart ?? 0;
     const { top, left, lineHeight } = getCaretCoordinates(el, caret);
