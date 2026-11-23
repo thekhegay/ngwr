@@ -233,4 +233,40 @@ describe('drawQrCode', () => {
 
     vi.unstubAllGlobals();
   });
+
+  describe('the icon inset', () => {
+    const paintIcon = (iconSize: number): { box: readonly number[]; scale: number } => {
+      class Probe {
+        static last: Probe;
+        crossOrigin = '';
+        onload: (() => void) | null = null;
+        constructor() {
+          Probe.last = this;
+        }
+        set src(_value: string) {
+          // never fetches
+        }
+      }
+      vi.stubGlobal('Image', Probe);
+      const { canvas, calls } = stub();
+      drawQrCode(canvas, options({ iconUrl: '/a.png', iconSize }));
+      Probe.last.onload?.();
+      vi.unstubAllGlobals();
+      return { box: calls.find(call => call.op === 'drawImage')!.args, scale: canvas.width / 160 };
+    };
+
+    it('scales with the bitmap, so the icon keeps its share of the tile', () => {
+      const { box, scale } = paintIcon(42);
+
+      expect(box[2]).toBeCloseTo(22 * scale, 5);
+      expect(box[3]).toBeCloseTo(22 * scale, 5);
+    });
+
+    it('never draws a negative size for a tiny icon', () => {
+      const { box } = paintIcon(4);
+
+      expect(box[2]).toBeGreaterThan(0);
+      expect(box[3]).toBeGreaterThan(0);
+    });
+  });
 });

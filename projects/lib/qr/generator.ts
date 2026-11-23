@@ -106,7 +106,9 @@ function overlayIcon(
     if (drawTokens.get(canvas) !== token) return;
     ctx.fillStyle = options.bgColor;
     ctx.fillRect(coord, coord, iconPx, iconPx);
-    ctx.drawImage(iconImg, coord + 10, coord + 10, iconPx - 20, iconPx - 20);
+    // 10 CSS px of inset on every side, never more than a quarter of the box.
+    const inset = Math.min(10 * ratio, iconPx / 4);
+    ctx.drawImage(iconImg, coord + inset, coord + inset, iconPx - 2 * inset, iconPx - 2 * inset);
   };
 }
 
