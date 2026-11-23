@@ -507,7 +507,8 @@ export class WrInputNumber<M extends WrInputNumberMode = 'number'> implements Fo
     // A bound off the `decimals` grid: the field would show the rounded text
     // while the model kept the bound, so step inward to the nearest grid value.
     const scale = 10 ** d;
-    const onGrid = (x: number, round: (n: number) => number): number => wrRound(round(wrRound(x * scale, 9)) / scale, d);
+    const onGrid = (x: number, round: (n: number) => number): number =>
+      wrRound(round(wrRound(x * scale, 9)) / scale, d);
     return clamped === this.maxValue() ? onGrid(clamped, Math.floor) : onGrid(clamped, Math.ceil);
   }
 
