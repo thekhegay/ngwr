@@ -363,6 +363,26 @@ describe('WrMeta', () => {
       expect(content(named('description'))).toBe('from index.html');
     });
 
+    it('tells a tag the server wrote from a static one when it unsets both', () => {
+      const add = (name: string, value: string, marked: boolean): void => {
+        const el = document.createElement('meta');
+        el.setAttribute('name', name);
+        el.setAttribute('content', value);
+        if (marked) el.setAttribute('data-wr-meta', '');
+        document.head.appendChild(el);
+      };
+      add('description', 'previous page, from the server', true);
+      add('theme-color', '#0b1020', false);
+
+      const meta = setup();
+      meta.set({ description: 'Plans for every team.', themeColor: '#fff' });
+      meta.reset();
+
+      expect(tags(named('description'))).toHaveLength(0);
+      expect(content(named('theme-color'))).toBe('#0b1020');
+      expect(tags(named('theme-color'))[0].hasAttribute('data-wr-meta')).toBe(false);
+    });
+
     it('removes the tag when the metadata no longer carries a description', () => {
       const meta = setup();
       meta.set({ description: 'Plans for every team.' });
