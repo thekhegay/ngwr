@@ -453,10 +453,12 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
     target.focus();
 
     const move = (e: PointerEvent): void => {
+      if (e.pointerId !== event.pointerId) return;
       if (this.disabled() || this.readonly()) return;
       this.updateFromEvent(e, thumb);
     };
     const cleanup = (e: PointerEvent): void => {
+      if (e.pointerId !== event.pointerId) return;
       target.releasePointerCapture?.(e.pointerId);
       target.removeEventListener('pointermove', move);
       target.removeEventListener('pointerup', cleanup);

@@ -251,6 +251,19 @@ describe('WrSlider', () => {
       expect(amount()).toBe(75);
     });
 
+    it('ignores a second pointer: it neither moves the value nor ends the drag', () => {
+      const el = grab(100);
+
+      el.dispatchEvent(pointer('pointermove', { clientX: 150, pointerId: 2 }));
+      fixture.detectChanges();
+      expect(amount(), 'a second touch moved the first drag').toBe(50);
+
+      el.dispatchEvent(pointer('pointerup', { clientX: 150, pointerId: 2 }));
+      el.dispatchEvent(pointer('pointermove', { clientX: 150 }));
+      fixture.detectChanges();
+      expect(amount(), 'a second touch lifting ended the first drag').toBe(75);
+    });
+
     it('stops writing when the control is disabled mid-drag', () => {
       const el = grab(100);
       fixture.componentInstance.disabled.set(true);
