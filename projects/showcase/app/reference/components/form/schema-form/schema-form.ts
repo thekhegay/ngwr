@@ -192,6 +192,20 @@ export default class SchemaFormPage {
     })
   );
 
+  protected readonly documents = form(
+    signal<{ readonly scans: readonly File[] }>({ scans: [] }),
+    schema<{ readonly scans: readonly File[] }>(path => {
+      metadata(path.scans, WR_FIELD, () => ({
+        kind: 'file',
+        multiple: true,
+        accept: '.pdf,image/*',
+        maxSize: 2 * 1024 * 1024,
+        maxFiles: 3,
+        hint: 'Up to 3 files, 2 MB each.',
+      }));
+    })
+  );
+
   protected save(): void {
     this.employee().markAsTouched();
   }
@@ -238,6 +252,8 @@ interface WrFieldSpec {
   section?: string | WrFieldSection;
   multiple?: boolean;
   accept?: string;
+  maxSize?: number;
+  maxFiles?: number;
   item?: () => unknown;
   itemLabel?: string;
   columns?: number;
@@ -319,6 +335,20 @@ interface WrFieldSection {
       sub: true,
     },
     { name: 'accept', description: 'For `file`: the native `accept` list.', type: 'string', default: '—', sub: true },
+    {
+      name: 'maxSize',
+      description: 'For `file`: the most bytes one file may have. A larger file is refused.',
+      type: 'number',
+      default: 'no limit',
+      sub: true,
+    },
+    {
+      name: 'maxFiles',
+      description: 'For `file` with `multiple`: the most files the field holds.',
+      type: 'number',
+      default: 'no limit',
+      sub: true,
+    },
     {
       name: 'item',
       description: 'For `array`: the value a new item starts as. Without it there is no Add button.',
@@ -415,6 +445,15 @@ const employeeSchema = schema<Employee>(path => {
 });
 
 // <wr-schema-form [field]="employee" [columns]="2" addLabel="Add address" />`,
+
+    fileLimits: `metadata(path.scans, WR_FIELD, () => ({
+  kind: 'file',
+  multiple: true,
+  accept: '.pdf,image/*',
+  maxSize: 2 * 1024 * 1024, // bytes per file
+  maxFiles: 3,
+  hint: 'Up to 3 files, 2 MB each.',
+}));`,
 
     sections: `// The first field states the section; the rest name its title.
 metadata(path.fullName, WR_FIELD, () => ({

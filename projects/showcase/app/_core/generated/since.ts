@@ -166,7 +166,7 @@ export const UPDATED = {
   "reference/components/popover": "16.7.0",
   "reference/components/progress": "16.7.0",
   "reference/components/radio": "16.6.0",
-  "reference/components/schema-form": "16.3.0",
+  "reference/components/schema-form": "16.9.0",
   "reference/components/segmented": "16.6.0",
   "reference/components/select": "16.7.0",
   "reference/components/sidebar": "16.7.0",
