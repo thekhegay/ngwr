@@ -18,6 +18,7 @@ import {
   isDevMode,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -339,6 +340,12 @@ export class WrImageCropper {
       }
     });
 
+    // A ratio changed after the image loaded refits the window; the load itself and a drag read it directly.
+    effect(() => {
+      const ratio = this.aspectRatio();
+      untracked(() => this.refit(ratio));
+    });
+
     this.destroyRef.onDestroy(() => {
       if (this.previousObjectUrl) URL.revokeObjectURL(this.previousObjectUrl);
       this.resizeObserver?.disconnect();
@@ -453,6 +460,20 @@ export class WrImageCropper {
     const c = this.cropDisplay();
     this.display.set({ w: rect.width, h: rect.height });
     this.cropDisplay.set({ x: c.x * sx, y: c.y * sy, w: c.w * sx, h: c.h * sy });
+  }
+
+  /** Shrink the crop window to `ratio`, around its centre, and report it. */
+  private refit(ratio: number | null): void {
+    if (this.statusState() !== 'loaded' || !ratio || !(ratio > 0)) return;
+    const c = this.cropDisplay();
+    if (c.w <= 0 || c.h <= 0) return;
+    let w = c.w;
+    let h = c.h;
+    if (w / ratio > h) w = h * ratio;
+    else h = w / ratio;
+    if (Math.abs(w - c.w) < 0.01 && Math.abs(h - c.h) < 0.01) return;
+    this.cropDisplay.set({ x: c.x + (c.w - w) / 2, y: c.y + (c.h - h) / 2, w, h });
+    void this.emitCropped();
   }
 
   /** Compute a sensible initial crop — centered, respecting aspectRatio. */
