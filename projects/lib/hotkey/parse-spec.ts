@@ -10,6 +10,7 @@ import type { WrHotkeySpec } from './types';
 /** Map of user-friendly aliases to canonical `KeyboardEvent.key` strings. */
 const KEY_ALIASES: Readonly<Record<string, string>> = {
   esc: 'escape',
+  plus: '+',
   space: ' ',
   spacebar: ' ',
   enter: 'enter',
@@ -65,7 +66,10 @@ interface WrParsedHotkey {
  * @param isMac - when true, `mod` resolves to `meta` (Cmd); otherwise `ctrl`
  */
 function wrParseHotkeySpec(spec: WrHotkeySpec, isMac = false): WrParsedHotkey {
-  const tokens = spec
+  // A trailing `+` is the plus key itself: `mod++`, `ctrl+shift++`.
+  const text = spec.trim();
+  const plusKey = text.endsWith('+');
+  const tokens = (plusKey ? text.slice(0, -1) : text)
     .split('+')
     .map(t => t.trim().toLowerCase())
     .filter(Boolean);
@@ -106,7 +110,7 @@ function wrParseHotkeySpec(spec: WrHotkeySpec, isMac = false): WrParsedHotkey {
     }
   }
 
-  return { ctrl, alt, shift, meta, key };
+  return { ctrl, alt, shift, meta, key: plusKey ? '+' : key };
 }
 
 /**
