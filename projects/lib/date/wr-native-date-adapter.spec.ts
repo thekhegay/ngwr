@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { withDates } from './with-dates';
 import { WrDateAdapter, type WrNativeDateAdapter, wrIsNamedFormat } from './wr-date-adapter';
@@ -600,6 +600,39 @@ describe('WrNativeDateAdapter', () => {
 
       expect(us.getFirstDayOfWeek()).toBe(0);
       expect(us.getDayOfWeekNames('short')[0]).toBe('Sun');
+    });
+
+    describe('where Intl.Locale has no week info', () => {
+      const proto = Intl.Locale.prototype as unknown as Record<string, unknown>;
+      const saved = ['getWeekInfo', 'weekInfo'].map(k => [k, Object.getOwnPropertyDescriptor(proto, k)] as const);
+
+      beforeEach(() => {
+        for (const [key] of saved) Object.defineProperty(proto, key, { value: undefined, configurable: true });
+      });
+
+      afterEach(() => {
+        for (const [key, descriptor] of saved) {
+          if (descriptor) Object.defineProperty(proto, key, descriptor);
+          else delete proto[key];
+        }
+      });
+
+      const firstDay = (locale: string): number => {
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({ providers: [provideWr(withDates({ locale }))] });
+        return (TestBed.inject(WrDateAdapter) as WrNativeDateAdapter).getFirstDayOfWeek();
+      };
+
+      it('starts the week by the CLDR first day of the region', () => {
+        expect(firstDay('en-US')).toBe(0);
+        expect(firstDay('en')).toBe(0);
+        expect(firstDay('pt-BR')).toBe(0);
+        expect(firstDay('ja-JP')).toBe(0);
+        expect(firstDay('he-IL')).toBe(0);
+        expect(firstDay('ar-EG')).toBe(6);
+        expect(firstDay('de-DE')).toBe(1);
+        expect(firstDay('ru')).toBe(1);
+      });
     });
   });
 });
