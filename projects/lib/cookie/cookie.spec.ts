@@ -181,6 +181,19 @@ describe('WrCookie', () => {
       }
     });
 
+    it('matches the __Host- and __Secure- prefixes in any case, keeping the name as given', () => {
+      const { service, written } = withRecordingDoc();
+      service.set('__host-sid', 'v', { path: '/app', domain: 'example.test' });
+      service.remove('__host-sid', { path: '/app', domain: 'example.test' });
+      service.remove('__SECURE-sid');
+
+      for (const line of written) expect(line).toContain('secure');
+      expect(written[0]).toContain('__host-sid=');
+      expect(written[0]).toContain('path=/;');
+      expect(written[0]).not.toContain('domain=');
+      expect(written[1]).toContain('path=/;');
+    });
+
     it('deletes by expiring in 1970 on the same path', () => {
       const { service, written } = withRecordingDoc();
       service.remove('k', { path: '/app' });

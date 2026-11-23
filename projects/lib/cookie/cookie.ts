@@ -91,8 +91,9 @@ export class WrCookie {
 
     // A `__Host-` / `__Secure-` name is rejected by the browser without `Secure`, and `__Host-`
     // also needs `Path=/` and no `Domain`, so those follow from the name.
-    const host = key.startsWith('__Host-');
-    const prefixed = host || key.startsWith('__Secure-');
+    const lowerKey = key.toLowerCase();
+    const host = lowerKey.startsWith('__host-');
+    const prefixed = host || lowerKey.startsWith('__secure-');
 
     parts.push(`path=${host ? '/' : opts.path}`);
     if (opts.domain && !host) parts.push(`domain=${opts.domain}`);
