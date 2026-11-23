@@ -7,7 +7,7 @@
 >
   <ngwr-doc-section
     title="Basic"
-    description="One entry per day. `endDate` is the last day drawn, today by default: today where the page renders, so an app rendered on the server passes `endDate` to keep the server and client grids equal. A day takes one of five levels by its share of the largest day drawn: the chart theme's sequential scale, `--wr-chart-seq-1` to `-5`. A day of nothing is the track. In a narrow container the year scrolls, and it opens on the newest weeks."
+    description="One entry per day. `endDate` is the last day drawn, today by default: today where the page renders, so an app rendered on the server passes `endDate` as a `YYYY-MM-DD` string, with date-only strings in the data too, to keep the server and client grids equal. A day takes one of five levels by its share of the largest day drawn: the chart theme's sequential scale, `--wr-chart-seq-1` to `-5`. A day of nothing is the track. In a narrow container the year scrolls, and it opens on the newest weeks."
   >
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-code [code]="snippets.basicTs" language="angular-ts" />
