@@ -630,6 +630,7 @@ describe('WrNativeDateAdapter', () => {
         expect(firstDay('ja-JP')).toBe(0);
         expect(firstDay('he-IL')).toBe(0);
         expect(firstDay('ar-EG')).toBe(6);
+        expect(firstDay('ar-AE')).toBe(1);
         expect(firstDay('de-DE')).toBe(1);
         expect(firstDay('ru')).toBe(1);
       });
