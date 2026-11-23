@@ -112,20 +112,27 @@ export class WrToolbar {
   private attachRoving(): () => void {
     const host = this.host;
     const original = new Map<HTMLElement, string | null>();
+    // The value last written per control: a different one now is the consumer's.
+    const written = new Map<HTMLElement, string>();
+    const changedByConsumer = (el: HTMLElement): boolean => written.get(el) !== el.getAttribute('tabindex');
     let stop: HTMLElement | null = null;
 
     const controls = (): HTMLElement[] =>
       Array.from(host.querySelectorAll<HTMLElement>(CONTROL_SELECTOR)).filter(el => {
         if (el.matches(':disabled') || el.closest('[hidden], [inert]') || !isVisible(el)) return false;
-        // A negative tabindex that was not ours is the consumer's: out of the roving set.
-        if (!original.has(el) && Number(el.getAttribute('tabindex')) < 0) return false;
+        // A negative tabindex that is not ours is the consumer's: out of the roving set.
+        if (changedByConsumer(el) && Number(el.getAttribute('tabindex')) < 0) return false;
         // Text fields and composite widgets keep their own tab stop and their own arrows.
         return !this.ownsArrows(el);
       });
 
     const restore = (el: HTMLElement, value: string | null): void => {
-      if (value === null) el.removeAttribute('tabindex');
-      else el.setAttribute('tabindex', value);
+      // A value the consumer wrote since is theirs to keep.
+      if (!changedByConsumer(el)) {
+        if (value === null) el.removeAttribute('tabindex');
+        else el.setAttribute('tabindex', value);
+      }
+      written.delete(el);
     };
 
     const sync = (): void => {
@@ -138,8 +145,10 @@ export class WrToolbar {
       }
       if (!stop || !all.includes(stop)) stop = all[0] ?? null;
       for (const el of all) {
-        if (!original.has(el)) original.set(el, el.getAttribute('tabindex'));
-        el.setAttribute('tabindex', el === stop ? '0' : '-1');
+        if (!original.has(el) || changedByConsumer(el)) original.set(el, el.getAttribute('tabindex'));
+        const value = el === stop ? '0' : '-1';
+        el.setAttribute('tabindex', value);
+        written.set(el, value);
       }
     };
 
