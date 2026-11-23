@@ -225,3 +225,81 @@ describe('WrQr with a CSS colour expression', () => {
     fixture.destroy();
   });
 });
+
+@Component({
+  imports: [WrQr],
+  template: `
+    <div style="--qr-plate: rgb(10, 20, 30)">
+      <wr-qr
+        value="https://ngwr.dev"
+        level="H"
+        iconUrl="/logo.png"
+        [iconSize]="20"
+        bgColor="#eeeeee"
+        [iconBackground]="iconBackground()"
+      />
+    </div>
+  `,
+})
+class IconHost {
+  readonly iconBackground = signal<string | null>(null);
+}
+
+describe('WrQr with an icon background', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it('paints the square under the icon in the colour the cascade resolves', () => {
+    const images: { onload: (() => void) | null }[] = [];
+    class Probe {
+      crossOrigin = '';
+      onload: (() => void) | null = null;
+      constructor() {
+        images.push(this);
+      }
+      set src(_value: string) {
+        // never fetches
+      }
+    }
+    vi.stubGlobal('Image', Probe);
+
+    const fills: string[] = [];
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(() => {
+      const ctx = {
+        fillStyle: '',
+        fillRect: (): void => {
+          fills.push(ctx.fillStyle);
+        },
+        drawImage: (): void => undefined,
+      };
+      return ctx as unknown as CanvasRenderingContext2D;
+    });
+
+    /** The fills the icon adds once it has loaded: the square, or nothing. */
+    const plate = (): string[] => {
+      const before = fills.length;
+      images.at(-1)!.onload?.();
+      return fills.slice(before);
+    };
+
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(IconHost);
+    fixture.detectChanges();
+    // Unset: the square the component has always drawn, in the background colour.
+    expect(plate()).toEqual(['rgb(238, 238, 238)']);
+
+    // An input the redraw effect reads: changing it alone repaints.
+    fixture.componentInstance.iconBackground.set('var(--qr-plate)');
+    fixture.detectChanges();
+    expect(images).toHaveLength(2);
+    expect(plate()).toEqual(['rgb(10, 20, 30)']);
+
+    fixture.componentInstance.iconBackground.set('transparent');
+    fixture.detectChanges();
+    expect(plate()).toEqual([]);
+
+    fixture.destroy();
+  });
+});

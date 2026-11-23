@@ -1270,6 +1270,7 @@ export const API = {
     { name: "bgColor", description: "Background color of the canvas + host. Any CSS colour, resolved the way `color` is.", type: "string", default: "'#ffffff'" },
     { name: "iconUrl", description: "Optional image URL or data URL to overlay in the center.", type: "string | null", default: "null" },
     { name: "iconSize", description: "Center icon size in logical pixels.", type: "number", default: "42" },
+    { name: "iconBackground", description: "Colour of the square under the icon. Any CSS colour, resolved the way `color` is. `null` paints it in `bgColor`; `'transparent'` paints no square, so the icon sits straight on the modules. In dev mode the console warns when the square covers more of the code than `level` can recover (L 7%, M 15%, Q 25%, H 30%). With no square, the image itself is what is measured.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name. A QR code is content — it usually encodes a URL — and a `<canvas>` carries no implicit role and no text alternative, so without a name it is nothing at all to a screen reader. Say what the code is FOR when you can. Falls back to `qr.label`.", type: "string | null", default: "null" },
   ],
   // <wr-radar-chart>

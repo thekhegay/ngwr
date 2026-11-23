@@ -3,6 +3,7 @@
   description="Draws a QR code on a canvas, encoded by [Project Nayuki's library](https://www.nayuki.io/page/qr-code-generator-library) (MIT)."
   [keywords]="['qr', 'qr-code', 'wr-qr']"
   [labels]="['Component']"
+  updated="16.9.0"
 >
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
@@ -23,6 +24,38 @@
   <ngwr-doc-section title="Center icon" description="`iconUrl` puts an image in the middle; pair it with `level='H'`.">
     <ngwr-doc-snippet [code]="snippets.icon">
       <wr-qr value="https://ngwr.dev" [size]="180" level="H" iconUrl="/icon.svg" [iconSize]="40" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Icon background"
+    description="`iconBackground` colours the square under the icon; `'transparent'` draws none. In dev mode the console warns when the icon covers more of the code than `level` can recover."
+  >
+    <ngwr-doc-snippet [code]="snippets.iconBackground">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">A colour</p>
+          <wr-qr
+            value="https://ngwr.dev"
+            [size]="180"
+            level="H"
+            iconUrl="/icon.svg"
+            [iconSize]="48"
+            iconBackground="#dbeafe"
+          />
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">No square</p>
+          <wr-qr
+            value="https://ngwr.dev"
+            [size]="180"
+            level="H"
+            iconUrl="/icon.svg"
+            [iconSize]="48"
+            iconBackground="transparent"
+          />
+        </div>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
