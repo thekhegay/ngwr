@@ -260,7 +260,8 @@ export class WrTour {
     const target = this.resolve(step);
     if (!target) return;
 
-    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+    const reduced = this.document.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: reduced ? 'instant' : 'smooth' });
 
     // The cut-out is a bare element sized to the target with an enormous spread
     // shadow: everything outside it dims, the target itself stays untouched.

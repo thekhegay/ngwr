@@ -221,6 +221,26 @@ describe('WrTour', () => {
     expect(tour.active()).toBe(true);
   });
 
+  it.each([
+    [true, 'instant'],
+    [false, 'smooth'],
+  ])('scrolls to a target with reduced motion %s as %s', (reduced, behavior) => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => ({ matches: reduced }))
+    );
+    try {
+      tour.start(STEPS);
+      sync();
+
+      expect(scroll).toHaveBeenCalledWith(expect.objectContaining({ behavior }));
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('leaves an Escape that belongs to an input method alone', () => {
     tour.start(STEPS);
     sync();
