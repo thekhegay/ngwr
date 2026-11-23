@@ -285,6 +285,26 @@ describe('WrAnchor', () => {
     }
   });
 
+  it('drops a pin whose link is gone, so the spy lights a link that remains', () => {
+    const scrollTo = (y: number): void => {
+      Object.defineProperty(window, 'scrollY', { value: y, configurable: true, writable: true });
+    };
+    try {
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      linkFor('advanced').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      expect(activeIds()).toEqual(['advanced']);
+
+      fixture.componentInstance.links.set([{ id: 'basic', label: 'Basic' }]);
+      setTops({ basic: -10 });
+      fixture.detectChanges();
+      expect(activeIds()).toEqual(['basic']);
+    } finally {
+      scrollTo(0);
+    }
+  });
+
   it('measures the headings once per frame, however many scroll events the frame held', () => {
     setTops({ intro: -400, usage: -100, basic: -20, advanced: 300 });
     const lookups = vi.spyOn(document, 'getElementById');
