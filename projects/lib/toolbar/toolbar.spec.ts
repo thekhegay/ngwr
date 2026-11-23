@@ -306,7 +306,6 @@ describe('WrToolbar arrowKeys', () => {
     await mount();
     el('a').style.visibility = 'hidden';
     el('a').checkVisibility = (): boolean => false;
-    el('b').dispatchEvent(new Event('x'));
     fixture.componentInstance.extra.set(true);
     await settle();
     expect(el('a').getAttribute('tabindex')).not.toBe('0');
@@ -346,6 +345,22 @@ describe('WrToolbar arrowKeys', () => {
     fixture.componentInstance.extra.set(false);
     await settle();
     expect(['a', 'b', 'c'].filter(id => el(id).getAttribute('tabindex') === '0')).toEqual(['a']);
+  });
+
+  it('releases a control moved out of the toolbar and takes it back when it returns', async () => {
+    await mount();
+    const b = el('b');
+    expect(b.getAttribute('tabindex')).toBe('-1');
+    const parent = b.parentElement!;
+    const outside = document.createElement('div');
+    document.body.append(outside);
+    outside.append(b);
+    await settle();
+    expect(b.hasAttribute('tabindex')).toBe(false);
+    parent.insertBefore(b, null);
+    await settle();
+    expect(b.getAttribute('tabindex')).toBe('-1');
+    outside.remove();
   });
 
   it('puts tabindex back when switched off', async () => {
