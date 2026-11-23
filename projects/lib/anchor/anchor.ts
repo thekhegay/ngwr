@@ -121,6 +121,7 @@ export class WrAnchor {
     if (!this.platform.isBrowser) return;
     const measure = (): void => {
       const y = window.scrollY;
+      if (this.pinned && !this.flatIds().includes(this.pinned.id)) this.pinned = null;
       const pin = this.pinned;
       if (pin) {
         const distance = Math.abs(pin.y - y);
