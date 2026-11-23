@@ -27,6 +27,7 @@ export default class SparklinePageComponent {
     area: `<wr-sparkline [data]="data" [showArea]="true" color="var(--wr-chart-2)" width="100%" height="4rem" />`,
     tooltip: `<wr-sparkline [data]="data" ariaLabel="Signups" />
 <wr-sparkline [data]="data" ariaLabel="Signups" [tooltip]="false" />`,
+    dataTable: `<wr-sparkline [data]="data" ariaLabel="Signups, last 30 days" dataTable />`,
   };
 
   protected readonly api = API.WrSparkline;

@@ -536,6 +536,9 @@ export const wrVi: WrI18nCatalog = {
     value: 'Giá trị',
     share: 'Tỷ lệ',
   },
+  sparkline: {
+    value: 'Giá trị',
+  },
   knob: {
     label: 'Giá trị',
   },

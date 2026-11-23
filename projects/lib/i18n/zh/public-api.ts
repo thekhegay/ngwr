@@ -514,6 +514,9 @@ export const wrZh: WrI18nCatalog = {
     value: '值',
     share: '占比',
   },
+  sparkline: {
+    value: '值',
+  },
   knob: {
     label: '数值',
   },

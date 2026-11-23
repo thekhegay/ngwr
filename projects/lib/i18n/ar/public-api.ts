@@ -542,6 +542,9 @@ export const wrAr: WrI18nCatalog = {
     value: 'القيمة',
     share: 'الحصة',
   },
+  sparkline: {
+    value: 'القيمة',
+  },
   knob: {
     label: 'القيمة',
   },

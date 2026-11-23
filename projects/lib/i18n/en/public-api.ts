@@ -650,6 +650,9 @@ export const wrEn: WrI18nCatalog = {
     value: 'Value',
     share: 'Share',
   },
+  sparkline: {
+    value: 'Value',
+  },
   knob: {
     label: 'Value',
   },

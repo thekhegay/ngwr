@@ -537,6 +537,9 @@ export const wrDe: WrI18nCatalog = {
     value: 'Wert',
     share: 'Anteil',
   },
+  sparkline: {
+    value: 'Wert',
+  },
   knob: {
     label: 'Wert',
   },

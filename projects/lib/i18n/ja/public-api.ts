@@ -523,6 +523,9 @@ export const wrJa: WrI18nCatalog = {
     value: '値',
     share: '割合',
   },
+  sparkline: {
+    value: '値',
+  },
   knob: {
     label: '値',
   },

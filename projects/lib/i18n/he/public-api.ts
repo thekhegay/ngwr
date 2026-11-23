@@ -540,6 +540,9 @@ export const wrHe: WrI18nCatalog = {
     value: 'ערך',
     share: 'נתח',
   },
+  sparkline: {
+    value: 'ערך',
+  },
   knob: {
     label: 'ערך',
   },

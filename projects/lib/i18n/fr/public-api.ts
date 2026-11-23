@@ -538,6 +538,9 @@ export const wrFr: WrI18nCatalog = {
     value: 'Valeur',
     share: 'Part',
   },
+  sparkline: {
+    value: 'Valeur',
+  },
   knob: {
     label: 'Valeur',
   },

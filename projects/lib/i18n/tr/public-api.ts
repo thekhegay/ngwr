@@ -544,6 +544,9 @@ export const wrTr: WrI18nCatalog = {
     value: 'Değer',
     share: 'Pay',
   },
+  sparkline: {
+    value: 'Değer',
+  },
   knob: {
     label: 'Değer',
   },

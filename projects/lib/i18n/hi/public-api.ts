@@ -519,6 +519,9 @@ export const wrHi: WrI18nCatalog = {
     value: 'मान',
     share: 'हिस्सा',
   },
+  sparkline: {
+    value: 'मान',
+  },
   knob: {
     label: 'मान',
   },

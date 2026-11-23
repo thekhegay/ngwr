@@ -531,6 +531,9 @@ export const wrKo: WrI18nCatalog = {
     value: '값',
     share: '비율',
   },
+  sparkline: {
+    value: '값',
+  },
   knob: {
     label: '값',
   },
