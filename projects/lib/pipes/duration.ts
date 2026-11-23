@@ -113,7 +113,7 @@ export function wrFormatDuration(
   locale: string,
   style: WrDurationStyle = 'clock'
 ): string {
-  if (value === null || value === undefined || value === '') return '';
+  if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) return '';
   const ms = Number(typeof value === 'string' ? value.trim() : value);
   if (!Number.isFinite(ms)) return '';
 

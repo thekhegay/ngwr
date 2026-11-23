@@ -759,3 +759,13 @@ describe('wrMark', () => {
     expect(html('<b>bold</b>', null)).toBe('&lt;b&gt;bold&lt;/b&gt;');
   });
 });
+
+describe('a blank string in the number pipes', () => {
+  it('renders nothing, like an empty string, not zero', () => {
+    for (const blank of ['', ' ', '   ', '\t\n']) {
+      expect(wrFormatNumber(blank, 'en-US')).toBe('');
+      expect(wrFormatBytes(blank, 'en-US')).toBe('');
+      expect(wrFormatDuration(blank, 'en-US')).toBe('');
+    }
+  });
+});
