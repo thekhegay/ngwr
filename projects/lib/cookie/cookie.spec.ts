@@ -159,6 +159,28 @@ describe('WrCookie', () => {
       expect(written[0]).toContain('secure');
     });
 
+    it('adds Secure for a __Secure- name, on set and on remove', () => {
+      const { service, written } = withRecordingDoc();
+      service.set('__Secure-sid', 'v');
+      service.remove('__Secure-sid');
+
+      expect(written[0]).toContain('secure');
+      expect(written[1]).toContain('secure');
+      expect(written[1]).toContain('expires=Thu, 01 Jan 1970');
+    });
+
+    it('gives a __Host- name Secure and Path=/ and drops the domain, on set and on remove', () => {
+      const { service, written } = withRecordingDoc();
+      service.set('__Host-sid', 'v', { path: '/app', domain: 'example.test' });
+      service.remove('__Host-sid', { path: '/app', domain: 'example.test' });
+
+      for (const line of written) {
+        expect(line).toContain('secure');
+        expect(line).toContain('path=/;');
+        expect(line).not.toContain('domain=');
+      }
+    });
+
     it('deletes by expiring in 1970 on the same path', () => {
       const { service, written } = withRecordingDoc();
       service.remove('k', { path: '/app' });
