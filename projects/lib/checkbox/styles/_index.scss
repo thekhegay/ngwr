@@ -27,6 +27,10 @@
   --wr-checkbox-mark: transparent;
   --wr-checkbox-color: var(--wr-color-on-surface);
 
+  // The containing block of the visually hidden input: without it the input is
+  // placed against a positioned ancestor outside any scroller between them, and
+  // focusing it scrolls that ancestor.
+  position: relative;
   display: inline-flex;
   vertical-align: middle;
   color: var(--wr-checkbox-color);
