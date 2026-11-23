@@ -11,6 +11,7 @@ import {
   type ElementRef,
   ViewEncapsulation,
   computed,
+  inject,
   input,
   model,
   output,
@@ -18,7 +19,7 @@ import {
 } from '@angular/core';
 import type { FormCheckboxControl } from '@angular/forms/signals';
 
-import { useFormFieldAria } from 'ngwr/form';
+import { WR_FORM_FIELD, useFormFieldAria } from 'ngwr/form';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 /**
@@ -66,11 +67,23 @@ export class WrSwitch implements FormCheckboxControl {
    */
   readonly ariaLabel = input<string | null>(null);
 
+  private readonly field = inject(WR_FORM_FIELD, { optional: true });
+
   /**
    * Stable id used to associate the native input with its label. Lands on the
-   * inner `<input>`; the host never keeps it.
+   * inner `<input>`; the host never keeps it. Left unset inside a
+   * `<wr-form-field>`, the input takes the field's `controlId`, so the field's
+   * label names a switch that has no text of its own.
    */
   readonly id = input<string>(wrRandomId('wr-switch'));
+
+  /** The default `id`, read before any binding writes the input. */
+  private readonly generatedId = this.id();
+
+  protected readonly inputId = computed(() => {
+    const own = this.id();
+    return own === this.generatedId && this.field ? this.field.controlId() : own;
+  });
 
   /**
    * Disable the switch. Bound automatically from the field's disabled state
