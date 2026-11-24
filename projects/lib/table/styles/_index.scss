@@ -1499,7 +1499,10 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     border-radius: var(--wr-table-filter-check-radius);
     border: 1px solid var(--wr-table-filter-check-border);
     color: transparent;
-    transition: var(--wr-transition-base);
+    transition:
+      background-color var(--wr-transition-base),
+      border-color var(--wr-transition-base),
+      color var(--wr-transition-base);
   }
 
   &__item--selected &__check {

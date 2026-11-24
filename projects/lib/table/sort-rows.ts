@@ -108,15 +108,19 @@ export function wrSortRows<T>(
     return rows;
   }
 
-  return [...rows].sort((a, b) => {
-    for (const { key, direction } of active) {
-      const result = compareValues(accessor(a, key), accessor(b, key));
+  const keyed = rows.map((row, index) => ({ row, index, values: active.map(({ key }) => accessor(row, key)) }));
+
+  keyed.sort((a, b) => {
+    for (let i = 0; i < active.length; i++) {
+      const result = compareValues(a.values[i], b.values[i]);
 
       if (result !== 0) {
-        return direction === 'desc' ? -result : result;
+        return active[i].direction === 'desc' ? -result : result;
       }
     }
 
-    return 0;
+    return a.index - b.index;
   });
+
+  return keyed.map(entry => entry.row);
 }
