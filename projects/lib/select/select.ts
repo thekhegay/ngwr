@@ -2028,12 +2028,8 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
     }
     this.registryVersion.update(n => n + 1);
     return () => {
-      const current = this.registrations.get(reg.id);
       this.registrations.delete(reg.id);
-      // Dropping one entry keeps a sorted list sorted, so only a miss needs the re-sort.
-      const slot = this.orderStale || !current ? -1 : this.ordered.indexOf(current);
-      if (slot < 0) this.orderStale = true;
-      else this.ordered.splice(slot, 1);
+      this.orderStale = true;
       this.registryVersion.update(n => n + 1);
     };
   }
