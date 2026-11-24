@@ -131,6 +131,7 @@ export const UPDATED = {
   "icons/lucide": "16.0.0",
   "icons/overview": "16.0.0",
   "reference/components/alert": "15.6.0",
+  "reference/components/anchor": "16.9.0",
   "reference/components/avatar": "16.7.0",
   "reference/components/badge": "16.3.0",
   "reference/components/breadcrumbs": "16.6.0",

@@ -32,6 +32,7 @@ import type { WrAnchorLink } from './types';
  * Scroll-spy in-page navigation. Renders a list of links to elements on
  * the page; clicking a link smooth-scrolls (via {@link WrScroll}),
  * and the closest visible heading auto-highlights as the user scrolls.
+ * Follows the window, or the element passed as `container`.
  *
  * @example
  * ```html
@@ -78,6 +79,13 @@ export class WrAnchor {
   /** Highlight an item when its target's top is within this many px of the offset line. @default 80 */
   readonly hitArea = input(80, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 80)) });
 
+  /**
+   * The element whose scroll the links follow, for targets inside a pane with
+   * its own scroll: a docs panel, a dialog body, a drawer. A click scrolls it
+   * and leaves the page alone. `null` follows the window. @default null
+   */
+  readonly container = input<HTMLElement | null>(null);
+
   protected readonly activeId = signal<string | null>(null);
 
   /**
@@ -106,7 +114,7 @@ export class WrAnchor {
 
   /**
    * The entry a click asked for, and the scroll position that click sends the
-   * page to. A target near the end of the page can never reach the cursor line —
+   * page (or the `container`) to. A target near the end of the page can never reach the cursor line —
    * the page runs out of scroll first — so the spy took the highlight straight
    * back from the entry just clicked and handed it to the one above. While the
    * page is still travelling toward that position, or parked on it, the clicked
@@ -120,7 +128,8 @@ export class WrAnchor {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('anchor');
     if (!this.platform.isBrowser) return;
     const measure = (): void => {
-      const y = window.scrollY;
+      const box = this.container();
+      const y = box ? box.scrollTop : window.scrollY;
       if (this.pinned && !this.flatIds().includes(this.pinned.id)) this.pinned = null;
       const pin = this.pinned;
       if (pin) {
@@ -133,7 +142,8 @@ export class WrAnchor {
         this.pinned = null;
       }
       this.lastY = y;
-      const cursor = this.offset() + this.hitArea();
+      // Measured from the container's top edge, the way `WrScroll` lands a click.
+      const cursor = (box ? box.getBoundingClientRect().top : 0) + this.offset() + this.hitArea();
       let active: string | null = null;
       for (const id of this.flatIds()) {
         const el = document.getElementById(id);
@@ -152,9 +162,14 @@ export class WrAnchor {
         measure();
       });
     };
-    this.zone.runOutsideAngular(() => window.addEventListener('scroll', handler, { passive: true }));
+    effect(onCleanup => {
+      const source: HTMLElement | Window = this.container() ?? window;
+      // A pin is a position in the scroll box it was taken in.
+      this.pinned = null;
+      this.zone.runOutsideAngular(() => source.addEventListener('scroll', handler, { passive: true }));
+      onCleanup(() => source.removeEventListener('scroll', handler));
+    });
     this.destroyRef.onDestroy(() => {
-      window.removeEventListener('scroll', handler);
       if (frame) cancelAnimationFrame(frame);
     });
     // The first pass has to wait for a render: the targets are elsewhere on the
@@ -162,9 +177,10 @@ export class WrAnchor {
     // found nothing by `getElementById` and left the page with no highlight at
     // all until the reader happened to scroll.
     afterNextRender(() => measure());
-    // The entries, the cursor line or its height changing at rest moves the answer
-    // with no scroll to ask for it.
+    // The entries, the cursor line, its height or the scroll container changing at
+    // rest moves the answer with no scroll to ask for it.
     effect(() => {
+      this.container();
       this.flatIds();
       this.offset();
       this.hitArea();
@@ -181,16 +197,18 @@ export class WrAnchor {
   protected onClick(id: string, event: MouseEvent): void {
     if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
+    const box = this.container();
     const target = document.getElementById(id);
     if (target) {
-      // Where `WrScroll` sends the page, clamped the way the browser clamps it.
-      const root = document.documentElement;
+      // Where `WrScroll` sends the page or the container, clamped the way the browser clamps it.
+      const root = box ?? document.documentElement;
       const max = Math.max(0, root.scrollHeight - root.clientHeight);
-      const y = target.getBoundingClientRect().top + window.scrollY - this.offset();
-      this.pinned = { id, y: Math.min(max, Math.max(0, y)) };
-      this.lastY = window.scrollY;
+      const from = box ? box.scrollTop : window.scrollY;
+      const top = target.getBoundingClientRect().top - (box ? box.getBoundingClientRect().top : 0);
+      this.pinned = { id, y: Math.min(max, Math.max(0, top + from - this.offset())) };
+      this.lastY = from;
     }
-    this.scroll.to(`#${id}`, { offset: this.offset() });
+    this.scroll.to(`#${id}`, { offset: this.offset(), ...(box ? { container: box } : {}) });
     this.activeId.set(id);
   }
 }
