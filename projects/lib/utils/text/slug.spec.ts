@@ -68,4 +68,29 @@ describe('wrSlug', () => {
     // The sun is dropped, and its variation selector is a mark with nothing to sit on.
     expect(wrSlug('\u2600\uFE0F')).toBe('');
   });
+
+  it('joins with the separator given', () => {
+    expect(wrSlug('Data & charts', { separator: '_' })).toBe('data_charts');
+    expect(wrSlug('  Data & charts!  ', { separator: '.' })).toBe('data.charts');
+    expect(wrSlug('Signal Forms', { separator: '' })).toBe('signalforms');
+    expect(wrSlug('...', { separator: '_' })).toBe('');
+  });
+
+  it('drops a word of marks alone between two words', () => {
+    expect(wrSlug('sun \u2600\uFE0F day')).toBe('sun-day');
+  });
+
+  it('caps the length at a word boundary', () => {
+    expect(wrSlug('What it costs to adopt', { maxLength: 14 })).toBe('what-it-costs');
+    expect(wrSlug('What it costs to adopt', { maxLength: 13 })).toBe('what-it-costs');
+    expect(wrSlug('What it costs to adopt', { maxLength: 100 })).toBe('what-it-costs-to-adopt');
+    expect(wrSlug('Data & charts', { separator: '___', maxLength: 6 })).toBe('data');
+  });
+
+  it('cuts a first word longer than the limit between graphemes', () => {
+    expect(wrSlug('Internationalization guide', { maxLength: 5 })).toBe('inter');
+    // `x` with an acute has no composed form: one grapheme of two code units, never half of it.
+    expect(wrSlug('x\u0301x\u0301', { maxLength: 3 })).toBe('x\u0301');
+    expect(wrSlug('Hello', { maxLength: 0 })).toBe('');
+  });
 });

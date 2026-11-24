@@ -5,18 +5,13 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-let segmenter: Intl.Segmenter | undefined;
+import { graphemes } from './graphemes';
 
 /** A grapheme that can stand for a word: it holds a letter, a digit or a pictograph. */
 const INITIAL = /[\p{L}\p{N}\p{Extended_Pictographic}]/u;
 
 /** A script whose character is a syllable or a word rather than a letter. */
 const SYLLABIC = /^[\p{Script=Han}\p{Script=Hangul}\p{Script=Hiragana}\p{Script=Katakana}]/u;
-
-function graphemes(text: string): string[] {
-  segmenter ??= new Intl.Segmenter(undefined, { granularity: 'grapheme' });
-  return [...segmenter.segment(text)].map(s => s.segment);
-}
 
 function initialOf(word: string): string | undefined {
   return graphemes(word).find(g => INITIAL.test(g));

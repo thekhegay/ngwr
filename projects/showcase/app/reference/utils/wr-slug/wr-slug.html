@@ -13,6 +13,19 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Options"
+    description="`separator` joins the words with another string, such as `_` for a file name. `maxLength` caps the slug at a word boundary, for a URL segment or a column with a limit."
+  >
+    <ngwr-doc-code [code]="optionsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="playgroundSnippet()" language="typescript" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ slug() || "''" }}</p>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Scripts"
     description="Nothing is transliterated and no diacritic is stripped: stripping marks would turn Russian `й` into `и` and break Devanagari. A URL percent-encodes such a slug, and every browser shows it decoded."
   >
