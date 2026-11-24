@@ -227,6 +227,10 @@ export const wrId: WrI18nCatalog = {
     keyHelp:
       'Tombol panah menggeser area pangkas. Tahan Alt sambil menekan tombol panah untuk mengubah ukurannya, dan Shift untuk langkah lebih besar. ' +
       'Area pangkas dibacakan sebagai kiri, atas, lebar, dan tinggi dalam piksel gambar.',
+    transformHelp:
+      'Plus dan minus memperbesar dan memperkecil gambar. R memutarnya searah jarum jam, dan Shift dengan R ke arah sebaliknya.',
+    zoomed: 'Perbesaran {{percent}}%',
+    rotated: 'Diputar {{degrees}}°',
   },
   sortableList: {
     keyHelp:

@@ -1,5 +1,18 @@
 @if (objectUrl(); as url) {
-  <div class="wr-image-cropper__canvas">
+  <!--
+    The stage. A press on it that the crop window did not take pans the zoomed image, a
+    second finger pinches, and the wheel zooms: see `onStagePointerDown` and `onWheel`.
+  -->
+  <div
+    class="wr-image-cropper__canvas"
+    [style.width.px]="stageBox()?.w"
+    [style.height.px]="stageBox()?.h"
+    (pointerdown)="onStagePointerDown($event)"
+    (pointermove)="onStagePointerMove($event)"
+    (pointerup)="onStagePointerUp($event)"
+    (pointercancel)="onStagePointerUp($event)"
+    (wheel)="onWheel($event)"
+  >
     <!--
       `crossorigin` is what lets a URL on another origin be exported at all: an image
       fetched without it taints the canvas `toCanvas` draws into, even when the server
@@ -10,6 +23,8 @@
       #img
       class="wr-image-cropper__image"
       crossorigin="anonymous"
+      [class.wr-image-cropper__image--measured]="display().w > 0"
+      [class.wr-image-cropper__image--parked]="parked()"
       [src]="url"
       alt=""
       draggable="false"
@@ -17,7 +32,40 @@
       (error)="onImageError()"
     />
 
+    <!-- Holds the stage open in the turned image's shape while the image is turned. -->
+    @if (sizerUrl(); as sizer) {
+      <img
+        #sizer
+        class="wr-image-cropper__sizer"
+        [class.wr-image-cropper__sizer--on]="sizerOn()"
+        [src]="sizer"
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+        (load)="onSizerLoad()"
+      />
+    }
+
     @if (display().w > 0) {
+      <!--
+        The picture itself, zoomed, panned and turned. A second request for the same URL
+        with the same `crossorigin` is answered from the document's own image list, so it
+        costs no fetch. The viewport clips it; the stage cannot, or it would clip the
+        handles that overhang its edge.
+      -->
+      <div class="wr-image-cropper__viewport">
+        <img
+          class="wr-image-cropper__view"
+          crossorigin="anonymous"
+          [src]="url"
+          alt=""
+          draggable="false"
+          [style.width.px]="view().w"
+          [style.height.px]="view().h"
+          [style.transform]="view().transform"
+        />
+      </div>
+
       <!-- Semi-transparent backdrop with a cut-out for the crop window. -->
       <div
         class="wr-image-cropper__backdrop"
@@ -68,10 +116,11 @@
         }
       </div>
 
-      <p class="wr-image-cropper__sr-only" [id]="helpId">{{ resolvedKeyHelp() }}</p>
+      <p class="wr-image-cropper__sr-only" [id]="helpId">{{ resolvedKeyHelp() }} {{ resolvedTransformHelp() }}</p>
 
       <!--
-        The crop rect in SOURCE pixels, announced after a keyboard change only —
+        The crop rect in SOURCE pixels (or the new zoom or rotation, as a catalog
+        sentence), announced after a keyboard change only:
         a pointer drag already gives sighted feedback and would flood the region,
         and the initial crop is not news. Deliberately bare numbers: a sentence
         here would be a translated string the catalog does not carry, and the

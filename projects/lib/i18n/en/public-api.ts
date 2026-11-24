@@ -310,6 +310,9 @@ export const wrEn: WrI18nCatalog = {
     keyHelp:
       'Arrow keys move the crop. Hold Alt with an arrow key to resize it, and Shift for larger steps. ' +
       'The crop is announced as left, top, width and height in image pixels.',
+    transformHelp: 'Plus and minus zoom the image. R turns it clockwise, and Shift with R the other way.',
+    zoomed: 'Zoom {{percent}}%',
+    rotated: 'Rotated {{degrees}}°',
   },
   sortableList: {
     keyHelp:

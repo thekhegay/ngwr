@@ -231,6 +231,10 @@ export const wrJa: WrI18nCatalog = {
     keyHelp:
       '矢印キーで切り抜き範囲を移動します。Alt キーを押しながら矢印キーでサイズを変更、Shift キーで移動量が大きくなります。' +
       '切り抜き範囲は画像のピクセル単位で、左、上、幅、高さの順に読み上げられます。',
+    transformHelp:
+      'プラスキーとマイナスキーで画像を拡大・縮小します。R で時計回りに、Shift + R で反時計回りに回転します。',
+    zoomed: '拡大率 {{percent}}%',
+    rotated: '{{degrees}}° 回転',
   },
   sortableList: {
     keyHelp:

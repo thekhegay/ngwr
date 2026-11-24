@@ -227,6 +227,9 @@ export const wrSv: WrI18nCatalog = {
     keyHelp:
       'Piltangenterna flyttar beskärningen. Håll ned Alt och en piltangent för att ändra storlek, och Skift för större steg. ' +
       'Beskärningen läses upp som vänsterkant, överkant, bredd och höjd i bildens pixlar.',
+    transformHelp: 'Plus och minus zoomar in och ut i bilden. R vrider den medurs, och Skift med R moturs.',
+    zoomed: 'Zoom {{percent}} %',
+    rotated: 'Roterad {{degrees}}°',
   },
   sortableList: {
     keyHelp:

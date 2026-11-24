@@ -232,6 +232,10 @@ export const wrNl: WrI18nCatalog = {
     keyHelp:
       'Verplaats de uitsnede met de pijltoetsen. Houd Alt ingedrukt bij een pijltoets om het formaat te wijzigen, ' +
       'en Shift voor grotere stappen. De uitsnede wordt aangekondigd als links, boven, breedte en hoogte in beeldpixels.',
+    transformHelp:
+      'Plus en min zoomen de afbeelding in en uit. R draait haar met de klok mee, Shift met R tegen de klok in.',
+    zoomed: 'Zoomniveau {{percent}}%',
+    rotated: '{{degrees}}° gedraaid',
   },
   sortableList: {
     keyHelp:
