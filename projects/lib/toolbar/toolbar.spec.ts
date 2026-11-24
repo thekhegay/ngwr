@@ -308,6 +308,7 @@ describe('WrToolbar arrowKeys', () => {
     const focus = vi.spyOn(el('b'), 'focus');
     press(el('a'), 'ArrowRight');
     expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(el('b'));
   });
 
   it('jumps to the ends with Home and End', async () => {
