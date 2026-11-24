@@ -97,6 +97,22 @@ describe('WrIcon and its registry', () => {
     expect(errors).toEqual([]);
   });
 
+  it('follows an entry replaced in place in the registered array', () => {
+    const icons = [wrSvgIcon('check', CHECK)];
+    render([provideWrIcons(icons)]);
+    icons[0] = wrSvgIcon('cross', CROSS);
+
+    const crossed = TestBed.createComponent(Host);
+    crossed.componentInstance.name.set('cross');
+    crossed.detectChanges();
+    expect(svgOf(crossed)!.querySelector('path')!.getAttribute('d')).toBe('M2 2l12 12M14 2L2 14');
+
+    const gone = TestBed.createComponent(Host);
+    gone.detectChanges();
+    expect(svgOf(gone)).toBeNull();
+    expect(errors.some(message => message.includes('No icon named "check"'))).toBe(true);
+  });
+
   describe('an unknown name', () => {
     it('reports the problem without throwing, and renders nothing', () => {
       const fixture = render([provideWrIcons([wrSvgIcon('cross', CROSS)])]);
