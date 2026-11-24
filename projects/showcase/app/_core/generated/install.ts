@@ -475,6 +475,9 @@ export const INSTALL = {
   "reference/pipes/wr-range": [
       { path: "ngwr/pipes", symbols: ["WrRange"], declarables: ["WrRange"], styled: false },
   ],
+  "reference/pipes/wr-relative-time": [
+      { path: "ngwr/pipes", symbols: ["WrRelativeTime", "wrFormatRelativeTime"], declarables: ["WrRelativeTime"], styled: false },
+  ],
   "reference/pipes/wr-truncate": [
       { path: "ngwr/pipes", symbols: ["WrTruncate"], declarables: ["WrTruncate"], styled: false },
   ],

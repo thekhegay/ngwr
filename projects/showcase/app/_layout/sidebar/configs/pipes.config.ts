@@ -14,6 +14,7 @@ export const PIPES_GROUP: SidebarGroup = {
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrNumber),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrPlural),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrRange),
+    wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrRelativeTime),
     wrLink(ROUTES.reference, ROUTES.reference.pipes, ROUTES.reference.pipes.wrTruncate),
   ],
 };

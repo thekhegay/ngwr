@@ -57,6 +57,8 @@ interface WrDateStampDefaults {
   readonly todayTimeOnly?: boolean;
   /** Write the seconds in the time line. Default: `false`. */
   readonly seconds?: boolean;
+  /** Show how far the moment is from now, kept current, in place of the two lines. Default: `false`. */
+  readonly relative?: boolean;
 }
 
 /**
@@ -126,7 +128,7 @@ interface WrDatesOptions {
 
   /**
    * App-wide defaults of `wr-date-stamp`: `dateFormat`, `timeFormat`,
-   * `todayTimeOnly` and `seconds`. An input set on a stamp wins.
+   * `todayTimeOnly`, `seconds` and `relative`. An input set on a stamp wins.
    */
   readonly stamp?: WrDateStampDefaults;
 }

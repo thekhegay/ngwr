@@ -48,6 +48,10 @@ export default [
     path: pipes.wrRange.path,
     loadComponent: () => import('./wr-range/wr-range'),
   },
+  {
+    path: pipes.wrRelativeTime.path,
+    loadComponent: () => import('./wr-relative-time/wr-relative-time'),
+  },
   // The folder was the one unprefixed pipe route; `/reference/pipes/range` was
   // published, so it keeps resolving.
   { path: 'range', redirectTo: pipes.wrRange.path },

@@ -367,6 +367,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/components/counter': ['reference/components/statistic', 'reference/pipes/wr-number'],
   'reference/components/date-stamp': [
     'reference/pipes/wr-date',
+    'reference/pipes/wr-relative-time',
     'docs/configuration',
     'reference/components/table',
     'reference/components/copy-value',
@@ -780,6 +781,7 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
   'reference/pipes/wr-duration': [
     'reference/components/statistic',
     'reference/pipes/wr-date',
+    'reference/pipes/wr-relative-time',
     'reference/pipes/wr-number',
   ],
   'reference/pipes/wr-mark': [
@@ -809,6 +811,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/pipes/wr-plural',
     'reference/pipes/wr-number',
     'guides/translations/interpolation',
+  ],
+  'reference/pipes/wr-relative-time': [
+    'reference/components/date-stamp',
+    'reference/pipes/wr-date',
+    'reference/pipes/wr-duration',
   ],
   'reference/pipes/wr-range': ['reference/components/skeleton'],
   'reference/pipes/wr-truncate': [

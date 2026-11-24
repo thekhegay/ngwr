@@ -7,4 +7,5 @@ export { WrMark } from './mark';
 export { WrNumber, wrFormatNumber, type WrNumberStyle } from './number';
 export { WrPlural, wrFormatPlural, type WrPluralForms, type WrPluralOptions } from './plural';
 export { WrRange } from './range';
+export { WrRelativeTime, wrFormatRelativeTime, type WrRelativeTimeOptions } from './relative-time';
 export { WrTruncate } from './truncate';
