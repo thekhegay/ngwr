@@ -8,11 +8,16 @@
 /** One map per `Intl` class, keyed on the locale and every option. */
 const CACHES = new Map<string, Map<string, object>>();
 
+/** Entries per class before the map starts over; real apps use a few dozen. */
+const LIMIT = 256;
+
 /**
  * Building an `Intl` object costs about a tenth of a millisecond and every one is
  * stateless, so one per distinct key serves every caller. The key is computed from
  * `options` at call time, so a caller that mutates its object afterwards cannot
- * change what an earlier key maps to. Option order is part of the key.
+ * change what an earlier key maps to. Option order is part of the key. Options
+ * that are not a plain object are built fresh: `Intl` reads inherited properties,
+ * `JSON.stringify` does not.
  */
 function cached<T extends object>(
   kind: string,
@@ -20,12 +25,14 @@ function cached<T extends object>(
   options: object | undefined,
   build: () => T
 ): T {
+  if (options && Object.getPrototypeOf(options) !== Object.prototype) return build();
   let map = CACHES.get(kind);
   if (!map) CACHES.set(kind, (map = new Map<string, object>()));
   const key = options ? `${locale}|${JSON.stringify(options)}` : `${locale}`;
   let found = map.get(key) as T | undefined;
   if (!found) {
     found = build();
+    if (map.size >= LIMIT) map.clear();
     map.set(key, found);
   }
   return found;

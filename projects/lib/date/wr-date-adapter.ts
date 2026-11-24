@@ -781,15 +781,14 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   }
 
   getDayOfWeekNames(style: 'narrow' | 'short' | 'long'): readonly string[] {
-    const formatter = wrIntlDateTimeFormat(this.locale, this.intlOptions({ weekday: style }));
+    // UTC on both sides: a shared formatter keeps the zone it was built in, and the host zone can change.
+    const formatter = wrIntlDateTimeFormat(this.locale, { ...this.intlOptions({ weekday: style }), timeZone: 'UTC' });
     const first = this.getFirstDayOfWeek();
-    // Pick a reference Sunday and walk seven days.
-    const base = new Date(2024, 0, 7); // Sunday 7 Jan 2024
+    // Sunday 7 Jan 2024, then seven days on.
+    const base = Date.UTC(2024, 0, 7);
     const out: string[] = [];
     for (let i = 0; i < 7; i++) {
-      const d = new Date(base);
-      d.setDate(base.getDate() + ((first + i) % 7));
-      out.push(formatter.format(d));
+      out.push(formatter.format(base + ((first + i) % 7) * 86_400_000));
     }
     return out;
   }

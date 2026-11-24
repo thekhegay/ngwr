@@ -84,6 +84,19 @@ describe('WrIcon and its registry', () => {
     expect(svgOf(fixture)!.innerHTML).toContain('M2 2l12 12');
   });
 
+  it('finds an icon pushed into the registered array after the first render', () => {
+    const icons = [wrSvgIcon('check', CHECK)];
+    render([provideWrIcons(icons)]);
+    icons.push(wrSvgIcon('cross', CROSS));
+
+    const later = TestBed.createComponent(Host);
+    later.componentInstance.name.set('cross');
+    later.detectChanges();
+
+    expect(svgOf(later)!.querySelector('path')!.getAttribute('d')).toBe('M2 2l12 12M14 2L2 14');
+    expect(errors).toEqual([]);
+  });
+
   describe('an unknown name', () => {
     it('reports the problem without throwing, and renders nothing', () => {
       const fixture = render([provideWrIcons([wrSvgIcon('cross', CROSS)])]);
