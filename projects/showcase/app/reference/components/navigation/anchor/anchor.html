@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="Anchor"
   description="In-page links that highlight the section in view."
+  updated="16.9.0"
   [keywords]="['anchor', 'scroll-spy', 'wr-anchor']"
 >
   <ngwr-doc-section
@@ -27,6 +28,37 @@
           <h3 id="anchor-api">API</h3>
           <p>See the component reference below.</p>
           <div style="height: 8rem"></div>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+  <ngwr-doc-section
+    title="Scroll container"
+    description="For targets inside a pane with its own scroll, pass that element as `container`. A click scrolls the pane, not the page; `null` follows the window."
+  >
+    <ngwr-doc-code [code]="containerSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 2rem; min-width: 0; width: 100%">
+        <div style="flex: 0 0 10rem; max-width: 40%">
+          <wr-anchor [links]="paneLinks" [container]="pane" />
+        </div>
+        <div
+          #pane
+          class="ngwr-demo-scroll"
+          tabindex="0"
+          style="flex: 1 1 auto; min-width: 0; padding: var(--wr-space-lg)"
+        >
+          <h3 id="anchor-pane-overview" style="margin-top: 0">Overview</h3>
+          <p>The pane scrolls on its own, and the links follow it.</p>
+          <div style="height: 14rem"></div>
+          <h3 id="anchor-pane-install">Install</h3>
+          <p>The page stays where it is.</p>
+          <div style="height: 14rem"></div>
+          <h3 id="anchor-pane-usage">Usage</h3>
+          <p>A click scrolls the pane to its target.</p>
+          <div style="height: 14rem"></div>
+          <h3 id="anchor-pane-faq">FAQ</h3>
+          <p>The last target stays lit after a click, even where the pane runs out of scroll.</p>
         </div>
       </div>
     </ngwr-doc-snippet>

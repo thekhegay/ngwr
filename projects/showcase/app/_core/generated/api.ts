@@ -43,6 +43,7 @@ export const API = {
     { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `anchor.label`, then `'Table of contents'` — it used to be that English string, hard-coded on the host, in a landmark a screen reader reads out on every page.", type: "string | null", default: "null" },
     { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
     { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
+    { name: "container", description: "The element whose scroll the links follow, for targets inside a pane with its own scroll: a docs panel, a dialog body, a drawer. A click scrolls it and leaves the page alone. `null` follows the window.", type: "HTMLElement | null", default: "null" },
   ],
   // <wr-aurora>
   WrAurora: [
