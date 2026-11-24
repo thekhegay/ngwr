@@ -1,0 +1,76 @@
+<ngwr-doc-page
+  title="wrSlug"
+  since="16.9.0"
+  description="A text as a slug for an anchor, an id, a URL segment or a file name. Letters of every script are kept."
+  [keywords]="['wrSlug', 'slug', 'slugify', 'anchor', 'id', 'url', 'unicode', 'string', 'utils']"
+  [labels]="['Util']"
+>
+  <ngwr-doc-section
+    title="Usage"
+    description="Words are lower-cased and joined by one `-`. Punctuation and whitespace at either end are dropped. `null` and `undefined` never throw."
+  >
+    <ngwr-doc-code [code]="snippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Scripts"
+    description="Nothing is transliterated and no diacritic is stripped: stripping marks would turn Russian `й` into `и` and break Devanagari. A URL percent-encodes such a slug, and every browser shows it decoded."
+  >
+    <ngwr-doc-code [code]="scriptsSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Ties"
+    description="Two texts can give one slug. Where slugs must differ, such as ids on one page, the caller breaks the tie."
+  >
+    <ngwr-doc-code [code]="tiesSnippet" language="typescript" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Rules">
+    <div class="ngwr-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Input</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Letters</th>
+            <td>
+              Lower-cased with the default mapping, the same on the server and the client:
+              <code>Signal Forms</code> gives <code>signal-forms</code>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Punctuation, whitespace, symbols</th>
+            <td>A run of any length becomes one <code>-</code>, and none stays at either end.</td>
+          </tr>
+          <tr>
+            <th scope="row">Digits</th>
+            <td>Kept: <code>v16.9.0</code> gives <code>v16-9-0</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Diacritics and combining marks</th>
+            <td>Kept: <code>Café</code> gives <code>café</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">Full-width forms and ligatures</th>
+            <td>Folded by NFKC: <code>ＡＢＣ</code> gives <code>abc</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">No letter or digit, empty, <code>null</code></th>
+            <td><code>''</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-see-also [links]="related" />
+</ngwr-doc-page>

@@ -561,6 +561,7 @@ export const DOC_ROUTES: Readonly<
   "reference/utils/wr-resolve-css-color": {"title":"wrResolveCssColor","kind":"Util","labels":["Util"],"description":"Resolves a CSS colour, such as a `var()` or `light-dark()`, to a value a canvas can paint with."},
   "reference/utils/wr-resolve-css-size": {"title":"wrResolveCssSize","kind":"Util","labels":["Util"],"description":"Turns a size into a CSS value and, when it can, a pixel number."},
   "reference/utils/wr-round": {"title":"wrRound","kind":"Util","labels":["Util"],"description":"Rounds a number to a fixed number of decimals. Corrects float drift (`1.005` to `1.01`) only for values under 2."},
+  "reference/utils/wr-slug": {"title":"wrSlug","kind":"Util","labels":["Util"],"description":"A text as a slug for an anchor, an id, a URL segment or a file name. Letters of every script are kept."},
   "reference/utils/wr-throttle": {"title":"wrThrottle","kind":"Util","labels":["Util"],"description":"Runs a callback at most once every `waitMs`, on the leading and the trailing edge."},
   "reference/utils/wr-to-class-list": {"title":"wrToClassList","kind":"Util","labels":["Util"],"description":"Flattens class inputs into a de-duplicated list of single class names."},
   "reference/utils/wr-trap-focus": {"title":"wrTrapFocus","kind":"Util","labels":["Util"],"description":"Keeps Tab and Shift+Tab cycling inside a container, such as a dialog."},

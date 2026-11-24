@@ -996,6 +996,11 @@ export const RELATED: Readonly<Record<string, readonly string[]>> = {
     'reference/components/avatar',
     'reference/pipes/wr-truncate',
   ],
+  'reference/utils/wr-slug': [
+    'reference/utils/wr-random-id',
+    'reference/utils/wr-initials',
+    'reference/pipes/wr-truncate',
+  ],
   'reference/utils/wr-to-class-list': [
     'guides/theming',
     'guides/overlay',

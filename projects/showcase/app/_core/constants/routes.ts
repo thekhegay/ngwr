@@ -348,6 +348,7 @@ export const ROUTES = {
       wrDecimal: { path: 'wr-decimal', title: 'wrDecimal' },
       wrDownloadBlob: { path: 'wr-download-blob', title: 'wrDownloadBlob' },
       wrInitials: { path: 'wr-initials', title: 'wrInitials' },
+      wrSlug: { path: 'wr-slug', title: 'wrSlug' },
       wrPoll: { path: 'wr-poll', title: 'wrPoll' },
       wrQueryParam: { path: 'wr-query-param', title: 'wrQueryParam' },
       withRenderOnNavigation: { path: 'with-render-on-navigation', title: 'withRenderOnNavigation' },

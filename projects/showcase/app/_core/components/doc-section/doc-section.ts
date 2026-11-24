@@ -1,18 +1,9 @@
 import { Component, InjectionToken, type Signal, computed, inject, input } from '@angular/core';
 
 import { WrTypography } from 'ngwr/typography';
+import { wrSlug } from 'ngwr/utils';
 
 import { DocRichPipe } from '../doc-rich/doc-rich';
-
-/** `What it costs to adopt` → `what-it-costs-to-adopt`. */
-function slugify(title: string): string {
-  return (
-    title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'section'
-  );
-}
 
 /**
  * The enclosing section's title, for a `<ngwr-doc-snippet>` that wants to name
@@ -63,5 +54,5 @@ export class DocSectionComponent {
    */
   readonly anchor = input<string | null>(null);
 
-  readonly anchorId = computed(() => this.anchor() ?? slugify(this.title()));
+  readonly anchorId = computed(() => this.anchor() ?? (wrSlug(this.title()) || 'section'));
 }

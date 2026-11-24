@@ -1,3 +1,5 @@
+import { wrSlug } from 'ngwr/utils';
+
 import { routeKey } from './since';
 
 import { DOC_ROUTES } from '#core/generated/deps';
@@ -58,10 +60,7 @@ export function labelTone(label: string): DocLabelTone {
 
 /** A label as a URL segment: `Signal Forms` → `signal-forms`. */
 export function labelSlug(label: string): string {
-  return label
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+  return wrSlug(label);
 }
 
 /**

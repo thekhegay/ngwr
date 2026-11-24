@@ -312,6 +312,7 @@ describe('the surfaces that draw it', () => {
       'wrDecimal',
       'wrDownloadBlob',
       'wrInitials',
+      'wrSlug',
       'wrPoll',
       'wrQueryParam',
       'withRenderOnNavigation',
