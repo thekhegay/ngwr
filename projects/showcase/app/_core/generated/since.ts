@@ -87,6 +87,7 @@ export const SINCE = {
   "reference/utils/wr-poll": "15.5.0",
   "reference/utils/wr-query-param": "15.5.0",
   "reference/utils/wr-resolve-css-color": "15.0.0",
+  "reference/utils/wr-slug": "16.9.0",
   "reference/utils/wr-to-class-list": "14.11.0",
   "reference/utils/wr-typeahead": "16.4.0",
 } satisfies Record<string, string>;
