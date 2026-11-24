@@ -34,15 +34,15 @@ export class WrIconRegistry {
 
   private resolved?: Map<string, WrIconDef>;
   private resolvedFrom?: Map<string, WrIconDef>;
-  private resolvedSets: WrIconDef[][] = [];
+  private resolvedSets: (readonly [WrIconDef, string])[][] = [];
 
   /**
    * Every icon visible from this level, nearest last so a local registration
    * wins over an identically named one further up. The map is shared, so
    * callers read it and never write to it. `provideWrIcons()` keeps the
    * caller's array and an app may fill or edit it later, so the map is built
-   * again when the parent's map or any registered entry changed; checking
-   * identities is far cheaper than building the map for every `<wr-icon>`.
+   * again when the parent's map, a registered entry or its name changed;
+   * comparing those is far cheaper than building the map for every `<wr-icon>`.
    */
   resolve(): Map<string, WrIconDef> {
     const from = this.parent?.resolve();
@@ -52,14 +52,14 @@ export class WrIconRegistry {
       for (const icon of set) map.set(icon.name, icon);
     }
     this.resolvedFrom = from;
-    this.resolvedSets = this.own.map(set => [...set]);
+    this.resolvedSets = this.own.map(set => set.map(icon => [icon, icon.name] as const));
     return (this.resolved = map);
   }
 
   private sameSets(): boolean {
     return this.own.every((set, i) => {
       const seen = this.resolvedSets[i];
-      return set.length === seen.length && set.every((icon, j) => icon === seen[j]);
+      return set.length === seen.length && set.every((icon, j) => icon === seen[j][0] && icon.name === seen[j][1]);
     });
   }
 }

@@ -113,6 +113,18 @@ describe('WrIcon and its registry', () => {
     expect(errors.some(message => message.includes('No icon named "check"'))).toBe(true);
   });
 
+  it('follows an entry renamed in place', () => {
+    const icons = [wrSvgIcon('check', CHECK)];
+    render([provideWrIcons(icons)]);
+    (icons[0] as { name: string }).name = 'cross';
+
+    const later = TestBed.createComponent(Host);
+    later.componentInstance.name.set('cross');
+    later.detectChanges();
+
+    expect(svgOf(later)!.querySelector('path')!.getAttribute('d')).toBe('M2 8l4 4 8-8');
+  });
+
   describe('an unknown name', () => {
     it('reports the problem without throwing, and renders nothing', () => {
       const fixture = render([provideWrIcons([wrSvgIcon('cross', CROSS)])]);
