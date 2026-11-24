@@ -45,6 +45,11 @@ describe('WrTable virtual window', () => {
     await fixture.whenStable();
   };
 
+  const labels = (): (string | undefined)[] =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr.wr-table__tr')].map(row =>
+      row.textContent?.trim()
+    );
+
   beforeEach(async () => {
     offsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight');
     Object.defineProperty(HTMLElement.prototype, 'offsetHeight', { configurable: true, get: () => 56 });
@@ -67,8 +72,11 @@ describe('WrTable virtual window', () => {
 
     await scrollTo(20);
     expect(rowClass).not.toHaveBeenCalled();
+    expect(labels()[0]).toBe('Row 1');
 
     await scrollTo(56 * 30);
     expect(rowClass).toHaveBeenCalled();
+    expect(labels()).toContain('Row 31');
+    expect(labels()).not.toContain('Row 1');
   });
 });
