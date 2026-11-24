@@ -35,4 +35,11 @@ describe('wrIntl cache', () => {
 
     expect(wrIntlNumberFormat('en', inherited).format(0.5)).toBe('50%');
   });
+
+  it('reads non-enumerable options rather than reusing a formatter keyed on enumerable ones', () => {
+    wrIntlNumberFormat('en', {});
+    const hidden = Object.defineProperty({}, 'style', { value: 'percent' }) as Intl.NumberFormatOptions;
+
+    expect(wrIntlNumberFormat('en', hidden).format(0.5)).toBe('50%');
+  });
 });

@@ -11,13 +11,20 @@ const CACHES = new Map<string, Map<string, object>>();
 /** Entries per class before the map starts over; real apps use a few dozen. */
 const LIMIT = 256;
 
+function isPlain(options: object): boolean {
+  return (
+    Object.getPrototypeOf(options) === Object.prototype &&
+    Object.getOwnPropertyNames(options).length === Object.keys(options).length
+  );
+}
+
 /**
  * Building an `Intl` object costs about a tenth of a millisecond and every one is
  * stateless, so one per distinct key serves every caller. The key is computed from
  * `options` at call time, so a caller that mutates its object afterwards cannot
  * change what an earlier key maps to. Option order is part of the key. Options
- * that are not a plain object are built fresh: `Intl` reads inherited properties,
- * `JSON.stringify` does not.
+ * that are not a plain object, or hold a non-enumerable property, are built
+ * fresh: `Intl` reads those properties, `JSON.stringify` does not.
  */
 function cached<T extends object>(
   kind: string,
@@ -25,7 +32,7 @@ function cached<T extends object>(
   options: object | undefined,
   build: () => T
 ): T {
-  if (options && Object.getPrototypeOf(options) !== Object.prototype) return build();
+  if (options && !isPlain(options)) return build();
   let map = CACHES.get(kind);
   if (!map) CACHES.set(kind, (map = new Map<string, object>()));
   const key = options ? `${locale}|${JSON.stringify(options)}` : `${locale}`;
