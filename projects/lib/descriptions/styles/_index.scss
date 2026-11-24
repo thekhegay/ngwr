@@ -274,14 +274,18 @@
   }
 
   .wr-descriptions--columns.wr-descriptions--inline > .wr-descriptions__list > .wr-descriptions__row,
-  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline > .wr-descriptions__list > .wr-descriptions__row {
+  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline
+    > .wr-descriptions__list
+    > .wr-descriptions__row {
     display: flex;
     flex-direction: column;
     gap: var(--wr-descriptions-row-gap);
     align-items: stretch;
   }
 
-  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline > .wr-descriptions__list > .wr-descriptions__row {
+  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline
+    > .wr-descriptions__list
+    > .wr-descriptions__row {
     padding: var(--wr-descriptions-row-padding-y) var(--wr-descriptions-row-padding-x);
   }
 }
