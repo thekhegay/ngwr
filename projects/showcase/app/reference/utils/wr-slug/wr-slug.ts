@@ -33,13 +33,14 @@ wrSlug('ＡＢＣ １２３');            // 'abc-123', full-width forms fold in
   protected readonly tiesSnippet = `wrSlug('Data & charts');  // 'data-charts'
 wrSlug('Data / charts');  // 'data-charts'
 
-const seen = new Map<string, number>();
+const taken = new Set<string>();
 
 function uniqueId(title: string): string {
   const slug = wrSlug(title) || 'section';
-  const count = seen.get(slug) ?? 0;
-  seen.set(slug, count + 1);
-  return count === 0 ? slug : \`\${slug}-\${count + 1}\`;
+  let id = slug;
+  for (let n = 2; taken.has(id); n++) id = \`\${slug}-\${n}\`;
+  taken.add(id);
+  return id;
 }`;
 
   protected readonly api: readonly DocApiRow[] = [

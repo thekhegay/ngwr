@@ -44,5 +44,7 @@ const SEPARATORS = /[^\p{L}\p{M}\p{N}]+/gu;
  */
 export function wrSlug(text: string | null | undefined): string {
   if (text === null || text === undefined) return '';
-  return String(text).normalize('NFKC').toLowerCase().replace(SEPARATORS, '-').replace(/^-|-$/g, '');
+  const slug = String(text).normalize('NFKC').toLowerCase().replace(SEPARATORS, '-').replace(/^-|-$/g, '');
+  // Marks alone, such as the variation selector of an emoji, are no slug.
+  return /[\p{L}\p{N}]/u.test(slug) ? slug : '';
 }

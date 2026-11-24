@@ -65,5 +65,7 @@ describe('wrSlug', () => {
     expect(wrSlug('   ')).toBe('');
     expect(wrSlug('...')).toBe('');
     expect(wrSlug('- & -')).toBe('');
+    // The sun is dropped, and its variation selector is a mark with nothing to sit on.
+    expect(wrSlug('\u2600\uFE0F')).toBe('');
   });
 });
