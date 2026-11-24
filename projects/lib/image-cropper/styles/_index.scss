@@ -21,9 +21,8 @@
     cursor: grab;
   }
 
-  // `__image` is the picture until it has been measured, and from then on only the box
-  // the stage is measured from. `__sizer` is the same box for the image turned on its
-  // side, so the two must be sized by the same rules.
+  // `__image` sizes the stage until it has been measured. From then on `__sizer` is that
+  // box, turned on its side with the image, so the two must be sized by the same rules.
   &__image,
   &__sizer {
     display: block;
@@ -35,43 +34,25 @@
     user-select: none;
   }
 
-  // `__view` draws the picture from here on. Hidden rather than removed: its box still
-  // sizes the stage.
+  // Measured, the image is laid over the stage at the size the component writes on it,
+  // and zoomed, panned and turned from the stage's corner.
   &__image--measured {
-    visibility: hidden;
-  }
-
-  // Turned, the sizer holds the stage open instead and the image steps out of the layout.
-  &__image--parked {
-    position: absolute;
-    top: 0;
-    // rtl-ok: cropper geometry, the stage's origin is its physical top-left corner in both directions
-    left: 0;
-  }
-
-  &__sizer {
-    display: none;
-
-    &--on {
-      display: block;
-    }
-  }
-
-  &__viewport {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  &__view {
     position: absolute;
     top: 0;
     // rtl-ok: cropper geometry, the pan is a physical offset from the stage's top-left corner
     left: 0;
     max-width: none;
+    max-height: none;
     transform-origin: 0 0;
-    user-select: none;
+  }
+
+  // Clips the zoomed image to the stage. Not before the image is measured: it is still
+  // in the layout then, and this wrapper must not change how it is sized.
+  &__viewport--on {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
 
   // A source the browser could not decode. The `<img>` stays in the DOM, since the

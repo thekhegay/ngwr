@@ -306,7 +306,7 @@ export class WrImageCropperHarness extends ComponentHarness {
    */
   private async viewTransform(method: string): Promise<{ zoom: number; rotation: WrImageRotation }> {
     await this.requireReady(method);
-    const transform = await (await this.locatorFor('.wr-image-cropper__view')()).getCssValue('transform');
+    const transform = await (await this.locatorFor('.wr-image-cropper__image')()).getCssValue('transform');
     const matrix = /^matrix\(([^)]+)\)/.exec(transform)?.[1].split(',').map(Number);
     if (matrix) {
       const [a, b] = matrix;
