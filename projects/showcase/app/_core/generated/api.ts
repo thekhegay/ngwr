@@ -957,7 +957,9 @@ export const API = {
     { name: "outputType", description: "Default output type for `(cropped)`.", type: "WrImageOutputType", default: "'image/png'" },
     { name: "outputQuality", description: "JPEG / WebP quality for `(cropped)` in [0, 1].", type: "number", default: "0.92" },
     { name: "maxOutputSize", description: "Longest side of the exported image, in pixels — for `(cropped)`, `toBlob()` and `toDataUrl()` alike. A crop larger than this is scaled down to fit, keeping its aspect ratio; a smaller one is exported as it is, never upscaled. The crop itself — `cropRect()`, in source pixels — is not affected. `null` (or anything that is not a positive number) exports at the source image's own resolution.", type: "number | null", default: "null" },
-    { name: "(cropped)", description: "Emits a Blob after each drag end.", type: "Blob" },
+    { name: "zoom", description: "How much the image is enlarged under the crop window, from `1` (the whole image fitted to the stage) to `4`. The window keeps its place and covers less of the source. A value outside the range is read as the nearest end.", type: "number", default: "1" },
+    { name: "rotation", description: "Clockwise quarter turns of the image, in degrees. At `90` and `270` the stage takes the turned image's shape. The crop window turns with the image and is then refitted to `aspectRatio`. The export is the turned image.", type: "WrImageRotation", default: "0" },
+    { name: "(cropped)", description: "Emits a Blob after each drag end, and after `zoom` or `rotation` settles.", type: "Blob" },
     { name: "(loadError)", description: "Fires once when the browser cannot decode the current `src` — a format it does not support, a broken file, a URL that fails. Nothing is rendered for it; show your own message. A new `src` clears the failure.", type: "WrImageLoadError" },
   ],
   // <input[wrInput], textarea[wrInput]>

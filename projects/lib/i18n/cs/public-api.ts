@@ -227,6 +227,10 @@ export const wrCs: WrI18nCatalog = {
     keyHelp:
       'Šipky posouvají výřez. Alt se šipkou mění jeho velikost, Shift zvětšuje krok. ' +
       'Výřez se oznamuje jako pozice zleva, pozice shora, šířka a výška v pixelech obrázku.',
+    transformHelp:
+      'Plus a minus obrázek přibližují a oddalují. R jej otočí po směru hodinových ručiček, Shift s R proti směru.',
+    zoomed: 'Přiblížení {{percent}} %',
+    rotated: 'Otočeno o {{degrees}}°',
   },
   sortableList: {
     keyHelp:

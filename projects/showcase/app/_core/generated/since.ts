@@ -157,7 +157,7 @@ export const UPDATED = {
   "reference/components/form-field": "15.0.0",
   "reference/components/graph": "16.7.0",
   "reference/components/icon": "16.0.0",
-  "reference/components/image-cropper": "16.7.0",
+  "reference/components/image-cropper": "16.9.0",
   "reference/components/input": "16.3.0",
   "reference/components/input-number": "16.6.0",
   "reference/components/input-otp": "16.3.0",

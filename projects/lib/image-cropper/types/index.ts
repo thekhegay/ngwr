@@ -16,6 +16,9 @@ export interface WrCropRect {
 /** Possible drag handles on the crop overlay. */
 export type WrCropHandle = 'move' | 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
+/** How far the image is turned, in degrees clockwise: quarter turns only. */
+export type WrImageRotation = 0 | 90 | 180 | 270;
+
 /** Supported output MIME types for {@link WrImageCropper.toBlob}. */
 export type WrImageOutputType = 'image/png' | 'image/jpeg' | 'image/webp';
 

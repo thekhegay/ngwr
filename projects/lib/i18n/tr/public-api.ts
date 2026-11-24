@@ -235,6 +235,10 @@ export const wrTr: WrI18nCatalog = {
     keyHelp:
       'Ok tuşları kırpma alanını taşır. Yeniden boyutlandırmak için Alt tuşunu basılı tutarak ok tuşlarına basın, daha büyük adımlar için Shift tuşunu basılı tutun. ' +
       'Kırpma alanı, görsel pikselleri cinsinden sol, üst, genişlik ve yükseklik olarak duyurulur.',
+    transformHelp:
+      'Artı ve eksi görüntüyü yakınlaştırır ve uzaklaştırır. R görüntüyü saat yönünde, Shift ile R ters yönde döndürür.',
+    zoomed: 'Yakınlaştırma %{{percent}}',
+    rotated: '{{degrees}}° döndürüldü',
   },
   sortableList: {
     keyHelp:
