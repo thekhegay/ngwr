@@ -1,0 +1,31 @@
+import { describe, expect, it } from 'vitest';
+
+import { wrIntlListFormat, wrIntlNumberFormat, wrIntlPluralRules } from './intl-cache';
+
+describe('wrIntl cache', () => {
+  it('builds one formatter per locale and options', () => {
+    expect(wrIntlNumberFormat('en')).toBe(wrIntlNumberFormat('en'));
+    expect(wrIntlNumberFormat('en', { style: 'percent' })).toBe(wrIntlNumberFormat('en', { style: 'percent' }));
+    expect(wrIntlPluralRules('en')).toBe(wrIntlPluralRules('en'));
+    expect(wrIntlListFormat('en', { type: 'unit' })).toBe(wrIntlListFormat('en', { type: 'unit' }));
+  });
+
+  it('keeps locale and every option in the key', () => {
+    expect(wrIntlNumberFormat('en')).not.toBe(wrIntlNumberFormat('de'));
+    expect(wrIntlNumberFormat('en')).not.toBe(wrIntlNumberFormat('en', { useGrouping: false }));
+    expect(wrIntlNumberFormat('en', { maximumFractionDigits: 1 })).not.toBe(
+      wrIntlNumberFormat('en', { maximumFractionDigits: 2 })
+    );
+  });
+
+  it('is not changed by a caller mutating its options afterwards', () => {
+    const options: Intl.NumberFormatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    const first = wrIntlNumberFormat('en', options);
+    options.minimumFractionDigits = 0;
+    options.maximumFractionDigits = 0;
+
+    expect(first.format(1.5)).toBe('1.50');
+    expect(wrIntlNumberFormat('en', options).format(1.5)).toBe('2');
+    expect(wrIntlNumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })).toBe(first);
+  });
+});

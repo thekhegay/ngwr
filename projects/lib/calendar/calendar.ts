@@ -392,6 +392,17 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
    * the nominative month, which Russian and Finnish inflect inside a date.
    */
   protected dayLabel(date: Date): string {
+    return this.dayLabels().get(date.getTime()) ?? this.formatDayLabel(date);
+  }
+
+  /** The labels of the visible weeks, so a hover that moves the range preview formats none. */
+  private readonly dayLabels = computed(() => {
+    const labels = new Map<number, string>();
+    for (const week of this.weeks()) for (const day of week) labels.set(day.getTime(), this.formatDayLabel(day));
+    return labels;
+  });
+
+  private formatDayLabel(date: Date): string {
     return this.dayLabelText({
       weekday: this.longWeekdays()[(this.adapter.getDayOfWeek(date) - this.adapter.getFirstDayOfWeek() + 7) % 7],
       date: this.adapter.format(date, 'longDate'),

@@ -9,6 +9,7 @@ import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
 import { WrDateAdapter, wrIsDateOnly, wrParseDate } from 'ngwr/date';
+import { wrIntlRelativeTimeFormat } from 'ngwr/utils';
 
 import type { WrRelativeTimeOptions } from './types';
 
@@ -88,7 +89,7 @@ export function wrFormatRelativeTime(
   const size = Math.abs(distance);
   const [unit, length] = UNITS.find(([, , below], index) => index >= first && size < below)!;
   // `Math.trunc` keeps the sign of a zero, which is what tells "in 0 seconds" from "0 seconds ago".
-  return new Intl.RelativeTimeFormat(locale, {
+  return wrIntlRelativeTimeFormat(locale, {
     numeric: options.numeric ?? 'auto',
     style: options.style ?? 'long',
   }).format(Math.trunc(distance / length), unit);

@@ -8,6 +8,8 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
+import { wrIntlNumberFormat } from 'ngwr/utils';
+
 import type { WrNumberStyle } from './types';
 
 /** Digits with one optional point and a sign: the form `Intl` reads exactly. */
@@ -60,7 +62,7 @@ export function wrFormatNumber(
   // `format()` has read a string since ES2023 (Chrome 106, Firefox 116, Safari
   // 15.4); the ES2022 lib this builds against types it as a number only.
   const exact = text !== null && PLAIN_DECIMAL.test(text) ? (text as unknown as number) : n;
-  return new Intl.NumberFormat(locale, options).format(exact);
+  return wrIntlNumberFormat(locale, options).format(exact);
 }
 
 /**

@@ -54,6 +54,15 @@ export type { WrWatchColorSchemeOptions, WrColorScheme, WrFocusFirstInvalidOptio
 // ID
 export { wrRandomId } from './id';
 
+// Intl
+export {
+  wrIntlDateTimeFormat,
+  wrIntlListFormat,
+  wrIntlNumberFormat,
+  wrIntlPluralRules,
+  wrIntlRelativeTimeFormat,
+} from './intl';
+
 // Fn
 export { wrNoop, wrDebounce, wrThrottle } from './fn';
 export type { WrDebouncedFn, WrThrottledFn } from './fn';

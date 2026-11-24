@@ -7,6 +7,8 @@
 
 import { Injectable, Injector, Service, forwardRef, inject, runInInjectionContext } from '@angular/core';
 
+import { wrIntlDateTimeFormat } from 'ngwr/utils';
+
 import { wrDateLocale } from './date-locale';
 import { type WrResolvedZone, wrResolveZone, wrUtcTime, wrZoneInstant, wrZoneWallTime } from './time-zone';
 import { WR_DATE_INPUT, WR_DATE_TIME_ZONE } from './tokens';
@@ -779,7 +781,7 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   }
 
   getDayOfWeekNames(style: 'narrow' | 'short' | 'long'): readonly string[] {
-    const formatter = new Intl.DateTimeFormat(this.locale, this.intlOptions({ weekday: style }));
+    const formatter = wrIntlDateTimeFormat(this.locale, this.intlOptions({ weekday: style }));
     const first = this.getFirstDayOfWeek();
     // Pick a reference Sunday and walk seven days.
     const base = new Date(2024, 0, 7); // Sunday 7 Jan 2024

@@ -204,3 +204,36 @@ describe('WrIcon and its registry', () => {
     });
   });
 });
+
+describe('WrIcon sanitising cost', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    TestBed.resetTestingModule();
+  });
+
+  @Component({
+    imports: [WrIcon],
+    template: `
+      <wr-icon name="check" />
+      <wr-icon name="check" />
+      <wr-icon name="check" />
+    `,
+  })
+  class Three {}
+
+  it('parses an icon once however many instances render it, and gives each its own tree', () => {
+    const parse = vi.spyOn(DOMParser.prototype, 'parseFromString');
+    TestBed.configureTestingModule({ providers: [provideWrIcons([wrSvgIcon('check', CHECK)])] });
+    const fixture = TestBed.createComponent(Three);
+    fixture.detectChanges();
+
+    const svgs = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('svg'));
+    expect(svgs).toHaveLength(3);
+    expect(parse).toHaveBeenCalledTimes(1);
+    expect(new Set(svgs).size).toBe(3);
+    expect(svgs.every(svg => svg.getAttribute('aria-hidden') === 'true')).toBe(true);
+
+    svgs[0].setAttribute('data-touched', '');
+    expect(svgs[1].hasAttribute('data-touched')).toBe(false);
+  });
+});

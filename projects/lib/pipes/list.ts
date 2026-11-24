@@ -8,6 +8,8 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
+import { wrIntlListFormat } from 'ngwr/utils';
+
 import type { WrListType } from './types';
 
 /**
@@ -39,7 +41,7 @@ export function wrFormatList(
   if (items.length === 0) return '';
 
   const options: Intl.ListFormatOptions = typeof typeOrOptions === 'string' ? { type: typeOrOptions } : typeOrOptions;
-  return new Intl.ListFormat(locale, options).format(items);
+  return wrIntlListFormat(locale, options).format(items);
 }
 
 /**

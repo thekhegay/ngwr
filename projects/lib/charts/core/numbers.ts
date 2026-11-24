@@ -7,7 +7,7 @@
 
 import { LOCALE_ID, type Signal, inject } from '@angular/core';
 
-import { wrClamp } from 'ngwr/utils';
+import { wrClamp, wrIntlNumberFormat } from 'ngwr/utils';
 
 import type { WrChartNumbers } from './types';
 
@@ -43,9 +43,6 @@ function lastDigit(step: number): number {
   return -21;
 }
 
-/** Every formatter the charts have asked for, by locale and options. */
-const FORMATTERS = new Map<string, Intl.NumberFormat>();
-
 /**
  * The `Intl.NumberFormat` for `locale` and `options`, built once for the page and shared
  * by every chart on it.
@@ -53,19 +50,12 @@ const FORMATTERS = new Map<string, Intl.NumberFormat>();
  * Building one costs about a tenth of a millisecond, and the charts built them freely:
  * three per chart instance, and one per tick on every pass over an axis, so a table of a
  * hundred sparklines paid for three hundred identical formatters. A formatter holds no
- * state, so one per distinct key serves them all. The key is the locale and the options
- * in the order given; the charts ask with a handful of shapes, so the map stays small.
+ * state, so one per distinct key serves them all (see `wrIntlNumberFormat`).
  *
  * @internal
  */
 export function wrChartNumberFormat(locale: string, options?: Intl.NumberFormatOptions): Intl.NumberFormat {
-  const key = options ? `${locale}|${JSON.stringify(options)}` : locale;
-  let format = FORMATTERS.get(key);
-  if (!format) {
-    format = new Intl.NumberFormat(locale, options);
-    FORMATTERS.set(key, format);
-  }
-  return format;
+  return wrIntlNumberFormat(locale, options);
 }
 
 /**
