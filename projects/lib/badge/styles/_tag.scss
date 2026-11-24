@@ -56,7 +56,10 @@
   font-size: var(--wr-tag-font-size);
   font-weight: var(--wr-tag-font-weight);
   line-height: var(--wr-tag-line-height);
-  transition: var(--wr-transition-base);
+  transition:
+    color var(--wr-transition-base),
+    background-color var(--wr-transition-base),
+    border-color var(--wr-transition-base);
 
   // Shape
   &--rounded,

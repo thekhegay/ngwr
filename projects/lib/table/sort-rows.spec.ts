@@ -190,3 +190,29 @@ describe('wrSortRows', () => {
     expect(values(wrSortRows(rows, [asc('v')], accessor))).toEqual(['x', 1, 2]);
   });
 });
+
+describe('wrSortRows reads each value once', () => {
+  it('calls the accessor once per row and active key, however many comparisons run', () => {
+    const rows = Array.from({ length: 50 }, (_, i) => ({ a: (i * 7) % 5, b: i }));
+    let reads = 0;
+    const sorted = wrSortRows(rows, [asc('a'), desc('b')], (row, key) => {
+      reads++;
+      return (row as Record<string, number>)[key];
+    });
+
+    expect(reads).toBe(rows.length * 2);
+    expect(sorted.map(r => `${r.a}:${r.b}`).slice(0, 3)).toEqual(['0:45', '0:40', '0:35']);
+  });
+
+  it('keeps equal rows in input order, also when descending', () => {
+    const rows = [
+      { v: 1, id: 'a' },
+      { v: 1, id: 'b' },
+      { v: 0, id: 'c' },
+      { v: 1, id: 'd' },
+    ];
+
+    expect(wrSortRows(rows, [desc('v')]).map(r => r.id)).toEqual(['a', 'b', 'd', 'c']);
+    expect(wrSortRows(rows, [asc('v')]).map(r => r.id)).toEqual(['c', 'a', 'b', 'd']);
+  });
+});

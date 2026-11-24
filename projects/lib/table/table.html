@@ -87,7 +87,7 @@
         <col class="wr-table__col--lead" />
       }
       @for (col of cellColumns(); track col.key) {
-        <col [style.width.px]="col.width" />
+        <col [style.width.px]="colWidths()[$index]" />
       }
     </colgroup>
     <thead #head>

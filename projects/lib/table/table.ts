@@ -145,8 +145,6 @@ interface CellColumn<T extends WrTableRow> {
   /** Sticky `inset-inline-start` / `-end` offsets in px, `null` off the pinned set. */
   readonly start: number | null;
   readonly end: number | null;
-  /** The `<col>` width in px, `null` for auto. A live resize wins. */
-  readonly width: number | null;
   /** The `width` a truncated column's cells are capped at. */
   readonly maxWidth: number | null;
   /** Whether its template renders inside `.wr-table__actions`. */
@@ -1824,7 +1822,6 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   protected readonly cellColumns = computed<readonly CellColumn<T>[]>(() => {
     const contexts = this.cellContexts();
     const pins = this.pins();
-    const resized = this.resizeWidths();
     const templates = this.cellMap();
     const editors = this.editMap();
     const tableTruncate = this.truncate();
@@ -1850,7 +1847,6 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         edgeRight: pins.rightEdge === key,
         start: pins.left.get(key) ?? null,
         end: pins.right.get(key) ?? null,
-        width: resized.get(key) ?? column.width ?? null,
         maxWidth: truncates ? (column.width ?? null) : null,
         actions: !!column.actions,
         label: key === labelKey,
@@ -1861,6 +1857,12 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         contexts: contexts.get(key)!,
       };
     });
+  });
+
+  /** The `<col>` widths in px by column position, `null` for auto. A live resize wins; kept apart so a drag does not rebuild the cells. */
+  protected readonly colWidths = computed<readonly (number | null)[]>(() => {
+    const resized = this.resizeWidths();
+    return this.displayColumns().map(({ key, column }) => resized.get(key) ?? column.width ?? null);
   });
 
   private readonly hasPins = computed<boolean>(() => this.displayColumns().some(c => c.column.pin));
@@ -2128,25 +2130,30 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   protected readonly stickyEdges = signal<{ head: number | null; foot: number | null }>({ head: null, foot: null });
 
   /** Rendered window [start,end) + spacer pads (px). Pure math, O(1) per scroll frame. */
-  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
-    const total = this.renderRows().length;
-    if (!this.virtualized() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
-    const h = this.effRowH();
-    const vp = this.viewportPx() || this.fallbackViewportPx();
-    const over = this.overscan();
-    // Clamp `first` to the last row: the window is a pure function of a pixel
-    // offset, so if the row list shrinks while the user is scrolled deep — a
-    // consumer filtering `items`, or a future hierarchy collapsing — `start`
-    // overshoots `end` and `slice` returns nothing, leaving a blank body under a
-    // spacer the old length's worth of pixels tall.
-    const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
-    // `+ 1` covers the partial row at the viewport's bottom edge: at overscan 0
-    // with the scroll resting mid-row, `ceil(vp / h)` alone stops one row short.
-    const count = Math.ceil(vp / h) + 1;
-    const start = Math.max(0, first - over);
-    const end = Math.min(total, first + count + over);
-    return { start, end, padTop: start * h, padBottom: (total - end) * h };
-  });
+  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(
+    () => {
+      const total = this.renderRows().length;
+      if (!this.virtualized() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
+      const h = this.effRowH();
+      const vp = this.viewportPx() || this.fallbackViewportPx();
+      const over = this.overscan();
+      // Clamp `first` to the last row: the window is a pure function of a pixel
+      // offset, so if the row list shrinks while the user is scrolled deep — a
+      // consumer filtering `items`, or a future hierarchy collapsing — `start`
+      // overshoots `end` and `slice` returns nothing, leaving a blank body under a
+      // spacer the old length's worth of pixels tall.
+      const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
+      // `+ 1` covers the partial row at the viewport's bottom edge: at overscan 0
+      // with the scroll resting mid-row, `ceil(vp / h)` alone stops one row short.
+      const count = Math.ceil(vp / h) + 1;
+      const start = Math.max(0, first - over);
+      const end = Math.min(total, first + count + over);
+      return { start, end, padTop: start * h, padBottom: (total - end) * h };
+    },
+    {
+      equal: (a, b) => a.start === b.start && a.end === b.end && a.padTop === b.padTop && a.padBottom === b.padBottom,
+    }
+  );
 
   /** Flat index of the first rendered window row (for `aria-rowindex`). */
   protected readonly windowStart = computed<number>(() => this.virtualWindow().start);
