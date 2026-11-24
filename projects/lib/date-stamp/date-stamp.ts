@@ -114,7 +114,10 @@ export class WrDateStamp {
     afterNextRender(() => {
       effect(
         onCleanup => {
-          const delay = this.untilNextText();
+          // Re-armed by each tick. Measured from the real clock, not the sample: a restart for
+          // another reason (a new format) must not push the next change a whole step away.
+          this.now();
+          const delay = this.untilNextText(Date.now());
           if (delay === null) return;
           const timer = setTimeout(() => this.now.set(Date.now()), delay);
           onCleanup(() => clearTimeout(timer));
@@ -265,11 +268,14 @@ export class WrDateStamp {
   });
 
   /** Milliseconds to the next change of the relative text, `null` when there is none to keep current. */
-  private untilNextText(): number | null {
+  private untilNextText(now: number): number | null {
     const stamp = this.parts();
     if (stamp === null || !this.relative()) return null;
-    if (!stamp.dayOnly) return untilNextText(stamp.at.getTime() - this.now());
+    if (!stamp.dayOnly) return untilNextText(stamp.at.getTime() - now);
+    // Built, not added: on a day whose midnight the zone skips, `addDays` would keep the 01:00 it starts at.
     const zoned = this.adapter.zoned();
-    return Math.max(1, zoned.addDays(this.today(), 1).getTime() - this.now());
+    const today = this.today();
+    const next = zoned.createDate(zoned.getYear(today), zoned.getMonth(today), zoned.getDate(today) + 1);
+    return Math.max(1, next.getTime() - now);
   }
 }

@@ -48,7 +48,11 @@ export default class WrListPipePage {
   protected readonly type = signal<WrListType>('conjunction');
   protected readonly style = signal<Intl.ListFormatStyle>('long');
 
-  protected readonly items = computed(() => this.text().split(','));
+  protected readonly items = computed(() =>
+    this.text()
+      .split(',')
+      .map(item => item.trim())
+  );
   protected readonly options = computed<Intl.ListFormatOptions>(() => ({ type: this.type(), style: this.style() }));
 
   protected readonly playgroundSnippet = computed(

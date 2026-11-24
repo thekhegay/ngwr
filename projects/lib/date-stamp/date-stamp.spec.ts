@@ -393,11 +393,17 @@ describe('WrDateStamp options', () => {
 
 @Component({
   imports: [WrDateStamp],
-  template: `<wr-date-stamp [value]="value()" [relative]="relative()" dateFormat="dd.MM.yyyy" timeFormat="HH:mm" />`,
+  template: `<wr-date-stamp
+    [value]="value()"
+    [relative]="relative()"
+    [dateFormat]="dateFormat()"
+    timeFormat="HH:mm"
+  />`,
 })
 class Relative {
   readonly value = signal<Date | string | number | null>(null);
   readonly relative = signal(true);
+  readonly dateFormat = signal('dd.MM.yyyy');
 }
 
 describe('WrDateStamp relative', () => {
@@ -490,6 +496,18 @@ describe('WrDateStamp relative', () => {
     expect(text()).toBe('3 days ago');
     advance(1);
     expect(text()).toBe('4 days ago');
+  });
+
+  it('keeps the next change on time when it restarts for another input', () => {
+    setup(new Date(NOW - 5 * MINUTE));
+    advance(30 * SECOND);
+    fixture.componentInstance.dateFormat.set('d MMM yyyy');
+    fixture.detectChanges();
+
+    advance(30 * SECOND - 1);
+    expect(text()).toBe('5 minutes ago');
+    advance(1);
+    expect(text()).toBe('6 minutes ago');
   });
 
   it('counts a coming value down', () => {
