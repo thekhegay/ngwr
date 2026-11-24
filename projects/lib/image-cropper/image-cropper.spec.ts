@@ -928,6 +928,20 @@ describe('WrImageCropper', () => {
       expect(window_()!.style.left).toBe('80px');
     });
 
+    it('carries a drag under way over to the new box, instead of undoing the rescale', () => {
+      load({ display: 400, natural: 800 });
+      pointerDown(window_()!);
+
+      resizeTo(200);
+      expect(window_()!.style.width).toBe('120px');
+
+      window_()!.dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 10, clientY: 0 }));
+      fixture.detectChanges();
+
+      // Measured from where the drag began as it is now: 40 + 10, and still 120 wide.
+      expect([window_()!.style.left, window_()!.style.width]).toEqual(['50px', '120px']);
+    });
+
     it('holds the last real box when the image measures zero', () => {
       // A hidden image (a closed tab, `display: none`) reports zeros. Scaling by that
       // would collapse the crop with nothing to scale back from.
@@ -952,8 +966,8 @@ describe('WrImageCropper', () => {
    * sits under the window) and `cropRect()`, the source region that comes out of the two.
    *
    * A turned image has no measured box here: the sizer that holds the stage open in a
-   * browser never loads in jsdom, so the stage is the box it had, swapped and scaled to
-   * fit inside itself, until a test gives the sizer a box and loads it by hand.
+   * browser has no size in jsdom, so the stage is the box it had, swapped and scaled to
+   * fit inside itself, unless a test gives the sizer a box before the turn.
    */
   describe('zooming and turning', () => {
     let calls: unknown[][];
@@ -988,7 +1002,7 @@ describe('WrImageCropper', () => {
     const host = (): Host => fixture.componentInstance;
     const stage = (): HTMLElement => root().querySelector<HTMLElement>('.wr-image-cropper__canvas')!;
     const view = (): HTMLElement => root().querySelector<HTMLElement>('.wr-image-cropper__view')!;
-    const sizer = (): HTMLImageElement => root().querySelector<HTMLImageElement>('.wr-image-cropper__sizer')!;
+    const sizer = (): HTMLCanvasElement => root().querySelector<HTMLCanvasElement>('.wr-image-cropper__sizer')!;
     const box = (): number[] =>
       [window_()!.style.left, window_()!.style.top, window_()!.style.width, window_()!.style.height].map(v =>
         Number.parseFloat(v)
@@ -1298,24 +1312,203 @@ describe('WrImageCropper', () => {
       expect(cropper().cropRect()).toEqual(before);
     });
 
-    it('measures the turned stage from the sizer once it has loaded', () => {
+    it('measures the turned stage from the sizer, a canvas of the source turned on its side', () => {
       loadLandscape();
-      // The source's dimensions, swapped.
-      expect(sizer().getAttribute('src')).toContain("width='400' height='800'");
+      expect(sizer().tagName).toBe('CANVAS');
+      expect([sizer().width, sizer().height]).toEqual([400, 800]);
       expect(sizer().classList).not.toContain('wr-image-cropper__sizer--on');
 
+      sized(sizer(), 150, 300);
       host().rotation.set(90);
       settle();
-      sized(sizer(), 150, 300);
-      sizer().dispatchEvent(new Event('load'));
-      settle();
 
-      // The layout holds the stage open now, so the size written by hand is gone.
+      // The layout holds the stage open, so no size is written on it by hand.
       expect(sizer().classList).toContain('wr-image-cropper__sizer--on');
       expect(stage().style.width).toBe('');
       expect(box()).toEqual([30, 60, 90, 180]);
       expect([view().style.width, view().style.height]).toEqual(['300px', '150px']);
       expect(cropper().cropRect()).toEqual({ x: 160, y: 80, width: 480, height: 240 });
+    });
+
+    it('takes the hand-written size off the stage once the sizer can be measured again', () => {
+      loadLandscape();
+      host().rotation.set(90);
+      settle();
+      expect(stage().style.width).toBe('100px');
+
+      // Shown again after being hidden: the first box is capped by the written size, so
+      // it is dropped and the stage measured without it.
+      sized(sizer(), 100, 200);
+      (cropper() as unknown as { onResize(): void }).onResize();
+      sized(sizer(), 150, 300);
+      settle();
+
+      expect(stage().style.width).toBe('');
+      expect(box()).toEqual([30, 60, 90, 180]);
+    });
+
+    it('lays the turn out at once for rotate(), so an export in the same breath is the turned one', () => {
+      loadLandscape();
+      for (let i = 0; i < 4; i++) key('ArrowRight', { shiftKey: true });
+      expect(cropper().cropRect()).toEqual({ x: 240, y: 80, width: 480, height: 240 });
+
+      // No change detection between the two calls.
+      cropper().rotate();
+      cropper().toDataUrl();
+
+      expect(cropper().cropRect()).toEqual({ x: 240, y: 80, width: 480, height: 240 });
+      expect(encoded).toEqual([{ width: 240, height: 480 }]);
+      expect(calls).toEqual([
+        ['translate', 120, 240],
+        ['rotate', Math.PI / 2],
+        ['drawImage', 240, 80, 480, 240, -240, -120, 480, 240],
+      ]);
+    });
+
+    it('never pairs a new rotation with the old geometry, however the model is written', () => {
+      loadLandscape();
+      for (let i = 0; i < 4; i++) key('ArrowRight', { shiftKey: true });
+
+      // Written to the model directly: the layout follows on the next change detection,
+      // and until then a read is the whole upright crop, not half of each.
+      cropper().rotation.set(90);
+      cropper().toDataUrl();
+
+      expect(calls).toEqual([['drawImage', 240, 80, 480, 240, 0, 0, 480, 240]]);
+    });
+
+    it('turns first and fits the ratio after, when both change at once', async () => {
+      loadLandscape();
+
+      host().rotation.set(90);
+      host().aspectRatio.set(0.5);
+      settle();
+
+      // The turned window is 60 x 120, which is the ratio already. Fitted before the
+      // turn, the upright window would have been narrowed first and cut down twice.
+      expect(box()).toEqual([20, 40, 60, 120]);
+      await vi.waitFor(() => expect(host().blobs.length).toBe(1));
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(host().blobs.length).toBe(1);
+      expect(encoded).toEqual([{ width: 240, height: 480 }]);
+    });
+
+    it('rounds the edges of the crop in the source, so it never reaches past the image', () => {
+      // 340 source pixels on a 320px stage: 1.0625 each, and at zoom 2 half of that.
+      load({ display: 320, natural: 340 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+      for (let i = 0; i < 48; i++) key('ArrowLeft', { altKey: true });
+      for (let i = 0; i < 40; i++) key('ArrowRight', { shiftKey: true });
+      expect(box()).toMatchObject({ 0: 176, 2: 144 });
+      expect(pan()[0]).toBe(-320);
+
+      // The window covers [263.5, 340]. Rounded as an origin and a width it was 264 + 77.
+      const c = cropper().cropRect();
+      expect([c.x, c.width]).toEqual([264, 76]);
+
+      host().rotation.set(180);
+      settle();
+      const turned = cropper().cropRect();
+      expect([turned.x, turned.width]).toEqual([264, 76]);
+    });
+
+    it('keeps a pinch to the two fingers that began it', () => {
+      load({ display: 400, natural: 800 });
+      fire('pointerdown', window_()!, [100, 200]);
+      fire('pointerdown', window_()!, [300, 200], { pointerId: 2, isPrimary: false });
+
+      // A third finger comes and goes; the pinch is neither paused nor ended by it.
+      fire('pointerdown', window_()!, [200, 50], { pointerId: 3, isPrimary: false });
+      fire('pointermove', window_()!, [0, 0], { pointerId: 3, isPrimary: false });
+      expect(host().zoom()).toBe(1);
+      fire('pointermove', window_()!, [400, 200], { pointerId: 2, isPrimary: false });
+      expect(host().zoom()).toBeCloseTo(1.5, 10);
+      fire('pointerup', window_()!, [0, 0], { pointerId: 3, isPrimary: false });
+
+      fire('pointermove', window_()!, [500, 200], { pointerId: 2, isPrimary: false });
+      expect(host().zoom()).toBeCloseTo(2, 10);
+
+      // One of its own lifting does end it.
+      fire('pointercancel', window_()!, [100, 200]);
+      fire('pointermove', window_()!, [700, 200], { pointerId: 2, isPrimary: false });
+      expect(host().zoom()).toBeCloseTo(2, 10);
+    });
+
+    it('drops a pan that was under way when the source changed', () => {
+      load({ display: 400, natural: 800 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+      fire('pointerdown', stage(), [10, 10]);
+      fire('pointermove', stage(), [0, 0]);
+
+      // The pointer is still captured and still moving while the next image loads.
+      host().src.set('/other.jpg');
+      fixture.detectChanges();
+      fire('pointermove', stage(), [-30, -30]);
+      load({ display: 400, natural: 800 });
+
+      expect(pan()).toEqual([-200, -200]);
+      expect(cropper().cropRect()).toEqual({ x: 280, y: 280, width: 240, height: 240 });
+      fire('pointermove', stage(), [-60, -60]);
+      expect(pan()).toEqual([-200, -200]);
+
+      // A fresh pan on the new image works.
+      fire('pointerdown', stage(), [10, 10]);
+      fire('pointermove', stage(), [0, 0]);
+      expect(pan()).toEqual([-210, -210]);
+    });
+
+    it('does not export the next image for a zoom made on the last one', async () => {
+      load({ display: 400, natural: 800 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+
+      host().src.set('/other.jpg');
+      fixture.detectChanges();
+      load({ display: 400, natural: 800 });
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(host().blobs.length).toBe(0);
+
+      // A zoom on the new image still gets its own.
+      host().zoom.set(3);
+      fixture.detectChanges();
+      await vi.waitFor(() => expect(host().blobs.length).toBe(1));
+    });
+
+    it('emits only the newest crop when an older one finishes encoding after it', async () => {
+      const pending: { blob: Blob; done: BlobCallback }[] = [];
+      vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
+        this: HTMLCanvasElement,
+        done: BlobCallback
+      ) {
+        pending.push({ blob: new Blob([String(this.width)]), done });
+      });
+      load({ display: 400, natural: 800 });
+
+      const older = cropper().refresh();
+      host().zoom.set(2);
+      fixture.detectChanges();
+      const newer = cropper().refresh();
+
+      // The newer one comes back first, then the older.
+      pending[1].done(pending[1].blob);
+      pending[0].done(pending[0].blob);
+      await Promise.all([older, newer]);
+
+      expect(host().blobs).toEqual([pending[1].blob]);
+    });
+
+    it('reports a picture that fails to load as a failed source', () => {
+      load();
+
+      // The second request for the same URL was not answered from the image list, and failed.
+      view().dispatchEvent(new Event('error'));
+      fixture.detectChanges();
+
+      expect(host().errors.length).toBe(1);
+      expect(cropper().status()).toBe('failed');
+      expect(window_()).toBeNull();
     });
 
     it('comes back to where it started after four quarter turns, either way round', () => {

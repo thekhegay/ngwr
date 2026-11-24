@@ -308,8 +308,14 @@ export class WrImageCropper {
 
   protected readonly imgEl = viewChild.required<ElementRef<HTMLImageElement>>('img');
 
-  /** Stands in for the image in the layout while it is turned: see `sizerUrl`. */
-  private readonly sizerEl = viewChild<ElementRef<HTMLImageElement>>('sizer');
+  /**
+   * A blank `<canvas>` with the source's dimensions swapped. While the image is turned it
+   * takes the `<img>`'s place in the layout, so the stylesheet fits the turned image to
+   * the container exactly as it fits the upright one. A canvas because it has a natural
+   * size the moment it is rendered: nothing to fetch, to wait for, or for a content
+   * security policy to refuse. Never drawn on, so it holds no pixels.
+   */
+  private readonly sizerEl = viewChild<ElementRef<HTMLCanvasElement>>('sizer');
 
   /** Resolved object URL for `src` (so File / Blob render in `<img>`). */
   protected readonly emptyText = useI18nText(NO_OVERRIDE, 'imageCropper.empty', 'No image');
@@ -363,42 +369,36 @@ export class WrImageCropper {
   /** `zoom` as the component uses it: a finite number in [1, 4]. */
   protected readonly zoomLevel = computed(() => coerceZoom(this.zoom()));
 
-  /** `rotation` as the component uses it: one of the four quarter turns. */
+  /** `rotation` as it was asked for: one of the four quarter turns. */
   private readonly angle = computed(() => coerceRotation(this.rotation()));
 
+  /**
+   * The rotation the geometry is laid out for. It follows `angle` through `turnTo`, which
+   * moves the stage, the crop and the pan with it in one step, so everything that reads
+   * the geometry reads this: a crop laid out for one rotation is never paired with another.
+   */
+  private readonly laidAngle = signal<WrImageRotation>(0);
+
   /** Whether the image lies on its side, so its width runs down the stage. */
-  protected readonly turned = computed(() => this.angle() % 180 !== 0);
+  protected readonly turned = computed(() => this.laidAngle() % 180 !== 0);
 
   /** The point of the turned image under the middle of the stage: see `panFor`. */
   private readonly center = signal<PointPx>({ x: 0.5, y: 0.5 });
 
   private readonly pan = computed(() => panFor(this.center(), this.zoomLevel(), this.display()));
 
-  /** Whether the turned sizer has loaded, and so can be measured. */
-  private readonly sizerReady = signal(false);
-
-  /**
-   * A transparent image with the source's dimensions swapped. While the image is turned
-   * it takes the `<img>`'s place in the layout, so the stylesheet fits the turned image
-   * to the container exactly as it fits the upright one.
-   */
-  protected readonly sizerUrl = computed(() => {
-    const n = this.natural();
-    if (n.w === 0 || n.h === 0) return null;
-    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${n.h}' height='${n.w}'/%3E`;
-  });
-
-  /** The `<img>` leaves the layout once a turned stage has been measured for it. */
+  /** The `<img>` leaves the layout once there is a turned stage for the sizer to hold open. */
   protected readonly parked = computed(() => this.turned() && this.display().w > 0);
 
-  protected readonly sizerOn = computed(() => this.turned() && this.sizerReady());
+  /** Whether the turned sizer measured nothing, as in a test or a hidden container. */
+  private readonly unmeasured = signal(false);
 
   /**
-   * The stage's size written by hand, for the time a turned image has no sizer to take
-   * it from: before the sizer loads, and for good where a content security policy
-   * refuses a `data:` image.
+   * The stage's size written by hand, for a turned image whose sizer has no box to take
+   * it from. Only then: written while the sizer can be measured, it would cap the very
+   * box being measured.
    */
-  protected readonly stageBox = computed(() => (this.parked() && !this.sizerReady() ? this.display() : null));
+  protected readonly stageBox = computed(() => (this.parked() && this.unmeasured() ? this.display() : null));
 
   /**
    * The picture the user sees: a second `<img>` laid over the stage and transformed. The
@@ -409,7 +409,7 @@ export class WrImageCropper {
     const d = this.display();
     const p = this.pan();
     const zoom = this.zoomLevel();
-    const angle = this.angle();
+    const angle = this.laidAngle();
     const w = this.turned() ? d.h : d.w;
     const h = this.turned() ? d.w : d.h;
     // A turn about the top-left corner swings the picture off the stage; this brings it back.
@@ -436,13 +436,16 @@ export class WrImageCropper {
   /** Every pointer that is down on the stage, by id: two of them make a pinch. */
   private readonly pointers = new Map<number, PointPx>();
 
-  /** The live pinch: the distance between the two fingers and the zoom when it began. */
-  private pinch: { distance: number; zoom: number } | null = null;
-
-  /** The rotation the geometry was last laid out for: see `turnTo`. */
-  private appliedAngle: WrImageRotation = 0;
+  /**
+   * The live pinch: the two pointers it belongs to, the distance between them and the
+   * zoom when it began.
+   */
+  private pinch: { ids: readonly [number, number]; distance: number; zoom: number } | null = null;
 
   private emitTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Counts `(cropped)` renders, so one overtaken by a newer one is dropped: see `emitCropped`. */
+  private emitRun = 0;
 
   /** The element the live drag set pointer capture on, so the end releases that one. */
   private captureTarget: HTMLElement | null = null;
@@ -466,10 +469,16 @@ export class WrImageCropper {
   readonly status = this.statusState.asReadonly();
 
   /**
-   * The crop in the pixels of the image as the user sees it, turned: what the export's
-   * size and the announcement are made from.
+   * Resolved crop rect in natural (source) pixel coordinates: the region of the source
+   * as it is stored, before `rotation()` turns it. At `90` and `270` its width is
+   * therefore the crop window's height.
+   *
+   * The window's EDGES are carried back to the source and rounded there, and the size is
+   * what lies between them. Rounding an origin and a size separately can add up to a
+   * pixel past the image, and rounding in turned coordinates can shift the region by one
+   * on the way back.
    */
-  private readonly turnedRect = computed<WrCropRect>(() => {
+  readonly cropRect = computed<WrCropRect>(() => {
     const display = this.display();
     const n = this.natural();
     const c = this.cropDisplay();
@@ -479,34 +488,54 @@ export class WrImageCropper {
     const pan = this.pan();
     const sx = (turned ? n.h : n.w) / display.w;
     const sy = (turned ? n.w : n.h) / display.h;
+    // The window's edges on the image as it is seen, in source-sized pixels.
+    const left = ((c.x - pan.x) / zoom) * sx;
+    const top = ((c.y - pan.y) / zoom) * sy;
+    const right = left + (c.w / zoom) * sx;
+    const bottom = top + (c.h / zoom) * sy;
+    let x: [number, number];
+    let y: [number, number];
+    switch (this.laidAngle()) {
+      case 90:
+        x = [top, bottom];
+        y = [n.h - right, n.h - left];
+        break;
+      case 180:
+        x = [n.w - right, n.w - left];
+        y = [n.h - bottom, n.h - top];
+        break;
+      case 270:
+        x = [n.w - bottom, n.w - top];
+        y = [left, right];
+        break;
+      default:
+        x = [left, right];
+        y = [top, bottom];
+    }
+    const x0 = wrClamp(Math.round(x[0]), 0, n.w);
+    const y0 = wrClamp(Math.round(y[0]), 0, n.h);
     return {
-      x: Math.round(((c.x - pan.x) / zoom) * sx),
-      y: Math.round(((c.y - pan.y) / zoom) * sy),
-      width: Math.round((c.w / zoom) * sx),
-      height: Math.round((c.h / zoom) * sy),
+      x: x0,
+      y: y0,
+      width: wrClamp(Math.round(x[1]), 0, n.w) - x0,
+      height: wrClamp(Math.round(y[1]), 0, n.h) - y0,
     };
   });
 
   /**
-   * Resolved crop rect in natural (source) pixel coordinates: the region of the source
-   * as it is stored, before `rotation()` turns it. At `90` and `270` its width is
-   * therefore the crop window's height.
+   * The same region in the pixels of the image as the user sees it, turned: what the
+   * export's size and the announcement are made from.
    */
-  readonly cropRect = computed<WrCropRect>(() => {
-    const r = this.turnedRect();
+  private readonly turnedRect = computed<WrCropRect>(() => {
+    const r = this.cropRect();
     const n = this.natural();
-    switch (this.angle()) {
+    switch (this.laidAngle()) {
       case 90:
-        return { x: r.y, y: Math.max(0, n.h - r.x - r.width), width: r.height, height: r.width };
+        return { x: n.h - r.y - r.height, y: r.x, width: r.height, height: r.width };
       case 180:
-        return {
-          x: Math.max(0, n.w - r.x - r.width),
-          y: Math.max(0, n.h - r.y - r.height),
-          width: r.width,
-          height: r.height,
-        };
+        return { x: n.w - r.x - r.width, y: n.h - r.y - r.height, width: r.width, height: r.height };
       case 270:
-        return { x: Math.max(0, n.w - r.y - r.height), y: r.x, width: r.height, height: r.width };
+        return { x: r.y, y: n.w - r.x - r.width, width: r.height, height: r.width };
       default:
         return r;
     }
@@ -547,17 +576,16 @@ export class WrImageCropper {
       }
     });
 
-    // A ratio changed after the image loaded refits the window; the load itself and a drag read it directly.
+    // A ratio changed after the image loaded refits the window; the load itself and a drag
+    // read it directly. One effect with the rotation, because a turn refits too and has to
+    // come first: a ratio applied to the window before it is turned is applied to the wrong
+    // side of it. The turn's own `(cropped)` comes from the effect below.
     effect(() => {
       const ratio = this.aspectRatio();
-      untracked(() => {
-        if (this.refit(ratio)) void this.emitCropped();
-      });
-    });
-
-    effect(() => {
       const angle = this.angle();
-      untracked(() => this.turnTo(angle));
+      untracked(() => {
+        if (!this.turnTo(angle) && this.refit(ratio)) void this.emitCropped();
+      });
     });
 
     // `zoom` and `rotation` are models, so a slider or a button changes them as freely as
@@ -589,11 +617,18 @@ export class WrImageCropper {
    * `display` — see there).
    */
   private resetGeometry(): void {
+    // Whatever was under way belongs to the image that is going: a captured pointer
+    // would keep panning a stage of no size, and a pending or half-encoded `(cropped)`
+    // would come out as the next image's.
+    this.endGesture();
+    if (this.emitTimer !== null) clearTimeout(this.emitTimer);
+    this.emitTimer = null;
+    this.emitRun++;
     this.natural.set({ w: 0, h: 0 });
     this.display.set({ w: 0, h: 0 });
     this.cropDisplay.set({ x: 0, y: 0, w: 0, h: 0 });
     this.center.set({ x: 0.5, y: 0.5 });
-    this.sizerReady.set(false);
+    this.unmeasured.set(false);
   }
 
   protected onImageLoad(): void {
@@ -607,14 +642,15 @@ export class WrImageCropper {
       h: img.naturalHeight || upright.h,
     };
     // Loaded already turned: the sizer does not exist until `natural` is known, so the
-    // stage starts as `turnedGuess` and the sizer's own load corrects it.
+    // stage starts as `turnedGuess` and is measured once the sizer has rendered.
+    this.laidAngle.set(this.angle());
     const display = this.turned() && upright.w > 0 && upright.h > 0 ? this.turnedGuess(upright) : upright;
-    this.appliedAngle = this.angle();
     this.statusState.set('loaded');
     this.natural.set(natural);
     this.display.set(display);
     this.cropDisplay.set(this.initialCrop(display));
     this.watchResize(img);
+    this.measureAfterRender();
   }
 
   /**
@@ -678,15 +714,25 @@ export class WrImageCropper {
     // Nothing measured yet, or measured and then dropped by `resetGeometry` while a
     // new `src` loads. There is no crop to carry over, and the load will measure.
     if (previous.w === 0 || previous.h === 0) return;
-    // Whichever element is holding the stage open. A turned image with no sizer yet
-    // has none, and keeps the guess it was given.
-    const el = this.turned() ? (this.sizerReady() ? this.sizerEl()?.nativeElement : null) : this.imgEl().nativeElement;
+    // Whichever element is holding the stage open.
+    const turned = this.turned();
+    const el = turned ? this.sizerEl()?.nativeElement : this.imgEl().nativeElement;
     if (!el) return;
     const rect = el.getBoundingClientRect();
     // A hidden image (a closed tab, `display: none`) reports zeros. Scaling by that
     // would collapse the crop and there would be nothing to scale back from, so hold
     // the last real box until it is shown again.
-    if (rect.width === 0 || rect.height === 0) return;
+    if (rect.width === 0 || rect.height === 0) {
+      if (turned) this.unmeasured.set(true);
+      return;
+    }
+    if (turned && this.unmeasured()) {
+      // The sizer has a box again, but one capped by the size written on the stage for
+      // the time it had none. Take that size off and measure what the layout gives.
+      this.unmeasured.set(false);
+      this.measureAfterRender();
+      return;
+    }
     if (rect.width === previous.w && rect.height === previous.h) return;
 
     const sx = rect.width / previous.w;
@@ -694,20 +740,26 @@ export class WrImageCropper {
     const c = this.cropDisplay();
     this.display.set({ w: rect.width, h: rect.height });
     this.cropDisplay.set({ x: c.x * sx, y: c.y * sy, w: c.w * sx, h: c.h * sy });
+    // A live drag measures from where it began, in the pixels of the stage as it was.
+    // Left alone, its next move would put the old size back.
+    const r = this.startRect;
+    this.startRect = { x: r.x * sx, y: r.y * sy, w: r.w * sx, h: r.h * sy };
+    this.startPan = { x: this.startPan.x * sx, y: this.startPan.y * sy };
   }
 
-  /** The turned sizer decoded: it can hold the stage open now, and be watched. */
-  protected onSizerLoad(): void {
-    const el = this.sizerEl()?.nativeElement;
-    if (!el) return;
-    this.sizerReady.set(true);
-    this.resizeObserver?.observe(el);
-    this.measureAfterRender();
-  }
-
-  /** Measure the stage once the template has put the right element in the layout. */
+  /**
+   * Measure the stage once the template has put the right element in the layout, and
+   * watch the sizer from then on: it is rendered only after the image has loaded.
+   */
   private measureAfterRender(): void {
-    afterNextRender(() => this.onResize(), { injector: this.injector });
+    afterNextRender(
+      () => {
+        const sizer = this.sizerEl()?.nativeElement;
+        if (sizer) this.resizeObserver?.observe(sizer);
+        this.onResize();
+      },
+      { injector: this.injector }
+    );
   }
 
   /**
@@ -725,17 +777,22 @@ export class WrImageCropper {
    * are carried as fractions of the image and turned with it, a quarter turn at a time, so
    * the window stays over the pixels it was over. A locked `aspectRatio` is turned on its
    * side by that, and `refit` restores it the way it does when the ratio itself changes.
+   *
+   * Answers whether it turned anything. Called by the effect that follows `rotation`, and
+   * by `rotate()` at once, so a read straight after it sees the turned geometry.
    */
-  private turnTo(angle: WrImageRotation): void {
-    const from = this.appliedAngle;
-    if (from === angle) return;
-    this.appliedAngle = angle;
+  private turnTo(angle: WrImageRotation): boolean {
+    const from = this.laidAngle();
+    if (from === angle) return false;
     const d = this.display();
-    if (this.statusState() !== 'loaded' || d.w === 0 || d.h === 0) return;
+    if (this.statusState() !== 'loaded' || d.w === 0 || d.h === 0) {
+      this.laidAngle.set(angle);
+      return false;
+    }
     this.endGesture();
 
-    // `angle()` has changed already, but nothing below reads it: `pan` is a function of
-    // the centre, the zoom and the stage, none of which has moved yet.
+    // Read before `laidAngle` moves, though none of it depends on the angle: `pan` is a
+    // function of the centre, the zoom and the stage.
     const zoom = this.zoomLevel();
     const pan = this.pan();
     const c = this.cropDisplay();
@@ -756,6 +813,8 @@ export class WrImageCropper {
     const next = panFor(center, zoom, stage);
     const w = Math.min(stage.w, crop.w * zoom * stage.w);
     const h = Math.min(stage.h, crop.h * zoom * stage.h);
+    this.laidAngle.set(angle);
+    this.unmeasured.set(false);
     this.display.set(stage);
     this.center.set(center);
     this.cropDisplay.set({
@@ -766,6 +825,7 @@ export class WrImageCropper {
     });
     this.refit(this.aspectRatio());
     this.measureAfterRender();
+    return true;
   }
 
   /** Shrink the crop window to `ratio`, around its centre. Answers whether it had to. */
@@ -925,7 +985,8 @@ export class WrImageCropper {
       this.pointerId = null;
       this.captureTarget = null;
       this.overhang = NO_SIDES;
-      this.pinch = { distance: Math.hypot(a.x - b.x, a.y - b.y) || 1, zoom: this.zoomLevel() };
+      const ids = [...this.pointers.keys()] as [number, number];
+      this.pinch = { ids, distance: Math.hypot(a.x - b.x, a.y - b.y) || 1, zoom: this.zoomLevel() };
       return;
     }
     // At zoom 1 the image fills the stage exactly and there is nowhere to pan to.
@@ -946,8 +1007,10 @@ export class WrImageCropper {
     pointer.x = event.clientX;
     pointer.y = event.clientY;
     if (this.pinch) {
-      if (this.pointers.size !== 2) return;
-      const [a, b] = [...this.pointers.values()];
+      // Its own two fingers only: a third contact neither pauses the pinch nor steers it.
+      const a = this.pointers.get(this.pinch.ids[0]);
+      const b = this.pointers.get(this.pinch.ids[1]);
+      if (!a || !b || !this.pinch.ids.includes(event.pointerId)) return;
       const distance = Math.hypot(a.x - b.x, a.y - b.y);
       this.zoomAt((this.pinch.zoom * distance) / this.pinch.distance, this.onStage((a.x + b.x) / 2, (a.y + b.y) / 2));
       return;
@@ -962,7 +1025,9 @@ export class WrImageCropper {
   protected onStagePointerUp(event: PointerEvent): void {
     if (!this.pointers.delete(event.pointerId)) return;
     if (this.pinch) {
-      // Either finger lifting ends it; the one left down does nothing until it presses again.
+      // Either of its two fingers lifting ends it, and the one left down does nothing
+      // until it presses again. Any other finger lifting is not the pinch's business.
+      if (!this.pinch.ids.includes(event.pointerId)) return;
       this.pinch = null;
       this.scheduleEmit();
       return;
@@ -1009,6 +1074,8 @@ export class WrImageCropper {
   /** Move the image's top-left corner to `(x, y)` on the stage, as near as the stage allows. */
   private setPan(x: number, y: number): void {
     const d = this.display();
+    // No stage, no pan: dividing by its size below would store a centre that is not a number.
+    if (d.w === 0 || d.h === 0) return;
     const zoom = this.zoomLevel();
     const px = wrClamp(x, d.w - zoom * d.w, 0);
     const py = wrClamp(y, d.h - zoom * d.h, 0);
@@ -1235,6 +1302,9 @@ export class WrImageCropper {
    */
   rotate(direction: 'cw' | 'ccw' = 'cw'): void {
     this.rotation.set(((this.angle() + (direction === 'ccw' ? 270 : 90)) % 360) as WrImageRotation);
+    // The effect would get here on the next change detection; a caller that exports in
+    // the same breath needs the geometry turned now.
+    this.turnTo(this.angle());
   }
 
   /** Re-emit the crop without waiting for a drag (e.g. after a programmatic change). */
@@ -1279,7 +1349,7 @@ export class WrImageCropper {
     // capped export is the same region drawn smaller rather than a smaller region.
     const ctx = canvas.getContext('2d');
     if (!ctx) return canvas;
-    const angle = this.angle();
+    const angle = this.laidAngle();
     if (angle === 0) {
       ctx.drawImage(img, c.x, c.y, c.width, c.height, 0, 0, canvas.width, canvas.height);
       return canvas;
@@ -1296,9 +1366,13 @@ export class WrImageCropper {
 
   private async emitCropped(): Promise<void> {
     if (this.status() !== 'loaded') return;
+    // Encoding is asynchronous and takes as long as it takes, so an older crop can come
+    // back after a newer one. Only the latest request emits, and a new source disowns
+    // them all, or the consumer would be left holding a crop that is no longer the crop.
+    const run = ++this.emitRun;
     try {
       const blob = await this.toBlob();
-      this.cropped.emit(blob);
+      if (run === this.emitRun) this.cropped.emit(blob);
     } catch (error) {
       // An image IS loaded, so a failure here is the browser refusing to encode it,
       // and `(cropped)` not firing has to be visible to the developer. It used to be
