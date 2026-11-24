@@ -28,4 +28,11 @@ describe('wrIntl cache', () => {
     expect(wrIntlNumberFormat('en', options).format(1.5)).toBe('2');
     expect(wrIntlNumberFormat('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })).toBe(first);
   });
+
+  it('reads inherited options rather than reusing a formatter keyed on own ones', () => {
+    wrIntlNumberFormat('en', {});
+    const inherited = Object.create({ style: 'percent' }) as Intl.NumberFormatOptions;
+
+    expect(wrIntlNumberFormat('en', inherited).format(0.5)).toBe('50%');
+  });
 });
