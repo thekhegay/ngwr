@@ -50,6 +50,11 @@ export class WrDateStampHarness extends ComponentHarness {
     return (await (await this.locatorForOptional('.wr-date-stamp__time')())?.text()) ?? null;
   }
 
+  /** The relative line ("5 minutes ago"), or `null` when the stamp is empty or not `relative`. */
+  async getRelative(): Promise<string | null> {
+    return (await (await this.locatorForOptional('.wr-date-stamp__relative')())?.text()) ?? null;
+  }
+
   /**
    * The `datetime` attribute: the instant in ISO 8601 (UTC), or `yyyy-MM-dd` for a
    * date-only value. `null` when the stamp is empty.
