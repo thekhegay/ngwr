@@ -113,6 +113,14 @@ const MOVE_KEYS: ReadonlySet<string> = new Set([
 /** How long a drag rests on a collapsed branch before it opens. */
 const HOVER_EXPAND_MS = 700;
 
+/** Pads follow from `start`, `end`, the row height and the total, so a scroll inside one row changes nothing. */
+function sameWindow(
+  a: { start: number; end: number; padTop: number; padBottom: number },
+  b: { start: number; end: number; padTop: number; padBottom: number }
+): boolean {
+  return a.start === b.start && a.end === b.end && a.padTop === b.padTop && a.padBottom === b.padBottom;
+}
+
 function isLazy<TId>(node: WrTreeNode<TId>): boolean {
   return node.children === undefined && node.hasChildren === true;
 }
@@ -820,21 +828,24 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   });
 
   /** Rendered window [start,end) + spacer pads (px). Pure math from `scrollTop`. */
-  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
-    const total = this.flat().length;
-    if (!this.virtualized() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
-    const h = this.effRowH();
-    const vp = this.viewportPx() || this.fallbackViewportPx();
-    const over = this.overscan();
-    // Clamp `first` so a transient effRowH shrink (auto-measure landing below the
-    // fallback within one frame) can't push it past the list and slice to empty.
-    const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
-    // `+ 1` covers the partial row at the viewport's bottom edge even at overscan 0.
-    const count = Math.ceil(vp / h) + 1;
-    const start = Math.max(0, first - over);
-    const end = Math.min(total, first + count + over);
-    return { start, end, padTop: start * h, padBottom: (total - end) * h };
-  });
+  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(
+    () => {
+      const total = this.flat().length;
+      if (!this.virtualized() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
+      const h = this.effRowH();
+      const vp = this.viewportPx() || this.fallbackViewportPx();
+      const over = this.overscan();
+      // Clamp `first` so a transient effRowH shrink (auto-measure landing below the
+      // fallback within one frame) can't push it past the list and slice to empty.
+      const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
+      // `+ 1` covers the partial row at the viewport's bottom edge even at overscan 0.
+      const count = Math.ceil(vp / h) + 1;
+      const start = Math.max(0, first - over);
+      const end = Math.min(total, first + count + over);
+      return { start, end, padTop: start * h, padBottom: (total - end) * h };
+    },
+    { equal: sameWindow }
+  );
 
   /** Nodes placed in the list. SAME array instance as `flat()` when off → byte-identical DOM. */
   protected readonly windowRows = computed<readonly FlatNode<TId>[]>(() => {
@@ -945,7 +956,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     effect(onCleanup => {
       if (!isPlatformBrowser(this.platformId) || !this.virtualScroll()) return;
       const open = this.isOverlay() ? this.isOpen() : true;
-      this.flat();
+      // Rows appearing in an empty list are what mounts the measured row, so track that flip alone.
+      this.virtualized();
       if (!open) return;
       let raf = 0;
       let ro: ResizeObserver | null = null;

@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import type { WrColor } from 'ngwr/theme';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrDivider } from './divider';
 import type { WrDividerAlign, WrDividerType } from './types';
@@ -84,6 +84,21 @@ describe('WrDivider', () => {
 
   it('projects a label into the line', () => {
     expect(host().textContent.trim()).toBe('OR');
+  });
+
+  it('leaves the DOM alone on a pass where nothing changed', async () => {
+    await fixture.whenStable();
+    const write = vi.spyOn(host(), 'setAttribute');
+    const read = vi.spyOn(Node.prototype, 'textContent', 'get');
+
+    fixture.componentInstance.width.set(2);
+    await fixture.whenStable();
+    fixture.componentInstance.width.set(3);
+    await fixture.whenStable();
+
+    expect(write).not.toHaveBeenCalled();
+    expect(read).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
   });
 
   it('names the separator with that label', async () => {

@@ -47,6 +47,7 @@ export {
   wrNoteFocusReturn,
   wrFocusFirstInvalid,
   wrWatchDragCancel,
+  wrWatchContent,
 } from './dom';
 export type { WrWatchColorSchemeOptions, WrColorScheme, WrFocusFirstInvalidOptions } from './dom';
 

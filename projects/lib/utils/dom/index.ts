@@ -9,3 +9,4 @@ export { wrResolveCssColor, wrResolveCssColorChannels } from './resolve-css-colo
 export { wrWatchColorScheme } from './watch-color-scheme';
 export type { WrWatchColorSchemeOptions, WrColorScheme } from './watch-color-scheme';
 export { wrWatchDragCancel } from './watch-drag-cancel';
+export { wrWatchContent } from './watch-content';

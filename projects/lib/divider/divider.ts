@@ -18,7 +18,7 @@ import {
 } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrWatchContent } from 'ngwr/utils';
 
 import type { WrDividerAlign, WrDividerType } from './types';
 
@@ -107,7 +107,7 @@ export class WrDivider {
     // hook stays because a single effect run cannot follow a label that changes
     // afterwards, and it reads nothing reactive to be re-run by.
     effect(() => this.syncLabel());
-    afterEveryRender(() => this.syncLabel());
+    afterEveryRender(wrWatchContent(this.host.nativeElement, () => this.syncLabel()));
   }
 
   /**
@@ -132,7 +132,7 @@ export class WrDivider {
     if (this.authored !== null) return;
 
     const label = el.textContent?.trim();
-    if (label) el.setAttribute('aria-label', label);
-    else el.removeAttribute('aria-label');
+    if (!label) el.removeAttribute('aria-label');
+    else if (el.getAttribute('aria-label') !== label) el.setAttribute('aria-label', label);
   }
 }
