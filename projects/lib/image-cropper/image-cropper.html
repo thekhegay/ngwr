@@ -32,26 +32,30 @@
       (error)="onImageError()"
     />
 
-    <!-- Holds the stage open in the turned image's shape while the image is turned. -->
-    @if (sizerUrl(); as sizer) {
-      <img
+    <!--
+      Holds the stage open in the turned image's shape while the image is turned: a blank
+      canvas with the source's dimensions swapped, which the stylesheet sizes as it sizes
+      the image.
+    -->
+    @if (natural().w > 0) {
+      <canvas
         #sizer
         class="wr-image-cropper__sizer"
-        [class.wr-image-cropper__sizer--on]="sizerOn()"
-        [src]="sizer"
-        alt=""
         aria-hidden="true"
-        draggable="false"
-        (load)="onSizerLoad()"
-      />
+        [class.wr-image-cropper__sizer--on]="parked()"
+        [width]="natural().h"
+        [height]="natural().w"
+      ></canvas>
     }
 
     @if (display().w > 0) {
       <!--
-        The picture itself, zoomed, panned and turned. A second request for the same URL
-        with the same `crossorigin` is answered from the document's own image list, so it
-        costs no fetch. The viewport clips it; the stage cannot, or it would clip the
-        handles that overhang its edge.
+        The picture itself, zoomed, panned and turned. It asks for the same URL with the
+        same `crossorigin` as the image above. A browser usually answers that from the
+        document's own image list, but it may drop the entry and fetch again, so a failure
+        here is reported like the first image's: `(loadError)` and the failed state. The
+        viewport clips it; the stage cannot, or it would clip the handles that overhang
+        its edge.
       -->
       <div class="wr-image-cropper__viewport">
         <img
@@ -60,6 +64,7 @@
           [src]="url"
           alt=""
           draggable="false"
+          (error)="onImageError()"
           [style.width.px]="view().w"
           [style.height.px]="view().h"
           [style.transform]="view().transform"
