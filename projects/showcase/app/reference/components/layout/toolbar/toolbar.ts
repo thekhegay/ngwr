@@ -34,6 +34,10 @@ export default class ToolbarPageComponent {
 
   protected readonly arrowSnippet = `<wr-toolbar arrowKeys aria-label="Item actions">
   <div wrToolbarStart><wr-btn>Back</wr-btn></div>
+  <div wrToolbarCenter>
+    <wr-btn>Grid</wr-btn>
+    <wr-btn>List</wr-btn>
+  </div>
   <div wrToolbarEnd><wr-btn color="primary">New</wr-btn></div>
 </wr-toolbar>`;
 

@@ -22,6 +22,18 @@
   }
 }
 
+// Output lines of a pipe or function, one under the other, as the HTML tab
+// beside them writes them.
+.ngwr-demo-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wr-space-sm);
+
+  > * {
+    margin: 0;
+  }
+}
+
 // A colour sample beside its token in a table: a square painted by an inline
 // `background`, as tall as the text beside it. Kept under forced colors, where a
 // background is otherwise reset to the page's own.
