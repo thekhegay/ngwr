@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrOption } from './option';
 import { WrOptionLeading } from './option-leading';
@@ -865,5 +865,58 @@ describe('WrOptionLeading item', () => {
     const rows = [...document.querySelectorAll<HTMLElement>('wr-option')];
     expect(rows.map(r => r.querySelector('.probe')?.textContent)).toEqual(['same:Almaty', 'same:Astana']);
     fixture.destroy();
+  });
+});
+
+@Component({
+  imports: [WrSelect, WrOption],
+  template: `
+    <wr-select ariaLabel="Fruit" [(value)]="value">
+      <wr-option value="a">{{ first() }}</wr-option>
+      <wr-option value="b">Banana</wr-option>
+    </wr-select>
+  `,
+})
+class TextHost {
+  readonly value = signal<string | null>('a');
+  readonly first = signal('Apple');
+}
+
+describe('WrOption label from projected text', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<TextHost>>;
+
+  const valueText = (): string | undefined =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-select__value')?.textContent.trim();
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(TextHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('follows a text the consumer changes', async () => {
+    expect(valueText()).toBe('Apple');
+
+    fixture.componentInstance.first.set('Apricot');
+    await fixture.whenStable();
+
+    expect(valueText()).toBe('Apricot');
+  });
+
+  it('does not walk the option children on a pass where nothing changed', async () => {
+    const walked = vi.spyOn(Node.prototype, 'childNodes', 'get');
+
+    fixture.componentInstance.value.set('b');
+    await fixture.whenStable();
+    fixture.componentInstance.value.set('a');
+    await fixture.whenStable();
+
+    expect(valueText()).toBe('Apple');
+    expect(walked).toHaveBeenCalledTimes(0);
   });
 });

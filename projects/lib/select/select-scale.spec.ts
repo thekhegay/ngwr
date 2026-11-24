@@ -39,6 +39,30 @@ class SearchHost {
 
 @Component({
   imports: [WrSelect],
+  template: `
+    <wr-select
+      mode="search"
+      ariaLabel="City"
+      virtualScroll
+      [rowHeight]="20"
+      [viewportHeight]="200"
+      [overscan]="2"
+      [options]="items"
+      [displayWith]="name"
+      [valueWith]="id"
+      [(value)]="city"
+    />
+  `,
+})
+class IdHost {
+  readonly items = cities();
+  readonly city = signal<number | readonly number[] | null>(null);
+  readonly name = (city: City): string => city.name;
+  readonly id = vi.fn((city: City): number => city.id);
+}
+
+@Component({
+  imports: [WrSelect],
   template: `<wr-select ariaLabel="City" [options]="items()" [displayWith]="name" [(value)]="city" />`,
 })
 class PlainHost {
@@ -111,6 +135,24 @@ describe('WrSelect with thousands of options', () => {
 
       expect(compared.mock.calls.length).toBeLessThan(3 * COUNT);
     }, 120_000);
+
+    it('keeps the keyboard order across a changed list', () => {
+      const plain = fixture as ComponentFixture<PlainHost>;
+      trigger().click();
+      fixture.detectChanges();
+      compared.mockClear();
+
+      plain.componentInstance.items.set(cities().slice(1, COUNT - 1));
+      fixture.detectChanges();
+      press('ArrowDown');
+      press('ArrowDown');
+
+      expect(rows()).toHaveLength(COUNT - 2);
+      expect(document.getElementById(trigger().getAttribute('aria-activedescendant')!)?.textContent.trim()).toBe(
+        'City 2'
+      );
+      expect(compared.mock.calls.length).toBeLessThan(COUNT);
+    }, 120_000);
   });
 
   describe('searching', () => {
@@ -158,6 +200,72 @@ describe('WrSelect with thousands of options', () => {
       const drawn = name.mock.calls.length - COUNT;
       expect(drawn).toBeGreaterThanOrEqual(0);
       expect(drawn).toBeLessThan(COUNT / 10);
+    });
+  });
+
+  describe('the virtual list', () => {
+    let realScrollTo: PropertyDescriptor | undefined;
+    let scrollListeners: MockInstance<HTMLElement['addEventListener']>;
+
+    const field = (): HTMLInputElement => host().querySelector<HTMLInputElement>('.wr-select__search-input')!;
+    const vlist = (): HTMLElement => document.querySelector<HTMLElement>('.wr-select-panel__vlist')!;
+    const scrolls = (): number => scrollListeners.mock.calls.filter(([type]) => type === 'scroll').length;
+    const frame = (): Promise<void> => new Promise(resolve => requestAnimationFrame(() => resolve()));
+
+    beforeEach(() => {
+      realScrollTo = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollTo');
+      Object.defineProperty(Element.prototype, 'scrollTo', {
+        value: (): void => undefined,
+        configurable: true,
+        writable: true,
+      });
+      fixture = TestBed.createComponent(IdHost);
+      fixture.detectChanges();
+      scrollListeners = vi.spyOn(HTMLElement.prototype, 'addEventListener');
+    });
+
+    afterEach(() => {
+      if (realScrollTo) Object.defineProperty(Element.prototype, 'scrollTo', realScrollTo);
+      else delete (Element.prototype as { scrollTo?: unknown }).scrollTo;
+    });
+
+    it('listens to one scroll per open, even when the panel reopens before the first attach', async () => {
+      const open = (): void => {
+        field().dispatchEvent(new FocusEvent('focus'));
+        fixture.detectChanges();
+      };
+      open();
+      field().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      open();
+      await Promise.resolve();
+
+      expect(vlist()).not.toBeNull();
+      expect(scrolls()).toBe(1);
+    });
+
+    it('keeps the window for a scroll inside one row', async () => {
+      const ids = (fixture as ComponentFixture<IdHost>).componentInstance.id;
+      field().dispatchEvent(new FocusEvent('focus'));
+      fixture.detectChanges();
+      await Promise.resolve();
+      fixture.detectChanges();
+      expect(vlist()).not.toBeNull();
+      await frame();
+      fixture.detectChanges();
+      ids.mockClear();
+
+      vlist().scrollTop = 5;
+      vlist().dispatchEvent(new Event('scroll'));
+      await frame();
+      fixture.detectChanges();
+      expect(ids).not.toHaveBeenCalled();
+
+      vlist().scrollTop = 45;
+      vlist().dispatchEvent(new Event('scroll'));
+      await frame();
+      fixture.detectChanges();
+      expect(ids).toHaveBeenCalled();
     });
   });
 

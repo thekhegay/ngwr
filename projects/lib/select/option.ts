@@ -25,7 +25,7 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrWatchContent } from 'ngwr/utils';
 
 import { WrOptionLeading } from './option-leading';
 import { WR_SELECT } from './tokens';
@@ -241,7 +241,8 @@ export class WrOption {
         destroyRef.onDestroy(parent.registerOption(reg));
       });
 
-      afterEveryRender(() => this.syncLabel());
+      const flush = wrWatchContent(this.host.nativeElement, () => this.syncLabel());
+      afterEveryRender(flush);
     }
   }
 

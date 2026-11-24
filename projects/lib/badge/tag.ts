@@ -24,7 +24,7 @@ import { useI18nFormatter, wrReadI18nText } from 'ngwr/i18n';
 import { WrIcon, type WrIconName } from 'ngwr/icon';
 import { WrSpinner } from 'ngwr/spinner';
 import type { WrColor } from 'ngwr/theme';
-import { wrCheckStyles, wrGetFocusableElements } from 'ngwr/utils';
+import { wrCheckStyles, wrGetFocusableElements, wrWatchContent } from 'ngwr/utils';
 
 import type { WrTagIconPosition, WrTagSize } from './types';
 
@@ -61,9 +61,11 @@ export class WrTag {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('badge');
     // The label is projected, so only the DOM knows it, and the parent can
     // rewrite it without this component being checked.
-    afterEveryRender(() => {
-      if (this.closable()) this.text.set(this.readText());
-    });
+    afterEveryRender(
+      wrWatchContent(this.host.nativeElement, () => {
+        if (this.closable()) this.text.set(this.readText());
+      })
+    );
   }
 
   /**

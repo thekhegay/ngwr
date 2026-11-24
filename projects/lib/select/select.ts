@@ -99,6 +99,14 @@ const SELECT_ALL_INDEX = -2;
  */
 const ANNOUNCE_DELAY = 500;
 
+/** Pads follow from `start`, `end`, the row height and the total, so a scroll inside one row changes nothing. */
+function sameWindow(
+  a: { start: number; end: number; padTop: number; padBottom: number },
+  b: { start: number; end: number; padTop: number; padBottom: number }
+): boolean {
+  return a.start === b.start && a.end === b.end && a.padTop === b.padTop && a.padBottom === b.padBottom;
+}
+
 function searchLabelOf(option: WrSelectOptionRegistration): string {
   return option.searchLabel ? option.searchLabel() : option.label().toLowerCase();
 }
@@ -1141,18 +1149,21 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
   });
 
   /** Rendered window [start,end) + spacer pads (px). */
-  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(() => {
-    const total = this.filteredDynamicOptions().length;
-    if (!this.virtualActive() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
-    const h = this.effRowH();
-    const vp = this.viewportPx() || this.fallbackViewportPx();
-    const over = this.overscan();
-    const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
-    const count = Math.ceil(vp / h) + 1;
-    const start = Math.max(0, first - over);
-    const end = Math.min(total, first + count + over);
-    return { start, end, padTop: start * h, padBottom: (total - end) * h };
-  });
+  protected readonly virtualWindow = computed<{ start: number; end: number; padTop: number; padBottom: number }>(
+    () => {
+      const total = this.filteredDynamicOptions().length;
+      if (!this.virtualActive() || total === 0) return { start: 0, end: total, padTop: 0, padBottom: 0 };
+      const h = this.effRowH();
+      const vp = this.viewportPx() || this.fallbackViewportPx();
+      const over = this.overscan();
+      const first = Math.min(Math.floor(this.scrollTop() / h), total - 1);
+      const count = Math.ceil(vp / h) + 1;
+      const start = Math.max(0, first - over);
+      const end = Math.min(total, first + count + over);
+      return { start, end, padTop: start * h, padBottom: (total - end) * h };
+    },
+    { equal: sameWindow }
+  );
 
   /** The windowed slice of options, each carrying its absolute index. */
   protected readonly windowOptions = computed<readonly { item: T; value: V; index: number }[]>(() => {
@@ -1908,6 +1919,8 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
       let raf = 0;
       let ro: ResizeObserver | null = null;
       let el: HTMLElement | null = null;
+      // The cleanup can run before the microtask: nothing would be attached yet to remove.
+      let cancelled = false;
       const onScroll = (): void => {
         if (raf) return;
         raf = requestAnimationFrame(() => {
@@ -1916,6 +1929,7 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
         });
       };
       queueMicrotask(() => {
+        if (cancelled) return;
         el = this.vlistElement;
         if (!el) return;
         this.viewportPx.set(el.clientHeight);
@@ -1939,6 +1953,7 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
         }
       });
       onCleanup(() => {
+        cancelled = true;
         if (raf) cancelAnimationFrame(raf);
         if (el) el.removeEventListener('scroll', onScroll);
         ro?.disconnect();
@@ -2013,8 +2028,12 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
     }
     this.registryVersion.update(n => n + 1);
     return () => {
+      const current = this.registrations.get(reg.id);
       this.registrations.delete(reg.id);
-      this.orderStale = true;
+      // Dropping one entry keeps a sorted list sorted, so only a miss needs the re-sort.
+      const slot = this.orderStale || !current ? -1 : this.ordered.indexOf(current);
+      if (slot < 0) this.orderStale = true;
+      else this.ordered.splice(slot, 1);
       this.registryVersion.update(n => n + 1);
     };
   }
