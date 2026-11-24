@@ -28,6 +28,11 @@ import { wrCheckStyles } from 'ngwr/utils';
 
 import type { WrAnchorLink } from './types';
 
+/** The viewport top of a container's padding edge, where its scrolling starts. */
+function paddingTop(box: HTMLElement): number {
+  return box.getBoundingClientRect().top + box.clientTop;
+}
+
 /**
  * Scroll-spy in-page navigation. Renders a list of links to elements on
  * the page; clicking a link smooth-scrolls (via {@link WrScroll}),
@@ -142,8 +147,8 @@ export class WrAnchor {
         this.pinned = null;
       }
       this.lastY = y;
-      // Measured from the container's top edge, the way `WrScroll` lands a click.
-      const cursor = (box ? box.getBoundingClientRect().top : 0) + this.offset() + this.hitArea();
+      // Measured from the container's padding edge, the way `WrScroll` lands a click.
+      const cursor = (box ? paddingTop(box) : 0) + this.offset() + this.hitArea();
       let active: string | null = null;
       for (const id of this.flatIds()) {
         const el = document.getElementById(id);
@@ -204,7 +209,7 @@ export class WrAnchor {
       const root = box ?? document.documentElement;
       const max = Math.max(0, root.scrollHeight - root.clientHeight);
       const from = box ? box.scrollTop : window.scrollY;
-      const top = target.getBoundingClientRect().top - (box ? box.getBoundingClientRect().top : 0);
+      const top = target.getBoundingClientRect().top - (box ? paddingTop(box) : 0);
       this.pinned = { id, y: Math.min(max, Math.max(0, top + from - this.offset())) };
       this.lastY = from;
     }

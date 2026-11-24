@@ -148,28 +148,29 @@
 
   // Columns. The list is a grid of equal tracks and every item is one cell,
   // `span` wide. Each selector list below names the inline variants too, to
-  // outweigh the two-track grid those rules give the list.
+  // outweigh the two-track grid those rules give the list. Child combinators
+  // keep a list nested in a cell out of the grid.
   &--columns {
     --wr-descriptions-list-column-gap: var(--wr-space-lg);
   }
 
-  &--columns &__list,
-  &--columns#{&}--inline &__list,
-  &--columns#{&}--bordered#{&}--inline &__list {
+  &--columns > &__list,
+  &--columns#{&}--inline > &__list,
+  &--columns#{&}--bordered#{&}--inline > &__list {
     display: grid;
     grid-template-columns: repeat(var(--wr-descriptions-columns), minmax(0, 1fr));
     align-items: stretch;
   }
 
-  &--columns &__row {
+  &--columns > &__list > &__row {
     grid-column: span var(--wr-descriptions-span, 1);
     min-width: 0;
   }
 
   // Inline: the item is a cell again rather than `display: contents`, with the
   // label and value tracks of the one-column inline list inside it.
-  &--columns#{&}--inline &__row,
-  &--columns#{&}--bordered#{&}--inline &__row {
+  &--columns#{&}--inline > &__list > &__row,
+  &--columns#{&}--bordered#{&}--inline > &__list > &__row {
     display: grid;
     grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
     gap: 0 var(--wr-descriptions-list-column-gap);
@@ -180,28 +181,28 @@
   // neighbours share the gap, the list clips the outer edge under its own
   // border, and a row a span leaves short keeps the rules of the cells around
   // the empty track. A border could not: it would need to know its column.
-  &--columns#{&}--bordered &__list,
-  &--columns#{&}--bordered#{&}--inline &__list {
+  &--columns#{&}--bordered > &__list,
+  &--columns#{&}--bordered#{&}--inline > &__list {
     gap: 1px;
   }
 
-  &--columns#{&}--bordered &__row {
+  &--columns#{&}--bordered > &__list > &__row {
     outline: 1px solid var(--wr-descriptions-border);
   }
 
-  &--columns#{&}--bordered &__row + &__row,
-  &--columns#{&}--bordered#{&}--inline &__row + &__row {
+  &--columns#{&}--bordered > &__list > &__row + &__row,
+  &--columns#{&}--bordered#{&}--inline > &__list > &__row + &__row {
     border-top: 0;
   }
 
-  &--columns#{&}--bordered#{&}--inline &__row {
+  &--columns#{&}--bordered#{&}--inline > &__list > &__row {
     gap: 0;
     padding: 0;
     align-items: stretch;
   }
 
-  &--columns#{&}--bordered#{&}--inline &__label,
-  &--columns#{&}--bordered#{&}--inline &__value {
+  &--columns#{&}--bordered#{&}--inline > &__list > &__row > &__label,
+  &--columns#{&}--bordered#{&}--inline > &__list > &__row > &__value {
     border-top: 0;
   }
 }
@@ -262,25 +263,25 @@
 
   // A `columns` grid drops to one track, and a span with it, or the item
   // would ask for tracks the list no longer has and push the box wide.
-  .wr-descriptions--columns .wr-descriptions__list,
-  .wr-descriptions--columns.wr-descriptions--inline .wr-descriptions__list,
-  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__list {
+  .wr-descriptions--columns > .wr-descriptions__list,
+  .wr-descriptions--columns.wr-descriptions--inline > .wr-descriptions__list,
+  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline > .wr-descriptions__list {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .wr-descriptions--columns .wr-descriptions__row {
+  .wr-descriptions--columns > .wr-descriptions__list > .wr-descriptions__row {
     grid-column: auto;
   }
 
-  .wr-descriptions--columns.wr-descriptions--inline .wr-descriptions__row,
-  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row {
+  .wr-descriptions--columns.wr-descriptions--inline > .wr-descriptions__list > .wr-descriptions__row,
+  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline > .wr-descriptions__list > .wr-descriptions__row {
     display: flex;
     flex-direction: column;
     gap: var(--wr-descriptions-row-gap);
     align-items: stretch;
   }
 
-  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline .wr-descriptions__row {
+  .wr-descriptions--columns.wr-descriptions--bordered.wr-descriptions--inline > .wr-descriptions__list > .wr-descriptions__row {
     padding: var(--wr-descriptions-row-padding-y) var(--wr-descriptions-row-padding-x);
   }
 }
