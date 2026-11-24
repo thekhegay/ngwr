@@ -187,7 +187,8 @@ export class WrToolbar {
           return;
       }
       event.preventDefault();
-      all[next].focus();
+      // Firefox keeps a mouse-clicked control's ring off for a focus moved by script.
+      all[next].focus({ focusVisible: true });
     };
 
     sync();

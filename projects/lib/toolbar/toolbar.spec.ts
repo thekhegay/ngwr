@@ -7,7 +7,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { Subject } from 'rxjs';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrToolbar } from './toolbar';
 
@@ -301,6 +301,13 @@ describe('WrToolbar arrowKeys', () => {
     expect(document.activeElement).toBe(el('a'));
     press(el('a'), 'ArrowLeft');
     expect(document.activeElement).toBe(el('c'));
+  });
+
+  it('asks for a visible ring on the control an arrow moves to', async () => {
+    await mount();
+    const focus = vi.spyOn(el('b'), 'focus');
+    press(el('a'), 'ArrowRight');
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
   });
 
   it('jumps to the ends with Home and End', async () => {
