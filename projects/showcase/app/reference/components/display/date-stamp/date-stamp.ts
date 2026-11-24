@@ -36,6 +36,8 @@ interface Shift {
 export default class DateStampPageComponent {
   protected readonly created = new Date(Date.UTC(2026, 10, 12, 8, 45, 30));
   protected readonly now = new Date();
+  protected readonly soon = new Date(this.now.getTime() + 90_000);
+  protected readonly earlier = new Date(this.now.getTime() - 3 * 3_600_000);
 
   protected readonly columns: WrTableColumns<Shift> = {
     id: { title: 'Shift' },
@@ -78,6 +80,8 @@ providers: [
     today: `<wr-date-stamp [value]="message.sentAt" todayTimeOnly />
 <wr-date-stamp [value]="at" seconds />                     <!-- time is read as timeSeconds -->
 <wr-date-stamp [value]="at" timeFormat="HH:mm" seconds />  <!-- HH:mm:ss -->`,
+    relative: `<wr-date-stamp [value]="comment.createdAt" relative />  <!-- "5 minutes ago", then "6 minutes ago" -->
+<wr-date-stamp [value]="task.dueAt" relative />          <!-- "in 2 minutes" -->`,
     defaults: `import { provideWr } from 'ngwr';
 import { withDates } from 'ngwr/date';
 

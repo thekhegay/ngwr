@@ -288,6 +288,7 @@ export const ROUTES = {
       wrTruncate: { path: 'wr-truncate', title: 'wrTruncate' },
       wrMark: { path: 'wr-mark', title: 'wrMark' },
       wrPlural: { path: 'wr-plural', title: 'wrPlural' },
+      wrRelativeTime: { path: 'wr-relative-time', title: 'wrRelativeTime' },
       wrRange: { path: 'wr-range', title: 'wrRange' },
     },
     services: {

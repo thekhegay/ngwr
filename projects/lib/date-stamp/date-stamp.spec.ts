@@ -390,3 +390,227 @@ describe('WrDateStamp options', () => {
     });
   });
 });
+
+@Component({
+  imports: [WrDateStamp],
+  template: `<wr-date-stamp [value]="value()" [relative]="relative()" dateFormat="dd.MM.yyyy" timeFormat="HH:mm" />`,
+})
+class Relative {
+  readonly value = signal<Date | string | number | null>(null);
+  readonly relative = signal(true);
+}
+
+describe('WrDateStamp relative', () => {
+  // 12:00 at +05:00 on 12 November.
+  const NOW = Date.UTC(2026, 10, 12, 7, 0, 0);
+  const SECOND = 1000;
+  const MINUTE = 60 * SECOND;
+  const HOUR = 60 * MINUTE;
+  const DAY = 24 * HOUR;
+
+  let fixture: ComponentFixture<Relative>;
+
+  const create = <T>(type: new () => T, dates: Parameters<typeof withDates>[0] = {}): ComponentFixture<T> => {
+    vi.useFakeTimers({ now: NOW });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'en-US' }, provideWr(withDates({ timeZone: '+05:00', ...dates }))],
+    });
+    return TestBed.createComponent(type);
+  };
+  const setup = (value: Date | string | number | null, dates?: Parameters<typeof withDates>[0]): void => {
+    fixture = create(Relative, dates);
+    fixture.componentInstance.value.set(value);
+    fixture.detectChanges();
+  };
+  const time = (): HTMLTimeElement | null => (fixture.nativeElement as HTMLElement).querySelector('time');
+  const text = (): string | null =>
+    (fixture.nativeElement as HTMLElement).querySelector('.wr-date-stamp__relative')?.textContent ?? null;
+  /** Let the clock run, then render what the timers left behind. */
+  const advance = (ms: number): void => {
+    vi.advanceTimersByTime(ms);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.useRealTimers();
+  });
+
+  it('shows the relative text alone, with the date and the time in the title', () => {
+    setup(new Date(NOW - 5 * MINUTE));
+    expect(text()).toBe('5 minutes ago');
+    expect([...time()!.children].map(child => child.className)).toEqual(['wr-date-stamp__relative']);
+    expect(time()!.getAttribute('title')).toBe('12.11.2026, 11:55');
+    expect(time()!.getAttribute('datetime')).toBe('2026-11-12T06:55:00.000Z');
+  });
+
+  it('reads the future as the future', () => {
+    setup(new Date(NOW + SECOND));
+    expect(text()).toBe('in 1 second');
+    advance(1);
+    expect(text()).toBe('now');
+    advance(SECOND);
+    expect(text()).toBe('now');
+    advance(SECOND - 1);
+    expect(text()).toBe('1 second ago');
+  });
+
+  it('advances each second under a minute, then each minute', () => {
+    setup(new Date(NOW - 58 * SECOND));
+    expect(text()).toBe('58 seconds ago');
+    advance(SECOND);
+    expect(text()).toBe('59 seconds ago');
+    advance(SECOND);
+    expect(text()).toBe('1 minute ago');
+
+    // A minute holds one timer, not sixty.
+    expect(vi.getTimerCount()).toBe(1);
+    advance(MINUTE - 1);
+    expect(text()).toBe('1 minute ago');
+    expect(vi.getTimerCount()).toBe(1);
+    advance(1);
+    expect(text()).toBe('2 minutes ago');
+  });
+
+  it('advances each hour under a day and each day after that', () => {
+    setup(new Date(NOW - (2 * HOUR + 59 * MINUTE)));
+    expect(text()).toBe('2 hours ago');
+    advance(MINUTE);
+    expect(text()).toBe('3 hours ago');
+    advance(HOUR - 1);
+    expect(text()).toBe('3 hours ago');
+    advance(1);
+    expect(text()).toBe('4 hours ago');
+
+    fixture.componentInstance.value.set(new Date(Date.now() - 3 * DAY));
+    fixture.detectChanges();
+    expect(text()).toBe('3 days ago');
+    advance(DAY - 1);
+    expect(text()).toBe('3 days ago');
+    advance(1);
+    expect(text()).toBe('4 days ago');
+  });
+
+  it('counts a coming value down', () => {
+    setup(new Date(NOW + 2 * MINUTE + 500));
+    expect(text()).toBe('in 2 minutes');
+    advance(500);
+    expect(text()).toBe('in 2 minutes');
+    advance(1);
+    expect(text()).toBe('in 1 minute');
+    advance(MINUTE);
+    expect(text()).toBe('in 59 seconds');
+  });
+
+  it('measures a new value from the current time, not from the last tick', () => {
+    setup(new Date(NOW - 400 * DAY));
+    expect(text()).toBe('last year');
+    // Half a day on, with the daily timer still waiting.
+    vi.setSystemTime(NOW + 12 * HOUR);
+    fixture.componentInstance.value.set(new Date(NOW + 12 * HOUR - 5 * MINUTE));
+    fixture.detectChanges();
+    expect(text()).toBe('5 minutes ago');
+  });
+
+  it('starts no timer before the first render, and none with relative off', () => {
+    fixture = create(Relative);
+    // The scheduler of change detection keeps timers of its own, with no delay: the stamp's is the one that has one.
+    const started = vi.spyOn(globalThis, 'setTimeout');
+    const delays = (): number[] => started.mock.calls.map(([, delay]) => delay ?? 0).filter(delay => delay > 0);
+    fixture.componentInstance.value.set(new Date(NOW - 5 * SECOND));
+    expect(delays()).toEqual([]);
+    fixture.detectChanges();
+    expect(delays()).toEqual([SECOND]);
+    started.mockRestore();
+    expect(vi.getTimerCount()).toBe(1);
+
+    fixture.componentInstance.relative.set(false);
+    fixture.detectChanges();
+    expect(vi.getTimerCount()).toBe(0);
+    expect(text()).toBeNull();
+    expect(time()!.getAttribute('title')).toBeNull();
+    expect([...time()!.children].map(child => child.textContent)).toEqual(['12.11.2026', '11:59']);
+
+    fixture.componentInstance.relative.set(true);
+    fixture.detectChanges();
+    expect(text()).toBe('5 seconds ago');
+    expect(vi.getTimerCount()).toBe(1);
+  });
+
+  it('starts no timer for an empty value', () => {
+    setup(null);
+    expect(time()).toBeNull();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('clears its timer on destroy', () => {
+    setup(new Date(NOW - 5 * SECOND));
+    expect(vi.getTimerCount()).toBe(1);
+    fixture.destroy();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('writes in the language the stamp formats in, and follows it', () => {
+    vi.useFakeTimers({ now: NOW });
+    TestBed.resetTestingModule();
+    localStorage.clear();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru', 'en'], storageKey: null }),
+        provideWr(withDates({ timeZone: '+05:00' })),
+      ],
+    });
+    fixture = TestBed.createComponent(Relative);
+    fixture.componentInstance.value.set(new Date(NOW - 3 * HOUR));
+    fixture.detectChanges();
+    expect(text()).toBe('3 часа назад');
+    expect(time()!.getAttribute('title')).toBe('12.11.2026, 09:00');
+
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    TestBed.inject(WrI18n).use('en');
+    fixture.detectChanges();
+    expect(text()).toBe('3 hours ago');
+    vi.restoreAllMocks();
+  });
+
+  it('compares a date-only value with today in the display zone, and turns at its midnight', () => {
+    // 21:30 UTC on the 12th is 02:30 on the 13th at +05:00.
+    vi.useFakeTimers({ now: NOW });
+    vi.setSystemTime(Date.UTC(2026, 10, 12, 21, 30));
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: LOCALE_ID, useValue: 'en-US' }, provideWr(withDates({ timeZone: '+05:00' }))],
+    });
+    fixture = TestBed.createComponent(Relative);
+    fixture.componentInstance.value.set('2026-11-13');
+    fixture.detectChanges();
+    expect(text()).toBe('today');
+    expect(time()!.getAttribute('title')).toBe('13.11.2026');
+    expect(time()!.getAttribute('datetime')).toBe('2026-11-13');
+
+    // Midnight at +05:00 is 19:00 UTC, 21 hours and 30 minutes on.
+    advance(21 * HOUR + 30 * MINUTE - 1);
+    expect(text()).toBe('today');
+    advance(1);
+    expect(text()).toBe('yesterday');
+  });
+
+  it('takes relative from withDates({ stamp }), and lets the input win', () => {
+    @Component({ imports: [WrDateStamp], template: `<wr-date-stamp [value]="value" />` })
+    class Default {
+      readonly value = new Date(NOW - 5 * MINUTE);
+    }
+    const bare = create(Default, { stamp: { relative: true } });
+    bare.detectChanges();
+    expect((bare.nativeElement as HTMLElement).querySelector('.wr-date-stamp__relative')?.textContent).toBe(
+      '5 minutes ago'
+    );
+    bare.destroy();
+
+    setup(new Date(NOW - 5 * MINUTE), { stamp: { relative: true } });
+    fixture.componentInstance.relative.set(false);
+    fixture.detectChanges();
+    expect(text()).toBeNull();
+  });
+});

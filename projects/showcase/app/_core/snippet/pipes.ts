@@ -19,6 +19,7 @@ const NGWR_PIPES: Readonly<Record<string, SelectorRef>> = {
   wrNumber: { symbol: 'WrNumber', path: 'ngwr/pipes' },
   wrPlural: { symbol: 'WrPlural', path: 'ngwr/pipes' },
   wrRange: { symbol: 'WrRange', path: 'ngwr/pipes' },
+  wrRelativeTime: { symbol: 'WrRelativeTime', path: 'ngwr/pipes' },
   wrTruncate: { symbol: 'WrTruncate', path: 'ngwr/pipes' },
   wrT: { symbol: 'WrTPipe', path: 'ngwr/i18n' },
 };

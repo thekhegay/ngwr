@@ -263,9 +263,9 @@ one component folder. Reach for them instead of hand-rolling:
   `Subtract` / `Multiply` / `Divide` / `Compare` / `Round` siblings, the one
   `BigInt` decimal core `wr-table` summaries and `wr-input-number`'s
   `mode="decimal"` both run on, `log`), `ngwr/pipes` (`wrDate`, `wrBytes`,
-  `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrList`, `wrRange`, `wrDuration`, and
+  `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrList`, `wrRelativeTime`, `wrRange`, `wrDuration`, and
   beside the formatting pipes the functions `wrFormatDate`, `wrFormatBytes`,
-  `wrFormatNumber`, `wrFormatPlural`, `wrFormatList` and `wrFormatDuration`, each the pipe's
+  `wrFormatNumber`, `wrFormatPlural`, `wrFormatList`, `wrFormatRelativeTime` and `wrFormatDuration`, each the pipe's
   own implementation for a string built in TypeScript — the locale is their
   second argument, except `wrFormatDate`, which takes the adapter the pipe
   injects), and
