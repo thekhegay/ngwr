@@ -1194,7 +1194,7 @@ export const CSS_VARS = {
       { name: "--wr-descriptions-label-font-size", default: "var(--wr-text-xs)", scope: ".wr-descriptions", overrides: 1 },
       { name: "--wr-descriptions-label-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-descriptions" },
       { name: "--wr-descriptions-label-letter-spacing", default: "var(--wr-tracking-wide)", scope: ".wr-descriptions", overrides: 1 },
-      { name: "--wr-descriptions-list-column-gap", default: "var(--wr-space-sm)", scope: ".wr-descriptions", overrides: 1 },
+      { name: "--wr-descriptions-list-column-gap", default: "var(--wr-space-sm)", scope: ".wr-descriptions", overrides: 2 },
       { name: "--wr-descriptions-list-row-gap", default: "var(--wr-space-sm)", scope: ".wr-descriptions" },
       { name: "--wr-descriptions-radius", default: "var(--wr-border-radius-base)", scope: ".wr-descriptions" },
       { name: "--wr-descriptions-row-gap", default: "var(--wr-space-xs)", scope: ".wr-descriptions" },

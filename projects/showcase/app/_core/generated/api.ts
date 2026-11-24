@@ -599,13 +599,15 @@ export const API = {
   // <wr-description-item>
   WrDescriptionItem: [
     { name: "label", description: "The term shown beside the projected value — \"Email\", \"Created\". Keep it a noun: it is read as the name of the value, not as a sentence.", type: "string", default: "''" },
+    { name: "span", description: "Columns the item takes in a list with `columns`. A number above the list's `columns` takes the whole row.", type: "number", default: "1" },
   ],
   // <wr-descriptions>
   WrDescriptions: [
     { name: "title", description: "Optional title shown above the list.", type: "string", default: "''" },
     { name: "inline", description: "Two-column rows (label left, value right) instead of stacked.", type: "boolean", default: "false" },
     { name: "bordered", description: "Add visible borders around each row.", type: "boolean", default: "false" },
-    { name: "responsive", description: "Reflow `inline` rows back to a stacked layout when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.", type: "boolean", default: "false" },
+    { name: "responsive", description: "Reflow `inline` rows back to a stacked layout, and a `columns` grid back to one column, when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.", type: "boolean", default: "false" },
+    { name: "columns", description: "How many items a row holds, as equal columns. An item takes more of them with its `span`.", type: "number", default: "1" },
   ],
   // <[wrDestruct]>
   WrDestruct: [

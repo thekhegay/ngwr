@@ -9,9 +9,15 @@ import { WrDescriptions } from './descriptions';
 @Component({
   imports: [WrDescriptions, WrDescriptionItem],
   template: `
-    <wr-descriptions [title]="title()" [inline]="inline()" [bordered]="bordered()" [responsive]="responsive()">
+    <wr-descriptions
+      [title]="title()"
+      [inline]="inline()"
+      [bordered]="bordered()"
+      [responsive]="responsive()"
+      [columns]="columns()"
+    >
       <wr-description-item label="Name">Ada Lovelace</wr-description-item>
-      <wr-description-item label="Email">ada@example.com</wr-description-item>
+      <wr-description-item label="Email" [span]="span()">ada@example.com</wr-description-item>
     </wr-descriptions>
   `,
 })
@@ -20,6 +26,8 @@ class Host {
   readonly inline = signal(false);
   readonly bordered = signal(false);
   readonly responsive = signal(false);
+  readonly columns = signal<unknown>(1);
+  readonly span = signal<unknown>(1);
 }
 
 /**
@@ -84,5 +92,83 @@ describe('WrDescriptions', () => {
 
   it('marks every row so the layout can address it', () => {
     expect(root().querySelectorAll('.wr-descriptions__row').length).toBe(2);
+  });
+
+  describe('columns', () => {
+    const rows = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('.wr-descriptions__row')];
+    const columnsHook = (): string => host().style.getPropertyValue('--wr-descriptions-columns');
+    const spanHook = (row: HTMLElement): string => row.style.getPropertyValue('--wr-descriptions-span');
+
+    const set = (columns: unknown, span: unknown = 1): void => {
+      fixture.componentInstance.columns.set(columns);
+      fixture.componentInstance.span.set(span);
+      fixture.detectChanges();
+    };
+
+    it('leaves the host untouched at one column, whatever an item spans', () => {
+      set(1, 3);
+
+      expect(host().className).toBe('wr-descriptions');
+      expect(host().getAttribute('style')).toBeNull();
+      expect(rows().map(row => row.getAttribute('style'))).toEqual([null, null]);
+    });
+
+    it('sets the hook and the class above one column, and releases both', () => {
+      set(3);
+      expect(classes(host())).toEqual(['wr-descriptions', 'wr-descriptions--columns']);
+      expect(columnsHook()).toBe('3');
+
+      set(1);
+      expect(host().className).toBe('wr-descriptions');
+      expect(columnsHook()).toBe('');
+    });
+
+    it('floors a fraction and reads anything below one, or not a number, as one', () => {
+      set('2.9');
+      expect(columnsHook()).toBe('2');
+
+      for (const value of [0, -4, 'many', null]) {
+        set(value);
+        expect(host().className).toBe('wr-descriptions');
+      }
+    });
+
+    it('writes the span on the item that has one, and only there', () => {
+      set(3, 2);
+
+      expect(rows().map(spanHook)).toEqual(['', '2']);
+    });
+
+    it('clamps a span to the columns, and follows them when they change', () => {
+      set(3, 5);
+      expect(spanHook(rows()[1])).toBe('3');
+
+      set(2, 5);
+      expect(spanHook(rows()[1])).toBe('2');
+
+      set(4, '2.7');
+      expect(spanHook(rows()[1])).toBe('2');
+    });
+
+    it('combines with inline, bordered and responsive as one more class', () => {
+      fixture.componentInstance.inline.set(true);
+      fixture.componentInstance.bordered.set(true);
+      fixture.componentInstance.responsive.set(true);
+      set(3);
+
+      expect(classes(host())).toEqual([
+        'wr-descriptions',
+        'wr-descriptions--bordered',
+        'wr-descriptions--columns',
+        'wr-descriptions--inline',
+        'wr-descriptions--responsive',
+      ]);
+    });
+
+    it('keeps the items in source order', () => {
+      set(3, 2);
+
+      expect(labels()).toEqual(['Name', 'Email']);
+    });
   });
 });

@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ViewEncapsulation, computed, input } from '@angular/core';
 
 import { wrCheckStyles } from 'ngwr/utils';
@@ -13,7 +13,8 @@ import { wrCheckStyles } from 'ngwr/utils';
 /**
  * Read-only labeled key / value list. Project `<wr-description-item>`
  * children. `title` is optional. Default layout stacks vertically; set
- * `[inline]="true"` for label-left / value-right rows.
+ * `[inline]="true"` for label-left / value-right rows, and `columns` for a
+ * grid of several items per row.
  *
  * @example
  * ```html
@@ -32,7 +33,12 @@ import { wrCheckStyles } from 'ngwr/utils';
   encapsulation: ViewEncapsulation.None,
   // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
   // where the browser draws it as a tooltip over the whole component.
-  host: { class: 'wr-descriptions', '[class]': 'classes()', '[attr.title]': 'null' },
+  host: {
+    class: 'wr-descriptions',
+    '[class]': 'classes()',
+    '[attr.title]': 'null',
+    '[style.--wr-descriptions-columns]': 'grid() ? columns() : null',
+  },
 })
 export class WrDescriptions {
   constructor() {
@@ -49,18 +55,31 @@ export class WrDescriptions {
   readonly bordered = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * Reflow `inline` rows back to a stacked layout when the box itself is
-   * narrow (a container query on its own width, not the viewport — so it
-   * adapts inside a narrow card or side panel). Makes the box fill its
-   * container's width. @default false
+   * Reflow `inline` rows back to a stacked layout, and a `columns` grid back
+   * to one column, when the box itself is narrow (a container query on its
+   * own width, not the viewport — so it adapts inside a narrow card or side
+   * panel). Makes the box fill its container's width. @default false
    */
   readonly responsive = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * How many items a row holds, as equal columns. An item takes more of them
+   * with its `span`.
+   *
+   * @default 1
+   */
+  readonly columns = input(1, {
+    transform: (value: unknown): number => Math.max(1, Math.floor(coerceNumberProperty(value, 1))),
+  });
+
+  protected readonly grid = computed(() => this.columns() > 1);
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
     if (this.inline()) parts.push('wr-descriptions--inline');
     if (this.bordered()) parts.push('wr-descriptions--bordered');
     if (this.responsive()) parts.push('wr-descriptions--responsive');
+    if (this.grid()) parts.push('wr-descriptions--columns');
     return parts.join(' ');
   });
 }
