@@ -32,15 +32,20 @@ export class WrIconRegistry {
   /** Icons registered at *this* level only. */
   private readonly own = inject(WR_ICONS, { self: true, optional: true }) ?? [];
 
+  private resolved?: Map<string, WrIconDef>;
+
   /**
    * Every icon visible from this level, nearest last so a local registration
-   * wins over an identically named one further up.
+   * wins over an identically named one further up. Built once: the parent and
+   * the registered sets are fixed when the link is created. The map is shared,
+   * so callers read it and never write to it.
    */
   resolve(): Map<string, WrIconDef> {
-    const map = this.parent?.resolve() ?? new Map<string, WrIconDef>();
+    if (this.resolved) return this.resolved;
+    const map = new Map<string, WrIconDef>(this.parent?.resolve());
     for (const set of this.own) {
       for (const icon of set) map.set(icon.name, icon);
     }
-    return map;
+    return (this.resolved = map);
   }
 }

@@ -8,6 +8,8 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
+import { wrIntlNumberFormat } from 'ngwr/utils';
+
 /**
  * Binary magnitudes, as the `Intl` unit that labels each one. The COUNTING is
  * 1024-based and these names are decimal — which is the same thing the old
@@ -31,7 +33,7 @@ const UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte
  * such locale into English order.
  */
 function format(locale: string, value: number, unit: number, fractionDigits: number): string {
-  const parts = new Intl.NumberFormat(locale, {
+  const parts = wrIntlNumberFormat(locale, {
     style: 'unit',
     unit: UNITS[unit],
     unitDisplay: 'narrow',

@@ -24,7 +24,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles, wrIntlNumberFormat } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
 import type { WrCountUpDirection, WrCountUpEasing, WrCountUpTrigger } from './types';
@@ -149,7 +149,7 @@ export class WrCountUp {
   private hasFiredForVisible = false;
 
   protected readonly formatted = computed(() => {
-    return new Intl.NumberFormat(this.locale, {
+    return wrIntlNumberFormat(this.locale, {
       minimumFractionDigits: this.decimals(),
       maximumFractionDigits: this.decimals(),
       useGrouping: this.grouping(),

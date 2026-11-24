@@ -813,3 +813,36 @@ describe('WrCalendar today in a display time zone', () => {
     expect(today('+14:00')).toContain('November 2026');
   });
 });
+
+describe('WrCalendar range hover cost', () => {
+  it('does not format the day labels again while the preview moves', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(RangeBoundHost);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const days = [...root.querySelectorAll<HTMLElement>('.wr-calendar__day')];
+    const labels = days.map(d => d.getAttribute('aria-label'));
+    const proto = Intl.DateTimeFormat.prototype;
+    const original = Object.getOwnPropertyDescriptor(proto, 'format')!;
+    const reads = vi.fn();
+    Object.defineProperty(proto, 'format', {
+      configurable: true,
+      get() {
+        reads();
+        return original.get!.call(this) as unknown;
+      },
+    });
+
+    for (const day of days.slice(20, 30)) {
+      day.dispatchEvent(new MouseEvent('mouseenter'));
+      fixture.detectChanges();
+    }
+
+    Object.defineProperty(proto, 'format', original);
+    expect(reads).not.toHaveBeenCalled();
+    expect([...root.querySelectorAll('.wr-calendar__day')].map(d => d.getAttribute('aria-label'))).toEqual(labels);
+    vi.restoreAllMocks();
+    fixture.destroy();
+  });
+});

@@ -11,7 +11,7 @@ import { Component, LOCALE_ID, ViewEncapsulation, computed, effect, inject, inpu
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrOption, WrSelect } from 'ngwr/select';
-import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
+import { wrNumAttr, wrCheckStyles, wrIntlNumberFormat } from 'ngwr/utils';
 
 import type { WrPaginationAlign, WrPaginationShape, WrPaginationSize } from './types';
 
@@ -222,7 +222,7 @@ export class WrPagination {
    * reads as two things.
    */
   private number(value: number): string {
-    return new Intl.NumberFormat(this.locale).format(value);
+    return wrIntlNumberFormat(this.locale).format(value);
   }
 
   /**

@@ -14,6 +14,12 @@ import { WrIconRegistry } from './icon-registry';
 import type { WrIconDef, WrIconName } from './types';
 import { type WrIconStripReport, sanitizeIcon } from './utils';
 
+interface SanitizedIcon {
+  data: string;
+  svg: SVGElement | null;
+  report?: WrIconStripReport;
+}
+
 /**
  * Renders a registered SVG icon.
  *
@@ -100,8 +106,8 @@ export class WrIcon {
       // logo or a fetched icon pack is a normal way to fill it. Building nodes
       // also keeps `<wr-icon>` clear of Trusted Types, which refuses the
       // `innerHTML` write outright.
-      const report = isDevMode() ? { elements: new Set<string>(), attributes: new Set<string>() } : undefined;
-      const svg = sanitizeIcon(this.doc, icon.data, report);
+      const { svg: source, report } = this.sanitized(icon);
+      const svg = source?.cloneNode(true) as SVGElement | undefined;
 
       if (!svg) {
         if (isDevMode()) {
@@ -126,6 +132,24 @@ export class WrIcon {
 
       if (report) this.reportStripped(name, icon, report);
     });
+  }
+
+  /**
+   * One sanitised tree per definition and document; every instance gets a deep
+   * clone, so the parse and the allowlist walk run once per icon, not once per
+   * `<wr-icon>`. Keyed on the definition object and checked against its
+   * `data`, so a definition replaced or edited in place is read again.
+   */
+  private sanitized(icon: WrIconDef): SanitizedIcon {
+    let perDoc = WrIcon.sanitizedIcons.get(this.doc);
+    if (!perDoc) WrIcon.sanitizedIcons.set(this.doc, (perDoc = new WeakMap()));
+    let entry = perDoc.get(icon);
+    if (entry?.data !== icon.data) {
+      const report = isDevMode() ? { elements: new Set<string>(), attributes: new Set<string>() } : undefined;
+      entry = { data: icon.data, svg: sanitizeIcon(this.doc, icon.data, report), report };
+      perDoc.set(icon, entry);
+    }
+    return entry;
   }
 
   /**
@@ -166,4 +190,5 @@ export class WrIcon {
   }
 
   private static readonly reported = new WeakSet<WrIconDef>();
+  private static readonly sanitizedIcons = new WeakMap<Document, WeakMap<WrIconDef, SanitizedIcon>>();
 }

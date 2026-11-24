@@ -22,7 +22,7 @@ import {
 } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrIntlNumberFormat } from 'ngwr/utils';
 
 import { easeOutCubic } from './easing';
 import type { WrCounterMode } from './types';
@@ -201,7 +201,7 @@ export class WrCounter {
   }
 
   private format(n: number): string {
-    return new Intl.NumberFormat(this.locale, {
+    return wrIntlNumberFormat(this.locale, {
       minimumFractionDigits: this.decimals(),
       maximumFractionDigits: this.decimals(),
       minimumIntegerDigits: this.minIntegerDigits() || 1,

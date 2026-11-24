@@ -8,6 +8,8 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
+import { wrIntlNumberFormat, wrIntlPluralRules } from 'ngwr/utils';
+
 import type { WrPluralForms, WrPluralOptions } from './types';
 
 /**
@@ -32,10 +34,10 @@ export function wrFormatPlural(
 ): string {
   if (value === null || value === undefined || !Number.isFinite(value)) return '';
   const tag = options.locale ?? locale;
-  const category = new Intl.PluralRules(tag).select(value);
+  const category = wrIntlPluralRules(tag).select(value);
   const word = forms[category] ?? forms.other;
   if (options.includeValue === false) return word;
-  return `${new Intl.NumberFormat(tag).format(value)} ${word}`;
+  return `${wrIntlNumberFormat(tag).format(value)} ${word}`;
 }
 
 /**

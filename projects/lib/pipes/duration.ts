@@ -8,6 +8,8 @@
 import { LOCALE_ID, Pipe, inject } from '@angular/core';
 import type { PipeTransform } from '@angular/core';
 
+import { wrIntlListFormat, wrIntlNumberFormat } from 'ngwr/utils';
+
 import type { WrDurationStyle, WrDurationUnit } from './types';
 
 /** Each unit's length in milliseconds, largest first. */
@@ -25,30 +27,30 @@ const LIST_UNITS: ReadonlySet<WrDurationUnit> = new Set(['day', 'hour', 'minute'
 function formatClock(ms: number, locale: string): string {
   const { hour = 0, minute = 0, second = 0 } = wrSplitDuration(ms, CLOCK_UNITS);
   const digits = (n: number, width: number): string =>
-    new Intl.NumberFormat(locale, { useGrouping: false, minimumIntegerDigits: width }).format(n);
+    wrIntlNumberFormat(locale, { useGrouping: false, minimumIntegerDigits: width }).format(n);
   const tail = `${digits(minute, hour > 0 ? 2 : 1)}:${digits(second, 2)}`;
   return hour > 0 ? `${digits(hour, 1)}:${tail}` : tail;
 }
 
 function formatTimer(ms: number, locale: string): string {
   const { day = 0, hour = 0, minute = 0, second = 0 } = wrSplitDuration(ms, LIST_UNITS);
-  const two = new Intl.NumberFormat(locale, { useGrouping: false, minimumIntegerDigits: 2 });
+  const two = wrIntlNumberFormat(locale, { useGrouping: false, minimumIntegerDigits: 2 });
   const clock = [hour, minute, second].map(n => two.format(n)).join(':');
   if (day === 0) return clock;
-  const days = new Intl.NumberFormat(locale, { style: 'unit', unit: 'day', unitDisplay: 'narrow' }).format(day);
+  const days = wrIntlNumberFormat(locale, { style: 'unit', unit: 'day', unitDisplay: 'narrow' }).format(day);
   return `${days} ${clock}`;
 }
 
 function formatUnits(ms: number, locale: string): string {
   const parts = wrSplitDuration(ms, LIST_UNITS);
   const unit = (name: WrDurationUnit, n: number): string =>
-    new Intl.NumberFormat(locale, { style: 'unit', unit: name, unitDisplay: 'short' }).format(n);
+    wrIntlNumberFormat(locale, { style: 'unit', unit: name, unitDisplay: 'short' }).format(n);
 
   const words = (Object.entries(parts) as [WrDurationUnit, number][])
     .filter(([, n]) => n > 0)
     .map(([name, n]) => unit(name, n));
   if (words.length === 0) return unit('second', 0);
-  return new Intl.ListFormat(locale, { style: 'narrow', type: 'unit' }).format(words);
+  return wrIntlListFormat(locale, { style: 'narrow', type: 'unit' }).format(words);
 }
 
 /**
@@ -127,7 +129,9 @@ export function wrFormatDuration(
   // A span that floors to zero carries no sign: `-0:00` states nothing.
   if (ms >= 0 || span < 1000) return body;
 
-  const minus = new Intl.NumberFormat(locale).formatToParts(-1).find(part => part.type === 'minusSign');
+  const minus = wrIntlNumberFormat(locale)
+    .formatToParts(-1)
+    .find(part => part.type === 'minusSign');
   return `${minus?.value ?? '-'}${body}`;
 }
 
