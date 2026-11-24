@@ -7,17 +7,19 @@ import type { SelectorRef } from '#core/generated/selectors';
  * from `@Component` / `@Directive` only, so a `@Pipe` is invisible to it. That
  * makes this the one table here that can drift — a renamed pipe is simply not
  * found, and the TS tab silently loses its import.
- * There are eight pipes in `projects/lib` (`grep -rn '@Pipe({' projects/lib`);
- * if that count moves, this list has to move with it.
+ * Every `@Pipe` in `projects/lib` (`grep -rn '^@Pipe({' projects/lib`) needs
+ * a line here: a new pipe adds one.
  */
 const NGWR_PIPES: Readonly<Record<string, SelectorRef>> = {
   wrBytes: { symbol: 'WrBytes', path: 'ngwr/pipes' },
   wrDate: { symbol: 'WrDate', path: 'ngwr/pipes' },
   wrInitials: { symbol: 'WrInitials', path: 'ngwr/pipes' },
+  wrList: { symbol: 'WrList', path: 'ngwr/pipes' },
   wrMark: { symbol: 'WrMark', path: 'ngwr/pipes' },
   wrNumber: { symbol: 'WrNumber', path: 'ngwr/pipes' },
   wrPlural: { symbol: 'WrPlural', path: 'ngwr/pipes' },
   wrRange: { symbol: 'WrRange', path: 'ngwr/pipes' },
+  wrRelativeTime: { symbol: 'WrRelativeTime', path: 'ngwr/pipes' },
   wrTruncate: { symbol: 'WrTruncate', path: 'ngwr/pipes' },
   wrT: { symbol: 'WrTPipe', path: 'ngwr/i18n' },
 };

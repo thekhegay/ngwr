@@ -87,6 +87,8 @@ export const wrHi: WrI18nCatalog = {
   stepper: {
     optional: 'वैकल्पिक',
     completed: 'पूर्ण',
+    error: 'त्रुटि',
+    warning: 'चेतावनी',
   },
   transfer: {
     source: 'उपलब्ध',
@@ -98,6 +100,7 @@ export const wrHi: WrI18nCatalog = {
     toSource: 'उपलब्ध में ले जाएं',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'वैकल्पिक',
@@ -224,6 +227,9 @@ export const wrHi: WrI18nCatalog = {
     keyHelp:
       'तीर कुंजियां क्रॉप क्षेत्र को खिसकाती हैं। आकार बदलने के लिए Alt दबाए रखकर तीर कुंजी दबाएं, और बड़े चरणों के लिए Shift। ' +
       'क्रॉप क्षेत्र इमेज पिक्सेल में बाएं, ऊपर, चौड़ाई और ऊंचाई के रूप में बताया जाता है।',
+    transformHelp: 'प्लस और माइनस से चित्र बड़ा और छोटा होता है। R उसे घड़ी की दिशा में घुमाता है, और Shift के साथ R उल्टी दिशा में।',
+    zoomed: 'ज़ूम {{percent}}%',
+    rotated: '{{degrees}}° घुमाया गया',
   },
   sortableList: {
     keyHelp:

@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrImageCropper } from './image-cropper';
-import type { WrCropHandle, WrImageLoadError, WrImageOutputType } from './types';
+import type { WrCropHandle, WrImageLoadError, WrImageOutputType, WrImageRotation } from './types';
 
 @Component({
   imports: [WrImageCropper],
@@ -14,6 +14,8 @@ import type { WrCropHandle, WrImageLoadError, WrImageOutputType } from './types'
       [aspectRatio]="aspectRatio()"
       [maxOutputSize]="maxOutputSize()"
       [minHeight]="minHeight()"
+      [(zoom)]="zoom"
+      [(rotation)]="rotation"
       (loadError)="errors.push($event)"
       (cropped)="blobs.push($event)"
     />
@@ -24,6 +26,8 @@ class Host {
   readonly aspectRatio = signal<number | null>(null);
   readonly maxOutputSize = signal<number | string | null>(null);
   readonly minHeight = signal(32);
+  readonly zoom = signal(1);
+  readonly rotation = signal<WrImageRotation>(0);
   readonly errors: WrImageLoadError[] = [];
   readonly blobs: Blob[] = [];
 }
@@ -107,6 +111,19 @@ describe('WrImageCropper', () => {
     const w = Number.parseFloat(window_()!.style.width);
     const h = Number.parseFloat(window_()!.style.height);
     expect(w / h).toBeCloseTo(2, 5);
+  });
+
+  it('refits the window when the aspect ratio changes after the image loaded', () => {
+    load();
+    expect(cropper().cropRect()).toEqual({ x: 160, y: 160, width: 480, height: 480 });
+
+    fixture.componentInstance.aspectRatio.set(2);
+    fixture.detectChanges();
+
+    const w = Number.parseFloat(window_()!.style.width);
+    const h = Number.parseFloat(window_()!.style.height);
+    expect(w / h).toBeCloseTo(2, 5);
+    expect(cropper().cropRect().width / cropper().cropRect().height).toBeCloseTo(2, 1);
   });
 
   it('forgets the old geometry the moment the source changes', () => {
@@ -725,6 +742,19 @@ describe('WrImageCropper', () => {
       expect(await emitted()).toBe(1);
     });
 
+    it('ends a move drag when the ratio changes, so the next move keeps the refit window', () => {
+      loadImage(400, 250, null);
+      fire('pointerdown', window_()!, centre());
+
+      fixture.componentInstance.aspectRatio.set(2);
+      fixture.detectChanges();
+      const refit = rect();
+      expect(refit.w / refit.h).toBeCloseTo(2, 5);
+
+      fire('pointermove', window_()!, [300, 125]);
+      expect(rect()).toEqual(refit);
+    });
+
     /**
      * An edge handle with a ratio sizes the axis it does not drive. Growing that axis
      * evenly about the midline and capping it at twice the distance to the nearer side
@@ -898,6 +928,28 @@ describe('WrImageCropper', () => {
       expect(window_()!.style.left).toBe('80px');
     });
 
+    it('carries a drag under way over to the new box, instead of undoing the rescale', () => {
+      load({ display: 400, natural: 800 });
+      const move = (clientX: number): void => {
+        window_()!.dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX, clientY: 0 }));
+        fixture.detectChanges();
+      };
+      pointerDown(window_()!);
+      move(40);
+      expect(window_()!.style.left).toBe('120px');
+
+      resizeTo(200);
+      expect([window_()!.style.left, window_()!.style.width]).toEqual(['60px', '120px']);
+
+      // The pointer has not moved, so neither does the crop: the 40px it had covered
+      // are in the rescaled crop already.
+      move(40);
+      expect([window_()!.style.left, window_()!.style.width]).toEqual(['60px', '120px']);
+
+      move(50);
+      expect([window_()!.style.left, window_()!.style.width]).toEqual(['70px', '120px']);
+    });
+
     it('holds the last real box when the image measures zero', () => {
       // A hidden image (a closed tab, `display: none`) reports zeros. Scaling by that
       // would collapse the crop with nothing to scale back from.
@@ -913,6 +965,759 @@ describe('WrImageCropper', () => {
       fixture.destroy();
 
       expect(disconnects).toBeGreaterThan(0);
+    });
+  });
+
+  /**
+   * Zoom, pan and rotation. The crop window stays in STAGE pixels throughout, so what
+   * these read is the transform the component writes on the picture (where the image
+   * sits under the window) and `cropRect()`, the source region that comes out of the two.
+   *
+   * A turned image has no measured box here: the sizer that holds the stage open in a
+   * browser has no size in jsdom, so the stage is the box it had, swapped and scaled to
+   * fit inside itself, unless a test gives the sizer a box before the turn.
+   */
+  describe('zooming and turning', () => {
+    let calls: unknown[][];
+    let encoded: { width: number; height: number }[];
+
+    beforeEach(() => {
+      calls = [];
+      encoded = [];
+      vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+        () =>
+          ({
+            translate: (...args: number[]) => calls.push(['translate', ...args]),
+            rotate: (...args: number[]) => calls.push(['rotate', ...args]),
+            drawImage: (_img: unknown, ...args: number[]) => calls.push(['drawImage', ...args]),
+          }) as unknown as CanvasRenderingContext2D
+      );
+      vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockImplementation(function (this: HTMLCanvasElement) {
+        encoded.push({ width: this.width, height: this.height });
+        return 'data:image/png;base64,';
+      });
+      vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
+        this: HTMLCanvasElement,
+        callback: BlobCallback
+      ) {
+        encoded.push({ width: this.width, height: this.height });
+        callback(new Blob(['']));
+      });
+    });
+
+    afterEach(() => vi.restoreAllMocks());
+
+    const host = (): Host => fixture.componentInstance;
+    const stage = (): HTMLElement => root().querySelector<HTMLElement>('.wr-image-cropper__canvas')!;
+    const view = (): HTMLImageElement => img();
+    const sizer = (): HTMLCanvasElement => root().querySelector<HTMLCanvasElement>('.wr-image-cropper__sizer')!;
+    const box = (): number[] =>
+      [window_()!.style.left, window_()!.style.top, window_()!.style.width, window_()!.style.height].map(v =>
+        Number.parseFloat(v)
+      );
+    /**
+     * Where the picture's top-left corner sits on the stage: the first `translate()`.
+     * jsdom rewrites the list as it stores it, dropping a zero `y` and rounding to four places.
+     */
+    const pan = (): number[] => {
+      const [, x, y] = /translate\(([-\d.e]+)px(?:, ([-\d.e]+)px)?\)/.exec(view().style.transform)!;
+      return [Number(x), Number(y ?? 0)];
+    };
+    const scale = (): number => Number(/scale\(([\d.]+)\)/.exec(view().style.transform)![1]);
+
+    const sized = (el: HTMLElement, width: number, height: number): void => {
+      el.getBoundingClientRect = (): DOMRect =>
+        ({ width, height, x: 0, y: 0, top: 0, left: 0, right: width, bottom: height }) as DOMRect;
+    };
+
+    /** A landscape image: 400 x 200 on screen, 800 x 400 in the file. */
+    const loadLandscape = (): void => {
+      const el = img();
+      sized(el, 400, 200);
+      Object.defineProperty(el, 'naturalWidth', { value: 800, configurable: true });
+      Object.defineProperty(el, 'naturalHeight', { value: 400, configurable: true });
+      el.dispatchEvent(new Event('load'));
+      fixture.detectChanges();
+    };
+
+    /** Twice: the turn is laid out in one pass and measured after it. */
+    const settle = (): void => {
+      fixture.detectChanges();
+      fixture.detectChanges();
+    };
+
+    const fire = (
+      type: string,
+      target: HTMLElement,
+      [x, y]: readonly [number, number],
+      { pointerId = 1, isPrimary = true, pointerType = 'mouse' } = {}
+    ): MouseEvent => {
+      for (const el of [target, stage()]) {
+        el.setPointerCapture = (): void => undefined;
+        el.hasPointerCapture = (): boolean => false;
+        el.releasePointerCapture = (): void => undefined;
+      }
+      const event = new MouseEvent(type, { bubbles: true, cancelable: true, button: 0, clientX: x, clientY: y });
+      Object.defineProperty(event, 'pointerId', { value: pointerId });
+      Object.defineProperty(event, 'isPrimary', { value: isPrimary });
+      Object.defineProperty(event, 'pointerType', { value: pointerType });
+      target.dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    const wheel = (deltaY: number, [x, y]: readonly [number, number], init: WheelEventInit = {}): WheelEvent => {
+      const event = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaY,
+        clientX: x,
+        clientY: y,
+        ...init,
+      });
+      stage().dispatchEvent(event);
+      fixture.detectChanges();
+      return event;
+    };
+
+    const key = (name: string, modifiers: KeyboardEventInit = {}): KeyboardEvent => {
+      const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true, ...modifiers });
+      window_()!.dispatchEvent(event);
+      settle();
+      return event;
+    };
+
+    it('lays the one image over the stage, untouched at zoom 1, and leaves the layout to the sizer', () => {
+      expect(view().style.transform).toBe('');
+      load();
+
+      // One image: what is shown is what is exported.
+      expect(root().querySelectorAll('img').length).toBe(1);
+      expect(img().classList).toContain('wr-image-cropper__image--measured');
+      expect(img().parentElement!.classList).toContain('wr-image-cropper__viewport--on');
+      expect([sizer().width, sizer().height]).toEqual([800, 800]);
+      expect([view().style.width, view().style.height]).toEqual(['400px', '400px']);
+      expect([scale(), ...pan()]).toEqual([1, 0, 0]);
+      expect(view().style.transform).toContain('rotate(0deg)');
+    });
+
+    it('enlarges the image under a window that stays where it is', () => {
+      load({ display: 400, natural: 800 });
+
+      host().zoom.set(2);
+      fixture.detectChanges();
+
+      // The window has not moved; the image has grown around the middle of the stage.
+      expect(box()).toEqual([80, 80, 240, 240]);
+      expect([scale(), ...pan()]).toEqual([2, -200, -200]);
+      // The same window is half as much of the source, around the same centre.
+      expect(cropper().cropRect()).toEqual({ x: 280, y: 280, width: 240, height: 240 });
+      expect(root().querySelector('wr-image-cropper')!.classList).toContain('wr-image-cropper--zoomed');
+    });
+
+    it.each([
+      [9, 4],
+      [0.2, 1],
+      [Number.NaN, 1],
+    ])('reads a zoom of %s as %s', (given, used) => {
+      load({ display: 400, natural: 800 });
+
+      host().zoom.set(given);
+      fixture.detectChanges();
+
+      expect(scale()).toBe(used);
+      const c = cropper().cropRect();
+      expect(c.x).toBeGreaterThanOrEqual(0);
+      expect(c.x + c.width).toBeLessThanOrEqual(800);
+    });
+
+    it('keeps the window inside the image at every zoom, wherever it was dragged', () => {
+      load({ display: 400, natural: 800 });
+      for (let i = 0; i < 30; i++) key('ArrowRight', { shiftKey: true });
+      for (let i = 0; i < 30; i++) key('ArrowDown', { shiftKey: true });
+
+      for (const zoom of [1, 1.5, 2.75, 4]) {
+        host().zoom.set(zoom);
+        fixture.detectChanges();
+        const c = cropper().cropRect();
+        expect(c.x + c.width, `zoom ${zoom}`).toBeLessThanOrEqual(800);
+        expect(c.y + c.height, `zoom ${zoom}`).toBeLessThanOrEqual(800);
+        expect(Math.min(c.x, c.y), `zoom ${zoom}`).toBeGreaterThanOrEqual(0);
+      }
+    });
+
+    it('zooms with the wheel around the pointer, and writes the model', () => {
+      load({ display: 400, natural: 800 });
+
+      const event = wheel(-100, [100, 300]);
+
+      const zoom = Math.exp(0.2);
+      expect(event.defaultPrevented).toBe(true);
+      expect(host().zoom()).toBeCloseTo(zoom, 10);
+      // The image point under the pointer is still under it.
+      expect(pan()[0]).toBeCloseTo(100 - 100 * zoom, 3);
+      expect(pan()[1]).toBeCloseTo(300 - 300 * zoom, 3);
+    });
+
+    it('leaves a wheel it cannot follow to the page', () => {
+      load();
+
+      // Zoom 1 is as far out as it goes, so the page scrolls instead.
+      expect(wheel(100, [100, 100]).defaultPrevented).toBe(false);
+      expect(host().zoom()).toBe(1);
+
+      host().zoom.set(4);
+      fixture.detectChanges();
+      expect(wheel(-100, [100, 100]).defaultPrevented).toBe(false);
+      expect(wheel(100, [100, 100]).defaultPrevented).toBe(true);
+    });
+
+    it('zooms from the keyboard around the middle of the window, and says so', () => {
+      load({ display: 400, natural: 800 });
+      const status = (): string => root().querySelector<HTMLElement>('[role="status"]')!.textContent.trim();
+
+      expect(key('+').defaultPrevented).toBe(true);
+      expect(host().zoom()).toBe(1.1);
+      expect(status()).toBe('Zoom 110%');
+      // The window is centred, so its middle is the stage's: 200 - 200 * 1.1.
+      expect(pan()[0]).toBeCloseTo(-20, 3);
+
+      key('=');
+      expect(host().zoom()).toBe(1.2);
+
+      key('-');
+      key('-');
+      key('-');
+      expect(host().zoom()).toBe(1);
+      expect(status()).toBe('Zoom 100%');
+    });
+
+    it('leaves the browser its own zoom and reload keys', () => {
+      load();
+
+      expect(key('+', { ctrlKey: true }).defaultPrevented).toBe(false);
+      expect(key('-', { metaKey: true }).defaultPrevented).toBe(false);
+      expect(key('r', { ctrlKey: true }).defaultPrevented).toBe(false);
+      expect(key('r', { metaKey: true }).defaultPrevented).toBe(false);
+      expect([host().zoom(), host().rotation()]).toEqual([1, 0]);
+    });
+
+    it('describes the zoom and rotation keys with the rest of the key model', () => {
+      load();
+      const help = root().querySelector<HTMLElement>(`#${CSS.escape(window_()!.getAttribute('aria-describedby')!)}`)!;
+
+      expect(help.textContent).toContain('Arrow keys');
+      expect(help.textContent).toContain('Plus and minus zoom the image');
+    });
+
+    it('pans a zoomed image by a drag outside the window, and leaves the window alone', async () => {
+      load({ display: 400, natural: 800 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+
+      // (10, 10) is on the dimmed image: the window starts at (80, 80).
+      expect(fire('pointerdown', stage(), [10, 10]).defaultPrevented).toBe(true);
+      fire('pointermove', stage(), [-40, -20]);
+
+      expect(pan()).toEqual([-250, -230]);
+      expect(box()).toEqual([80, 80, 240, 240]);
+      expect(cropper().cropRect()).toEqual({ x: 330, y: 310, width: 240, height: 240 });
+
+      // The image cannot be dragged off the stage.
+      fire('pointermove', stage(), [2000, -2000]);
+      expect(pan()).toEqual([0, -400]);
+
+      expect(host().blobs.length).toBe(0);
+      fire('pointerup', stage(), [2000, -2000]);
+      await vi.waitFor(() => expect(host().blobs.length).toBe(1));
+
+      // The drag is over: a move with no button down pans nothing.
+      fire('pointermove', stage(), [0, 0]);
+      expect(pan()).toEqual([0, -400]);
+    });
+
+    it('has nothing to pan at zoom 1, and still drags the window from inside it', () => {
+      load();
+
+      expect(fire('pointerdown', stage(), [10, 10]).defaultPrevented).toBe(false);
+      fire('pointermove', stage(), [60, 60]);
+      fire('pointerup', stage(), [60, 60]);
+      expect(pan()).toEqual([0, 0]);
+
+      host().zoom.set(2);
+      fixture.detectChanges();
+      fire('pointerdown', window_()!, [200, 200]);
+      fire('pointermove', window_()!, [210, 190]);
+      fire('pointerup', window_()!, [210, 190]);
+
+      expect(box()).toEqual([90, 70, 240, 240]);
+      expect(pan()).toEqual([-200, -200]);
+    });
+
+    it('pushes the zoomed image along when the arrows run the window into an edge', () => {
+      load({ display: 400, natural: 800 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+
+      for (let i = 0; i < 8; i++) key('ArrowLeft', { shiftKey: true });
+      expect(box()[0]).toBe(0);
+      expect(pan()[0]).toBe(-200);
+
+      key('ArrowLeft', { shiftKey: true });
+      key('ArrowLeft', { shiftKey: true });
+
+      expect(box()[0]).toBe(0);
+      expect(pan()[0]).toBe(-180);
+      expect(cropper().cropRect().x).toBe(180);
+
+      // And no further than the image's own edge.
+      for (let i = 0; i < 30; i++) key('ArrowLeft', { shiftKey: true });
+      expect(pan()[0]).toBe(0);
+      expect(cropper().cropRect().x).toBe(0);
+    });
+
+    it('zooms with two fingers around the point between them, whatever the first was doing', async () => {
+      load({ display: 400, natural: 800 });
+
+      // The first finger lands on the window and starts dragging it.
+      fire('pointerdown', window_()!, [100, 200]);
+      // The second is refused by the window and reaches the stage: a pinch, 200px wide.
+      expect(fire('pointerdown', window_()!, [300, 200], { pointerId: 2, isPrimary: false }).defaultPrevented).toBe(
+        true
+      );
+
+      fire('pointermove', window_()!, [400, 200], { pointerId: 2, isPrimary: false });
+
+      expect(host().zoom()).toBeCloseTo(1.5, 10);
+      // The midpoint (250, 200) is still over the same image point.
+      expect(pan()[0]).toBeCloseTo(250 - 250 * 1.5, 3);
+      expect(pan()[1]).toBeCloseTo(200 - 200 * 1.5, 3);
+
+      // The first finger no longer drags the window.
+      fire('pointermove', window_()!, [0, 200]);
+      expect(box()).toEqual([80, 80, 240, 240]);
+      expect(host().zoom()).toBeCloseTo(2, 10);
+
+      fire('pointerup', window_()!, [400, 200], { pointerId: 2, isPrimary: false });
+      fire('pointermove', window_()!, [100, 200]);
+      expect(host().zoom()).toBeCloseTo(2, 10);
+      await vi.waitFor(() => expect(host().blobs.length).toBe(1));
+    });
+
+    it('turns the stage on its side with the image, and the window with it', () => {
+      loadLandscape();
+      expect(box()).toEqual([80, 40, 240, 120]);
+      const before = cropper().cropRect();
+      expect(before).toEqual({ x: 160, y: 80, width: 480, height: 240 });
+
+      host().rotation.set(90);
+      settle();
+
+      // No sizer in jsdom: 200 x 400 scaled to fit inside the 400 x 200 it had.
+      expect([stage().style.width, stage().style.height]).toEqual(['100px', '200px']);
+      // The picture keeps its own shape and is turned into the stage's.
+      expect([view().style.width, view().style.height]).toEqual(['200px', '100px']);
+      // A quarter turn about the corner swings the picture left of the stage; 100px brings it back.
+      expect(view().style.transform).toMatch(/translate\(100px(, 0px)?\) rotate\(90deg\)/);
+      expect(box()).toEqual([20, 40, 60, 120]);
+      // The same source pixels as before the turn.
+      expect(cropper().cropRect()).toEqual(before);
+    });
+
+    it('measures the turned stage from the sizer, a canvas of the source turned on its side', () => {
+      loadLandscape();
+      expect(sizer().tagName).toBe('CANVAS');
+      expect([sizer().width, sizer().height]).toEqual([800, 400]);
+
+      sized(sizer(), 150, 300);
+      host().rotation.set(90);
+      settle();
+
+      // The layout holds the stage open, so no size is written on it by hand.
+      expect([sizer().width, sizer().height]).toEqual([400, 800]);
+      expect(stage().style.width).toBe('');
+      expect(box()).toEqual([30, 60, 90, 180]);
+      expect([view().style.width, view().style.height]).toEqual(['300px', '150px']);
+      expect(cropper().cropRect()).toEqual({ x: 160, y: 80, width: 480, height: 240 });
+    });
+
+    it('takes the hand-written size off the stage once the sizer can be measured again', () => {
+      loadLandscape();
+      host().rotation.set(90);
+      settle();
+      expect(stage().style.width).toBe('100px');
+
+      // Shown again after being hidden: the first box is capped by the written size, so
+      // it is dropped and the stage measured without it.
+      sized(sizer(), 100, 200);
+      (cropper() as unknown as { onResize(): void }).onResize();
+      sized(sizer(), 150, 300);
+      settle();
+
+      expect(stage().style.width).toBe('');
+      expect(box()).toEqual([30, 60, 90, 180]);
+    });
+
+    it('lays the turn out at once for rotate(), so an export in the same breath is the turned one', () => {
+      loadLandscape();
+      for (let i = 0; i < 4; i++) key('ArrowRight', { shiftKey: true });
+      expect(cropper().cropRect()).toEqual({ x: 240, y: 80, width: 480, height: 240 });
+
+      // No change detection between the two calls.
+      cropper().rotate();
+      cropper().toDataUrl();
+
+      expect(cropper().cropRect()).toEqual({ x: 240, y: 80, width: 480, height: 240 });
+      expect(encoded).toEqual([{ width: 240, height: 480 }]);
+      expect(calls).toEqual([
+        ['translate', 120, 240],
+        ['rotate', Math.PI / 2],
+        ['drawImage', 240, 80, 480, 240, -240, -120, 480, 240],
+      ]);
+    });
+
+    it('never pairs a new rotation with the old geometry, however the model is written', () => {
+      loadLandscape();
+      for (let i = 0; i < 4; i++) key('ArrowRight', { shiftKey: true });
+
+      // Written to the model directly: the layout follows on the next change detection,
+      // and until then a read is the whole upright crop, not half of each.
+      cropper().rotation.set(90);
+      cropper().toDataUrl();
+
+      expect(calls).toEqual([['drawImage', 240, 80, 480, 240, 0, 0, 480, 240]]);
+    });
+
+    it('turns first and fits the ratio after, when both change at once', async () => {
+      loadLandscape();
+
+      host().rotation.set(90);
+      host().aspectRatio.set(0.5);
+      settle();
+
+      // The turned window is 60 x 120, which is the ratio already. Fitted before the
+      // turn, the upright window would have been narrowed first and cut down twice.
+      expect(box()).toEqual([20, 40, 60, 120]);
+      await vi.waitFor(() => expect(host().blobs.length).toBe(1));
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(host().blobs.length).toBe(1);
+      expect(encoded).toEqual([{ width: 240, height: 480 }]);
+    });
+
+    it('rounds the edges of the crop in the source, so it never reaches past the image', () => {
+      // 340 source pixels on a 320px stage: 1.0625 each, and at zoom 2 half of that.
+      load({ display: 320, natural: 340 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+      for (let i = 0; i < 48; i++) key('ArrowLeft', { altKey: true });
+      for (let i = 0; i < 40; i++) key('ArrowRight', { shiftKey: true });
+      expect(box()).toMatchObject({ 0: 176, 2: 144 });
+      expect(pan()[0]).toBe(-320);
+
+      // The window covers [263.5, 340]. Rounded as an origin and a width it was 264 + 77.
+      const c = cropper().cropRect();
+      expect([c.x, c.width]).toEqual([264, 76]);
+
+      host().rotation.set(180);
+      settle();
+      const turned = cropper().cropRect();
+      expect([turned.x, turned.width]).toEqual([264, 76]);
+    });
+
+    it('keeps a pinch to the two fingers that began it', () => {
+      load({ display: 400, natural: 800 });
+      fire('pointerdown', window_()!, [100, 200]);
+      fire('pointerdown', window_()!, [300, 200], { pointerId: 2, isPrimary: false });
+
+      // A third finger comes and goes; the pinch is neither paused nor ended by it.
+      fire('pointerdown', window_()!, [200, 50], { pointerId: 3, isPrimary: false });
+      fire('pointermove', window_()!, [0, 0], { pointerId: 3, isPrimary: false });
+      expect(host().zoom()).toBe(1);
+      fire('pointermove', window_()!, [400, 200], { pointerId: 2, isPrimary: false });
+      expect(host().zoom()).toBeCloseTo(1.5, 10);
+      fire('pointerup', window_()!, [0, 0], { pointerId: 3, isPrimary: false });
+
+      fire('pointermove', window_()!, [500, 200], { pointerId: 2, isPrimary: false });
+      expect(host().zoom()).toBeCloseTo(2, 10);
+
+      // One of its own lifting does end it.
+      fire('pointercancel', window_()!, [100, 200]);
+      fire('pointermove', window_()!, [700, 200], { pointerId: 2, isPrimary: false });
+      expect(host().zoom()).toBeCloseTo(2, 10);
+    });
+
+    it('drops a pan that was under way when the source changed', () => {
+      load({ display: 400, natural: 800 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+      fire('pointerdown', stage(), [10, 10]);
+      fire('pointermove', stage(), [0, 0]);
+
+      // The pointer is still captured and still moving while the next image loads.
+      host().src.set('/other.jpg');
+      fixture.detectChanges();
+      fire('pointermove', stage(), [-30, -30]);
+      load({ display: 400, natural: 800 });
+
+      expect(pan()).toEqual([-200, -200]);
+      expect(cropper().cropRect()).toEqual({ x: 280, y: 280, width: 240, height: 240 });
+      fire('pointermove', stage(), [-60, -60]);
+      expect(pan()).toEqual([-200, -200]);
+
+      // A fresh pan on the new image works.
+      fire('pointerdown', stage(), [10, 10]);
+      fire('pointermove', stage(), [0, 0]);
+      expect(pan()).toEqual([-210, -210]);
+    });
+
+    it('does not export the next image for a zoom made on the last one', async () => {
+      load({ display: 400, natural: 800 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+
+      host().src.set('/other.jpg');
+      fixture.detectChanges();
+      load({ display: 400, natural: 800 });
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(host().blobs.length).toBe(0);
+
+      // A zoom on the new image still gets its own.
+      host().zoom.set(3);
+      fixture.detectChanges();
+      await vi.waitFor(() => expect(host().blobs.length).toBe(1));
+    });
+
+    it('emits only the newest crop when an older one finishes encoding after it', async () => {
+      const pending: { blob: Blob; done: BlobCallback }[] = [];
+      vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(function (
+        this: HTMLCanvasElement,
+        done: BlobCallback
+      ) {
+        pending.push({ blob: new Blob([String(this.width)]), done });
+      });
+      load({ display: 400, natural: 800 });
+
+      const older = cropper().refresh();
+      host().zoom.set(2);
+      fixture.detectChanges();
+      const newer = cropper().refresh();
+
+      // The newer one comes back first, then the older.
+      pending[1].done(pending[1].blob);
+      pending[0].done(pending[0].blob);
+      await Promise.all([older, newer]);
+
+      expect(host().blobs).toEqual([pending[1].blob]);
+    });
+
+    it('measures the upright stage from the sizer too, where there is a layout to ask', () => {
+      load({ display: 400, natural: 800 });
+
+      // The image's own box is no longer the stage's: it is transformed.
+      sized(img(), 999, 999);
+      sized(sizer(), 200, 200);
+      (cropper() as unknown as { onResize(): void }).onResize();
+      fixture.detectChanges();
+
+      expect(box()).toEqual([40, 40, 120, 120]);
+      expect([view().style.width, view().style.height]).toEqual(['200px', '200px']);
+    });
+
+    it('lets a mouse press through without ending a pinch two fingers are holding', () => {
+      load({ display: 400, natural: 800 });
+      const touch = (pointerId: number, isPrimary: boolean): object => ({ pointerId, isPrimary, pointerType: 'touch' });
+      fire('pointerdown', window_()!, [100, 200], touch(1, true));
+      fire('pointerdown', window_()!, [300, 200], touch(2, false));
+
+      // A mouse is the primary pointer of its own type.
+      fire('pointerdown', stage(), [10, 10], { pointerId: 9, pointerType: 'mouse' });
+      fire('pointerdown', window_()!, [200, 200], { pointerId: 9, pointerType: 'mouse' });
+      fire('pointermove', window_()!, [260, 260], { pointerId: 9, pointerType: 'mouse' });
+      expect(box()).toEqual([80, 80, 240, 240]);
+
+      fire('pointermove', window_()!, [400, 200], touch(2, false));
+      expect(host().zoom()).toBeCloseTo(1.5, 10);
+
+      // A new first finger does drop a pinch whose fingers were never seen lifting.
+      fire('pointerdown', window_()!, [200, 200], touch(3, true));
+      fire('pointermove', window_()!, [500, 200], touch(2, false));
+      expect(host().zoom()).toBeCloseTo(1.5, 10);
+    });
+
+    it('has the pan in place before the zoom model tells its listeners', () => {
+      load({ display: 400, natural: 800 });
+      const heard: unknown[] = [];
+      const sub = cropper().zoom.subscribe(() => heard.push(cropper().cropRect()));
+
+      wheel(-100, [100, 300]);
+      key('+');
+      sub.unsubscribe();
+
+      expect(heard.length).toBe(2);
+      expect(heard[1]).toEqual(cropper().cropRect());
+      // Zoomed around (100, 300), the window's left edge is nearer the pointer than its top.
+      const first = heard[0] as { x: number; y: number; width: number };
+      expect(first.x).toBe(Math.round(((80 + 100 * (Math.exp(0.2) - 1)) / Math.exp(0.2)) * 2));
+      expect(first.y).toBe(Math.round(((80 + 300 * (Math.exp(0.2) - 1)) / Math.exp(0.2)) * 2));
+    });
+
+    it('keeps a crop thinner than a source pixel one pixel thick', () => {
+      // 400 x 2, shown at its own size. At zoom 4 the window covers y 0.85 to 1.15.
+      const el = img();
+      sized(el, 400, 2);
+      Object.defineProperty(el, 'naturalWidth', { value: 400, configurable: true });
+      Object.defineProperty(el, 'naturalHeight', { value: 2, configurable: true });
+      el.dispatchEvent(new Event('load'));
+      host().zoom.set(4);
+      fixture.detectChanges();
+
+      expect(cropper().cropRect()).toMatchObject({ y: 1, height: 1 });
+
+      cropper().toDataUrl();
+      expect(calls).toEqual([['drawImage', 170, 1, 60, 1, 0, 0, 60, 1]]);
+    });
+
+    it('comes back to where it started after four quarter turns, either way round', () => {
+      loadLandscape();
+      const before = cropper().cropRect();
+
+      for (const direction of ['cw', 'ccw'] as const) {
+        for (let i = 1; i <= 4; i++) {
+          cropper().rotate(direction);
+          settle();
+          expect(host().rotation()).toBe(direction === 'cw' ? (i * 90) % 360 : (360 - i * 90) % 360);
+          expect(cropper().cropRect(), `${direction} ${i}`).toEqual(before);
+        }
+        expect(box()).toEqual([80, 40, 240, 120]);
+        expect(stage().style.width).toBe('');
+      }
+    });
+
+    it('refits a locked aspect ratio after the turn laid it on its side', () => {
+      host().aspectRatio.set(2);
+      fixture.detectChanges();
+      loadLandscape();
+      expect(box()).toEqual([80, 40, 240, 120]);
+
+      host().rotation.set(90);
+      settle();
+
+      // Turned, the window was 60 x 120; refitted around its centre it is 60 x 30.
+      expect(box()).toEqual([20, 85, 60, 30]);
+    });
+
+    it('turns from the keyboard: R clockwise, Shift with R back', () => {
+      loadLandscape();
+      const status = (): string => root().querySelector<HTMLElement>('[role="status"]')!.textContent.trim();
+
+      expect(key('r').defaultPrevented).toBe(true);
+      expect(host().rotation()).toBe(90);
+      expect(status()).toBe('Rotated 90°');
+
+      key('R', { shiftKey: true });
+      expect(host().rotation()).toBe(0);
+      key('R', { shiftKey: true });
+      expect(host().rotation()).toBe(270);
+      expect(status()).toBe('Rotated 270°');
+    });
+
+    it('opens over a turned stage when the image loads already turned', () => {
+      host().rotation.set(270);
+      fixture.detectChanges();
+      loadLandscape();
+
+      expect([stage().style.width, stage().style.height]).toEqual(['100px', '200px']);
+      expect(box()).toEqual([20, 40, 60, 120]);
+      expect(cropper().cropRect()).toEqual({ x: 160, y: 80, width: 480, height: 240 });
+    });
+
+    it('announces the crop as it is seen, turned', () => {
+      loadLandscape();
+      host().rotation.set(90);
+      settle();
+
+      key('ArrowRight');
+
+      // Stage pixels are four source pixels here; left and top are the turned image's.
+      expect(root().querySelector<HTMLElement>('[role="status"]')!.textContent.trim()).toBe('84, 160, 240 × 480');
+    });
+
+    it('exports a zoomed crop from the smaller source region, at its own size', () => {
+      load({ display: 400, natural: 800 });
+      host().zoom.set(2);
+      fixture.detectChanges();
+
+      cropper().toDataUrl();
+
+      expect(encoded).toEqual([{ width: 240, height: 240 }]);
+      expect(calls).toEqual([['drawImage', 280, 280, 240, 240, 0, 0, 240, 240]]);
+    });
+
+    it('exports a turned and zoomed crop: the source region, drawn turned', () => {
+      loadLandscape();
+      host().rotation.set(90);
+      settle();
+      host().zoom.set(2);
+      fixture.detectChanges();
+
+      // The window is 60 x 120 of a 100 x 200 stage showing half of a 400 x 800 turned image.
+      expect(cropper().cropRect()).toEqual({ x: 280, y: 140, width: 240, height: 120 });
+
+      cropper().toDataUrl();
+
+      // Portrait out, from a landscape region of the source.
+      expect(encoded).toEqual([{ width: 120, height: 240 }]);
+      expect(calls).toEqual([
+        ['translate', 60, 120],
+        ['rotate', Math.PI / 2],
+        ['drawImage', 280, 140, 240, 120, -120, -60, 240, 120],
+      ]);
+    });
+
+    it('caps a turned export by its longest side as it comes out', () => {
+      host().maxOutputSize.set(120);
+      fixture.detectChanges();
+      loadLandscape();
+      host().rotation.set(270);
+      settle();
+
+      cropper().toDataUrl();
+
+      // 240 x 480 turned, capped to 60 x 120; the source region is still the whole crop.
+      expect(encoded).toEqual([{ width: 60, height: 120 }]);
+      expect(calls).toEqual([
+        ['translate', 30, 60],
+        ['rotate', (3 * Math.PI) / 2],
+        ['drawImage', 160, 80, 480, 240, -60, -30, 120, 60],
+      ]);
+    });
+
+    it('exports a half turn at the same size, from the same region', () => {
+      loadLandscape();
+      host().rotation.set(180);
+      settle();
+
+      cropper().toDataUrl();
+
+      expect(stage().style.width).toBe('');
+      expect(encoded).toEqual([{ width: 480, height: 240 }]);
+      expect(calls[2]).toEqual(['drawImage', 160, 80, 480, 240, -240, -120, 480, 240]);
+    });
+
+    it('emits (cropped) once after the zoom and the rotation settle', async () => {
+      loadLandscape();
+
+      host().zoom.set(1.5);
+      fixture.detectChanges();
+      host().zoom.set(2);
+      fixture.detectChanges();
+      host().rotation.set(90);
+      settle();
+
+      await vi.waitFor(() => expect(host().blobs.length).toBe(1));
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(host().blobs.length).toBe(1);
+      expect(encoded).toEqual([{ width: 120, height: 240 }]);
     });
   });
 

@@ -224,6 +224,13 @@ export class WrKnob implements FormValueControl<number> {
 
   protected onPointerMove(event: PointerEvent): void {
     if (!this.dragging) return;
+    // Turned disabled or readonly mid-drag: the gesture is over.
+    // The value may already have moved on pointerdown, so the field still hears `touch`.
+    if (!this.interactive()) {
+      this.dragging = false;
+      this.touch.emit();
+      return;
+    }
     this.updateFromPointer(event);
   }
 

@@ -95,33 +95,42 @@ function findFirstInvalid(root: HTMLElement): HTMLElement | undefined {
  * Elements with no box are dropped (see `isRendered`), except the one that
  * currently has focus: a trap must still be able to find where it is standing,
  * and an element can be focused and then hidden by the same interaction.
+ * A disabled control is dropped too, a button in a disabled `<fieldset>` among them.
  */
 export function wrGetFocusableElements(root: HTMLElement): readonly HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    el => isRendered(el) || el === document.activeElement
+    el => !el.matches(':disabled') && (isRendered(el) || el === document.activeElement)
   );
 }
 
 /**
  * Trap Tab navigation inside `root` for a keyboard event — call from a
- * `keydown` handler. Cycles focus from first ↔ last focusable element.
+ * `keydown` handler. Cycles focus from first ↔ last focusable element, and from the container itself
+ * into either end.
  * Returns `true` when focus was redirected (event was handled).
  */
 export function wrTrapFocus(root: HTMLElement, event: KeyboardEvent): boolean {
   if (event.key !== 'Tab') return false;
   const focusable = wrGetFocusableElements(root);
-  if (focusable.length === 0) return false;
+  const active = document.activeElement as HTMLElement | null;
+  if (focusable.length === 0) {
+    // Nothing to move to: Tab from the container itself would leave the trap.
+    if (active !== root) return false;
+    event.preventDefault();
+    return true;
+  }
 
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
-  const active = document.activeElement as HTMLElement | null;
 
-  if (event.shiftKey && active === first) {
+  // Focus on the container itself (a `tabindex="-1"` panel) sits before the first
+  // element, so Shift+Tab from there would leave the trap.
+  if (event.shiftKey && (active === first || active === root)) {
     event.preventDefault();
     last.focus();
     return true;
   }
-  if (!event.shiftKey && active === last) {
+  if (!event.shiftKey && (active === last || active === root)) {
     event.preventDefault();
     first.focus();
     return true;

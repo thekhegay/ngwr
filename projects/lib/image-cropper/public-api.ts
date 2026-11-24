@@ -1,2 +1,9 @@
 export { WrImageCropper } from './image-cropper';
-export type { WrCropRect, WrCropHandle, WrImageCropperStatus, WrImageLoadError, WrImageOutputType } from './types';
+export type {
+  WrCropRect,
+  WrCropHandle,
+  WrImageCropperStatus,
+  WrImageLoadError,
+  WrImageOutputType,
+  WrImageRotation,
+} from './types';

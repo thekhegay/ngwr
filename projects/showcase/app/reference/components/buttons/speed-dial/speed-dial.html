@@ -3,11 +3,12 @@
   description="A floating button that opens a set of related actions."
   [keywords]="['speed-dial', 'fab', 'wr-speed-dial']"
   [labels]="['Component']"
+  updated="16.9.0"
 >
   <ngwr-doc-section title="Basic usage" description="`(pick)` emits the action the user clicks.">
     <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
     <ngwr-doc-snippet code="">
-      <div style="padding-top: 16rem; padding-bottom: 1rem; display: flex; justify-content: center">
+      <div class="ngwr-demo-arena ngwr-demo-arena--floor">
         <wr-speed-dial [actions]="actions" (pick)="onPick($event)" />
       </div>
       @if (lastPick()) {
@@ -29,6 +30,18 @@
         <div [class]="`ngwr-dial-demo__stage ngwr-dial-demo__stage--${direction()}`">
           <wr-speed-dial [actions]="actions" [direction]="direction()" (pick)="onPick($event)" />
         </div>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Close on outside click"
+    description="`closeOnOutsideClick` closes an open dial on a pointer press elsewhere. Focus stays where the user clicked."
+  >
+    <ngwr-doc-code [code]="snippets.outside" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div class="ngwr-demo-arena ngwr-demo-arena--floor">
+        <wr-speed-dial [actions]="actions" closeOnOutsideClick (pick)="onPick($event)" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

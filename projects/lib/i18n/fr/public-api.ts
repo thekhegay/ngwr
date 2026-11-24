@@ -87,6 +87,8 @@ export const wrFr: WrI18nCatalog = {
   stepper: {
     optional: 'facultatif',
     completed: 'terminé',
+    error: 'erreur',
+    warning: 'avertissement',
   },
   transfer: {
     source: 'Disponibles',
@@ -98,6 +100,7 @@ export const wrFr: WrI18nCatalog = {
     toSource: 'Déplacer vers les disponibles',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'facultatif',
@@ -230,6 +233,10 @@ export const wrFr: WrI18nCatalog = {
       'Les touches fléchées déplacent la zone de recadrage. Maintenez Alt avec une touche fléchée pour la redimensionner, ' +
       'et Maj pour des pas plus grands. ' +
       "La zone est annoncée sous la forme gauche, haut, largeur et hauteur, en pixels de l'image.",
+    transformHelp:
+      'Plus et moins agrandissent et réduisent l’image. R la fait pivoter dans le sens des aiguilles d’une montre, Maj avec R dans l’autre sens.',
+    zoomed: 'Zoom {{percent}} %',
+    rotated: 'Rotation de {{degrees}}°',
   },
   sortableList: {
     keyHelp:

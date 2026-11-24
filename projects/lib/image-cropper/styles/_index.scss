@@ -16,7 +16,15 @@
     line-height: 0;
   }
 
-  &__image {
+  // The zoomed image can be dragged where the crop window does not cover it.
+  &--zoomed &__canvas {
+    cursor: grab;
+  }
+
+  // `__image` sizes the stage until it has been measured. From then on `__sizer` is that
+  // box, turned on its side with the image, so the two must be sized by the same rules.
+  &__image,
+  &__sizer {
     display: block;
     max-width: 100%;
     max-height: 70vh;
@@ -24,6 +32,27 @@
     height: auto;
     pointer-events: none;
     user-select: none;
+  }
+
+  // Measured, the image is laid over the stage at the size the component writes on it,
+  // and zoomed, panned and turned from the stage's corner.
+  &__image--measured {
+    position: absolute;
+    top: 0;
+    // rtl-ok: cropper geometry, the pan is a physical offset from the stage's top-left corner
+    left: 0;
+    max-width: none;
+    max-height: none;
+    transform-origin: 0 0;
+  }
+
+  // Clips the zoomed image to the stage. Not before the image is measured: it is still
+  // in the layout then, and this wrapper must not change how it is sized.
+  &__viewport--on {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
 
   // A source the browser could not decode. The `<img>` stays in the DOM, since the

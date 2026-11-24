@@ -65,8 +65,8 @@ export type { WrKey, WrTypeahead, WrTypeaheadItem, WrTypeaheadOptions } from './
 export { wrBadgeError, wrBadgeLog, wrBadgeWarn } from './log';
 
 // Text
-export { wrInitials } from './text';
-export type { WrInitialsOptions, WrInitialsOrder, WrInitialsStyle } from './text';
+export { wrInitials, wrSlug } from './text';
+export type { WrInitialsOptions, WrInitialsOrder, WrInitialsStyle, WrSlugOptions } from './text';
 
 // Locale
 export { WR_LIVE_LOCALE } from './locale';

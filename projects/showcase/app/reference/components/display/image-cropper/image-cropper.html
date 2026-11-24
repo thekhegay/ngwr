@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Image Cropper"
-  updated="16.7.0"
+  updated="16.9.0"
   description="Crop an image and get the result as a `Blob`."
   [keywords]="['image', 'cropper', 'crop', 'wr-image-cropper']"
   [labels]="['Composite']"
@@ -40,6 +40,57 @@
     <ngwr-doc-code [code]="snippets.square" language="angular-html" />
     <ngwr-doc-snippet code="">
       <wr-image-cropper [src]="square()" [aspectRatio]="1" />
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Zoom and rotate"
+    description="`zoom` enlarges the image under the box, up to 4, and `rotation` turns it by quarter turns. The cropper has no toolbar: bind your own controls. The wheel and a pinch zoom too, and a zoomed image is dragged by the area outside the box."
+  >
+    <ngwr-doc-code [code]="snippets.transform" language="angular-html" />
+    <ngwr-doc-code [code]="snippets.transformTs" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center">
+          <wr-slider
+            ariaLabel="Zoom"
+            min="1"
+            max="4"
+            step="0.1"
+            style="width: 12rem"
+            [labelWith]="zoomLabel"
+            [value]="zoom()"
+            (valueChange)="onZoom($event)"
+          />
+          <button wr-btn type="button" size="sm" outlined (click)="transformCropper.rotate('ccw')">Turn left</button>
+          <button wr-btn type="button" size="sm" outlined (click)="transformCropper.rotate()">Turn right</button>
+        </div>
+        <wr-image-cropper
+          #transformCropper
+          [src]="avatar()"
+          [aspectRatio]="1"
+          [(zoom)]="zoom"
+          [(rotation)]="rotation"
+          (cropped)="onCropped($event, avatarUrl)"
+        />
+        @if (avatarUrl()) {
+          <div>
+            <small style="display: block; color: var(--wr-color-on-surface-muted); margin-bottom: 0.25rem"
+              >Preview</small
+            >
+            <img
+              [src]="avatarUrl()"
+              alt="Cropped preview"
+              style="
+                max-width: 12rem;
+                max-height: 12rem;
+                border: 1px solid var(--wr-border-base);
+                border-radius: 0.375rem;
+              "
+            />
+          </div>
+        }
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
@@ -91,7 +142,7 @@
         <tbody>
           <tr>
             <th scope="row"><wr-kbd size="sm">Arrow keys</wr-kbd></th>
-            <td>Move by 1px.</td>
+            <td>Move by 1px. Against an edge, the box pushes a zoomed image along.</td>
           </tr>
           <tr>
             <th scope="row"><wr-kbd size="sm">Shift + arrows</wr-kbd></th>
@@ -104,6 +155,18 @@
           <tr>
             <th scope="row"><wr-kbd size="sm">Shift + Alt + arrows</wr-kbd></th>
             <td>Resize by 10px.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">+</wr-kbd> <wr-kbd size="sm">-</wr-kbd></th>
+            <td>Zoom in and out by 0.1, around the middle of the box.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">R</wr-kbd></th>
+            <td>Turn a quarter turn clockwise.</td>
+          </tr>
+          <tr>
+            <th scope="row"><wr-kbd size="sm">Shift + R</wr-kbd></th>
+            <td>Turn a quarter turn counter-clockwise.</td>
           </tr>
         </tbody>
       </table>

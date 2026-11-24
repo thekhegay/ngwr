@@ -1,21 +1,60 @@
 @if (objectUrl(); as url) {
-  <div class="wr-image-cropper__canvas">
+  <!--
+    The stage. A press on it that the crop window did not take pans the zoomed image, a
+    second finger pinches, and the wheel zooms: see `onStagePointerDown` and `onWheel`.
+  -->
+  <div
+    class="wr-image-cropper__canvas"
+    [style.width.px]="stageBox()?.w"
+    [style.height.px]="stageBox()?.h"
+    (pointerdown)="onStagePointerDown($event)"
+    (pointermove)="onStagePointerMove($event)"
+    (pointerup)="onStagePointerUp($event)"
+    (pointercancel)="onStagePointerUp($event)"
+    (wheel)="onWheel($event)"
+  >
     <!--
+      The picture, and the element `toCanvas` draws from. Until it is measured it sits in
+      the layout and sizes the stage. From then on the sizer below does that, and this is
+      laid over the stage and zoomed, panned and turned. The viewport clips it; the stage
+      cannot, or it would clip the handles that overhang its edge.
+
       `crossorigin` is what lets a URL on another origin be exported at all: an image
       fetched without it taints the canvas `toCanvas` draws into, even when the server
       sends CORS headers, and every export then throws a SecurityError. It is static
       so it is in place before `src` starts the request.
     -->
-    <img
-      #img
-      class="wr-image-cropper__image"
-      crossorigin="anonymous"
-      [src]="url"
-      alt=""
-      draggable="false"
-      (load)="onImageLoad()"
-      (error)="onImageError()"
-    />
+    <div class="wr-image-cropper__viewport" [class.wr-image-cropper__viewport--on]="measured()">
+      <img
+        #img
+        class="wr-image-cropper__image"
+        crossorigin="anonymous"
+        [class.wr-image-cropper__image--measured]="measured()"
+        [style.width.px]="view()?.w"
+        [style.height.px]="view()?.h"
+        [style.transform]="view()?.transform"
+        [src]="url"
+        alt=""
+        draggable="false"
+        (load)="onImageLoad()"
+        (error)="onImageError()"
+      />
+    </div>
+
+    <!--
+      Holds the stage open once the image is measured: a blank canvas with the source's
+      dimensions, swapped while the image is turned, which the stylesheet sizes as it
+      sized the image.
+    -->
+    @if (natural().w > 0) {
+      <canvas
+        #sizer
+        class="wr-image-cropper__sizer"
+        aria-hidden="true"
+        [width]="turned() ? natural().h : natural().w"
+        [height]="turned() ? natural().w : natural().h"
+      ></canvas>
+    }
 
     @if (display().w > 0) {
       <!-- Semi-transparent backdrop with a cut-out for the crop window. -->
@@ -68,10 +107,11 @@
         }
       </div>
 
-      <p class="wr-image-cropper__sr-only" [id]="helpId">{{ resolvedKeyHelp() }}</p>
+      <p class="wr-image-cropper__sr-only" [id]="helpId">{{ resolvedKeyHelp() }} {{ resolvedTransformHelp() }}</p>
 
       <!--
-        The crop rect in SOURCE pixels, announced after a keyboard change only —
+        The crop rect in SOURCE pixels (or the new zoom or rotation, as a catalog
+        sentence), announced after a keyboard change only:
         a pointer drag already gives sighted feedback and would flood the region,
         and the initial crop is not news. Deliberately bare numbers: a sentence
         here would be a translated string the catalog does not carry, and the

@@ -210,6 +210,9 @@ export class WrTransfer implements FormValueControl<readonly unknown[]> {
    * differently today and every locale can now reorder it without a code change.
    */
   protected readonly selectAllAria = useI18nFormatter('transfer.selectAllAria', '{{pane}} — {{action}}');
+
+  /** The search input's accessible name, composed in the catalog for the same reason as `selectAllAria`. */
+  protected readonly searchAria = useI18nFormatter('transfer.searchAria', '{{title}} - {{search}}');
   protected readonly resolvedToTarget = useI18nText(this.toTargetLabel, 'transfer.toTarget', 'Move to selected');
   protected readonly resolvedToSource = useI18nText(this.toSourceLabel, 'transfer.toSource', 'Move to available');
 

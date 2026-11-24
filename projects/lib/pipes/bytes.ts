@@ -110,7 +110,7 @@ export class WrBytes implements PipeTransform {
  * ```
  */
 export function wrFormatBytes(value: number | string | null | undefined, locale: string, decimals = 1): string {
-  if (value === null || value === undefined || value === '') return '';
+  if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) return '';
   const n = Number(value);
   if (!Number.isFinite(n) || n <= 0) return format(locale, 0, 0, 0);
 

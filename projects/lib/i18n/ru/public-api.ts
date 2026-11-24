@@ -87,6 +87,8 @@ export const wrRu: WrI18nCatalog = {
   stepper: {
     optional: 'необязательно',
     completed: 'завершено',
+    error: 'ошибка',
+    warning: 'предупреждение',
   },
   transfer: {
     source: 'Доступно',
@@ -98,6 +100,7 @@ export const wrRu: WrI18nCatalog = {
     toSource: 'Вернуть в доступные',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'необязательно',
@@ -229,6 +232,10 @@ export const wrRu: WrI18nCatalog = {
     keyHelp:
       'Стрелки перемещают область обрезки. Alt со стрелкой изменяет её размер, Shift увеличивает шаг. ' +
       'Область объявляется как отступ слева, отступ сверху, ширина и высота в пикселях изображения.',
+    transformHelp:
+      'Плюс и минус увеличивают и уменьшают изображение. R поворачивает его по часовой стрелке, а Shift с R против часовой.',
+    zoomed: 'Масштаб {{percent}}%',
+    rotated: 'Поворот {{degrees}}°',
   },
   sortableList: {
     keyHelp:

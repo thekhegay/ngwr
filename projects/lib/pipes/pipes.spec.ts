@@ -11,10 +11,12 @@ import { WrBytes, wrFormatBytes } from './bytes';
 import { WrDate, wrFormatDate } from './date';
 import { WrDuration, wrFormatDuration, wrSplitDuration } from './duration';
 import { WrInitials } from './initials';
+import { WrList, wrFormatList } from './list';
 import { WrMark } from './mark';
 import { WrNumber, wrFormatNumber } from './number';
 import { WrPlural, wrFormatPlural } from './plural';
 import { WrRange } from './range';
+import { WrRelativeTime, wrFormatRelativeTime } from './relative-time';
 import { WrTruncate } from './truncate';
 
 /**
@@ -564,6 +566,264 @@ describe('wrPlural', () => {
   });
 });
 
+describe('wrList', () => {
+  const pipe = (locale: string): WrList => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: locale }] });
+    return TestBed.runInInjectionContext(() => new WrList());
+  };
+  const names = ['Ada', 'Alan', 'Grace'];
+
+  it('joins with the "and" of the locale', () => {
+    expect(pipe('en-US').transform(names)).toBe('Ada, Alan, and Grace');
+    expect(pipe('en-GB').transform(names)).toBe('Ada, Alan and Grace');
+    expect(pipe('ru').transform(['Ада', 'Алан', 'Грейс'])).toBe('Ада, Алан и Грейс');
+    expect(pipe('en-US').transform(['Ada', 'Alan'])).toBe('Ada and Alan');
+  });
+
+  it('joins with "or" as a disjunction', () => {
+    expect(pipe('en-US').transform(names, 'disjunction')).toBe('Ada, Alan, or Grace');
+    expect(pipe('ru').transform(['Ада', 'Алан', 'Грейс'], 'disjunction')).toBe('Ада, Алан или Грейс');
+  });
+
+  it('takes the full options object', () => {
+    expect(pipe('en-US').transform(['5 kg', '200 g'], { type: 'unit', style: 'narrow' })).toBe('5 kg 200 g');
+    expect(pipe('en-US').transform(names, { type: 'disjunction' })).toBe('Ada, Alan, or Grace');
+  });
+
+  it('renders one item as it is and nothing as an empty string', () => {
+    expect(pipe('en-US').transform(['Ada'])).toBe('Ada');
+    expect(pipe('en-US').transform([])).toBe('');
+    expect(pipe('en-US').transform(null)).toBe('');
+    expect(pipe('en-US').transform(undefined)).toBe('');
+  });
+
+  it('leaves blank items out', () => {
+    expect(pipe('en-US').transform(['Ada', '', '  ', 'Grace'])).toBe('Ada and Grace');
+    expect(pipe('en-US').transform(['', ' '])).toBe('');
+  });
+
+  it('reads any iterable, and a lone string as one item', () => {
+    expect(pipe('en-US').transform(new Set(names))).toBe('Ada, Alan, and Grace');
+    expect(pipe('en-US').transform('Ada')).toBe('Ada');
+  });
+
+  it('is the same output as wrFormatList', () => {
+    for (const locale of ['en-US', 'ru', 'de']) {
+      for (const value of [names, ['Ada'], [], null, undefined]) {
+        expect(wrFormatList(value, locale)).toBe(pipe(locale).transform(value));
+        expect(wrFormatList(value, locale, 'disjunction')).toBe(pipe(locale).transform(value, 'disjunction'));
+      }
+    }
+    expect(wrFormatList(names, 'de')).toBe('Ada, Alan und Grace');
+  });
+
+  it('renders in a template', () => {
+    @Component({ imports: [WrList], template: `<p>{{ names() | wrList: 'disjunction' }}</p>` })
+    class Host {
+      readonly names = signal<readonly string[]>(names);
+    }
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'en-US' }] });
+    const fixture = TestBed.createComponent(Host);
+    const host = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    expect(host.textContent).toBe('Ada, Alan, or Grace');
+    fixture.componentInstance.names.set(['Ada', 'Grace']);
+    fixture.detectChanges();
+    expect(host.textContent).toBe('Ada or Grace');
+  });
+});
+
+describe('wrRelativeTime', () => {
+  const NOW = Date.UTC(2026, 10, 12, 12, 0, 0);
+  const SECOND = 1000;
+  const MINUTE = 60 * SECOND;
+  const HOUR = 60 * MINUTE;
+  const DAY = 24 * HOUR;
+
+  /** The text for a value `distance` milliseconds from the reference instant. */
+  const at = (distance: number, locale = 'en-US', options: { numeric?: 'auto' | 'always' } = {}): string =>
+    wrFormatRelativeTime(new Date(NOW + distance), locale, { now: NOW, ...options });
+
+  const pipe = (locale: string): WrRelativeTime => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: locale }] });
+    return TestBed.runInInjectionContext(() => new WrRelativeTime());
+  };
+
+  afterEach(() => vi.useRealTimers());
+
+  it('picks the unit from the size of the distance', () => {
+    expect(at(-30 * SECOND)).toBe('30 seconds ago');
+    expect(at(-5 * MINUTE)).toBe('5 minutes ago');
+    expect(at(-3 * HOUR)).toBe('3 hours ago');
+    expect(at(-3 * DAY)).toBe('3 days ago');
+    expect(at(-14 * DAY)).toBe('2 weeks ago');
+    expect(at(-90 * DAY)).toBe('2 months ago');
+    expect(at(-800 * DAY)).toBe('2 years ago');
+  });
+
+  it('reads the future as the future', () => {
+    expect(at(30 * SECOND)).toBe('in 30 seconds');
+    expect(at(5 * MINUTE)).toBe('in 5 minutes');
+    expect(at(3 * HOUR)).toBe('in 3 hours');
+    expect(at(3 * DAY)).toBe('in 3 days');
+    expect(at(14 * DAY)).toBe('in 2 weeks');
+    expect(at(90 * DAY)).toBe('in 2 months');
+    expect(at(800 * DAY)).toBe('in 2 years');
+  });
+
+  it('keeps the side of a value one second away, and of one under a second', () => {
+    expect(at(SECOND)).toBe('in 1 second');
+    expect(at(-SECOND)).toBe('1 second ago');
+    expect(at(SECOND, 'en-US', { numeric: 'always' })).toBe('in 1 second');
+    expect(at(999, 'en-US', { numeric: 'always' })).toBe('in 0 seconds');
+    expect(at(-999, 'en-US', { numeric: 'always' })).toBe('0 seconds ago');
+    expect(at(999)).toBe('now');
+    expect(at(-999)).toBe('now');
+    expect(at(0)).toBe('now');
+  });
+
+  it('changes unit at the limit and cuts the count below it', () => {
+    expect(at(-(MINUTE - 1))).toBe('59 seconds ago');
+    expect(at(-MINUTE, 'en-US', { numeric: 'always' })).toBe('1 minute ago');
+    expect(at(-(2 * MINUTE - 1), 'en-US', { numeric: 'always' })).toBe('1 minute ago');
+    expect(at(-(HOUR - 1))).toBe('59 minutes ago');
+    expect(at(-HOUR, 'en-US', { numeric: 'always' })).toBe('1 hour ago');
+    expect(at(-(DAY - 1))).toBe('23 hours ago');
+    expect(at(-(7 * DAY - 1))).toBe('6 days ago');
+    expect(at(-7 * DAY, 'en-US', { numeric: 'always' })).toBe('1 week ago');
+    expect(at(-30 * DAY)).toBe('4 weeks ago');
+    expect(at(-31 * DAY, 'en-US', { numeric: 'always' })).toBe('1 month ago');
+    expect(at(-364 * DAY)).toBe('11 months ago');
+    expect(at(-365 * DAY, 'en-US', { numeric: 'always' })).toBe('1 year ago');
+  });
+
+  it('says yesterday, tomorrow and last week under numeric auto, and the number under always', () => {
+    expect(at(-DAY)).toBe('yesterday');
+    expect(at(DAY)).toBe('tomorrow');
+    expect(at(-7 * DAY)).toBe('last week');
+    expect(at(40 * DAY)).toBe('next month');
+    expect(at(-DAY, 'en-US', { numeric: 'always' })).toBe('1 day ago');
+    expect(at(DAY, 'en-US', { numeric: 'always' })).toBe('in 1 day');
+  });
+
+  it('writes in the locale given', () => {
+    expect(at(-5 * MINUTE, 'ru')).toBe('5 минут назад');
+    expect(at(-3 * HOUR, 'ru')).toBe('3 часа назад');
+    expect(at(2 * DAY + HOUR, 'ru', { numeric: 'always' })).toBe('через 2 дня');
+    expect(at(-DAY, 'ru')).toBe('вчера');
+    expect(at(DAY, 'ru')).toBe('завтра');
+    expect(at(0, 'ru')).toBe('сейчас');
+    expect(at(-3 * HOUR, 'de')).toBe('vor 3 Stunden');
+  });
+
+  it('takes the style of Intl.RelativeTimeFormat', () => {
+    const value = new Date(NOW - 5 * MINUTE);
+    expect(wrFormatRelativeTime(value, 'en-US', { now: NOW, style: 'short' })).toBe('5 min. ago');
+    expect(wrFormatRelativeTime(value, 'en-US', { now: NOW, style: 'narrow' })).toBe('5m ago');
+  });
+
+  it('reads the inputs wrDate reads, and a Date or a number as now', () => {
+    const now = new Date(NOW);
+    expect(wrFormatRelativeTime('2026-11-12T11:55:00Z', 'en-US', { now })).toBe('5 minutes ago');
+    expect(wrFormatRelativeTime('2026-11-12 11:55:00Z', 'en-US', { now })).toBe('5 minutes ago');
+    expect(wrFormatRelativeTime(NOW - 5 * MINUTE, 'en-US', { now: NOW })).toBe('5 minutes ago');
+  });
+
+  it('reads a number and a zoneless string as its options say', () => {
+    const seconds = (NOW - 5 * MINUTE) / 1000;
+    expect(wrFormatRelativeTime(seconds, 'en-US', { now: NOW, epochUnit: 's' })).toBe('5 minutes ago');
+    expect(wrFormatRelativeTime(seconds, 'en-US', { now: NOW, epochUnit: 'auto' })).toBe('5 minutes ago');
+    expect(wrFormatRelativeTime('2026-11-12 11:55:00', 'en-US', { now: NOW, zonelessIn: 'utc' })).toBe('5 minutes ago');
+    expect(
+      wrFormatRelativeTime('2026-11-12 16:55:00', 'en-US', { now: NOW, zonelessIn: 'display', timeZone: '+05:00' })
+    ).toBe('5 minutes ago');
+  });
+
+  it('reads a value under the epochUnit and zonelessIn of withDates in the pipe, and lets an option win', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: LOCALE_ID, useValue: 'en-US' },
+        provideWr(withDates({ epochUnit: 's', zonelessIn: 'display', timeZone: '+05:00' })),
+      ],
+    });
+    const configured = TestBed.runInInjectionContext(() => new WrRelativeTime());
+    const seconds = (NOW - 5 * MINUTE) / 1000;
+    expect(configured.transform(seconds, { now: NOW })).toBe('5 minutes ago');
+    expect(configured.transform('2026-11-12 16:55:00', { now: NOW })).toBe('5 minutes ago');
+    expect(configured.transform(NOW - 5 * MINUTE, { now: NOW, epochUnit: 'ms' })).toBe('5 minutes ago');
+    expect(configured.transform('2026-11-12 11:55:00', { now: NOW, zonelessIn: 'utc' })).toBe('5 minutes ago');
+  });
+
+  it('measures from the current time with no now', () => {
+    vi.useFakeTimers({ toFake: ['Date'], now: NOW });
+    expect(wrFormatRelativeTime(new Date(NOW - 3 * HOUR), 'en-US')).toBe('3 hours ago');
+    expect(wrFormatRelativeTime(new Date(NOW + SECOND), 'en-US')).toBe('in 1 second');
+    expect(wrFormatRelativeTime(new Date(NOW - 3 * HOUR), 'en-US', { now: new Date(Number.NaN) })).toBe('3 hours ago');
+  });
+
+  it('compares a date-only string with today as a day', () => {
+    // Local times: a date-only string is a local day.
+    const evening = new Date(2026, 10, 12, 23, 30);
+    const morning = new Date(2026, 10, 12, 0, 30);
+    for (const now of [evening, morning]) {
+      expect(wrFormatRelativeTime('2026-11-12', 'en-US', { now })).toBe('today');
+      expect(wrFormatRelativeTime('2026-11-11', 'en-US', { now })).toBe('yesterday');
+      expect(wrFormatRelativeTime('2026-11-13', 'en-US', { now })).toBe('tomorrow');
+      expect(wrFormatRelativeTime('2026-11-15', 'en-US', { now })).toBe('in 3 days');
+      expect(wrFormatRelativeTime('2026-11-01', 'en-US', { now })).toBe('last week');
+      expect(wrFormatRelativeTime('2026-11-12', 'ru', { now })).toBe('сегодня');
+    }
+  });
+
+  it.each([null, undefined, '', '   ', 'n/a', Number.NaN, new Date(Number.NaN)])(
+    'gives an empty string for %s',
+    empty => {
+      expect(wrFormatRelativeTime(empty, 'en-US', { now: NOW })).toBe('');
+      expect(pipe('en-US').transform(empty)).toBe('');
+    }
+  );
+
+  it('is the same output as the pipe, in LOCALE_ID', () => {
+    for (const locale of ['en-US', 'ru', 'de']) {
+      for (const distance of [-5 * MINUTE, 3 * HOUR, -DAY, 40 * DAY]) {
+        const value = new Date(NOW + distance);
+        expect(pipe(locale).transform(value, { now: NOW })).toBe(wrFormatRelativeTime(value, locale, { now: NOW }));
+        expect(pipe(locale).transform(value, { now: NOW, numeric: 'always', style: 'short' })).toBe(
+          wrFormatRelativeTime(value, locale, { now: NOW, numeric: 'always', style: 'short' })
+        );
+      }
+    }
+    expect(pipe('ru').transform(new Date(NOW - 5 * MINUTE), { now: NOW })).toBe('5 минут назад');
+  });
+
+  it('renders in a template, and again only when an argument changes', () => {
+    @Component({ imports: [WrRelativeTime], template: `<p>{{ value() | wrRelativeTime }}</p>` })
+    class Host {
+      readonly value = signal(new Date(NOW - 5 * MINUTE));
+    }
+    vi.useFakeTimers({ toFake: ['Date'], now: NOW });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [{ provide: LOCALE_ID, useValue: 'en-US' }] });
+    const fixture = TestBed.createComponent(Host);
+    const host = fixture.nativeElement as HTMLElement;
+    fixture.detectChanges();
+    expect(host.textContent).toBe('5 minutes ago');
+
+    // Pure: an hour later the same value still reads as it did.
+    vi.setSystemTime(NOW + HOUR);
+    fixture.detectChanges();
+    expect(host.textContent).toBe('5 minutes ago');
+
+    fixture.componentInstance.value.set(new Date(NOW));
+    fixture.detectChanges();
+    expect(host.textContent).toBe('1 hour ago');
+  });
+});
+
 /**
  * `wrDuration` is built on `Intl.NumberFormat` and `Intl.ListFormat` rather than
  * `Intl.DurationFormat`, which the browser floor does not have, so what the
@@ -757,5 +1017,15 @@ describe('wrMark', () => {
     // value drew an element — whatever Angular's own sanitizer permits.
     expect(html('<img src=x onerror=1>', '')).toBe('&lt;img src=x onerror=1&gt;');
     expect(html('<b>bold</b>', null)).toBe('&lt;b&gt;bold&lt;/b&gt;');
+  });
+});
+
+describe('a blank string in the number pipes', () => {
+  it('renders nothing, like an empty string, not zero', () => {
+    for (const blank of ['', ' ', '   ', '\t\n']) {
+      expect(wrFormatNumber(blank, 'en-US')).toBe('');
+      expect(wrFormatBytes(blank, 'en-US')).toBe('');
+      expect(wrFormatDuration(blank, 'en-US')).toBe('');
+    }
   });
 });

@@ -138,9 +138,9 @@ guess gets backwards.
   through `ngwr/i18n`; every component takes overridable `*Label` inputs.
 - **Prefer the library over hand-rolling.** `ngwr/utils` (coercion, dom,
   keyboard, id, css-size, math), `ngwr/pipes` (`wrDate`, `wrBytes`,
-  `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrRange`, `wrDuration`,
+  `wrTruncate`, `wrNumber`, `wrMark`, `wrPlural`, `wrList`, `wrRelativeTime`, `wrRange`, `wrDuration`,
   and for a string built in TypeScript `wrFormatDate`, `wrFormatBytes`,
-  `wrFormatNumber`, `wrFormatPlural` and `wrFormatDuration`) and
+  `wrFormatNumber`, `wrFormatPlural`, `wrFormatList`, `wrFormatRelativeTime` and `wrFormatDuration`) and
   `ngwr/validators` already exist.
 
 ## Setting a component up

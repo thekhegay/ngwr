@@ -19,6 +19,8 @@ interface DrawOptionsInternal {
   readonly level: WrQrErrorLevel;
   readonly iconUrl?: string | null;
   readonly iconSize?: number;
+  /** Resolved colour of the square under the icon. `null` or absent paints `bgColor`. */
+  readonly iconBackground?: string | null;
 }
 
 const ERROR_LEVEL_MAP: Record<WrQrErrorLevel, qrcodegen.QrCode.Ecc> = {
@@ -29,6 +31,21 @@ const ERROR_LEVEL_MAP: Record<WrQrErrorLevel, qrcodegen.QrCode.Ecc> = {
 };
 
 const SCALE = 10;
+
+/** Share of the symbol each level is rated to recover. */
+const RECOVERY: Record<WrQrErrorLevel, number> = { L: 0.07, M: 0.15, Q: 0.25, H: 0.3 };
+
+/** Icon coverage already reported, one entry per distinct configuration. */
+const coverageReported = new Set<string>();
+
+/** `transparent`, or a resolved colour whose alpha is zero. */
+function isTransparent(color: string): boolean {
+  const value = color.trim().toLowerCase();
+  if (value === 'transparent') return true;
+  // The alpha follows a slash, or is the fourth comma-separated channel: `rgb(0, 0, 0)` is opaque.
+  const alpha = /\/\s*([\d.]+%?)\s*\)$/.exec(value) ?? /^(?:rgba?|hsla?)\((?:[^,]*,){3}\s*([\d.]+%?)\s*\)$/.exec(value);
+  return alpha !== null && parseFloat(alpha[1]) === 0;
+}
 
 /** Latest draw per canvas: an icon that finishes loading after a newer draw must not paint. */
 const drawTokens = new WeakMap<HTMLCanvasElement, number>();
@@ -85,11 +102,52 @@ function safeIconUrl(raw: string): string | null {
   return name === 'http' || name === 'https' ? url : null;
 }
 
+/**
+ * Reports an icon that hides more of the symbol than its level is rated to recover.
+ *
+ * What counts is what hides modules: the square under the icon, or the inset image
+ * alone when the square is transparent and the modules around the image stay visible.
+ * The share is that box's area over the symbol's module area, the quiet zone left
+ * out, held against the standard ratings. It is a ceiling, not a promise: a code can
+ * stop scanning below it, since the centre also carries alignment patterns.
+ *
+ * Same policy as the encoder report below: said in dev, never thrown.
+ */
+function reportCoverage(
+  options: DrawOptionsInternal,
+  modules: number,
+  ratio: number,
+  iconPx: number,
+  inset: number,
+  bare: boolean
+): void {
+  const limit = RECOVERY[options.level];
+  const side = (bare ? iconPx - 2 * inset : iconPx) / SCALE;
+  const share = (side * side) / (modules * modules);
+  if (share <= limit) return;
+
+  const key = [options.level, modules, options.size, options.padding, options.iconSize ?? 42, bare].join('|');
+  if (coverageReported.has(key)) return;
+  coverageReported.add(key);
+
+  // The largest side the level allows, in bitmap units, taken back to an `iconSize`.
+  const fitSide = modules * Math.sqrt(limit) * SCALE;
+  const fitBox = bare ? fitSide + 2 * Math.min(10 * ratio, fitSide / 2) : fitSide;
+  const percent = (value: number): string => `${Math.round(value * 1000) / 10}%`;
+  // eslint-disable-next-line no-console -- a code that will not scan must be visible, but must not throw
+  console.warn(
+    `[NGWR] <wr-qr> icon covers ${percent(share)} of the code, and error-correction level ` +
+      `"${options.level}" recovers about ${percent(limit)}, so it may not scan. ` +
+      `Set [iconSize] to ${Math.floor(fitBox / ratio)} or less, or raise the level.`
+  );
+}
+
 function overlayIcon(
   canvas: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D,
   options: DrawOptionsInternal,
-  token: number
+  token: number,
+  modules: number
 ): void {
   const src = safeIconUrl(options.iconUrl!);
   if (src === null) return;
@@ -101,12 +159,20 @@ function overlayIcon(
   const ratio = canvas.width / options.size;
   const iconPx = (options.iconSize ?? 42) * ratio;
   const coord = canvas.width / 2 - iconPx / 2;
+  // 10 CSS px of inset on every side, never more than a quarter of the box.
+  const inset = Math.min(10 * ratio, iconPx / 4);
+  const plate = options.iconBackground ?? options.bgColor;
+  const bare = isTransparent(plate);
+
+  if (typeof ngDevMode === 'undefined' || ngDevMode) reportCoverage(options, modules, ratio, iconPx, inset, bare);
 
   iconImg.onload = (): void => {
     if (drawTokens.get(canvas) !== token) return;
-    ctx.fillStyle = options.bgColor;
-    ctx.fillRect(coord, coord, iconPx, iconPx);
-    ctx.drawImage(iconImg, coord + 10, coord + 10, iconPx - 20, iconPx - 20);
+    if (!bare) {
+      ctx.fillStyle = plate;
+      ctx.fillRect(coord, coord, iconPx, iconPx);
+    }
+    ctx.drawImage(iconImg, coord + inset, coord + inset, iconPx - 2 * inset, iconPx - 2 * inset);
   };
 }
 
@@ -174,7 +240,7 @@ function draw(canvas: HTMLCanvasElement, options: DrawOptionsInternal): void {
   drawModules(ctx, code, padding, options.color);
 
   if (options.iconUrl) {
-    overlayIcon(canvas, ctx, options, token);
+    overlayIcon(canvas, ctx, options, token, code.size);
   }
 }
 

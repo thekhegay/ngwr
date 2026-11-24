@@ -153,6 +153,16 @@ interface DateParts {
   isPm?: boolean;
 }
 
+/** Regions whose week starts on Sunday in CLDR, for an engine with no `Intl.Locale` week info. */
+const SUNDAY_REGIONS: ReadonlySet<string> = new Set(
+  'AG AS BD BR BS BT BW BZ CA CO DM DO ET GT GU HK HN ID IL IN JM JP KE KH KR LA MH MM MO MT MX MZ NI NP PA PE PH PK PR PT PY SA SG SV TH TT TW UM US VE VI WS YE ZA ZW'.split(
+    ' '
+  )
+);
+
+/** Regions whose week starts on Saturday in CLDR. */
+const SATURDAY_REGIONS: ReadonlySet<string> = new Set('AF BH DJ DZ EG IQ IR JO KW LY OM QA SD SY'.split(' '));
+
 const SHORT_DATE: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric' };
 const CLOCK: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
 const SECONDS: Intl.DateTimeFormatOptions = { second: '2-digit' };
@@ -693,19 +703,40 @@ export class WrNativeDateAdapter extends WrDateAdapter<Date> {
   // Locale info
 
   getFirstDayOfWeek(): number {
-    // `Intl.Locale.prototype.getWeekInfo` is Stage 3 — not in TS lib types yet,
-    // so we probe at runtime through an unknown cast.
+    // `getWeekInfo()` is the standard method, `weekInfo` the getter older Chromium
+    // ships instead. Neither is in the TS lib types, so we probe at runtime.
+    let region: string | undefined;
     try {
-      const locale = new Intl.Locale(this.locale) as unknown as { getWeekInfo?: () => { firstDay: number } };
-      const info = locale.getWeekInfo?.();
+      const locale = new Intl.Locale(this.locale) as unknown as {
+        getWeekInfo?: () => { firstDay: number };
+        weekInfo?: { firstDay: number };
+        maximize(): { region?: string };
+      };
+      const info = locale.getWeekInfo?.() ?? locale.weekInfo;
       if (info && typeof info.firstDay === 'number') {
         // Intl uses 1 (Mon) – 7 (Sun); we use 0 (Sun) – 6 (Sat).
         return info.firstDay % 7;
       }
+      region = locale.maximize().region;
     } catch {
-      // Browser doesn't support Intl.Locale or getWeekInfo — fall through.
+      // Browser doesn't support Intl.Locale or week info — fall through.
     }
-    return this.locale.toLowerCase().startsWith('en-us') ? 0 : 1;
+    // Firefox and Chromium before 130 have no week info: go by the region, with
+    // the CLDR first days. A bare `en` maximizes to US.
+    // Only the language part counts: a singleton such as `u` opens the extensions, whose
+    // keys (`ca`, `nu`) are not regions.
+    if (!region) {
+      for (const part of this.locale.split(/[-_]/).slice(1)) {
+        if (part.length === 1) break;
+        if (/^[a-z]{2}$/i.test(part)) {
+          region = part.toUpperCase();
+          break;
+        }
+      }
+    }
+    if (region && SUNDAY_REGIONS.has(region)) return 0;
+    if (region && SATURDAY_REGIONS.has(region)) return 6;
+    return 1;
   }
 
   /**

@@ -87,6 +87,8 @@ export const wrAr: WrI18nCatalog = {
   stepper: {
     optional: 'اختياري',
     completed: 'مكتملة',
+    error: 'خطأ',
+    warning: 'تحذير',
   },
   transfer: {
     source: 'المتاح',
@@ -98,6 +100,7 @@ export const wrAr: WrI18nCatalog = {
     toSource: 'النقل إلى المتاح',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'اختياري',
@@ -233,6 +236,10 @@ export const wrAr: WrI18nCatalog = {
     keyHelp:
       'مفاتيح الأسهم تحرّك منطقة الاقتصاص. اضغط باستمرار على Alt مع أحد مفاتيح الأسهم لتغيير حجمها، وعلى Shift لخطوات أكبر. ' +
       'يُعلن عن المنطقة بقيم اليسار والأعلى والعرض والارتفاع بالبكسل داخل الصورة.',
+    transformHelp:
+      'مفتاحا زائد وناقص يكبّران الصورة ويصغّرانها. المفتاح R يديرها في اتجاه عقارب الساعة، و Shift مع R في الاتجاه المعاكس.',
+    zoomed: 'نسبة التكبير {{percent}}%',
+    rotated: 'تم التدوير {{degrees}}°',
   },
   sortableList: {
     keyHelp:

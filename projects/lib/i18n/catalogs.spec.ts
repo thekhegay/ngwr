@@ -175,6 +175,7 @@ const LOCALES: Record<string, Row> = {
       'eventCalendar.chipLabel',
       'eventCalendar.slotLabel',
       'eventCalendar.allDayCellLabel',
+      'stepper.error',
       'fileUpload.unitByte',
       'fileUpload.unitKb',
       'fileUpload.unitMb',

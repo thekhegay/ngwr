@@ -194,6 +194,36 @@ describe('WrImageCropperHarness', () => {
     expect(await harness.getAnnouncement()).toBe('162, 160, 480 × 480');
   });
 
+  it('reads the zoom and the rotation, and changes both from the keyboard', async () => {
+    const harness = await cropper();
+    measure();
+    await harness.dispatchImageLoad();
+    expect([await harness.getZoom(), await harness.getRotation()]).toEqual([1, 0]);
+
+    await harness.zoomIn();
+    await harness.zoomIn();
+    await harness.zoomOut();
+    expect(await harness.getZoom()).toBe(1.1);
+    expect(await harness.getAnnouncement()).toBe('Zoom 110%');
+
+    await harness.rotate();
+    expect(await harness.getRotation()).toBe(90);
+    expect(await harness.getAnnouncement()).toBe('Rotated 90°');
+
+    await harness.rotate('ccw');
+    await harness.rotate('ccw');
+    expect(await harness.getRotation()).toBe(270);
+  });
+
+  it('refuses the zoom and rotation questions until the crop window exists', async () => {
+    const harness = await cropper();
+
+    await expect(harness.getZoom()).rejects.toThrow(/not rendered/);
+    await expect(harness.getRotation()).rejects.toThrow(/not rendered/);
+    await expect(harness.zoomIn()).rejects.toThrow(/not rendered/);
+    await expect(harness.rotate()).rejects.toThrow(/not rendered/);
+  });
+
   it('matches on the empty state', async () => {
     expect(await loader.getHarnessOrNull(WrImageCropperHarness.with({ empty: false }))).not.toBeNull();
     expect(await loader.getHarnessOrNull(WrImageCropperHarness.with({ empty: true }))).toBeNull();

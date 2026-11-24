@@ -87,6 +87,8 @@ export const wrZh: WrI18nCatalog = {
   stepper: {
     optional: '可选',
     completed: '已完成',
+    error: '错误',
+    warning: '警告',
   },
   transfer: {
     source: '待选',
@@ -98,6 +100,7 @@ export const wrZh: WrI18nCatalog = {
     toSource: '移回待选',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}}：{{search}}',
   },
   form: {
     optional: '选填',
@@ -222,6 +225,9 @@ export const wrZh: WrI18nCatalog = {
     keyHelp:
       '方向键移动裁剪框。按住 Alt 加方向键可调整大小，按住 Shift 可加大步长。' +
       '裁剪框会以图像像素为单位，依次朗读左、上、宽、高四个值。',
+    transformHelp: '加号和减号可放大和缩小图像。按 R 顺时针旋转，按 Shift 加 R 逆时针旋转。',
+    zoomed: '缩放 {{percent}}%',
+    rotated: '已旋转 {{degrees}}°',
   },
   sortableList: {
     keyHelp: '按空格键拿起此项，然后用方向键移动。再次按空格键放下，或按 Esc 键放回原位。',

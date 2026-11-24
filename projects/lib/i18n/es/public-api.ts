@@ -87,6 +87,8 @@ export const wrEs: WrI18nCatalog = {
   stepper: {
     optional: 'opcional',
     completed: 'completado',
+    error: 'error',
+    warning: 'advertencia',
   },
   transfer: {
     source: 'Disponibles',
@@ -98,6 +100,7 @@ export const wrEs: WrI18nCatalog = {
     toSource: 'Mover a disponibles',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'opcional',
@@ -224,6 +227,10 @@ export const wrEs: WrI18nCatalog = {
     keyHelp:
       'Las flechas mueven el recorte. Alt con una flecha cambia su tamaño y Mayús aumenta el paso. ' +
       'El recorte se anuncia como izquierda, arriba, anchura y altura en píxeles de la imagen.',
+    transformHelp:
+      'Más y menos acercan y alejan la imagen. R la gira en el sentido de las agujas del reloj, y Mayús con R en el contrario.',
+    zoomed: 'Zoom {{percent}} %',
+    rotated: 'Girada {{degrees}}°',
   },
   sortableList: {
     keyHelp:

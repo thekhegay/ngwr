@@ -2,8 +2,9 @@ import { Component, computed, signal } from '@angular/core';
 
 import { WrAlert } from 'ngwr/alert';
 import { WrButton } from 'ngwr/button';
-import { type WrImageLoadError, WrImageCropper } from 'ngwr/image-cropper';
+import { type WrImageLoadError, type WrImageRotation, WrImageCropper } from 'ngwr/image-cropper';
 import { WrKbd } from 'ngwr/keyboard';
+import { type WrSliderValue, WrSlider } from 'ngwr/slider';
 
 import {
   DocApiComponent,
@@ -22,6 +23,7 @@ import {
     WrButton,
     WrImageCropper,
     WrKbd,
+    WrSlider,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -33,6 +35,11 @@ export default class ImageCropperPageComponent {
   protected readonly src = signal<string | File>('/images/image_1.webp');
   protected readonly square = signal<string | File>('/images/image_1.webp');
   protected readonly previewUrl = signal<string>('');
+  protected readonly avatar = signal<string | File>('/images/image_1.webp');
+  protected readonly avatarUrl = signal<string>('');
+  protected readonly zoom = signal(1);
+  protected readonly rotation = signal<WrImageRotation>(0);
+  protected readonly zoomLabel = (value: number): string => `${Math.round(value * 100)}%`;
   protected readonly unreadable = signal<string | File>('/images/image_1.webp');
   protected readonly lastError = signal<WrImageLoadError | null>(null);
   protected readonly unreadableMessage = computed(() => {
@@ -55,11 +62,16 @@ export default class ImageCropperPageComponent {
     if (file) this.src.set(file);
   }
 
-  protected onCropped(blob: Blob): void {
+  protected onCropped(blob: Blob, preview = this.previewUrl): void {
     const url = URL.createObjectURL(blob);
-    const prev = this.previewUrl();
+    const prev = preview();
     if (prev) URL.revokeObjectURL(prev);
-    this.previewUrl.set(url);
+    preview.set(url);
+  }
+
+  /** A single-thumb slider only ever emits a number; the type also covers a range. */
+  protected onZoom(value: WrSliderValue): void {
+    if (typeof value === 'number') this.zoom.set(value);
   }
 
   protected readonly snippets = {
@@ -68,6 +80,29 @@ export default class ImageCropperPageComponent {
 <wr-image-cropper [src]="src()" (cropped)="onCropped($event)" />`,
 
     square: `<wr-image-cropper [src]="avatar" [aspectRatio]="1" />`,
+
+    transform: `<wr-slider ariaLabel="Zoom" min="1" max="4" step="0.1" [value]="zoom()" (valueChange)="onZoom($event)" />
+<button wr-btn type="button" (click)="cropper.rotate('ccw')">Turn left</button>
+<button wr-btn type="button" (click)="cropper.rotate()">Turn right</button>
+
+<wr-image-cropper
+  #cropper
+  [src]="photo()"
+  [aspectRatio]="1"
+  [(zoom)]="zoom"
+  [(rotation)]="rotation"
+  (cropped)="onCropped($event)"
+/>`,
+
+    transformTs: `import type { WrImageRotation } from 'ngwr/image-cropper';
+import type { WrSliderValue } from 'ngwr/slider';
+
+protected readonly zoom = signal(1);
+protected readonly rotation = signal<WrImageRotation>(0);
+
+protected onZoom(value: WrSliderValue): void {
+  if (typeof value === 'number') this.zoom.set(value);
+}`,
 
     loadError: `<wr-image-cropper #cropper [src]="file()" (loadError)="lastError.set($event)" />
 
@@ -139,8 +174,20 @@ class Avatar {
       default: 'null',
     },
     {
+      name: '[(zoom)]',
+      description: 'Enlarges the image under the crop box, from `1` (the whole image) to `4`.',
+      type: 'number',
+      default: '1',
+    },
+    {
+      name: '[(rotation)]',
+      description: 'Clockwise quarter turns, in degrees. The stage, the crop box and the export turn with the image.',
+      type: '0 | 90 | 180 | 270',
+      default: '0',
+    },
+    {
       name: '(cropped)',
-      description: 'Emits a Blob after each drag end.',
+      description: 'Emits a Blob after each drag end, and after `zoom` or `rotation` settles.',
       type: 'Blob',
       default: '—',
     },
@@ -153,7 +200,7 @@ class Avatar {
     { name: 'Readable state', description: 'Signals and methods on the component instance.', type: 'members' },
     {
       name: 'cropRect',
-      description: 'Computed crop rect in source-image pixel coordinates.',
+      description: 'Computed crop rect in source-image pixel coordinates, before `rotation` turns it.',
       type: 'Signal<WrCropRect>',
       default: '—',
       sub: true,
@@ -164,6 +211,12 @@ class Avatar {
       type: 'Signal<WrImageCropperStatus>',
       default: '—',
       sub: true,
+    },
+    {
+      name: 'rotate(direction?)',
+      description: "Turns the image a quarter turn: clockwise, or counter-clockwise with `'ccw'`.",
+      type: "(direction?: 'cw' | 'ccw') => void",
+      default: '—',
     },
     {
       name: 'refresh()',

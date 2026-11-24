@@ -87,6 +87,8 @@ export const wrDe: WrI18nCatalog = {
   stepper: {
     optional: 'optional',
     completed: 'abgeschlossen',
+    error: 'Fehler',
+    warning: 'Warnung',
   },
   transfer: {
     source: 'Verfügbar',
@@ -98,6 +100,7 @@ export const wrDe: WrI18nCatalog = {
     toSource: 'Aus der Auswahl entfernen',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'optional',
@@ -232,6 +235,10 @@ export const wrDe: WrI18nCatalog = {
       'Mit den Pfeiltasten verschieben Sie den Zuschneidebereich. Halten Sie Alt und eine Pfeiltaste gedrückt, ' +
       'um die Größe zu ändern, und Umschalt für größere Schritte. Der Bereich wird als Abstand links, ' +
       'Abstand oben, Breite und Höhe in Bildpixeln angesagt.',
+    transformHelp:
+      'Plus und Minus vergrößern und verkleinern das Bild. R dreht es im Uhrzeigersinn, Umschalt mit R in die Gegenrichtung.',
+    zoomed: 'Zoom {{percent}} %',
+    rotated: 'Um {{degrees}}° gedreht',
   },
   sortableList: {
     keyHelp:

@@ -9,6 +9,7 @@ import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Service, NgZone, type Signal, computed, inject, signal } from '@angular/core';
 
 import { WrPlatform } from 'ngwr/platform';
+import { wrIsComposing } from 'ngwr/utils';
 
 import { wrHotkeyPlatform } from './format-chord';
 import { wrMatchesHotkey, wrParseHotkeySpec, type WrParsedHotkey } from './parse-spec';
@@ -28,7 +29,9 @@ const FALLBACK_OPTIONS: Required<Omit<WrHotkeyOptions, 'label'>> = {
   priority: 0,
 };
 
-function isEditableTarget(target: EventTarget | null): boolean {
+/** `event.target` is retargeted to the host of an open shadow root, so the real origin is the first of the composed path. */
+function isEditableTarget(event: Event): boolean {
+  const target = event.composedPath()[0] ?? event.target;
   if (!(target instanceof HTMLElement)) return false;
   const tag = target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
@@ -151,11 +154,13 @@ export class WrHotkey {
   private dispatch(target: EventTarget, event: KeyboardEvent): void {
     const bucket = this.registries.get(target);
     if (!bucket || bucket.size === 0) return;
+    // A key that drives an IME candidate window is not a shortcut.
+    if (wrIsComposing(event)) return;
 
     const matches: Binding[] = [];
     for (const binding of bucket) {
       if (!wrMatchesHotkey(event, binding.parsed)) continue;
-      if (!binding.options.allowInInput && isEditableTarget(event.target)) continue;
+      if (!binding.options.allowInInput && isEditableTarget(event)) continue;
       matches.push(binding);
     }
     if (matches.length === 0) return;

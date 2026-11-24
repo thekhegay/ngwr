@@ -33,6 +33,20 @@ export default class AnchorPageComponent {
 
   protected readonly snippet = `<wr-anchor [links]="links" [offset]="80" />`;
 
+  protected readonly paneLinks: readonly WrAnchorLink[] = [
+    { id: 'anchor-pane-overview', label: 'Overview' },
+    { id: 'anchor-pane-install', label: 'Install' },
+    { id: 'anchor-pane-usage', label: 'Usage' },
+    { id: 'anchor-pane-faq', label: 'FAQ' },
+  ];
+
+  protected readonly containerSnippet = `<wr-anchor [links]="links" [container]="pane" />
+
+<div #pane style="overflow: auto; height: 20rem">
+  <h3 id="overview">Overview</h3>
+  …
+</div>`;
+
   protected readonly typeSnippet = `interface WrAnchorLink {
   id: string;
   label: string;

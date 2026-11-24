@@ -57,7 +57,6 @@ export class WrDensity {
       const value = this._current();
       const html = this.doc.documentElement;
       if (html) html.setAttribute(this.config.attribute, value);
-      this.persist(value);
     });
   }
 
@@ -65,13 +64,16 @@ export class WrDensity {
   set(density: WrDensityValue): void {
     if (!isDensity(density)) return;
     this._current.set(density);
+    this.persist(density);
   }
 
   /** Cycle sm → md → lg → touch → sm … */
   cycle(): void {
     const order: readonly WrDensityValue[] = ['sm', 'md', 'lg', 'touch'];
     const i = order.indexOf(this._current());
-    this._current.set(order[(i + 1) % order.length]);
+    const next = order[(i + 1) % order.length];
+    this._current.set(next);
+    this.persist(next);
   }
 
   // Persistence

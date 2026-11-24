@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { WrStep } from './step';
 import { WrStepper } from './stepper';
+import type { WrStepStatus } from './types';
 
 @Component({
   imports: [WrStepper, WrStep],
@@ -52,6 +53,22 @@ class OptionalHost {}
   `,
 })
 class CompletedHost {}
+
+@Component({
+  imports: [WrStepper, WrStep],
+  template: `
+    <wr-stepper [(active)]="active" linear>
+      <wr-step label="Account" [status]="accountStatus()">Account body</wr-step>
+      <wr-step label="Address" [status]="addressStatus()">Address body</wr-step>
+      <wr-step label="Review">Review body</wr-step>
+    </wr-stepper>
+  `,
+})
+class StatusHost {
+  readonly active = signal(1);
+  readonly accountStatus = signal<WrStepStatus | null>('error');
+  readonly addressStatus = signal<WrStepStatus | null>('warning');
+}
 
 /**
  * Two things carry the meaning here: `aria-current="step"` on exactly one
@@ -166,6 +183,18 @@ describe('WrStepper', () => {
 
     expect(active()).toBe(0);
     expect(currents()).toEqual(['step', '-', '-']);
+  });
+
+  it('repairs a NaN or fractional active index written by the host', () => {
+    fixture.componentInstance.active.set(Number.NaN);
+    fixture.detectChanges();
+    expect(active()).toBe(0);
+    expect(currents()).toEqual(['step', '-', '-']);
+
+    fixture.componentInstance.active.set(1.5);
+    fixture.detectChanges();
+    expect(active()).toBe(1);
+    expect(currents()).toEqual(['-', 'step', '-']);
   });
 
   it('follows the last step down when it is removed from under the active index', () => {
@@ -343,5 +372,94 @@ describe('WrStepper completed state', () => {
     fixture.detectChanges();
 
     expect(word(fixture)).toBe('completed');
+  });
+});
+
+/**
+ * A status is a flag on the header and nothing else: it swaps the glyph, adds a
+ * class and a hidden word, and leaves completion, the current step and the
+ * `linear` gate exactly where they were.
+ */
+describe('WrStepper step status', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<StatusHost>>;
+
+  const items = (): HTMLElement[] => [
+    ...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.wr-stepper__header'),
+  ];
+  const buttons = (): HTMLButtonElement[] => items().map(i => i.querySelector('button')!);
+  const words = (): string[] =>
+    items().map(i => [...i.querySelectorAll('.wr-stepper__sr-only')].map(w => w.textContent.trim()).join(' ') || '-');
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(StatusHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('puts a modifier class on the header of a step with a status, and on no other', () => {
+    expect(items().map(i => i.classList.contains('wr-stepper__header--error'))).toEqual([true, false, false]);
+    expect(items().map(i => i.classList.contains('wr-stepper__header--warning'))).toEqual([false, true, false]);
+
+    fixture.componentInstance.accountStatus.set(null);
+    fixture.componentInstance.addressStatus.set(null);
+    fixture.detectChanges();
+
+    expect(items().some(i => /--(error|warning)/.test(i.className))).toBe(false);
+  });
+
+  it('draws a glyph in place of the number or the check mark, hidden from assistive tech', () => {
+    const indicators = items().map(i => i.querySelector<HTMLElement>('.wr-stepper__indicator')!);
+
+    // Account is completed AND in error: one glyph, the status one, not the tick.
+    expect(indicators.map(i => i.querySelectorAll('svg').length)).toEqual([1, 1, 0]);
+    expect(indicators.map(i => i.textContent.trim())).toEqual(['', '', '3']);
+    expect(indicators[0].querySelector('svg')!.getAttribute('viewBox')).toBe('0 0 24 24');
+    expect(indicators[0].innerHTML).not.toBe(indicators[1].innerHTML);
+    expect(indicators.every(i => i.getAttribute('aria-hidden') === 'true')).toBe(true);
+
+    fixture.componentInstance.addressStatus.set(null);
+    fixture.detectChanges();
+    expect(indicators[1].textContent.trim()).toBe('2');
+  });
+
+  it('says the status inside the header button, after the completed word', () => {
+    expect(words()).toEqual(['completed error', 'warning', '-']);
+    expect(buttons()[1].textContent).toContain('warning');
+  });
+
+  it('comes from the catalog, not from the template', async () => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'ru', availableLocales: ['ru'] }),
+        provideWrI18nStaticLoader({ ru: wrRu }),
+      ],
+    });
+    fixture = TestBed.createComponent(StatusHost);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(words()).toEqual(['завершено ошибка', 'предупреждение', '-']);
+  });
+
+  it('leaves the current step, completion and the linear gate alone', () => {
+    // The current step is in warning and still current.
+    expect(buttons().map(b => b.getAttribute('aria-current') ?? '-')).toEqual(['-', 'step', '-']);
+    expect(items()[1].classList.contains('wr-stepper__header--active')).toBe(true);
+    expect(items()[0].classList.contains('wr-stepper__header--completed')).toBe(true);
+    // Review stays locked: a status neither opens nor closes the gate.
+    expect(buttons().map(b => b.disabled)).toEqual([false, false, true]);
+
+    // A step in error still takes a click.
+    buttons()[0].click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.active()).toBe(0);
+    expect(items()[0].classList.contains('wr-stepper__header--error')).toBe(true);
+    expect(items()[0].classList.contains('wr-stepper__header--active')).toBe(true);
   });
 });

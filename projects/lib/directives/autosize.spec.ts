@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrAutosize } from './autosize';
 
@@ -290,5 +290,71 @@ describe('WrAutosize against a measurable box', () => {
 
     expect(height(el)).toBe(CONTENT);
     expect(el.style.overflowY).toBe('hidden');
+  });
+});
+
+describe('WrAutosize when its width changes', () => {
+  const observers: { callback: ResizeObserverCallback; connected: boolean }[] = [];
+
+  class StubResizeObserver {
+    private readonly state: { callback: ResizeObserverCallback; connected: boolean };
+
+    constructor(callback: ResizeObserverCallback) {
+      this.state = { callback, connected: false };
+      observers.push(this.state);
+    }
+
+    observe(): void {
+      this.state.connected = true;
+    }
+
+    disconnect(): void {
+      this.state.connected = false;
+    }
+  }
+
+  const report = (width: number): void => {
+    for (const o of observers) {
+      o.callback([{ contentRect: { width } } as ResizeObserverEntry], o as unknown as ResizeObserver);
+    }
+  };
+
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  const sized = (): HTMLTextAreaElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLTextAreaElement>('.sized')!;
+
+  beforeEach(async () => {
+    observers.length = 0;
+    vi.stubGlobal('ResizeObserver', StubResizeObserver);
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    // The text re-wraps to ten rows of 20px once the box is narrower.
+    Object.defineProperty(sized(), 'scrollHeight', { configurable: true, get: () => 200 });
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.unstubAllGlobals();
+  });
+
+  it('re-measures when the width changes and ignores a height-only change', () => {
+    report(300);
+    expect(parseFloat(sized().style.height)).toBe(200);
+
+    // The directive's own height write reports the same width again.
+    sized().style.height = '10px';
+    report(300);
+    expect(sized().style.height).toBe('10px');
+
+    report(180);
+    expect(parseFloat(sized().style.height)).toBe(200);
+  });
+
+  it('disconnects when destroyed', () => {
+    expect(observers.some(o => o.connected)).toBe(true);
+    fixture.destroy();
+    expect(observers.every(o => !o.connected)).toBe(true);
   });
 });

@@ -458,6 +458,9 @@ export const INSTALL = {
   "reference/pipes/wr-initials": [
       { path: "ngwr/pipes", symbols: ["WrInitials"], declarables: ["WrInitials"], styled: false },
   ],
+  "reference/pipes/wr-list": [
+      { path: "ngwr/pipes", symbols: ["WrList", "wrFormatList"], declarables: ["WrList"], styled: false },
+  ],
   "reference/pipes/wr-mark": [
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
       { path: "ngwr/pipes", symbols: ["WrMark"], declarables: ["WrMark"], styled: false },
@@ -471,6 +474,9 @@ export const INSTALL = {
   ],
   "reference/pipes/wr-range": [
       { path: "ngwr/pipes", symbols: ["WrRange"], declarables: ["WrRange"], styled: false },
+  ],
+  "reference/pipes/wr-relative-time": [
+      { path: "ngwr/pipes", symbols: ["WrRelativeTime", "wrFormatRelativeTime"], declarables: ["WrRelativeTime"], styled: false },
   ],
   "reference/pipes/wr-truncate": [
       { path: "ngwr/pipes", symbols: ["WrTruncate"], declarables: ["WrTruncate"], styled: false },
@@ -526,6 +532,9 @@ export const INSTALL = {
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },
       { path: "ngwr/pagination", symbols: ["WrPagination"], declarables: ["WrPagination"], styled: true },
       { path: "ngwr/utils/router", symbols: ["wrQueryParam"], declarables: [], styled: false },
+  ],
+  "reference/utils/wr-slug": [
+      { path: "ngwr/utils", symbols: ["wrSlug"], declarables: [], styled: false },
   ],
   "reference/validators/card-number": [
       { path: "ngwr/input", symbols: ["WrInput"], declarables: ["WrInput"], styled: true },

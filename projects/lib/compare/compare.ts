@@ -188,6 +188,11 @@ export class WrCompare {
 
   protected onPointerMove(event: PointerEvent): void {
     if (!this.dragging) return;
+    // Turned disabled mid-drag: the gesture is over.
+    if (this.disabled()) {
+      this.dragging = false;
+      return;
+    }
     this.updateFromPointer(event);
   }
 

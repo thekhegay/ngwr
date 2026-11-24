@@ -95,6 +95,8 @@ export const wrUk: WrI18nCatalog = {
   stepper: {
     optional: 'необов’язково',
     completed: 'завершено',
+    error: 'помилка',
+    warning: 'попередження',
   },
   transfer: {
     source: 'Доступні',
@@ -106,6 +108,7 @@ export const wrUk: WrI18nCatalog = {
     toSource: 'Повернути до доступних',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'необов’язково',
@@ -237,6 +240,10 @@ export const wrUk: WrI18nCatalog = {
     keyHelp:
       'Стрілки переміщують область обрізки. Alt зі стрілкою змінює її розмір, Shift збільшує крок. ' +
       'Область озвучується як відступ ліворуч, відступ згори, ширина та висота в пікселях зображення.',
+    transformHelp:
+      'Плюс і мінус збільшують і зменшують зображення. R повертає його за годинниковою стрілкою, а Shift з R проти неї.',
+    zoomed: 'Масштаб {{percent}}%',
+    rotated: 'Поворот {{degrees}}°',
   },
   sortableList: {
     keyHelp:

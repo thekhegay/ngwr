@@ -20,6 +20,7 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocCodeFile,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
@@ -192,6 +193,57 @@ export default class SchemaFormPage {
     })
   );
 
+  protected readonly documents = form(
+    signal<{ readonly scans: readonly File[] }>({ scans: [] }),
+    schema<{ readonly scans: readonly File[] }>(path => {
+      metadata(path.scans, WR_FIELD, () => ({
+        kind: 'file',
+        multiple: true,
+        accept: '.pdf,image/*',
+        maxSize: 2 * 1024 * 1024,
+        maxFiles: 3,
+        hint: 'Up to 3 files, 2 MB each.',
+      }));
+    })
+  );
+
+  protected readonly fileLimitsFiles: readonly DocCodeFile[] = [
+    { label: 'HTML', language: 'angular-html', code: `<wr-schema-form [field]="documents" />` },
+    {
+      label: 'TS',
+      language: 'angular-ts',
+      code: `import { Component, signal } from '@angular/core';
+import { form, metadata, schema } from '@angular/forms/signals';
+
+import { WR_FIELD } from 'ngwr/form';
+import { WrSchemaForm } from 'ngwr/schema-form';
+
+interface Documents {
+  scans: readonly File[];
+}
+
+const documentsSchema = schema<Documents>(path => {
+  metadata(path.scans, WR_FIELD, () => ({
+    kind: 'file',
+    multiple: true,
+    accept: '.pdf,image/*',
+    maxSize: 2 * 1024 * 1024, // bytes per file
+    maxFiles: 3,
+    hint: 'Up to 3 files, 2 MB each.',
+  }));
+});
+
+@Component({
+  selector: 'app-documents',
+  templateUrl: './documents.html',
+  imports: [WrSchemaForm],
+})
+export class DocumentsForm {
+  protected readonly documents = form(signal<Documents>({ scans: [] }), documentsSchema);
+}`,
+    },
+  ];
+
   protected save(): void {
     this.employee().markAsTouched();
   }
@@ -238,6 +290,8 @@ interface WrFieldSpec {
   section?: string | WrFieldSection;
   multiple?: boolean;
   accept?: string;
+  maxSize?: number;
+  maxFiles?: number;
   item?: () => unknown;
   itemLabel?: string;
   columns?: number;
@@ -319,6 +373,20 @@ interface WrFieldSection {
       sub: true,
     },
     { name: 'accept', description: 'For `file`: the native `accept` list.', type: 'string', default: '—', sub: true },
+    {
+      name: 'maxSize',
+      description: 'For `file`: the most bytes one file may have. A larger file is refused.',
+      type: 'number',
+      default: 'no limit',
+      sub: true,
+    },
+    {
+      name: 'maxFiles',
+      description: 'For `file` with `multiple`: the most files the field holds.',
+      type: 'number',
+      default: 'no limit',
+      sub: true,
+    },
     {
       name: 'item',
       description: 'For `array`: the value a new item starts as. Without it there is no Add button.',

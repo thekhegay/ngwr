@@ -87,6 +87,8 @@ export const wrKk: WrI18nCatalog = {
   stepper: {
     optional: 'міндетті емес',
     completed: 'аяқталды',
+    error: 'қате',
+    warning: 'ескерту',
   },
   transfer: {
     source: 'Қолжетімді',
@@ -98,6 +100,7 @@ export const wrKk: WrI18nCatalog = {
     toSource: 'Қолжетімдіге қайтару',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'міндетті емес',
@@ -228,6 +231,10 @@ export const wrKk: WrI18nCatalog = {
     keyHelp:
       'Көрсеткі пернелер қию аймағын жылжытады. Alt пен көрсеткі оның өлшемін өзгертеді, Shift қадамды үлкейтеді. ' +
       'Аймақ сол жақтан шегіністі, жоғарыдан шегіністі, енін және биіктігін сурет пикселімен хабарлайды.',
+    transformHelp:
+      'Плюс пен минус кескінді үлкейтеді және кішірейтеді. R оны сағат тілімен, ал Shift пен R сағат тіліне қарсы бұрады.',
+    zoomed: 'Масштаб {{percent}}%',
+    rotated: '{{degrees}}° бұрылды',
   },
   sortableList: {
     keyHelp:

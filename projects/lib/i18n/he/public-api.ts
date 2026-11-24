@@ -90,6 +90,8 @@ export const wrHe: WrI18nCatalog = {
   stepper: {
     optional: 'רשות',
     completed: 'הושלם',
+    error: 'שגיאה',
+    warning: 'אזהרה',
   },
   transfer: {
     source: 'זמינים',
@@ -101,6 +103,7 @@ export const wrHe: WrI18nCatalog = {
     toSource: 'העברה לזמינים',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'רשות',
@@ -237,6 +240,10 @@ export const wrHe: WrI18nCatalog = {
     keyHelp:
       'מקשי החיצים מזיזים את אזור החיתוך. Alt עם מקש חץ משנה את גודלו, ו-Shift מגדיל את הצעד. ' +
       'אזור החיתוך מוכרז כמרחק משמאל, מרחק מלמעלה, רוחב וגובה בפיקסלים של התמונה.',
+    transformHelp:
+      'המקשים פלוס ומינוס מגדילים ומקטינים את התמונה. R מסובב אותה עם כיוון השעון, ו-Shift עם R נגד כיוון השעון.',
+    zoomed: 'זום {{percent}}%',
+    rotated: 'סיבוב של {{degrees}}°',
   },
   sortableList: {
     keyHelp:

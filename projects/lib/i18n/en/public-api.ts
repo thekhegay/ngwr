@@ -131,6 +131,10 @@ export const wrEn: WrI18nCatalog = {
     // Visually hidden after a completed step's label, so the state the check mark
     // draws is announced too. Lowercase for the same reason.
     completed: 'completed',
+    // Visually hidden after the label of a step with a `status`, for the same
+    // reason: the glyph that replaces the number is `aria-hidden`.
+    error: 'error',
+    warning: 'warning',
   },
   transfer: {
     source: 'Available',
@@ -142,6 +146,7 @@ export const wrEn: WrI18nCatalog = {
     toSource: 'Move to available',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     // Rendered inside the label's parentheses — `(optional)` — so it is a bare
@@ -305,6 +310,9 @@ export const wrEn: WrI18nCatalog = {
     keyHelp:
       'Arrow keys move the crop. Hold Alt with an arrow key to resize it, and Shift for larger steps. ' +
       'The crop is announced as left, top, width and height in image pixels.',
+    transformHelp: 'Plus and minus zoom the image. R turns it clockwise, and Shift with R the other way.',
+    zoomed: 'Zoom {{percent}}%',
+    rotated: 'Rotated {{degrees}}°',
   },
   sortableList: {
     keyHelp:

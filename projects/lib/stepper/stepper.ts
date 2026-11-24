@@ -89,8 +89,23 @@ export class WrStepper implements WrStepperContext {
    */
   readonly completedLabel = input<string | null>(null);
 
+  /**
+   * The word a step with `status="error"` carries after its label, visually
+   * hidden: the glyph that replaces the number is `aria-hidden`. Falls back to
+   * `stepper.error`, then `'error'`.
+   */
+  readonly errorLabel = input<string | null>(null);
+
+  /**
+   * The word a step with `status="warning"` carries after its label, visually
+   * hidden. Falls back to `stepper.warning`, then `'warning'`.
+   */
+  readonly warningLabel = input<string | null>(null);
+
   protected readonly resolvedOptionalLabel = useI18nText(this.optionalLabel, 'stepper.optional', 'optional');
   protected readonly resolvedCompletedLabel = useI18nText(this.completedLabel, 'stepper.completed', 'completed');
+  protected readonly resolvedErrorLabel = useI18nText(this.errorLabel, 'stepper.error', 'error');
+  protected readonly resolvedWarningLabel = useI18nText(this.warningLabel, 'stepper.warning', 'warning');
 
   protected readonly classes = computed(() => {
     const parts = [`wr-stepper--${this.orientation()}`];
@@ -115,8 +130,10 @@ export class WrStepper implements WrStepperContext {
     effect(() => {
       const last = this.steps().length - 1;
       if (last < 0) return;
-      const clamped = Math.min(Math.max(0, this.active()), last);
-      if (clamped !== this.active()) this.active.set(clamped);
+      const current = this.active();
+      // NaN and a fraction from the host are repaired here: `Math.min` and `Math.max` keep NaN.
+      const clamped = Number.isFinite(current) ? Math.min(Math.max(0, Math.floor(current)), last) : 0;
+      if (clamped !== current) this.active.set(clamped);
     });
   }
 

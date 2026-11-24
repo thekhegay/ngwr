@@ -3,6 +3,7 @@
   description="An action bar with start, center and end zones."
   [keywords]="['toolbar', 'wr-toolbar']"
   [labels]="['Composite']"
+  updated="16.9.0"
 >
   <ngwr-doc-section title="Basic" description="An empty zone takes no space.">
     <ngwr-doc-code [code]="snippet" language="angular-html" />
@@ -33,6 +34,22 @@
           <div wrToolbarEnd><wr-btn color="primary">New</wr-btn></div>
         </wr-toolbar>
       </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Arrow keys"
+    description="With `arrowKeys` the toolbar is one tab stop, and Arrow keys, Home and End move between its controls. To try it, click a button or Tab into the toolbar, then press the arrows. Text fields, native radios and composite widgets keep their own tab stop and arrows, and the arrows skip them. Name the toolbar with a plain `aria-label` on the host."
+  >
+    <ngwr-doc-snippet [code]="arrowSnippet" language="angular-html">
+      <wr-toolbar arrowKeys aria-label="Item actions">
+        <div wrToolbarStart><wr-btn>Back</wr-btn></div>
+        <div wrToolbarCenter>
+          <wr-btn>Grid</wr-btn>
+          <wr-btn>List</wr-btn>
+        </div>
+        <div wrToolbarEnd><wr-btn color="primary">New</wr-btn></div>
+      </wr-toolbar>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

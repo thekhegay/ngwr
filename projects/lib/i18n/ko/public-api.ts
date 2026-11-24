@@ -87,6 +87,8 @@ export const wrKo: WrI18nCatalog = {
   stepper: {
     optional: '선택 사항',
     completed: '완료',
+    error: '오류',
+    warning: '경고',
   },
   transfer: {
     source: '사용 가능',
@@ -98,6 +100,7 @@ export const wrKo: WrI18nCatalog = {
     toSource: '사용 가능 목록으로 이동',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: '선택',
@@ -229,6 +232,10 @@ export const wrKo: WrI18nCatalog = {
     keyHelp:
       '화살표 키로 자르기 영역을 옮깁니다. Alt와 화살표 키를 함께 누르면 크기가 바뀌고, Shift를 누르면 더 크게 움직입니다. ' +
       '자르기 영역은 이미지 픽셀 단위의 왼쪽, 위쪽, 너비, 높이로 안내됩니다.',
+    transformHelp:
+      '더하기와 빼기 키로 이미지를 확대하거나 축소합니다. R 키는 시계 방향으로, Shift와 R 키는 반시계 방향으로 회전합니다.',
+    zoomed: '확대 {{percent}}%',
+    rotated: '{{degrees}}° 회전됨',
   },
   sortableList: {
     keyHelp:

@@ -90,6 +90,8 @@ export const wrPl: WrI18nCatalog = {
   stepper: {
     optional: 'opcjonalnie',
     completed: 'ukończono',
+    error: 'błąd',
+    warning: 'ostrzeżenie',
   },
   transfer: {
     source: 'Dostępne',
@@ -101,6 +103,7 @@ export const wrPl: WrI18nCatalog = {
     toSource: 'Przenieś do dostępnych',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'opcjonalnie',
@@ -236,6 +239,10 @@ export const wrPl: WrI18nCatalog = {
       'Strzałki przesuwają obszar kadrowania. Przytrzymaj Alt ze strzałką, aby zmienić jego rozmiar, ' +
       'a Shift, aby wykonywać większe kroki. ' +
       'Obszar jest odczytywany jako odległość od lewej, odległość od góry, szerokość i wysokość w pikselach obrazu.',
+    transformHelp:
+      'Plus i minus powiększają i pomniejszają obraz. R obraca go zgodnie z ruchem wskazówek zegara, a Shift z R w przeciwną stronę.',
+    zoomed: 'Powiększenie {{percent}}%',
+    rotated: 'Obrócono o {{degrees}}°',
   },
   sortableList: {
     keyHelp:

@@ -63,8 +63,8 @@ export class WrScroll {
       this.scroll(container, { top, behavior });
     } else {
       const ctx = container as Element;
-      const ctxRect = ctx.getBoundingClientRect();
-      const top = rect.top - ctxRect.top + ctx.scrollTop - offset;
+      // From the padding edge, where the container's scrolling starts: its top border is not scrolled.
+      const top = rect.top - (ctx.getBoundingClientRect().top + ctx.clientTop) + ctx.scrollTop - offset;
       this.scroll(container, { top, behavior });
     }
   }

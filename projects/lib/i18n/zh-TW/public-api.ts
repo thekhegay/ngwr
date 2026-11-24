@@ -87,6 +87,8 @@ export const wrZhTw: WrI18nCatalog = {
   stepper: {
     optional: '選用',
     completed: '已完成',
+    error: '錯誤',
+    warning: '警告',
   },
   transfer: {
     source: '可選項目',
@@ -98,6 +100,7 @@ export const wrZhTw: WrI18nCatalog = {
     toSource: '移回可選項目',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}}：{{search}}',
   },
   form: {
     optional: '選填',
@@ -227,6 +230,9 @@ export const wrZhTw: WrI18nCatalog = {
     keyHelp:
       '使用方向鍵移動裁切範圍。按住 Alt 加方向鍵可調整大小，按住 Shift 可加大調整幅度。' +
       '系統會以圖片像素朗讀裁切範圍的左側、上方、寬度與高度。',
+    transformHelp: '加號和減號可放大和縮小圖片。按 R 順時針旋轉，按 Shift 加 R 逆時針旋轉。',
+    zoomed: '縮放 {{percent}}%',
+    rotated: '已旋轉 {{degrees}}°',
   },
   sortableList: {
     keyHelp: '按空白鍵拿起這個項目，再用方向鍵移動。再按一次空白鍵放下，或按 Escape 放回原位。',

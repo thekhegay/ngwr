@@ -87,6 +87,10 @@ describe('WrVirtualScroll', () => {
 
   afterEach(() => fixture.destroy());
 
+  it('puts the scroller in the tab order so a keyboard can scroll rows with no focusable content', () => {
+    expect(viewport().getAttribute('tabindex')).toBe('0');
+  });
+
   it('mounts a CDK viewport carrying the block class', () => {
     expect(viewport()).not.toBeNull();
     expect(viewport().classList.contains('wr-virtual-scroll__viewport')).toBe(true);

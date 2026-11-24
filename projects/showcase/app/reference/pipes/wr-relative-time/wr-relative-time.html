@@ -1,0 +1,121 @@
+<ngwr-doc-page
+  title="wrRelativeTime"
+  since="16.9.0"
+  description='Say how far a date is from now in the app locale: "5 minutes ago", "tomorrow".'
+  [keywords]="['pipe', 'wrRelativeTime', 'relative time', 'time ago', 'timeago', 'from now', 'i18n']"
+  [labels]="['Pipe']"
+>
+  <ngwr-doc-section
+    title="Basic usage"
+    description="The pipe writes through `Intl.RelativeTimeFormat` in `LOCALE_ID` and reads a value as `wrDate` does."
+  >
+    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <tbody>
+            <tr>
+              <th scope="row">Five minutes back</th>
+              <td>{{ fiveMinutesAgo | wrRelativeTime: { now } }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Three hours ahead</th>
+              <td>{{ inThreeHours | wrRelativeTime: { now } }}</td>
+            </tr>
+            <tr>
+              <th scope="row">A day back</th>
+              <td>{{ yesterday | wrRelativeTime: { now } }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>numeric: 'always'</code></th>
+              <td>{{ yesterday | wrRelativeTime: always }}</td>
+            </tr>
+            <tr>
+              <th scope="row"><code>style: 'narrow'</code></th>
+              <td>{{ fiveMinutesAgo | wrRelativeTime: narrow }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Units"
+    description="The unit follows the distance. The count is cut, not rounded: 119 seconds is one minute. A year is 365 days and a month a twelfth of it. A date-only string is compared with today as a day."
+  >
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Distance</th>
+              <th>Unit</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of units; track row[0]) {
+              <tr>
+                <th scope="row">{{ row[0] }}</th>
+                <td>{{ row[1] }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Playground">
+    <ngwr-doc-playground [code]="playgroundSnippet()" [controls]="controls">
+      <p class="ngwr-pipe-output">{{ value() | wrRelativeTime: options() }}</p>
+    </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Live text"
+    description="The pipe does not update by itself: it is pure, so the text stands until its value or options change. [Date Stamp](/reference/components/date-stamp) with `relative` keeps it current on a timer."
+  >
+    <ngwr-doc-code [code]="snippets.live" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="In TypeScript"
+    description="`wrFormatRelativeTime` gives the same text for a string built in code, in the locale you pass."
+  >
+    <ngwr-doc-code [code]="snippets.fn" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
+      <div class="ngwr-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Locale</th>
+              <th>Five minutes back</th>
+              <th>A day back</th>
+              <th>Three hours ahead</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of locales; track row.locale) {
+              <tr>
+                <th scope="row">
+                  <code>{{ row.locale }}</code>
+                </th>
+                <td>{{ row.past }}</td>
+                <td>{{ row.day }}</td>
+                <td>{{ row.future }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="API">
+    <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+</ngwr-doc-page>

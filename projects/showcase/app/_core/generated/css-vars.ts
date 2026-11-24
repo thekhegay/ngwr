@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1922 hook(s) across 116 page(s). A property is here only when the
+ * 1928 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1194,7 +1194,7 @@ export const CSS_VARS = {
       { name: "--wr-descriptions-label-font-size", default: "var(--wr-text-xs)", scope: ".wr-descriptions", overrides: 1 },
       { name: "--wr-descriptions-label-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-descriptions" },
       { name: "--wr-descriptions-label-letter-spacing", default: "var(--wr-tracking-wide)", scope: ".wr-descriptions", overrides: 1 },
-      { name: "--wr-descriptions-list-column-gap", default: "var(--wr-space-sm)", scope: ".wr-descriptions", overrides: 1 },
+      { name: "--wr-descriptions-list-column-gap", default: "var(--wr-space-sm)", scope: ".wr-descriptions", overrides: 2 },
       { name: "--wr-descriptions-list-row-gap", default: "var(--wr-space-sm)", scope: ".wr-descriptions" },
       { name: "--wr-descriptions-radius", default: "var(--wr-border-radius-base)", scope: ".wr-descriptions" },
       { name: "--wr-descriptions-row-gap", default: "var(--wr-space-xs)", scope: ".wr-descriptions" },
@@ -2052,6 +2052,9 @@ export const CSS_VARS = {
       { name: "--wr-stepper-connector", default: "var(--wr-border-base)", scope: ".wr-stepper" },
       { name: "--wr-stepper-connector-margin-block", default: "var(--wr-space-xs)", scope: ".wr-stepper__connector" },
       { name: "--wr-stepper-connector-margin-inline", default: "var(--wr-space-sm)", scope: ".wr-stepper__connector" },
+      { name: "--wr-stepper-error", default: "var(--wr-color-danger)", scope: ".wr-stepper" },
+      { name: "--wr-stepper-error-ink", default: "var(--wr-color-danger-ink)", scope: ".wr-stepper" },
+      { name: "--wr-stepper-error-soft", default: "var(--wr-color-danger-soft)", scope: ".wr-stepper" },
       { name: "--wr-stepper-font-family", default: "var(--wr-font-family-base)", scope: ".wr-stepper" },
       { name: "--wr-stepper-gap", default: "var(--wr-space-lg)", scope: ".wr-stepper" },
       { name: "--wr-stepper-header-button-gap", default: "var(--wr-space-md)", scope: ".wr-stepper__header-button" },
@@ -2067,6 +2070,9 @@ export const CSS_VARS = {
       { name: "--wr-stepper-label-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-stepper__label" },
       { name: "--wr-stepper-label-gap", default: "0.0625rem", scope: ".wr-stepper__label" },
       { name: "--wr-stepper-muted", default: "var(--wr-color-on-surface-muted)", scope: ".wr-stepper" },
+      { name: "--wr-stepper-warning", default: "var(--wr-color-warning)", scope: ".wr-stepper" },
+      { name: "--wr-stepper-warning-ink", default: "var(--wr-color-warning-ink)", scope: ".wr-stepper" },
+      { name: "--wr-stepper-warning-soft", default: "var(--wr-color-warning-soft)", scope: ".wr-stepper" },
     ],
   },
   "reference/components/switch": {

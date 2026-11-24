@@ -503,16 +503,16 @@ export class WrFileUpload implements FormValueControl<File | readonly File[] | n
   }
 
   protected onDragEnter(event: DragEvent): void {
-    if (this.disabled() || this.readonly()) return;
+    // Cancelled even when refusing: an uncancelled drag makes the browser open the file and leave the page.
     event.preventDefault();
+    if (this.disabled() || this.readonly()) return;
     this.dragDepth++;
     this.dragging.set(true);
   }
 
   protected onDragOver(event: DragEvent): void {
-    if (this.disabled() || this.readonly()) return;
     event.preventDefault();
-    if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+    if (event.dataTransfer) event.dataTransfer.dropEffect = this.disabled() || this.readonly() ? 'none' : 'copy';
   }
 
   protected onDragLeave(): void {

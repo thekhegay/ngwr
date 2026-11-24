@@ -15,6 +15,7 @@ import { WrDateStampHarness } from './wr-date-stamp-harness';
     <wr-date-stamp [value]="created" dateFormat="dd.MM.yyyy" timeFormat="HH:mm" />
     <wr-date-stamp value="2026-11-12" dateFormat="dd.MM.yyyy" />
     <wr-date-stamp [value]="null" emptyLabel="n/a" />
+    <wr-date-stamp value="2020-01-01" relative />
   `,
 })
 class Host {
@@ -45,6 +46,14 @@ describe('WrDateStampHarness', () => {
     expect(await day.getDateTime()).toBe('2026-11-12');
   });
 
+  it('reads the relative line, and no date or time beside it', async () => {
+    const [stamp, , , relative] = await loader.getAllHarnesses(WrDateStampHarness);
+    expect(await stamp.getRelative()).toBeNull();
+    expect(await relative.getRelative()).toMatch(/years ago$/);
+    expect(await relative.getDate()).toBeNull();
+    expect(await relative.getTime()).toBeNull();
+  });
+
   it('reads an empty stamp', async () => {
     const empty = await loader.getHarness(WrDateStampHarness.with({ empty: true }));
     expect(await empty.getEmptyText()).toBe('n/a');
@@ -56,6 +65,6 @@ describe('WrDateStampHarness', () => {
   it('filters by the date line and by emptiness', async () => {
     expect(await loader.getAllHarnesses(WrDateStampHarness.with({ date: '12.11.2026' }))).toHaveLength(2);
     expect(await loader.getAllHarnesses(WrDateStampHarness.with({ date: /^13\./ }))).toHaveLength(0);
-    expect(await loader.getAllHarnesses(WrDateStampHarness.with({ empty: false }))).toHaveLength(2);
+    expect(await loader.getAllHarnesses(WrDateStampHarness.with({ empty: false }))).toHaveLength(3);
   });
 });

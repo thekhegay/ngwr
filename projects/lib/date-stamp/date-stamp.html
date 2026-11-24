@@ -1,10 +1,14 @@
 @if (parts(); as stamp) {
-  <time class="wr-date-stamp__value" [attr.datetime]="stamp.iso">
-    @if (stamp.date !== null) {
-      <span class="wr-date-stamp__date">{{ stamp.date }}</span>
-    }
-    @if (stamp.time !== null) {
-      <span class="wr-date-stamp__time">{{ stamp.time }}</span>
+  <time class="wr-date-stamp__value" [attr.datetime]="stamp.iso" [attr.title]="title()">
+    @if (relativeText(); as text) {
+      <span class="wr-date-stamp__relative">{{ text }}</span>
+    } @else {
+      @if (stamp.date !== null) {
+        <span class="wr-date-stamp__date">{{ stamp.date }}</span>
+      }
+      @if (stamp.time !== null) {
+        <span class="wr-date-stamp__time">{{ stamp.time }}</span>
+      }
     }
   </time>
 } @else {

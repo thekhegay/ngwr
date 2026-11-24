@@ -33,6 +33,10 @@ export default [
     loadComponent: () => import('./wr-initials/wr-initials'),
   },
   {
+    path: pipes.wrList.path,
+    loadComponent: () => import('./wr-list/wr-list'),
+  },
+  {
     path: pipes.wrMark.path,
     loadComponent: () => import('./wr-mark/wr-mark'),
   },
@@ -43,6 +47,10 @@ export default [
   {
     path: pipes.wrRange.path,
     loadComponent: () => import('./wr-range/wr-range'),
+  },
+  {
+    path: pipes.wrRelativeTime.path,
+    loadComponent: () => import('./wr-relative-time/wr-relative-time'),
   },
   // The folder was the one unprefixed pipe route; `/reference/pipes/range` was
   // published, so it keeps resolving.

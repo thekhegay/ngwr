@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSpeedDial } from './speed-dial';
 import type { WrSpeedDialAction, WrSpeedDialDirection } from './types';
@@ -18,6 +18,7 @@ const ACTIONS: readonly WrSpeedDialAction[] = [
       [(open)]="open"
       [actions]="actions()"
       [direction]="direction()"
+      [closeOnOutsideClick]="outside()"
       [disabled]="disabled()"
       (pick)="onPick($event)"
     />
@@ -28,6 +29,7 @@ class Host {
   readonly actions = signal<readonly WrSpeedDialAction[]>(ACTIONS);
   readonly direction = signal<WrSpeedDialDirection>('up');
   readonly disabled = signal(false);
+  readonly outside = signal(false);
   readonly picked: string[] = [];
   /** Where the caret was each time `pick` fired — a handler that navigates needs it settled. */
   readonly focusAtPick: (Element | null)[] = [];
@@ -228,5 +230,83 @@ describe('WrSpeedDial', () => {
     fixture.detectChanges();
     expect(items()).toEqual([]);
     expect(menu()).not.toBeNull();
+  });
+});
+
+describe('WrSpeedDial closeOnOutsideClick', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  const trigger = (): HTMLButtonElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('.wr-speed-dial__trigger')!;
+  const down = (target: EventTarget): void => {
+    target.dispatchEvent(new Event('pointerdown', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  const openDial = (): void => {
+    fixture.componentInstance.open.set(true);
+    fixture.detectChanges();
+  };
+
+  it('closes on a pointerdown outside and leaves focus alone', () => {
+    fixture.componentInstance.outside.set(true);
+    openDial();
+    const other = document.createElement('button');
+    document.body.append(other);
+    other.focus();
+    down(other);
+    expect(fixture.componentInstance.open()).toBe(false);
+    expect(document.activeElement).toBe(other);
+    other.remove();
+  });
+
+  it('stays open on a pointerdown outside when off', () => {
+    openDial();
+    down(document.body);
+    expect(fixture.componentInstance.open()).toBe(true);
+  });
+
+  it('stays open on a pointerdown inside', () => {
+    fixture.componentInstance.outside.set(true);
+    openDial();
+    down(trigger());
+    expect(fixture.componentInstance.open()).toBe(true);
+  });
+
+  it('stays open on a pointerdown inside a shadow root around the dial', () => {
+    fixture.componentInstance.outside.set(true);
+    openDial();
+    const shadowHost = document.createElement('div');
+    document.body.append(shadowHost);
+    const shadow = shadowHost.attachShadow({ mode: 'open' });
+    const dial = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-speed-dial')!;
+    shadow.append(dial);
+    const inner = dial.querySelector('.wr-speed-dial__trigger')!;
+    inner.dispatchEvent(new Event('pointerdown', { bubbles: true, composed: true }));
+    expect(fixture.componentInstance.open()).toBe(true);
+    shadowHost.remove();
+  });
+
+  it('listens only while open', () => {
+    const add = vi.spyOn(document, 'addEventListener');
+    const remove = vi.spyOn(document, 'removeEventListener');
+    fixture.componentInstance.outside.set(true);
+    fixture.detectChanges();
+    expect(add.mock.calls.filter(c => c[0] === 'pointerdown').length).toBe(0);
+    openDial();
+    expect(add.mock.calls.filter(c => c[0] === 'pointerdown').length).toBe(1);
+    fixture.componentInstance.open.set(false);
+    fixture.detectChanges();
+    expect(remove.mock.calls.filter(c => c[0] === 'pointerdown').length).toBe(1);
+    add.mockRestore();
+    remove.mockRestore();
   });
 });

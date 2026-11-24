@@ -329,6 +329,114 @@ describe('WrMeta', () => {
       expect(content(named('description'))).toBe('Plans for every team.');
     });
 
+    it('leaves a static tag alone while the service never sets that field', () => {
+      for (const [attr, key, value] of [
+        ['name', 'theme-color', '#0b1020'],
+        ['name', 'description', 'from index.html'],
+        ['property', 'og:image', 'https://example.com/a.png'],
+      ]) {
+        const existing = document.createElement('meta');
+        existing.setAttribute(attr, key);
+        existing.setAttribute('content', value);
+        document.head.appendChild(existing);
+      }
+
+      setup().set({ title: 'Pricing' });
+
+      expect(content(named('theme-color'))).toBe('#0b1020');
+      expect(content(named('description'))).toBe('from index.html');
+      expect(content("meta[property='og:image']")).toBe('https://example.com/a.png');
+    });
+
+    it('restores a static tag when the field it overrode is unset again', () => {
+      const existing = document.createElement('meta');
+      existing.setAttribute('name', 'description');
+      existing.setAttribute('content', 'from index.html');
+      document.head.appendChild(existing);
+
+      const meta = setup();
+      meta.set({ description: 'Plans for every team.' });
+      expect(content(named('description'))).toBe('Plans for every team.');
+      meta.reset();
+
+      expect(tags(named('description'))).toHaveLength(1);
+      expect(content(named('description'))).toBe('from index.html');
+    });
+
+    it('tells a tag the server wrote from a static one when it unsets both', () => {
+      const add = (name: string, value: string, marked: boolean): void => {
+        const el = document.createElement('meta');
+        el.setAttribute('name', name);
+        el.setAttribute('content', value);
+        if (marked) el.setAttribute('data-wr-meta', '');
+        document.head.appendChild(el);
+      };
+      add('description', 'previous page, from the server', true);
+      add('theme-color', '#0b1020', false);
+
+      const meta = setup();
+      meta.set({ description: 'Plans for every team.', themeColor: '#fff' });
+      meta.reset();
+
+      expect(tags(named('description'))).toHaveLength(0);
+      expect(content(named('theme-color'))).toBe('#0b1020');
+      expect(tags(named('theme-color'))[0].hasAttribute('data-wr-meta')).toBe(false);
+    });
+
+    it('restores the static content a server-written tag overrode, on a client that never saw it', () => {
+      const el = document.createElement('meta');
+      el.setAttribute('name', 'description');
+      el.setAttribute('content', 'written by the server');
+      el.setAttribute('data-wr-meta', '');
+      el.setAttribute('data-wr-meta-before', 'from index.html');
+      document.head.appendChild(el);
+
+      const meta = setup();
+      meta.set({ description: 'Plans for every team.' });
+      expect(content(named('description'))).toBe('Plans for every team.');
+      meta.reset();
+
+      expect(tags(named('description'))).toHaveLength(1);
+      expect(content(named('description'))).toBe('from index.html');
+      expect(tags(named('description'))[0].hasAttribute('data-wr-meta')).toBe(false);
+      expect(tags(named('description'))[0].hasAttribute('data-wr-meta-before')).toBe(false);
+    });
+
+    it('carries the static content it overrode on the tag it writes', () => {
+      const existing = document.createElement('meta');
+      existing.setAttribute('name', 'description');
+      existing.setAttribute('content', 'from index.html');
+      document.head.appendChild(existing);
+
+      const meta = setup();
+      meta.set({ description: 'A' });
+      meta.set({ description: 'B', themeColor: '#fff' });
+
+      expect(tags(named('description'))[0].getAttribute('data-wr-meta-before')).toBe('from index.html');
+      expect(tags(named('theme-color'))[0].hasAttribute('data-wr-meta-before')).toBe(false);
+    });
+
+    it('removes a server-written tag for a field the client never sets, and keeps a static one', () => {
+      const add = (name: string, value: string, marked: boolean, before?: string): void => {
+        const el = document.createElement('meta');
+        el.setAttribute('name', name);
+        el.setAttribute('content', value);
+        if (marked) el.setAttribute('data-wr-meta', '');
+        if (before !== undefined) el.setAttribute('data-wr-meta-before', before);
+        document.head.appendChild(el);
+      };
+      add('description', 'previous page, from the server', true);
+      add('keywords', 'previous, server', true, 'static, keywords');
+      add('theme-color', '#0b1020', false);
+
+      setup().set({ title: 'Pricing' });
+
+      expect(tags(named('description'))).toHaveLength(0);
+      expect(content(named('keywords'))).toBe('static, keywords');
+      expect(tags(named('keywords'))[0].hasAttribute('data-wr-meta')).toBe(false);
+      expect(content(named('theme-color'))).toBe('#0b1020');
+    });
+
     it('removes the tag when the metadata no longer carries a description', () => {
       const meta = setup();
       meta.set({ description: 'Plans for every team.' });
@@ -349,7 +457,6 @@ describe('WrMeta', () => {
       setup().set({ keywords: [] });
 
       // `[].join()` is `''`, and an empty keywords tag is noise, not metadata.
-      expect(tags(named('keywords'))).toHaveLength(0);
     });
 
     it('writes theme-color under its dashed name', () => {

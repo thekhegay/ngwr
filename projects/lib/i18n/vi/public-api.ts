@@ -89,6 +89,8 @@ export const wrVi: WrI18nCatalog = {
   stepper: {
     optional: 'tùy chọn',
     completed: 'đã hoàn thành',
+    error: 'lỗi',
+    warning: 'cảnh báo',
   },
   transfer: {
     source: 'Có sẵn',
@@ -100,6 +102,7 @@ export const wrVi: WrI18nCatalog = {
     toSource: 'Chuyển về danh sách có sẵn',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'tùy chọn',
@@ -233,6 +236,10 @@ export const wrVi: WrI18nCatalog = {
     keyHelp:
       'Các phím mũi tên di chuyển vùng cắt. Giữ Alt cùng phím mũi tên để đổi kích thước, giữ Shift để bước nhảy lớn hơn. ' +
       'Vùng cắt được đọc theo thứ tự lề trái, lề trên, chiều rộng và chiều cao, tính bằng pixel của ảnh.',
+    transformHelp:
+      'Phím cộng và trừ phóng to và thu nhỏ ảnh. R xoay ảnh theo chiều kim đồng hồ, Shift cùng R xoay ngược lại.',
+    zoomed: 'Thu phóng {{percent}}%',
+    rotated: 'Đã xoay {{degrees}}°',
   },
   sortableList: {
     keyHelp:

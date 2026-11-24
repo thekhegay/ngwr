@@ -43,6 +43,7 @@ export const API = {
     { name: "ariaLabel", description: "Accessible name for the navigation landmark. Falls back to `anchor.label`, then `'Table of contents'` — it used to be that English string, hard-coded on the host, in a landmark a screen reader reads out on every page.", type: "string | null", default: "null" },
     { name: "offset", description: "Pixel offset subtracted on scroll — for sticky headers.", type: "number", default: "0" },
     { name: "hitArea", description: "Highlight an item when its target's top is within this many px of the offset line.", type: "number", default: "80" },
+    { name: "container", description: "The element whose scroll the links follow, for targets inside a pane with its own scroll: a docs panel, a dialog body, a drawer. A click scrolls it and leaves the page alone. `null` follows the window.", type: "HTMLElement | null", default: "null" },
   ],
   // <wr-aurora>
   WrAurora: [
@@ -580,6 +581,7 @@ export const API = {
     { name: "timeFormat", description: "Format of the second line: a named key (`'time24hSeconds'`) or a token string (`'HH:mm'`). `withDates({ stamp })` changes the default.", type: "WrDateFormat | string", default: "'time'" },
     { name: "seconds", description: "Write the seconds in the time line: `'time'` is read as `'timeSeconds'` and `'HH:mm'` as `'HH:mm:ss'`. A format that already has them is left alone. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
     { name: "todayTimeOnly", description: "Show the time alone for a value from today. Today is the day in the display zone, read when the stamp renders: one left on screen past midnight keeps its single line. A date-only value keeps its date. `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
+    { name: "relative", description: "Show how far the moment is from now (\"5 minutes ago\", \"tomorrow\") in place of the two lines, as `wrFormatRelativeTime` writes it, in the language the stamp formats in. The text is kept current: it is written again each second under a minute, each minute under an hour, each hour under a day and each day after that, from a timer that starts after the first render and never on the server. The date and the time move to the `title` of the `<time>`. A date-only value is compared as a day (\"today\", \"yesterday\"). `withDates({ stamp })` changes the default.", type: "unknown", default: "false" },
     { name: "epochUnit", description: "What a number in `value` counts since the epoch: `'ms'`, `'us'`, `'s'` or `'auto'`, by size. `null` follows `withDates({ epochUnit })`.", type: "WrEpochUnit | null", default: "null" },
     { name: "emptyLabel", description: "What stands in for an empty value. Falls back to `copyValue.empty`, then `'-'`.", type: "string | null", default: "null" },
   ],
@@ -597,13 +599,15 @@ export const API = {
   // <wr-description-item>
   WrDescriptionItem: [
     { name: "label", description: "The term shown beside the projected value — \"Email\", \"Created\". Keep it a noun: it is read as the name of the value, not as a sentence.", type: "string", default: "''" },
+    { name: "span", description: "Columns the item takes in a list with `columns`. A number above the list's `columns` takes the whole row.", type: "number", default: "1" },
   ],
   // <wr-descriptions>
   WrDescriptions: [
     { name: "title", description: "Optional title shown above the list.", type: "string", default: "''" },
     { name: "inline", description: "Two-column rows (label left, value right) instead of stacked.", type: "boolean", default: "false" },
     { name: "bordered", description: "Add visible borders around each row.", type: "boolean", default: "false" },
-    { name: "responsive", description: "Reflow `inline` rows back to a stacked layout when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.", type: "boolean", default: "false" },
+    { name: "responsive", description: "Reflow `inline` rows back to a stacked layout, and a `columns` grid back to one column, when the box itself is narrow (a container query on its own width, not the viewport — so it adapts inside a narrow card or side panel). Makes the box fill its container's width.", type: "boolean", default: "false" },
+    { name: "columns", description: "How many items a row holds, as equal columns. An item takes more of them with its `span`.", type: "number", default: "1" },
   ],
   // <[wrDestruct]>
   WrDestruct: [
@@ -953,7 +957,9 @@ export const API = {
     { name: "outputType", description: "Default output type for `(cropped)`.", type: "WrImageOutputType", default: "'image/png'" },
     { name: "outputQuality", description: "JPEG / WebP quality for `(cropped)` in [0, 1].", type: "number", default: "0.92" },
     { name: "maxOutputSize", description: "Longest side of the exported image, in pixels — for `(cropped)`, `toBlob()` and `toDataUrl()` alike. A crop larger than this is scaled down to fit, keeping its aspect ratio; a smaller one is exported as it is, never upscaled. The crop itself — `cropRect()`, in source pixels — is not affected. `null` (or anything that is not a positive number) exports at the source image's own resolution.", type: "number | null", default: "null" },
-    { name: "(cropped)", description: "Emits a Blob after each drag end.", type: "Blob" },
+    { name: "zoom", description: "How much the image is enlarged under the crop window, from `1` (the whole image fitted to the stage) to `4`. The window keeps its place and covers less of the source. A value outside the range is read as the nearest end.", type: "number", default: "1" },
+    { name: "rotation", description: "Clockwise quarter turns of the image, in degrees. At `90` and `270` the stage takes the turned image's shape. The crop window turns with the image and is then refitted to `aspectRatio`. The export is the turned image.", type: "WrImageRotation", default: "0" },
+    { name: "(cropped)", description: "Emits a Blob after each drag end, and after `zoom` or `rotation` settles.", type: "Blob" },
     { name: "(loadError)", description: "Fires once when the browser cannot decode the current `src` — a format it does not support, a broken file, a URL that fails. Nothing is rendered for it; show your own message. A new `src` clears the failure.", type: "WrImageLoadError" },
   ],
   // <input[wrInput], textarea[wrInput]>
@@ -1270,6 +1276,7 @@ export const API = {
     { name: "bgColor", description: "Background color of the canvas + host. Any CSS colour, resolved the way `color` is.", type: "string", default: "'#ffffff'" },
     { name: "iconUrl", description: "Optional image URL or data URL to overlay in the center.", type: "string | null", default: "null" },
     { name: "iconSize", description: "Center icon size in logical pixels.", type: "number", default: "42" },
+    { name: "iconBackground", description: "Colour of the square under the icon. Any CSS colour, resolved the way `color` is. `null` paints it in `bgColor`; `'transparent'` paints no square, so the icon sits straight on the modules. In dev mode the console warns when the square covers more of the code than `level` can recover (L 7%, M 15%, Q 25%, H 30%). With no square, the image itself is what is measured.", type: "string | null", default: "null" },
     { name: "ariaLabel", description: "Accessible name. A QR code is content — it usually encodes a URL — and a `<canvas>` carries no implicit role and no text alternative, so without a name it is nothing at all to a screen reader. Say what the code is FOR when you can. Falls back to `qr.label`.", type: "string | null", default: "null" },
   ],
   // <wr-radar-chart>
@@ -1550,6 +1557,7 @@ export const API = {
     { name: "icon", description: "Icon for the main trigger button.", type: "WrIconName", default: "'add'" },
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "safeArea", description: "Pad the host toward the dial `direction` with `env(safe-area-inset-*)`. Only matters when the consumer pins the dial to that edge of the viewport; otherwise it has no effect.", type: "boolean", default: "false" },
+    { name: "closeOnOutsideClick", description: "Close the open dial on a pointer press outside it. Focus stays where the user clicked.", type: "boolean", default: "false" },
     { name: "(pick)", description: "Fires when the user picks one of the actions.", type: "WrSpeedDialAction" },
   ],
   // <wr-spinner>
@@ -1599,6 +1607,7 @@ export const API = {
     { name: "optional", description: "Marks the step as optional in the header.", type: "boolean", default: "false" },
     { name: "completed", description: "Override completion state. When unset, the stepper auto-derives it from the active index (any step before `active` is completed).", type: "boolean | null", default: "null" },
     { name: "disabled", description: "Disables the header — also blocks header clicks.", type: "boolean", default: "false" },
+    { name: "status", description: "A problem to flag in the header: the number or the check mark gives way to an error or a warning glyph, and the label takes the matching colour. It changes nothing about navigation.", type: "WrStepStatus | null", default: "null" },
   ],
   // <wr-stepper>
   WrStepper: [
@@ -1608,6 +1617,8 @@ export const API = {
     { name: "responsive", description: "Drop a horizontal stepper to a vertical layout when its own box is too narrow for the row (a container query on its own width, not the viewport — so it adapts inside a narrow column or side panel). No effect when `orientation` is already `vertical`.", type: "boolean", default: "false" },
     { name: "optionalLabel", description: "The word of the \"optional\" badge, which sits inside the header button's label and so is part of each optional step's accessible name. One input on the stepper covers every step. Falls back to `stepper.optional`, then `'optional'`.", type: "string | null", default: "null" },
     { name: "completedLabel", description: "The word a completed step's header button carries after its label, visually hidden: the check mark that replaces the number is `aria-hidden`. Falls back to `stepper.completed`, then `'completed'`.", type: "string | null", default: "null" },
+    { name: "errorLabel", description: "The word a step with `status=\"error\"` carries after its label, visually hidden: the glyph that replaces the number is `aria-hidden`. Falls back to `stepper.error`, then `'error'`.", type: "string | null", default: "null" },
+    { name: "warningLabel", description: "The word a step with `status=\"warning\"` carries after its label, visually hidden. Falls back to `stepper.warning`, then `'warning'`.", type: "string | null", default: "null" },
   ],
   // <wr-switch>
   WrSwitch: [
@@ -1802,6 +1813,7 @@ export const API = {
   // <wr-toolbar>
   WrToolbar: [
     { name: "responsive", description: "Stack the zones vertically when the toolbar's own box is too narrow to fit them in a row (a container query on its own width, not the viewport — so it adapts inside a narrow column or split pane).", type: "boolean", default: "false" },
+    { name: "arrowKeys", description: "Roving focus across the enabled controls of all zones, per the WAI-ARIA toolbar pattern: one tab stop, ArrowRight / ArrowLeft (mirrored under RTL) to step with wrapping, Home / End for the ends. Text fields, native radios and composite widgets (radiogroup, tablist, listbox, ...) are not part of that set: they keep their own tab stop and their own arrow keys, and the arrows skip over them. Tab still reaches every one of them.", type: "boolean", default: "false" },
   ],
   // <wr-transfer>
   WrTransfer: [

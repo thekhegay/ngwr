@@ -298,6 +298,18 @@ describe('WrFileUpload', () => {
     expect(lit()).toBe(false);
   });
 
+  it('cancels a drag over a disabled zone so the browser does not open the file', () => {
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+
+    for (const type of ['dragenter', 'dragover']) {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      zone().dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(true);
+    }
+    expect(root().querySelector('wr-file-upload')!.classList.contains('wr-file-upload--dragging')).toBe(false);
+  });
+
   it('takes nothing while disabled', () => {
     fixture.componentInstance.disabled.set(true);
     fixture.detectChanges();

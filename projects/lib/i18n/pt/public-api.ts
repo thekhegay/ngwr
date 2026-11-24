@@ -87,6 +87,8 @@ export const wrPt: WrI18nCatalog = {
   stepper: {
     optional: 'opcional',
     completed: 'concluído',
+    error: 'erro',
+    warning: 'aviso',
   },
   transfer: {
     source: 'Disponíveis',
@@ -98,6 +100,7 @@ export const wrPt: WrI18nCatalog = {
     toSource: 'Mover para disponíveis',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'opcional',
@@ -225,6 +228,10 @@ export const wrPt: WrI18nCatalog = {
       'As teclas de setas movem a área de recorte. Para a redimensionar, mantenha a tecla Alt premida enquanto ' +
       'usa uma seta. Com a tecla Shift, os passos são maiores. A área é anunciada como esquerda, topo, largura ' +
       'e altura em pixels da imagem.',
+    transformHelp:
+      'Mais e menos ampliam e reduzem a imagem. R roda a imagem no sentido dos ponteiros do relógio, e Shift com R no sentido contrário.',
+    zoomed: 'Zoom de {{percent}}%',
+    rotated: 'Rodada {{degrees}}°',
   },
   sortableList: {
     // `agarrar` / `largar` here and `Agarrado` / `Largado` below are the same two

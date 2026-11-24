@@ -152,6 +152,25 @@ describe('WrScroll', () => {
     expect(calls).toEqual([]);
   });
 
+  it('lands a container target below its top border, not behind it', () => {
+    const container = document.createElement('div');
+    container.getBoundingClientRect = (): DOMRect => ({ top: 300, left: 0, width: 300, height: 300 }) as DOMRect;
+    Object.defineProperty(container, 'scrollTop', { value: 100, configurable: true });
+    Object.defineProperty(container, 'clientTop', { value: 8, configurable: true });
+    const containerCalls: ScrollToOptions[] = [];
+    container.scrollTo = ((options: ScrollToOptions) => containerCalls.push(options)) as typeof container.scrollTo;
+    document.body.appendChild(container);
+
+    const el = elementAt(508);
+    container.appendChild(el);
+
+    scroll.to(el, { container });
+
+    // 508 - (300 + 8 of border) + 100: the target meets the padding edge.
+    expect(containerCalls).toEqual([{ top: 300, behavior: 'smooth' }]);
+    container.remove();
+  });
+
   it('does nothing at all on the server', () => {
     scroll = setup({ provide: PLATFORM_ID, useValue: 'server' });
     scroll.to({ top: 100 });

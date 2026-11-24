@@ -7,6 +7,8 @@
 
 import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
 
+import type { WrStepStatus } from 'ngwr/stepper';
+
 import type { WrStepHarnessFilters } from './types';
 import { wrStepperHarnessText } from './wr-stepper-harness-text';
 
@@ -61,7 +63,8 @@ export class WrStepHarness extends ComponentHarness {
         options.reachable,
         async (harness, reachable) => (await harness.isReachable()) === reachable
       )
-      .addOption('optional', options.optional, async (harness, optional) => (await harness.isOptional()) === optional);
+      .addOption('optional', options.optional, async (harness, optional) => (await harness.isOptional()) === optional)
+      .addOption('status', options.status, async (harness, status) => (await harness.getStatus()) === status);
   }
 
   private readonly button = this.locatorFor('button.wr-stepper__header-button');
@@ -130,6 +133,19 @@ export class WrStepHarness extends ComponentHarness {
    */
   async isCompleted(): Promise<boolean> {
     return (await this.host()).hasClass('wr-stepper__header--completed');
+  }
+
+  /**
+   * The problem the step flags in its header, or `null` when it flags none.
+   *
+   * Read from the `--error` / `--warning` class, the same way {@link isCompleted}
+   * is. The word a screen reader hears for it is in {@link getAccessibleName}.
+   */
+  async getStatus(): Promise<WrStepStatus | null> {
+    const host = await this.host();
+    if (await host.hasClass('wr-stepper__header--error')) return 'error';
+    if (await host.hasClass('wr-stepper__header--warning')) return 'warning';
+    return null;
   }
 
   /**

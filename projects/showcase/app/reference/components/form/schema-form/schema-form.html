@@ -3,7 +3,7 @@
   description="Draws a whole form from a Signal Forms schema."
   [keywords]="['schema form', 'signal forms', 'generated form', 'metadata', 'wr-schema-form']"
   [labels]="['Component', 'Signal Forms']"
-  updated="16.3.0"
+  updated="16.9.0"
 >
   <ngwr-doc-section
     title="Basic usage"
@@ -58,6 +58,17 @@
         </tbody>
       </table>
     </div>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="File limits"
+    description="`maxSize` (bytes per file) and `maxFiles` cap a `file` field. A file past a limit is refused and never reaches the value. State the limits in `hint`."
+  >
+    <ngwr-doc-snippet [files]="fileLimitsFiles">
+      <div style="max-width: 34rem">
+        <wr-schema-form [field]="documents" />
+      </div>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section

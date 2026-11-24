@@ -35,7 +35,7 @@
           type="search"
           [placeholder]="resolvedSearch()"
           [disabled]="disabled()"
-          [attr.aria-label]="`${title} — ${resolvedSearch()}`"
+          [attr.aria-label]="searchAria({ title, search: resolvedSearch() })"
           (input)="onSearch(pane, $event)"
         />
       </div>

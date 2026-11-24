@@ -87,6 +87,8 @@ export const wrIt: WrI18nCatalog = {
   stepper: {
     optional: 'facoltativo',
     completed: 'completato',
+    error: 'errore',
+    warning: 'avviso',
   },
   transfer: {
     source: 'Disponibili',
@@ -98,6 +100,7 @@ export const wrIt: WrI18nCatalog = {
     toSource: 'Sposta tra i disponibili',
     count: '{{checked}} / {{total}}',
     selectAllAria: '{{pane}} — {{action}}',
+    searchAria: '{{title}} - {{search}}',
   },
   form: {
     optional: 'facoltativo',
@@ -229,6 +232,10 @@ export const wrIt: WrI18nCatalog = {
     keyHelp:
       'I tasti freccia spostano il ritaglio. Tieni premuto Alt con una freccia per ridimensionarlo, Maiusc per passi più ampi. ' +
       "Il ritaglio viene annunciato come distanza da sinistra, distanza dall'alto, larghezza e altezza in pixel dell'immagine.",
+    transformHelp:
+      'Più e meno ingrandiscono e riducono l’immagine. R la ruota in senso orario, Maiusc con R in senso antiorario.',
+    zoomed: 'Ingrandimento {{percent}}%',
+    rotated: 'Ruotata di {{degrees}}°',
   },
   sortableList: {
     keyHelp:

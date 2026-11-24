@@ -233,4 +233,180 @@ describe('drawQrCode', () => {
 
     vi.unstubAllGlobals();
   });
+
+  describe('the icon inset', () => {
+    const paintIcon = (iconSize: number): { box: readonly number[]; scale: number } => {
+      class Probe {
+        static last: Probe;
+        crossOrigin = '';
+        onload: (() => void) | null = null;
+        constructor() {
+          Probe.last = this;
+        }
+        set src(_value: string) {
+          // never fetches
+        }
+      }
+      vi.stubGlobal('Image', Probe);
+      const { canvas, calls } = stub();
+      drawQrCode(canvas, options({ iconUrl: '/a.png', iconSize }));
+      Probe.last.onload?.();
+      vi.unstubAllGlobals();
+      return { box: calls.find(call => call.op === 'drawImage')!.args, scale: canvas.width / 160 };
+    };
+
+    it('scales with the bitmap, so the icon keeps its share of the tile', () => {
+      const { box, scale } = paintIcon(42);
+
+      expect(box[2]).toBeCloseTo(22 * scale, 5);
+      expect(box[3]).toBeCloseTo(22 * scale, 5);
+    });
+
+    it('never draws a negative size for a tiny icon', () => {
+      const { box } = paintIcon(4);
+
+      expect(box[2]).toBeGreaterThan(0);
+      expect(box[3]).toBeGreaterThan(0);
+    });
+  });
+
+  /** Draws with an icon and lets it load: the calls after the module pass are the overlay's. */
+  const withIcon = (over: Partial<DrawOptions>): { calls: Call[]; canvas: HTMLCanvasElement } => {
+    class Probe {
+      static last: Probe;
+      crossOrigin = '';
+      onload: (() => void) | null = null;
+      constructor() {
+        Probe.last = this;
+      }
+      set src(_value: string) {
+        // never fetches
+      }
+    }
+    vi.stubGlobal('Image', Probe);
+    const { canvas, calls } = stub();
+    drawQrCode(canvas, options({ iconUrl: '/a.png', ...over }));
+    const before = calls.length;
+    Probe.last.onload?.();
+    vi.unstubAllGlobals();
+    return { calls: calls.slice(before), canvas };
+  };
+
+  describe('the square under the icon', () => {
+    it('is the background colour when no colour is given', () => {
+      const { calls, canvas } = withIcon({ bgColor: '#eeeeee', level: 'H', iconSize: 20 });
+      const side = (20 * canvas.width) / 160;
+
+      expect(calls.map(call => call.op)).toEqual(['fillRect', 'drawImage']);
+      expect(calls[0].fill).toBe('#eeeeee');
+      expect(calls[0].args[2]).toBeCloseTo(side, 5);
+      expect(calls[0].args[0]).toBeCloseTo((canvas.width - side) / 2, 5);
+    });
+
+    it('takes its own colour, under the same box', () => {
+      const { calls, canvas } = withIcon({ level: 'H', iconSize: 20, iconBackground: 'rgb(1, 2, 3)' });
+
+      expect(calls.map(call => call.op)).toEqual(['fillRect', 'drawImage']);
+      expect(calls[0].fill).toBe('rgb(1, 2, 3)');
+      expect(calls[0].args[2]).toBeCloseTo((20 * canvas.width) / 160, 5);
+    });
+
+    it.each(['transparent', 'rgba(0, 0, 0, 0)', 'color(srgb 1 1 1 / 0)'])('is not drawn for %s', iconBackground => {
+      const { calls } = withIcon({ level: 'H', iconSize: 20, iconBackground });
+
+      expect(calls.map(call => call.op)).toEqual(['drawImage']);
+    });
+
+    it.each(['rgb(0, 0, 0)', 'rgb(255, 255, 0)', 'hsl(0, 100%, 0%)', 'rgb(0 0 0)'])(
+      'is drawn for the opaque %s',
+      iconBackground => {
+        const { calls } = withIcon({ level: 'H', iconSize: 20, iconBackground });
+
+        expect(calls[0]).toMatchObject({ op: 'fillRect', fill: iconBackground });
+      }
+    );
+
+    it('is drawn for a colour that is only partly transparent', () => {
+      const { calls } = withIcon({ level: 'H', iconSize: 20, iconBackground: 'rgba(0, 0, 0, 0.5)' });
+
+      expect(calls[0]).toMatchObject({ op: 'fillRect', fill: 'rgba(0, 0, 0, 0.5)' });
+    });
+  });
+
+  describe('the icon coverage warning', () => {
+    // Reported once per configuration for the life of the module, so every case here
+    // draws a level and icon size no other case uses.
+    const warned = (): string[] => {
+      const messages: string[] = [];
+      vi.spyOn(console, 'warn').mockImplementation((message: unknown) => {
+        messages.push(String(message));
+      });
+      return messages;
+    };
+
+    it('names the level, the share and a size that fits for a large icon at L', () => {
+      const warn = warned();
+      const { canvas } = withIcon({ level: 'L', iconSize: 80 });
+
+      expect(warn).toHaveLength(1);
+      const message = warn[0];
+      // The box is half the canvas a side; the quiet zone is not part of the symbol.
+      const modules = (canvas.width - 20) / 10;
+      const share = Math.round((canvas.width / 20 / modules) ** 2 * 1000) / 10;
+      expect(message).toContain('level "L"');
+      expect(message).toContain(`covers ${share}%`);
+      expect(message).toContain('about 7%');
+
+      // The size it names is one the level accepts, and one more is not.
+      const fit = Number(/\[iconSize\] to (\d+)/.exec(message)![1]);
+      expect(fit).toBeGreaterThan(0);
+      expect(fit).toBeLessThan(80);
+      withIcon({ level: 'L', iconSize: fit });
+      expect(warn).toHaveLength(1);
+      withIcon({ level: 'L', iconSize: fit + 1 });
+      expect(warn).toHaveLength(2);
+    });
+
+    it('stays quiet for a small icon at H', () => {
+      const warn = warned();
+      withIcon({ level: 'H', iconSize: 24 });
+
+      expect(warn).toHaveLength(0);
+    });
+
+    it('speaks once for a configuration, however often it is redrawn', () => {
+      const warn = warned();
+      withIcon({ level: 'L', iconSize: 90 });
+      withIcon({ level: 'L', iconSize: 90, color: '#111111' });
+
+      expect(warn).toHaveLength(1);
+    });
+
+    it('measures the image, not the box, when the square is transparent', () => {
+      const warn = warned();
+      // At M the limit is a side of about 57 CSS px here: a 70 px square is over it,
+      // the 50 px image inside it is not.
+      withIcon({ level: 'M', iconSize: 70, iconBackground: 'transparent' });
+      expect(warn).toHaveLength(0);
+
+      withIcon({ level: 'M', iconSize: 70 });
+      expect(warn).toHaveLength(1);
+
+      // And the size it names for a bare image accounts for the inset.
+      withIcon({ level: 'M', iconSize: 100, iconBackground: 'transparent' });
+      const fit = Number(/\[iconSize\] to (\d+)/.exec(warn[1])![1]);
+      withIcon({ level: 'M', iconSize: fit, iconBackground: 'transparent' });
+      expect(warn).toHaveLength(2);
+      withIcon({ level: 'M', iconSize: fit + 1, iconBackground: 'transparent' });
+      expect(warn).toHaveLength(3);
+    });
+
+    it('says nothing for an icon URL it refuses to load', () => {
+      const warn = warned();
+      const { canvas } = stub();
+      drawQrCode(canvas, options({ level: 'L', iconSize: 100, iconUrl: 'javascript:void(0)' }));
+
+      expect(warn).toHaveLength(0);
+    });
+  });
 });

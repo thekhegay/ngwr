@@ -28,12 +28,20 @@ const LINKS: readonly WrAnchorLink[] = [
 @Component({
   imports: [WrAnchor],
   template: `
-    <wr-anchor [links]="links()" [offset]="offset()" [hitArea]="hitArea()" [ariaLabel]="ariaLabel()" />
-    <h2 id="intro">Introduction</h2>
-    <h2 id="usage">Usage</h2>
-    <h3 id="basic">Basic</h3>
-    <h3 id="advanced">Advanced</h3>
-    <h4 id="deeper">Deeper</h4>
+    <wr-anchor
+      [links]="links()"
+      [offset]="offset()"
+      [hitArea]="hitArea()"
+      [ariaLabel]="ariaLabel()"
+      [container]="container()"
+    />
+    <div class="box">
+      <h2 id="intro">Introduction</h2>
+      <h2 id="usage">Usage</h2>
+      <h3 id="basic">Basic</h3>
+      <h3 id="advanced">Advanced</h3>
+      <h4 id="deeper">Deeper</h4>
+    </div>
   `,
 })
 class Host {
@@ -41,6 +49,7 @@ class Host {
   readonly offset = signal(0);
   readonly hitArea = signal(80);
   readonly ariaLabel = signal<string | null>(null);
+  readonly container = signal<HTMLElement | null>(null);
 }
 
 /**
@@ -229,6 +238,22 @@ describe('WrAnchor', () => {
     expect(activeIds()).toEqual(['intro']);
   });
 
+  it('re-measures at rest when the links, offset or hit area change', () => {
+    setTops({ intro: -400, usage: 60, basic: 500, advanced: 600 });
+    fixture.componentInstance.hitArea.set(81);
+    fixture.detectChanges();
+    expect(activeIds()).toEqual(['usage']);
+
+    fixture.componentInstance.hitArea.set(20);
+    fixture.detectChanges();
+    expect(activeIds()).toEqual(['intro']);
+
+    fixture.componentInstance.links.set([{ id: 'basic', label: 'Basic' }]);
+    setTops({ basic: -10 });
+    fixture.detectChanges();
+    expect(activeIds()).toEqual(['basic']);
+  });
+
   it('scrolls to a clicked target instead of letting the browser jump', () => {
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
     fixture.componentInstance.offset.set(80);
@@ -267,6 +292,155 @@ describe('WrAnchor', () => {
     } finally {
       scrollTo(0);
     }
+  });
+
+  it('drops a pin whose link is gone, so the spy lights a link that remains', () => {
+    const scrollTo = (y: number): void => {
+      Object.defineProperty(window, 'scrollY', { value: y, configurable: true, writable: true });
+    };
+    try {
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      linkFor('advanced').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      placeTargets({ intro: -400, usage: -200, basic: 20, advanced: 300 });
+      expect(activeIds()).toEqual(['advanced']);
+
+      fixture.componentInstance.links.set([{ id: 'basic', label: 'Basic' }]);
+      setTops({ basic: -10 });
+      fixture.detectChanges();
+      expect(activeIds()).toEqual(['basic']);
+    } finally {
+      scrollTo(0);
+    }
+  });
+
+  describe('with a scroll container', () => {
+    const BOX_TOP = 300;
+    let boxTop = 0;
+
+    const box = (): HTMLElement => root().querySelector<HTMLElement>('.box')!;
+
+    /** The box as jsdom cannot lay it out: where it sits, and how far it is scrolled. */
+    const modelBox = (): void => {
+      boxTop = 0;
+      box().getBoundingClientRect = (): DOMRect => ({ top: BOX_TOP, bottom: BOX_TOP + 200, height: 200 }) as DOMRect;
+      Object.defineProperty(box(), 'scrollTop', { configurable: true, get: () => boxTop });
+    };
+
+    const scrollBox = (y: number, tops: Record<string, number>): void => {
+      boxTop = y;
+      setTops(tops);
+      box().dispatchEvent(new Event('scroll'));
+      runFrame();
+    };
+
+    const follow = (container: HTMLElement | null): void => {
+      fixture.componentInstance.container.set(container);
+      fixture.detectChanges();
+    };
+
+    it('activates the link whose target passed the top of the container', () => {
+      modelBox();
+      follow(box());
+      // Against the viewport every target is far below the line.
+      scrollBox(120, { intro: BOX_TOP - 40, usage: BOX_TOP + 200, basic: BOX_TOP + 400, advanced: BOX_TOP + 600 });
+      expect(activeIds()).toEqual(['intro']);
+
+      scrollBox(400, { intro: BOX_TOP - 400, usage: BOX_TOP - 100, basic: BOX_TOP + 60, advanced: BOX_TOP + 300 });
+      expect(activeIds()).toEqual(['basic']);
+    });
+
+    it('re-measures at rest when it gets a container, and stops listening to the window', () => {
+      modelBox();
+      setTops({ intro: BOX_TOP - 40, usage: BOX_TOP + 200, basic: BOX_TOP + 400, advanced: BOX_TOP + 600 });
+      window.dispatchEvent(new Event('scroll'));
+      runFrame();
+      expect(activeIds()).toEqual([]);
+
+      follow(box());
+      expect(activeIds()).toEqual(['intro']);
+
+      window.dispatchEvent(new Event('scroll'));
+      expect(frames).toEqual([]);
+    });
+
+    it('adds the offset and the hit area to the top of the container', () => {
+      modelBox();
+      fixture.componentInstance.offset.set(50);
+      fixture.componentInstance.hitArea.set(10);
+      follow(box());
+      scrollBox(10, { intro: BOX_TOP + 60, usage: BOX_TOP + 61, basic: BOX_TOP + 400, advanced: BOX_TOP + 600 });
+
+      expect(activeIds()).toEqual(['intro']);
+    });
+
+    it('scrolls the container on a click, and leaves the window alone', async () => {
+      await mount([{ provide: WrScroll, useClass: WrScroll }]);
+      modelBox();
+      const moved = vi.fn();
+      box().scrollTo = moved;
+      const page = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+      fixture.componentInstance.offset.set(20);
+      follow(box());
+      scrollBox(100, { intro: BOX_TOP - 100, usage: BOX_TOP + 40, basic: BOX_TOP + 300, advanced: BOX_TOP + 500 });
+      expect(activeIds()).toEqual(['usage']);
+
+      linkFor('advanced').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+
+      // 500 below the top of the box, which is already scrolled by 100, less the offset.
+      expect(moved).toHaveBeenCalledWith(expect.objectContaining({ top: 580 }));
+      expect(page).not.toHaveBeenCalled();
+      expect(window.scrollY).toBe(0);
+      expect(activeIds()).toEqual(['advanced']);
+    });
+
+    it('keeps a clicked entry lit where the container runs out of scroll', () => {
+      // No scrollable height here either, so the click lands where the box already is.
+      modelBox();
+      follow(box());
+      const tops = { intro: BOX_TOP - 400, usage: BOX_TOP - 200, basic: BOX_TOP + 20, advanced: BOX_TOP + 300 };
+      scrollBox(0, tops);
+      expect(activeIds()).toEqual(['basic']);
+
+      linkFor('advanced').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      fixture.detectChanges();
+      expect(scroll.to).toHaveBeenCalledWith('#advanced', { offset: 0, container: box() });
+      scrollBox(0, tops);
+      expect(activeIds()).toEqual(['advanced']);
+
+      // The reader scrolls the box away, and the spy takes over again.
+      scrollBox(240, { intro: BOX_TOP - 160, usage: BOX_TOP + 40, basic: BOX_TOP + 260, advanced: BOX_TOP + 540 });
+      expect(activeIds()).toEqual(['usage']);
+    });
+
+    it('goes back to the window when the container is cleared', () => {
+      modelBox();
+      follow(box());
+      scrollBox(120, { intro: BOX_TOP - 40, usage: BOX_TOP + 200, basic: BOX_TOP + 400, advanced: BOX_TOP + 600 });
+      expect(activeIds()).toEqual(['intro']);
+
+      // Measured against the viewport again, at rest.
+      follow(null);
+      expect(activeIds()).toEqual([]);
+
+      box().dispatchEvent(new Event('scroll'));
+      expect(frames).toEqual([]);
+
+      placeTargets({ intro: -400, usage: -100, basic: -20, advanced: 300 });
+      expect(activeIds()).toEqual(['basic']);
+
+      linkFor('usage').dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      expect(scroll.to).toHaveBeenLastCalledWith('#usage', { offset: 0 });
+    });
+
+    it('drops the listener on the container when it goes away', () => {
+      follow(box());
+      const remove = vi.spyOn(box(), 'removeEventListener');
+      fixture.destroy();
+
+      expect(remove).toHaveBeenCalledWith('scroll', expect.any(Function));
+    });
   });
 
   it('measures the headings once per frame, however many scroll events the frame held', () => {

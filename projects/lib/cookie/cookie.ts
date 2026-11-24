@@ -89,13 +89,19 @@ export class WrCookie {
       }
     }
 
-    parts.push(`path=${opts.path}`);
-    if (opts.domain) parts.push(`domain=${opts.domain}`);
+    // A `__Host-` / `__Secure-` name is rejected by the browser without `Secure`, and `__Host-`
+    // also needs `Path=/` and no `Domain`, so those follow from the name.
+    const lowerKey = key.toLowerCase();
+    const host = lowerKey.startsWith('__host-');
+    const prefixed = host || lowerKey.startsWith('__secure-');
+
+    parts.push(`path=${host ? '/' : opts.path}`);
+    if (opts.domain && !host) parts.push(`domain=${opts.domain}`);
     // `SameSite=None` REQUIRES `Secure`: every modern browser drops the cookie outright
     // without it, so asking for one without the other used to be a silent no-op — the one
     // failure a cookie API must not have. The caller asked for a cross-site cookie, and
     // this is what one is.
-    if (opts.secure || opts.sameSite === 'None') parts.push('secure');
+    if (opts.secure || prefixed || opts.sameSite === 'None') parts.push('secure');
     parts.push(`samesite=${opts.sameSite}`);
 
     try {

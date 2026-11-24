@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Date Stamp"
   since="16.1.0"
-  updated="16.2.0"
+  updated="16.9.0"
   description="A date over a time, for a table cell."
   [keywords]="['date stamp', 'date', 'time', 'timestamp', 'table cell', 'time zone', 'wr-date-stamp']"
 >
@@ -64,8 +64,23 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Relative"
+    description="`relative` shows how far the moment is from now, as [wrRelativeTime](/reference/pipes/wr-relative-time) writes it, and keeps the text current: each second under a minute, each minute under an hour, each hour under a day, then each day. The date and the time stay in the `title`."
+  >
+    <ngwr-doc-code [code]="snippets.relative" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: var(--wr-space-xl); flex-wrap: wrap">
+        <wr-date-stamp [value]="now" relative />
+        <wr-date-stamp [value]="soon" relative />
+        <wr-date-stamp [value]="earlier" relative />
+        <wr-date-stamp [value]="created" relative />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="App-wide defaults"
-    description="`withDates({ stamp })` sets `dateFormat`, `timeFormat`, `todayTimeOnly` and `seconds` for every stamp. An input on a stamp wins."
+    description="`withDates({ stamp })` sets `dateFormat`, `timeFormat`, `todayTimeOnly`, `seconds` and `relative` for every stamp. An input on a stamp wins."
   >
     <ngwr-doc-code [code]="snippets.defaults" language="angular-ts" />
   </ngwr-doc-section>

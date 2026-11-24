@@ -7,7 +7,7 @@
 
 import { ComponentHarness, HarnessPredicate, TestKey, type TestElement } from '@angular/cdk/testing';
 
-import type { WrCropHandle } from 'ngwr/image-cropper';
+import type { WrCropHandle, WrImageRotation } from 'ngwr/image-cropper';
 
 import type { WrImageCropperHarnessFilters } from './types';
 
@@ -56,6 +56,11 @@ export interface WrCropWindowBox {
  * Object.defineProperty(img, 'naturalWidth', { value: 800 });
  * Object.defineProperty(img, 'naturalHeight', { value: 800 });
  * ```
+ *
+ * Zoom and rotation are keys on the crop window too, so {@link zoomIn},
+ * {@link zoomOut} and {@link rotate} are real, and {@link getZoom} and
+ * {@link getRotation} read the transform the component writes on the picture. The
+ * wheel, the pinch and the pan are pointer geometry, and are not here.
  *
  * **There is nothing to click.** The cropper renders no buttons: the result
  * arrives on the `(cropped)` output, which emits a `Blob` after each drag end or
@@ -236,6 +241,44 @@ export class WrImageCropperHarness extends ComponentHarness {
     await (modifiers.alt || modifiers.shift ? window_.sendKeys(modifiers, keys) : window_.sendKeys(keys));
   }
 
+  /**
+   * How far the image is zoomed, `1` to `4`.
+   *
+   * Read off the transform the component writes on the picture, like
+   * {@link getCropBox} off the window's inline pixels: the `zoom` model itself is
+   * component API, outside what a harness reaches.
+   */
+  async getZoom(): Promise<number> {
+    return (await this.viewTransform('getZoom')).zoom;
+  }
+
+  /** How far the image is turned, in degrees clockwise. Read like {@link getZoom}. */
+  async getRotation(): Promise<WrImageRotation> {
+    return (await this.viewTransform('getRotation')).rotation;
+  }
+
+  /** Press `+` on the crop window: one zoom step in, around the middle of the window. */
+  async zoomIn(): Promise<void> {
+    await (await this.requireReady('zoomIn')).sendKeys('+');
+  }
+
+  /** Press `-` on the crop window: one zoom step out. */
+  async zoomOut(): Promise<void> {
+    await (await this.requireReady('zoomOut')).sendKeys('-');
+  }
+
+  /**
+   * Press `R` on the crop window, or Shift with `R` for `'ccw'`: a quarter turn.
+   *
+   * A turned image has no measured box in a unit test, so the stage becomes the
+   * box it had, swapped and scaled to fit inside itself. {@link getCropBox} is in
+   * that stage's pixels.
+   */
+  async rotate(direction: 'cw' | 'ccw' = 'cw'): Promise<void> {
+    const window_ = await this.requireReady('rotate');
+    await (direction === 'ccw' ? window_.sendKeys({ shift: true }, 'r') : window_.sendKeys('r'));
+  }
+
   /** The crop window's accessible name. Comes from the catalog. */
   async getCropWindowLabel(): Promise<string | null> {
     return (await this.requireReady('getCropWindowLabel')).getAttribute('aria-label');
@@ -255,6 +298,25 @@ export class WrImageCropperHarness extends ComponentHarness {
     await this.requireReady('getAnnouncement');
     const status = await this.locatorForOptional('[role="status"]')();
     return status ? status.text() : '';
+  }
+
+  /**
+   * The picture's zoom and rotation, from its `transform`. jsdom answers with the
+   * list the component wrote; a browser answers with the matrix it resolved to.
+   */
+  private async viewTransform(method: string): Promise<{ zoom: number; rotation: WrImageRotation }> {
+    await this.requireReady(method);
+    const transform = await (await this.locatorFor('.wr-image-cropper__image')()).getCssValue('transform');
+    const matrix = /^matrix\(([^)]+)\)/.exec(transform)?.[1].split(',').map(Number);
+    if (matrix) {
+      const [a, b] = matrix;
+      const turn = Math.round((Math.atan2(b, a) * 180) / Math.PI / 90) * 90;
+      return { zoom: Math.round(Math.hypot(a, b) * 1000) / 1000, rotation: ((turn + 360) % 360) as WrImageRotation };
+    }
+    return {
+      zoom: Number(/scale\(([\d.]+)\)/.exec(transform)?.[1] ?? 1),
+      rotation: Number(/rotate\((\d+)deg\)/.exec(transform)?.[1] ?? 0) as WrImageRotation,
+    };
   }
 
   private async requireReady(method: string): Promise<TestElement> {

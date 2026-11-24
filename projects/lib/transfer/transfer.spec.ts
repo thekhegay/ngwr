@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form, readonly } from '@angular/forms/signals';
 
+import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTransfer } from './transfer';
@@ -414,6 +415,32 @@ describe('WrTransfer', () => {
     const names = [...root().querySelectorAll('.wr-transfer__head input')].map(i => i.getAttribute('aria-label'));
 
     expect(names).toEqual(['Available — Select all', 'Selected — Select all']);
+  });
+
+  it('composes the search name in the catalog, so a locale can reorder it', async () => {
+    fixture.componentInstance.searchable.set(true);
+    fixture.detectChanges();
+    const names = (): (string | null)[] =>
+      [...root().querySelectorAll('.wr-transfer__search input')].map(i => i.getAttribute('aria-label'));
+    expect(names()).toEqual(['Available - Search', 'Selected - Search']);
+
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideWrI18n({ defaultLocale: 'xx', availableLocales: ['xx'] }),
+        provideWrI18nStaticLoader({ xx: { transfer: { searchAria: '{{search}} in {{title}}' } } }),
+      ],
+    });
+    fixture = TestBed.createComponent(Host);
+    fixture.componentInstance.searchable.set(true);
+    fixture.detectChanges();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(names()).toEqual(['Search in Available', 'Search in Selected']);
   });
 });
 
