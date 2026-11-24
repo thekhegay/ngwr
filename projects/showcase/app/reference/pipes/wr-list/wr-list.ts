@@ -6,6 +6,7 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocCodeFile,
   type DocControl,
   DocPageComponent,
   DocPlaygroundComponent,
@@ -65,11 +66,35 @@ export default class WrListPipePage {
     { kind: 'select', label: 'Style', signal: this.style, options: ['long', 'short', 'narrow'] },
   ];
 
+  protected readonly basicFiles: readonly DocCodeFile[] = [
+    {
+      label: 'HTML',
+      language: 'angular-html',
+      code: `<p>{{ names | wrList }}</p>
+<p>{{ names | wrList: 'disjunction' }}</p>
+<p>{{ parts | wrList: 'unit' }}</p>
+<p>{{ parts | wrList: { type: 'unit', style: 'narrow' } }}</p>`,
+    },
+    {
+      label: 'TS',
+      language: 'angular-ts',
+      code: `import { Component } from '@angular/core';
+
+import { WrList } from 'ngwr/pipes';
+
+@Component({
+  selector: 'app-team',
+  templateUrl: './team.html',
+  imports: [WrList],
+})
+export class Team {
+  protected readonly names = ['Ada', 'Alan', 'Grace'];
+  protected readonly parts = ['5 kg', '200 g'];
+}`,
+    },
+  ];
+
   protected readonly snippets = {
-    basic: `{{ names | wrList }}                  <!-- "Ada, Alan, and Grace" -->
-{{ names | wrList: 'disjunction' }}   <!-- "Ada, Alan, or Grace"  -->
-{{ parts | wrList: 'unit' }}          <!-- "5 kg, 200 g"          -->
-{{ parts | wrList: { type: 'unit', style: 'narrow' } }}`,
     fn: `import { wrFormatList } from 'ngwr/pipes';
 
 wrFormatList(['Ada', 'Alan', 'Grace'], 'en-GB');                // "Ada, Alan and Grace"

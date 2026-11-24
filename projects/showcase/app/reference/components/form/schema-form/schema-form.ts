@@ -20,6 +20,7 @@ import {
   DocApiComponent,
   type DocApiRow,
   DocCodeComponent,
+  type DocCodeFile,
   DocPageComponent,
   DocSectionComponent,
   DocSeeAlsoComponent,
@@ -205,6 +206,43 @@ export default class SchemaFormPage {
       }));
     })
   );
+
+  protected readonly fileLimitsFiles: readonly DocCodeFile[] = [
+    { label: 'HTML', language: 'angular-html', code: `<wr-schema-form [field]="documents" />` },
+    {
+      label: 'TS',
+      language: 'angular-ts',
+      code: `import { Component, signal } from '@angular/core';
+import { form, metadata, schema } from '@angular/forms/signals';
+
+import { WR_FIELD } from 'ngwr/form';
+import { WrSchemaForm } from 'ngwr/schema-form';
+
+interface Documents {
+  scans: readonly File[];
+}
+
+const documentsSchema = schema<Documents>(path => {
+  metadata(path.scans, WR_FIELD, () => ({
+    kind: 'file',
+    multiple: true,
+    accept: '.pdf,image/*',
+    maxSize: 2 * 1024 * 1024, // bytes per file
+    maxFiles: 3,
+    hint: 'Up to 3 files, 2 MB each.',
+  }));
+});
+
+@Component({
+  selector: 'app-documents',
+  templateUrl: './documents.html',
+  imports: [WrSchemaForm],
+})
+export class DocumentsForm {
+  protected readonly documents = form(signal<Documents>({ scans: [] }), documentsSchema);
+}`,
+    },
+  ];
 
   protected save(): void {
     this.employee().markAsTouched();
@@ -445,15 +483,6 @@ const employeeSchema = schema<Employee>(path => {
 });
 
 // <wr-schema-form [field]="employee" [columns]="2" addLabel="Add address" />`,
-
-    fileLimits: `metadata(path.scans, WR_FIELD, () => ({
-  kind: 'file',
-  multiple: true,
-  accept: '.pdf,image/*',
-  maxSize: 2 * 1024 * 1024, // bytes per file
-  maxFiles: 3,
-  hint: 'Up to 3 files, 2 MB each.',
-}));`,
 
     sections: `// The first field states the section; the rest name its title.
 metadata(path.fullName, WR_FIELD, () => ({

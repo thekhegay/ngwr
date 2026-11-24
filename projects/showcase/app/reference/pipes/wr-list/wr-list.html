@@ -9,26 +9,12 @@
     title="Basic usage"
     description="`join(', ')` drops the last word and is wrong in every language. The pipe joins through `Intl.ListFormat` in `LOCALE_ID`."
   >
-    <ngwr-doc-code [code]="snippets.basic" language="angular-html" />
-    <ngwr-doc-snippet code="">
-      <!-- Keep the <tbody>: without it hydration fails (NG0501). -->
-      <div class="ngwr-table">
-        <table>
-          <tbody>
-            <tr>
-              <th scope="row"><code>wrList</code></th>
-              <td>{{ names | wrList }}</td>
-            </tr>
-            <tr>
-              <th scope="row"><code>wrList: 'disjunction'</code></th>
-              <td>{{ names | wrList: 'disjunction' }}</td>
-            </tr>
-            <tr>
-              <th scope="row"><code>wrList: 'unit'</code></th>
-              <td>{{ parts | wrList: 'unit' }}</td>
-            </tr>
-          </tbody>
-        </table>
+    <ngwr-doc-snippet [files]="basicFiles">
+      <div class="ngwr-demo-lines">
+        <p>{{ names | wrList }}</p>
+        <p>{{ names | wrList: 'disjunction' }}</p>
+        <p>{{ parts | wrList: 'unit' }}</p>
+        <p>{{ parts | wrList: { type: 'unit', style: 'narrow' } }}</p>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
