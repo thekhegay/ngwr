@@ -120,6 +120,19 @@ function fitWithin(size: SizePx, box: SizePx): SizePx {
 }
 
 /**
+ * The whole source pixels between two edges on one axis of an image `size` pixels long:
+ * `[start, length]`. The edges are rounded and kept on the image. A span that is not
+ * empty but rounds to nothing, a crop thinner than a pixel, takes the one pixel it lies
+ * in: a zero-sized source rect draws nothing at all.
+ */
+function pixelSpan(from: number, to: number, size: number): [number, number] {
+  const start = wrClamp(Math.round(from), 0, size);
+  const end = wrClamp(Math.round(to), 0, size);
+  if (end > start || !(to > from) || size < 1) return [start, end - start];
+  return [wrClamp(Math.floor((from + to) / 2), 0, size - 1), 1];
+}
+
+/**
  * Where the zoomed image's top-left corner sits on the stage. `center` is the point of
  * the image under the middle of the stage, as a fraction of the image, so it survives a
  * resize and a zoom unchanged; the clamp is what keeps the image covering the stage.
@@ -309,11 +322,12 @@ export class WrImageCropper {
   protected readonly imgEl = viewChild.required<ElementRef<HTMLImageElement>>('img');
 
   /**
-   * A blank `<canvas>` with the source's dimensions swapped. While the image is turned it
-   * takes the `<img>`'s place in the layout, so the stylesheet fits the turned image to
-   * the container exactly as it fits the upright one. A canvas because it has a natural
-   * size the moment it is rendered: nothing to fetch, to wait for, or for a content
-   * security policy to refuse. Never drawn on, so it holds no pixels.
+   * A blank `<canvas>` with the source's dimensions, swapped while the image is turned.
+   * Once the image has been measured it holds the stage open in the image's place, so the
+   * stylesheet fits it to the container exactly as it fitted the image, and the image is
+   * free to be zoomed, panned and turned over it. A canvas because it has a natural size
+   * the moment it is rendered: nothing to fetch, to wait for, or for a content security
+   * policy to refuse. Never drawn on, so it holds no pixels.
    */
   private readonly sizerEl = viewChild<ElementRef<HTMLCanvasElement>>('sizer');
 
@@ -387,8 +401,8 @@ export class WrImageCropper {
 
   private readonly pan = computed(() => panFor(this.center(), this.zoomLevel(), this.display()));
 
-  /** The `<img>` leaves the layout once there is a turned stage for the sizer to hold open. */
-  protected readonly parked = computed(() => this.turned() && this.display().w > 0);
+  /** Whether the image has a measured stage, and so has left the layout to the sizer. */
+  protected readonly measured = computed(() => this.display().w > 0);
 
   /** Whether the turned sizer measured nothing, as in a test or a hidden container. */
   private readonly unmeasured = signal(false);
@@ -398,15 +412,18 @@ export class WrImageCropper {
    * it from. Only then: written while the sizer can be measured, it would cap the very
    * box being measured.
    */
-  protected readonly stageBox = computed(() => (this.parked() && this.unmeasured() ? this.display() : null));
+  protected readonly stageBox = computed(() =>
+    this.turned() && this.measured() && this.unmeasured() ? this.display() : null
+  );
 
   /**
-   * The picture the user sees: a second `<img>` laid over the stage and transformed. The
-   * first one cannot carry the transform, because its box is what the stage is measured
-   * from and `getBoundingClientRect()` reports a transformed box.
+   * How the `<img>` is laid over the stage once it is measured: its own size at zoom 1,
+   * and the transform that zooms, pans and turns it. The one decoded image is both what
+   * the user sees and what `toCanvas` draws, so the two cannot differ.
    */
   protected readonly view = computed(() => {
     const d = this.display();
+    if (d.w === 0 || d.h === 0) return null;
     const p = this.pan();
     const zoom = this.zoomLevel();
     const angle = this.laidAngle();
@@ -428,13 +445,16 @@ export class WrImageCropper {
   /** Currently active drag: a handle, the window, or the image itself. */
   private active: WrCropHandle | 'pan' | null = null;
   private startPointer: { x: number; y: number } = { x: 0, y: 0 };
+
+  /** Where the live drag's pointer was last seen: what a drag is rebased to in `onResize`. */
+  private lastPointer: PointPx = { x: 0, y: 0 };
   private startRect: RectPx = { x: 0, y: 0, w: 0, h: 0 };
 
   /** Where the image sat when a pan drag began. */
   private startPan: PointPx = { x: 0, y: 0 };
 
   /** Every pointer that is down on the stage, by id: two of them make a pinch. */
-  private readonly pointers = new Map<number, PointPx>();
+  private readonly pointers = new Map<number, PointPx & { type: string }>();
 
   /**
    * The live pinch: the two pointers it belongs to, the distance between them and the
@@ -512,14 +532,9 @@ export class WrImageCropper {
         x = [left, right];
         y = [top, bottom];
     }
-    const x0 = wrClamp(Math.round(x[0]), 0, n.w);
-    const y0 = wrClamp(Math.round(y[0]), 0, n.h);
-    return {
-      x: x0,
-      y: y0,
-      width: wrClamp(Math.round(x[1]), 0, n.w) - x0,
-      height: wrClamp(Math.round(y[1]), 0, n.h) - y0,
-    };
+    const [x0, width] = pixelSpan(x[0], x[1], n.w);
+    const [y0, height] = pixelSpan(y[0], y[1], n.h);
+    return { x: x0, y: y0, width, height };
   });
 
   /**
@@ -714,17 +729,22 @@ export class WrImageCropper {
     // Nothing measured yet, or measured and then dropped by `resetGeometry` while a
     // new `src` loads. There is no crop to carry over, and the load will measure.
     if (previous.w === 0 || previous.h === 0) return;
-    // Whichever element is holding the stage open.
+    // The sizer holds the stage open. The image cannot be asked: it is transformed, and
+    // `getBoundingClientRect()` reports a transformed box.
     const turned = this.turned();
-    const el = turned ? this.sizerEl()?.nativeElement : this.imgEl().nativeElement;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    // A hidden image (a closed tab, `display: none`) reports zeros. Scaling by that
-    // would collapse the crop and there would be nothing to scale back from, so hold
-    // the last real box until it is shown again.
-    if (rect.width === 0 || rect.height === 0) {
-      if (turned) this.unmeasured.set(true);
-      return;
+    let rect = this.sizerEl()?.nativeElement.getBoundingClientRect();
+    if (!rect || rect.width === 0 || rect.height === 0) {
+      // A hidden sizer (a closed tab, `display: none`) reports zeros, and then so does
+      // the image. Scaling by that would collapse the crop and there would be nothing to
+      // scale back from, so hold the last real box until it is shown again.
+      if (turned) {
+        this.unmeasured.set(true);
+        return;
+      }
+      // A unit test has no layout and gives the image a box by hand, as the harness
+      // tells it to. Upright, that box is the stage's.
+      rect = this.imgEl().nativeElement.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
     }
     if (turned && this.unmeasured()) {
       // The sizer has a box again, but one capped by the size written on the stage for
@@ -741,10 +761,13 @@ export class WrImageCropper {
     this.display.set({ w: rect.width, h: rect.height });
     this.cropDisplay.set({ x: c.x * sx, y: c.y * sy, w: c.w * sx, h: c.h * sy });
     // A live drag measures from where it began, in the pixels of the stage as it was.
-    // Left alone, its next move would put the old size back.
-    const r = this.startRect;
-    this.startRect = { x: r.x * sx, y: r.y * sy, w: r.w * sx, h: r.h * sy };
-    this.startPan = { x: this.startPan.x * sx, y: this.startPan.y * sy };
+    // It begins again here, from the rescaled crop and the pointer's last position, so
+    // its next move neither puts the old size back nor replays the distance covered.
+    if (this.active) {
+      this.startRect = { ...this.cropDisplay() };
+      this.startPan = this.pan();
+      this.startPointer = { ...this.lastPointer };
+    }
   }
 
   /**
@@ -870,12 +893,15 @@ export class WrImageCropper {
     // Any pointerdown used to start a drag, so the right button moved the crop window and
     // a second finger could take over a drag already in progress.
     if (event.button !== 0 || !event.isPrimary) return;
+    this.track(event);
+    // A mouse pressed while two fingers pinch is not part of that gesture, and starts none.
+    if (this.pinch) return;
     event.preventDefault();
     event.stopPropagation();
-    this.track(event);
     this.active = handle;
     this.pointerId = event.pointerId;
     this.startPointer = { x: event.clientX, y: event.clientY };
+    this.lastPointer = { ...this.startPointer };
     this.startRect = { ...this.cropDisplay() };
     this.captureTarget = event.currentTarget as HTMLElement;
     this.captureTarget.setPointerCapture(event.pointerId);
@@ -913,6 +939,7 @@ export class WrImageCropper {
    */
   protected onPointerMove(event: PointerEvent): void {
     if (!this.active || this.active === 'pan' || event.pointerId !== this.pointerId) return;
+    this.lastPointer = { x: event.clientX, y: event.clientY };
     const dx = event.clientX - this.startPointer.x;
     const dy = event.clientY - this.startPointer.y;
     if (this.active === 'move') {
@@ -954,16 +981,21 @@ export class WrImageCropper {
   // The stage: pan, pinch and the wheel
 
   /**
-   * Remember a pointer that went down on the stage. A primary pointer is the first one
-   * down by definition, so whatever is still listed then was never seen lifting (it left
-   * the stage first) and is dropped rather than left to pair up into a pinch.
+   * Remember a pointer that went down on the stage. A primary pointer is the first one of
+   * its type down by definition, so whatever of that type is still listed was never seen
+   * lifting (it left the stage first) and is dropped rather than left to pair up into a
+   * pinch. Only of that type: a mouse is primary too, and pressing it must not end a pinch
+   * two fingers are still holding.
    */
   private track(event: PointerEvent): void {
     if (event.isPrimary) {
-      this.pointers.clear();
-      this.pinch = null;
+      for (const [id, pointer] of this.pointers) {
+        if (pointer.type !== event.pointerType) continue;
+        this.pointers.delete(id);
+        if (this.pinch?.ids.includes(id)) this.pinch = null;
+      }
     }
-    this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    this.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType });
   }
 
   /**
@@ -978,14 +1010,17 @@ export class WrImageCropper {
   protected onStagePointerDown(event: PointerEvent): void {
     if (event.button !== 0 || this.display().w === 0) return;
     this.track(event);
-    if (this.pointers.size === 2) {
+    // A pinch belongs to its two pointers; any other press waits for it to end.
+    if (this.pinch) return;
+    const same = [...this.pointers].filter(([, pointer]) => pointer.type === event.pointerType);
+    if (same.length === 2) {
       event.preventDefault();
-      const [a, b] = [...this.pointers.values()];
+      const [[, a], [, b]] = same;
       this.active = null;
       this.pointerId = null;
       this.captureTarget = null;
       this.overhang = NO_SIDES;
-      const ids = [...this.pointers.keys()] as [number, number];
+      const ids: [number, number] = [same[0][0], same[1][0]];
       this.pinch = { ids, distance: Math.hypot(a.x - b.x, a.y - b.y) || 1, zoom: this.zoomLevel() };
       return;
     }
@@ -995,6 +1030,7 @@ export class WrImageCropper {
     this.active = 'pan';
     this.pointerId = event.pointerId;
     this.startPointer = { x: event.clientX, y: event.clientY };
+    this.lastPointer = { ...this.startPointer };
     this.startPan = this.pan();
     this.captureTarget = event.currentTarget as HTMLElement;
     this.captureTarget.setPointerCapture(event.pointerId);
@@ -1016,6 +1052,7 @@ export class WrImageCropper {
       return;
     }
     if (this.active !== 'pan' || event.pointerId !== this.pointerId) return;
+    this.lastPointer = { x: event.clientX, y: event.clientY };
     this.setPan(
       this.startPan.x + event.clientX - this.startPointer.x,
       this.startPan.y + event.clientY - this.startPointer.y
@@ -1051,32 +1088,46 @@ export class WrImageCropper {
     if (zoomed) event.preventDefault();
   }
 
-  /** A viewport point in stage coordinates. The `<img>` sits at the stage's top-left corner. */
+  /**
+   * The stage's top-left corner in the viewport: the sizer's, which holds the stage open.
+   * A unit test has no layout and gives the image a box instead, so a sizer with no box
+   * hands the question to the image.
+   */
+  private stageOrigin(): { left: number; top: number } {
+    const box = this.sizerEl()?.nativeElement.getBoundingClientRect();
+    return box && box.width > 0 ? box : this.imgEl().nativeElement.getBoundingClientRect();
+  }
+
+  /** A viewport point in stage coordinates. */
   private onStage(clientX: number, clientY: number): PointPx {
-    const box = this.imgEl().nativeElement.getBoundingClientRect();
+    const box = this.stageOrigin();
     return { x: clientX - box.left, y: clientY - box.top };
   }
 
-  /** Set `zoom`, keeping the image point under `at` where it is. Answers whether it changed. */
+  /**
+   * Set `zoom`, keeping the image point under `at` where it is. Answers whether it changed.
+   *
+   * The pan goes first. `zoom` is a model and emits inside `set()`, so a listener that
+   * reads the crop there must find the pan that belongs to the zoom it was just told.
+   */
   private zoomAt(zoom: number, at: PointPx): boolean {
     const from = this.zoomLevel();
     const to = coerceZoom(zoom);
     if (to === from) return false;
-    const d = this.display();
     const pan = this.pan();
-    const ux = (at.x - pan.x) / from;
-    const uy = (at.y - pan.y) / from;
+    this.setPan(at.x - ((at.x - pan.x) / from) * to, at.y - ((at.y - pan.y) / from) * to, to);
     this.zoom.set(to);
-    if (d.w > 0 && d.h > 0) this.setPan(at.x - ux * to, at.y - uy * to);
     return true;
   }
 
-  /** Move the image's top-left corner to `(x, y)` on the stage, as near as the stage allows. */
-  private setPan(x: number, y: number): void {
+  /**
+   * Move the image's top-left corner to `(x, y)` on the stage, as near as the stage
+   * allows at `zoom`: the current one, or the one about to be set.
+   */
+  private setPan(x: number, y: number, zoom = this.zoomLevel()): void {
     const d = this.display();
     // No stage, no pan: dividing by its size below would store a centre that is not a number.
     if (d.w === 0 || d.h === 0) return;
-    const zoom = this.zoomLevel();
     const px = wrClamp(x, d.w - zoom * d.w, 0);
     const py = wrClamp(y, d.h - zoom * d.h, 0);
     this.center.set({ x: (d.w / 2 - px) / (zoom * d.w), y: (d.h / 2 - py) / (zoom * d.h) });
@@ -1099,9 +1150,9 @@ export class WrImageCropper {
     }, EMIT_DELAY);
   }
 
-  /** The stage's box in the viewport: the `<img>`'s corner, and the stage's own size. */
+  /** The stage's box in the viewport: its corner, and its own size. */
   private stageRect(): { left: number; top: number; right: number; bottom: number } {
-    const box = this.imgEl().nativeElement.getBoundingClientRect();
+    const box = this.stageOrigin();
     const d = this.display();
     return { left: box.left, top: box.top, right: box.left + d.w, bottom: box.top + d.h };
   }
