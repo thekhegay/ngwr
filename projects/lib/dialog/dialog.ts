@@ -33,7 +33,7 @@ import {
   wrFocusOverlay,
   wrFollowDirection,
 } from 'ngwr/overlay';
-import { wrIsComposing, wrToClassList } from 'ngwr/utils';
+import { wrIsComposing, wrSetAttribute, wrToClassList } from 'ngwr/utils';
 
 import { WrDialogConfirm } from './confirm/dialog-confirm';
 import type { WrDialogConfirmData } from './confirm/dialog-confirm-data';
@@ -198,13 +198,11 @@ export class WrDialog {
       const labelSync = afterEveryRender(
         () => {
           const titleEl = host.querySelector<HTMLElement>('[wrDialogTitle], [wr-dialog-title]');
-          if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
-          else host.removeAttribute('aria-labelledby');
+          wrSetAttribute(host, 'aria-labelledby', titleEl?.id);
           tabTitle?.set((titleEl?.textContent ?? '').replace(/\s+/g, ' ').trim());
           if (role !== 'alertdialog') return;
           const contentEl = host.querySelector<HTMLElement>('[wrDialogContent], [wr-dialog-content]');
-          if (contentEl?.id) host.setAttribute('aria-describedby', contentEl.id);
-          else host.removeAttribute('aria-describedby');
+          wrSetAttribute(host, 'aria-describedby', contentEl?.id);
         },
         { injector: this.parentInjector }
       );

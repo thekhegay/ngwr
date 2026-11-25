@@ -148,6 +148,19 @@ describe('WrDialog', () => {
     expect(document.getElementById(labelledBy!)?.textContent?.trim()).toBe('Delete item');
   });
 
+  it('does not rewrite aria-labelledby on renders that change nothing', async () => {
+    await open();
+    const set = vi.spyOn(panel()!, 'setAttribute');
+    const remove = vi.spyOn(panel()!, 'removeAttribute');
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(set).not.toHaveBeenCalledWith('aria-labelledby', expect.anything());
+    expect(remove).not.toHaveBeenCalledWith('aria-labelledby');
+  });
+
   it('keeps the id of a title that has one, and names the dialog by it', async () => {
     @Component({ imports: [WrDialogTitle], template: `<h2 wrDialogTitle id="my-title">Own id</h2>` })
     class OwnId {}

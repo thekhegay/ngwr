@@ -8,6 +8,39 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Directive, ElementRef, NgZone, inject, output } from '@angular/core';
 
+type MouseDownHandler = (event: MouseEvent) => void;
+
+interface Shared {
+  readonly handlers: Set<MouseDownHandler>;
+  readonly listener: MouseDownHandler;
+}
+
+const shared = new WeakMap<Document, Shared>();
+
+/** One capture `mousedown` listener per document, however many directives watch it. */
+function listenMouseDown(doc: Document, handler: MouseDownHandler): () => void {
+  let entry = shared.get(doc);
+  if (!entry) {
+    const handlers = new Set<MouseDownHandler>();
+    // A copy, since a handler may destroy a directive while the set is walked; one
+    // removed that way is skipped, as the DOM skips a listener removed mid-dispatch.
+    const listener: MouseDownHandler = event => {
+      for (const h of [...handlers]) if (handlers.has(h)) h(event);
+    };
+    entry = { handlers, listener };
+    shared.set(doc, entry);
+    doc.addEventListener('mousedown', listener, true);
+  }
+  const { handlers, listener } = entry;
+  handlers.add(handler);
+  return () => {
+    handlers.delete(handler);
+    if (handlers.size) return;
+    shared.delete(doc);
+    doc.removeEventListener('mousedown', listener, true);
+  };
+}
+
 /**
  * Fires `(wrClickOutside)` when a pointer event lands outside the host
  * element. Useful for closing custom poppers / menus.
@@ -34,16 +67,13 @@ export class WrClickOutside {
     // Listen outside Angular to avoid CD on every page click; re-enter
     // only when the event lands outside the host.
     this.zone.runOutsideAngular(() => {
-      const handler = (event: MouseEvent): void => {
+      const stop = listenMouseDown(this.doc, (event: MouseEvent): void => {
         const target = event.target as Node | null;
         if (target && !this.host.nativeElement.contains(target)) {
           this.zone.run(() => this.wrClickOutside.emit(event));
         }
-      };
-      this.doc.addEventListener('mousedown', handler, true);
-      this.destroyRef.onDestroy(() => {
-        this.doc.removeEventListener('mousedown', handler, true);
       });
+      this.destroyRef.onDestroy(stop);
     });
   }
 }

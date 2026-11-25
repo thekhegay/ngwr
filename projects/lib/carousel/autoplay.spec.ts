@@ -86,7 +86,7 @@ describe('WrCarousel autoplay controls', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: PLATFORM_ID, useValue: 'browser' },
-        { provide: WrPlatform, useValue: { prefersReducedMotion: reduced.asReadonly() } },
+        { provide: WrPlatform, useValue: { prefersReducedMotion: reduced.asReadonly(), pageVisible: signal(true) } },
       ],
     });
     fixture = TestBed.createComponent(Host);

@@ -201,6 +201,19 @@ describe('WrTextarea', () => {
     expect(native().style.overflowY).toBe('hidden');
   });
 
+  it('reads scrollHeight once to size the box, after the guard read', async () => {
+    const el = native();
+    const read = vi.fn(() => 60);
+    layOut(el, { width: 200, scroll: 60 });
+    Object.defineProperty(el, 'scrollHeight', { configurable: true, get: read });
+    fixture.componentInstance.autosize.set(true);
+    await settle();
+
+    // One for the "is it rendered" guard, one for the height and the overflow together.
+    expect(read).toHaveBeenCalledTimes(2);
+    expect(el.style.height).toBe('60px');
+  });
+
   it('gives height back when autosize is switched off', async () => {
     // Otherwise the field is frozen at whatever autosize last computed and `rows`
     // silently stops meaning anything — the input looks like it did nothing.

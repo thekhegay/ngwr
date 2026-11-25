@@ -61,6 +61,22 @@ describe('WrClickOutside', () => {
     vi.restoreAllMocks();
   });
 
+  it('shares one capture mousedown listener across instances and drops it with the last', () => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    const add = vi.spyOn(document, 'addEventListener');
+    const remove = vi.spyOn(document, 'removeEventListener');
+    const two = TestBed.createComponent(Host);
+    two.detectChanges();
+    const mousedowns = (spy: typeof add): number => spy.mock.calls.filter(([type]) => type === 'mousedown').length;
+
+    // Two directives on the page, one listener.
+    expect(mousedowns(add)).toBe(1);
+    two.destroy();
+    expect(mousedowns(remove)).toBe(1);
+    fixture = TestBed.createComponent(Host);
+  });
+
   it('stays quiet for a press on the host itself', () => {
     dispatch('mousedown', popup());
     expect(seen()).toHaveLength(0);

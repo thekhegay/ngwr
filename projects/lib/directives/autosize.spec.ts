@@ -74,6 +74,17 @@ describe('WrAutosize', () => {
     expect(bare().style.resize).toBe('none');
   });
 
+  it('reads scrollHeight once per measurement', () => {
+    const el = sized();
+    const read = vi.fn(() => 90);
+    Object.defineProperty(el, 'scrollHeight', { configurable: true, get: read });
+    el.value = 'typed';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(height(el)).toBe(90);
+  });
+
   it('writes a height on the first render, before anyone has typed', () => {
     // The floor: one row of 20px line-height, no padding, no border. jsdom
     // reports `scrollHeight: 0`, so this IS the clamp doing its job rather than a

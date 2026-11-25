@@ -28,8 +28,7 @@
   role="group"
   [attr.aria-roledescription]="resolvedRoledescription()"
   [attr.aria-label]="resolvedAriaLabel()"
-  (touchstart)="onSwipeStart($event)"
-  (touchmove)="onSwipeMove($event)"
+  (wrInView)="inView.set($event)"
   (touchend)="onSwipeEnd($event, viewport)"
   (touchcancel)="onSwipeCancel()"
 >

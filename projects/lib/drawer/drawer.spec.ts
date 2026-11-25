@@ -144,6 +144,24 @@ describe('WrDrawer', () => {
     titled.destroy();
   });
 
+  it('does not rewrite aria-labelledby on renders that change nothing', async () => {
+    TestBed.resetTestingModule();
+    const titled = TestBed.createComponent(TitleHost);
+    titled.detectChanges();
+    titled.componentInstance.open.set(true);
+    await titled.whenStable();
+
+    const set = vi.spyOn(panel()!, 'setAttribute');
+    const remove = vi.spyOn(panel()!, 'removeAttribute');
+    titled.detectChanges();
+    await titled.whenStable();
+    titled.detectChanges();
+
+    expect(set).not.toHaveBeenCalledWith('aria-labelledby', expect.anything());
+    expect(remove).not.toHaveBeenCalledWith('aria-labelledby');
+    titled.destroy();
+  });
+
   it('takes itself back out of the document on close', () => {
     open();
     fixture.componentInstance.open.set(false);
