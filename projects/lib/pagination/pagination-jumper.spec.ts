@@ -50,6 +50,15 @@ describe('WrPagination jumper', () => {
     expect(field()!.value).toBe('');
   });
 
+  it('cancels the Enter keydown so an enclosing form is not submitted', () => {
+    const { fixture, field } = setup();
+    field()!.value = '4';
+    const event = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true });
+    field()!.dispatchEvent(event);
+    fixture.detectChanges();
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it('commits on blur', () => {
     const { fixture, field, host } = setup();
     field()!.value = '3';

@@ -703,6 +703,8 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
       ref.setInput('max', this.maxDate());
       ref.setInput('dateFilter', this.dateFilter());
       ref.setInput('granularity', this.period() ?? 'day');
+      ref.setInput('showToday', this.showToday());
+      ref.setInput('readonly', this.readonly());
     });
 
     effect(() => {
@@ -1096,6 +1098,7 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
     ref.setInput('max', this.maxDate());
     ref.setInput('dateFilter', this.dateFilter());
     ref.setInput('showToday', this.showToday());
+    ref.setInput('readonly', this.readonly());
     ref.setInput('autoFocus', this.autoFocusPanel);
     ref.instance.date.subscribe(next => {
       if (!next) return;

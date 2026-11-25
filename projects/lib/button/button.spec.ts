@@ -879,3 +879,26 @@ describe('WrButton pressed', () => {
     expect(get('link').classList.contains('wr-btn--pressed')).toBe(false);
   });
 });
+
+describe('WrButton pressed with a consumer aria-pressed', () => {
+  @Component({
+    imports: [WrButton],
+    template: `<button type="button" wr-btn id="b" aria-pressed="mixed" [pressed]="on()">B</button>`,
+  })
+  class MixedHost {
+    readonly on = signal<boolean | undefined>(undefined);
+  }
+
+  it('gives the consumer value back when toggle mode ends', () => {
+    const fixture = TestBed.createComponent(MixedHost);
+    fixture.detectChanges();
+    const el = (fixture.nativeElement as HTMLElement).querySelector('#b')!;
+    expect(el.getAttribute('aria-pressed')).toBe('mixed');
+    fixture.componentInstance.on.set(true);
+    fixture.detectChanges();
+    expect(el.getAttribute('aria-pressed')).toBe('true');
+    fixture.componentInstance.on.set(undefined);
+    fixture.detectChanges();
+    expect(el.getAttribute('aria-pressed')).toBe('mixed');
+  });
+});

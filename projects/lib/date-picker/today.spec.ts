@@ -9,12 +9,19 @@ import { WrDatePicker } from './date-picker';
 
 @Component({
   imports: [WrDatePicker],
-  template: `<wr-date-picker [showToday]="show()" [(value)]="picked" [max]="max()" format="dd.MM.yyyy" />`,
+  template: `<wr-date-picker
+    [showToday]="show()"
+    [(value)]="picked"
+    [max]="max()"
+    [readonly]="readonly()"
+    format="dd.MM.yyyy"
+  />`,
 })
 class Host {
   readonly show = signal(true);
   readonly picked = signal<Date | null>(new Date(2020, 0, 15));
   readonly max = signal<Date | undefined>(undefined);
+  readonly readonly = signal(false);
 }
 
 describe('WrDatePicker showToday', () => {
@@ -58,5 +65,28 @@ describe('WrDatePicker showToday', () => {
     fixture.detectChanges();
     open();
     expect(button()!.disabled).toBe(true);
+  });
+
+  it('follows showToday while the panel is open', () => {
+    const { fixture, open, button } = setup();
+    open();
+    expect(button()).not.toBeNull();
+    fixture.componentInstance.show.set(false);
+    fixture.detectChanges();
+    expect(button()).toBeNull();
+    fixture.componentInstance.show.set(true);
+    fixture.detectChanges();
+    expect(button()).not.toBeNull();
+  });
+
+  it('disables the button while readonly, also when it changes with the panel open', () => {
+    const { fixture, open, button } = setup();
+    fixture.componentInstance.readonly.set(true);
+    fixture.detectChanges();
+    open();
+    expect(button()!.disabled).toBe(true);
+    fixture.componentInstance.readonly.set(false);
+    fixture.detectChanges();
+    expect(button()!.disabled).toBe(false);
   });
 });
