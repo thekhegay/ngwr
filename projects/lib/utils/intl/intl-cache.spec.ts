@@ -42,4 +42,25 @@ describe('wrIntl cache', () => {
 
     expect(wrIntlNumberFormat('en', hidden).format(0.5)).toBe('50%');
   });
+
+  it('builds from the same reading of a getter it keys on', () => {
+    let reads = 0;
+    const flipping: Intl.NumberFormatOptions = {
+      get style() {
+        return reads++ === 0 ? 'percent' : 'decimal';
+      },
+    };
+
+    wrIntlNumberFormat('fr', flipping);
+
+    expect(wrIntlNumberFormat('fr', { style: 'percent' }).format(0.5)).toContain('%');
+    expect(wrIntlNumberFormat('fr', { style: 'decimal' }).format(0.5)).toBe('0,5');
+  });
+
+  it('keys on the options themselves, not on what a toJSON says', () => {
+    wrIntlNumberFormat('en', {});
+    const masked = { style: 'percent', toJSON: () => ({}) } as Intl.NumberFormatOptions;
+
+    expect(wrIntlNumberFormat('en', masked).format(0.5)).toBe('50%');
+  });
 });
