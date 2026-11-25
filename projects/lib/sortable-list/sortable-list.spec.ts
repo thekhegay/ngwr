@@ -7,7 +7,7 @@ import { By } from '@angular/platform-browser';
 
 import { Subject } from 'rxjs';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSortableItem } from './sortable-item';
 import { WrSortableList } from './sortable-list';
@@ -197,6 +197,18 @@ describe('WrSortableList', () => {
       expect(key(0, 'ArrowDown')).toBe(false);
       expect(labels()).toEqual(['One', 'Two', 'Three']);
       expect(status()).toBe('');
+    });
+
+    it('asks for a visible ring on the row a move lands on', async () => {
+      const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+      try {
+        key(0, ' ');
+        key(0, 'ArrowDown');
+        await fixture.whenStable();
+        expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      } finally {
+        focus.mockRestore();
+      }
     });
 
     it('picks up, moves and drops — one reorder for the whole gesture', async () => {

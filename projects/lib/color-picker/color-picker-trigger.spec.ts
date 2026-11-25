@@ -89,6 +89,15 @@ describe('[wrColorPickerTrigger] focus', () => {
     expect(document.activeElement).toBe(surface());
   });
 
+  it('asks for a visible ring on the surface Tab walks to', () => {
+    open();
+    const focus = vi.spyOn(surface()!, 'focus');
+
+    trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+  });
+
   it('moves focus onto the surface on open under wrColorPickerTriggerAutoFocus="first-tabbable"', async () => {
     // jsdom lays nothing out, and the CDK passes over a control with no box.
     const boxes = vi

@@ -637,6 +637,19 @@ describe('WrWindow features', () => {
       key(buttons()[3], { key: 'Home' });
       expect(document.activeElement).toBe(buttons()[0]);
     });
+
+    it('asks for a visible ring on the tab an arrow moves to', () => {
+      manager.open(Body, { id: 'a', title: 'A', os: 'windows', autoFocus: false });
+      manager.open(Body, { id: 'b', title: 'B', os: 'windows', autoFocus: false });
+      TestBed.tick();
+      const buttons = [...document.querySelectorAll<HTMLElement>('.wr-window-taskbar__rail button')];
+      buttons[0].focus();
+      const focus = vi.spyOn(buttons[1], 'focus');
+
+      key(buttons[0], { key: 'ArrowRight' });
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    });
   });
 
   describe('the taskbar folding what does not fit', () => {

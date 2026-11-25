@@ -308,7 +308,7 @@ export class WrColorPickerTrigger {
     if (!surface || (event as KeyboardEvent).shiftKey || event.defaultPrevented) return;
     if (event.target !== this.host.nativeElement) return;
     event.preventDefault();
-    surface.focus();
+    surface.focus({ focusVisible: true });
   }
 
   private surface(): HTMLElement | null {

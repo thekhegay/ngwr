@@ -962,7 +962,7 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
       pane?.querySelector<HTMLElement>('.wr-calendar__day--focused:not([disabled])') ??
       pane?.querySelector<HTMLElement>('.wr-calendar__chip[tabindex="0"]') ??
       pane?.querySelector<HTMLElement>('.wr-time-picker__input');
-    target?.focus();
+    target?.focus({ focusVisible: true });
   }
 
   /** Hand focus back to whatever opened the panel, if it is still on the page. */

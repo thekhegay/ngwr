@@ -545,6 +545,17 @@ describe('WrDateRangePicker', () => {
       expect(document.activeElement).toBe(ring());
     });
 
+    it('asks for a visible ring on the day an arrow moves to', async () => {
+      trigger().focus();
+      press();
+      await fixture.whenStable();
+      const focus = vi.spyOn(ring()!, 'focus');
+
+      trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    });
+
     it('moves focus into the panel on a pointer press under autoFocus', async () => {
       fixture.componentInstance.autoFocus.set(true);
       fixture.detectChanges();

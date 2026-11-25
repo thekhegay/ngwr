@@ -630,7 +630,7 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
     }
     event.preventDefault();
     this.rovingIndex.set(next);
-    buttons[next].focus();
+    buttons[next].focus({ focusVisible: true });
   }
 
   /** `touch` once focus leaves the whole control — not when it moves between its own parts. */

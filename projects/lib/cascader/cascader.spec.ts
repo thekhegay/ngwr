@@ -173,6 +173,17 @@ describe('WrCascader', () => {
       return event;
     };
 
+    it('asks for a visible ring on the option an arrow moves to', async () => {
+      await openOnly();
+      const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+      try {
+        press('ArrowDown');
+        expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      } finally {
+        focus.mockRestore();
+      }
+    });
+
     it('clears from the keyboard — Backspace on the closed trigger is the ×', () => {
       fixture.componentInstance.picked.set(['eu', 'de', 'ber']);
       fixture.detectChanges();

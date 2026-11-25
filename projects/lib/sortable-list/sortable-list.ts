@@ -575,7 +575,7 @@ export class WrSortableList<T = unknown> implements WrSortableListContext {
         // sweep-and-sort `indexOf` runs; after it, index `to` is the row the
         // move actually put there.
         this.sortRows();
-        this.rows[to]?.host.nativeElement.focus();
+        this.rows[to]?.host.nativeElement.focus({ focusVisible: true });
         this.restoringFocus = false;
       },
       { injector: this.injector }

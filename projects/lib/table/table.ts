@@ -2730,7 +2730,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const entry = this.treeRows()[index];
     if (!entry) return;
     this.activeRow.set({ key: this.rowKeyOf(entry.row) });
-    this.rowEls()[index]?.nativeElement.focus();
+    this.rowEls()[index]?.nativeElement.focus({ focusVisible: true });
   }
 
   // --- Inline editing ---------------------------------------------------------
@@ -2880,7 +2880,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       default:
         return false;
     }
-    target?.focus();
+    target?.focus({ focusVisible: true });
     return true;
   }
 
@@ -2898,7 +2898,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       this.endEdit(true, true);
     } else if (event.key === WR_KEYS.TAB) {
       this.endEdit(true, true);
-      this.editableSibling(edit, event.shiftKey ? -1 : 1)?.focus();
+      this.editableSibling(edit, event.shiftKey ? -1 : 1)?.focus({ focusVisible: true });
     } else {
       return;
     }
