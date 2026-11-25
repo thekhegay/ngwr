@@ -378,6 +378,7 @@ export const wrTr: WrI18nCatalog = {
     label: 'Karusel',
     goToSlide: '{{index}}. slayda git',
     position: 'Slayt {{current}}, toplam {{total}}',
+    slidePosition: '{{total}} içinden {{current}}',
     prev: 'Önceki slayt',
     next: 'Sonraki slayt',
     pagination: 'Karusel sayfalaması',

@@ -369,6 +369,7 @@ export const wrPt: WrI18nCatalog = {
     label: 'Carrossel',
     goToSlide: 'Ir para o slide {{index}}',
     position: 'Slide {{current}} de {{total}}',
+    slidePosition: '{{current}} de {{total}}',
     prev: 'Slide anterior',
     next: 'Slide seguinte',
     pagination: 'Paginação do carrossel',

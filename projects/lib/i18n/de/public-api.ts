@@ -376,6 +376,7 @@ export const wrDe: WrI18nCatalog = {
     label: 'Karussell',
     goToSlide: 'Zu Folie {{index}} wechseln',
     position: 'Folie {{current}} von {{total}}',
+    slidePosition: '{{current}} von {{total}}',
     prev: 'Vorherige Folie',
     next: 'Nächste Folie',
     pagination: 'Karussell-Navigation',

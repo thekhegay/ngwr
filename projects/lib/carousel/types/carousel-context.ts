@@ -27,4 +27,6 @@ export interface WrCarouselContext {
    * both the active index and slides being added or removed.
    */
   indexOf(slide: object): number;
+  /** Number of slides, tracked like {@link WrCarouselContext.indexOf}. */
+  slideCount(): number;
 }

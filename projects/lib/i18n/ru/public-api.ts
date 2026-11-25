@@ -372,6 +372,7 @@ export const wrRu: WrI18nCatalog = {
     label: 'Карусель',
     goToSlide: 'Перейти к слайду {{index}}',
     position: 'Слайд {{current}} из {{total}}',
+    slidePosition: '{{current}} из {{total}}',
     prev: 'Предыдущий слайд',
     next: 'Следующий слайд',
     pagination: 'Пагинация карусели',

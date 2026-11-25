@@ -381,6 +381,7 @@ export const wrHe: WrI18nCatalog = {
     label: 'קרוסלה',
     goToSlide: 'מעבר לשקופית {{index}}',
     position: 'שקופית {{current}} מתוך {{total}}',
+    slidePosition: '{{current}} מתוך {{total}}',
     prev: 'השקופית הקודמת',
     next: 'השקופית הבאה',
     pagination: 'ניווט בין שקופיות',

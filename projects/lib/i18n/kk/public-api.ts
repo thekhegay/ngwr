@@ -371,6 +371,7 @@ export const wrKk: WrI18nCatalog = {
     label: 'Карусель',
     goToSlide: '{{index}}-слайдқа өту',
     position: 'Слайд {{current}} / {{total}}',
+    slidePosition: '{{total}} ішінен {{current}}',
     prev: 'Алдыңғы слайд',
     next: 'Келесі слайд',
     pagination: 'Карусель беттеуі',

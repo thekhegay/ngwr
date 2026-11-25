@@ -365,6 +365,7 @@ export const wrCs: WrI18nCatalog = {
     label: 'Karusel',
     goToSlide: 'Přejít na snímek {{index}}',
     position: 'Snímek {{current}} z {{total}}',
+    slidePosition: '{{current}} z {{total}}',
     prev: 'Předchozí snímek',
     next: 'Další snímek',
     pagination: 'Stránkování karuselu',

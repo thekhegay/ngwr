@@ -7,7 +7,7 @@
 
 import { Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
 
-import { useI18nText } from 'ngwr/i18n';
+import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { WR_CAROUSEL } from './tokens';
@@ -34,6 +34,7 @@ import { WR_CAROUSEL } from './tokens';
   host: {
     class: 'wr-carousel-slide',
     role: 'group',
+    '[attr.aria-label]': 'label()',
     '[attr.aria-roledescription]': 'resolvedRoledescription()',
     '[attr.inert]': 'offScreen() ? "" : null',
     '[attr.aria-hidden]': 'offScreen() ? "true" : null',
@@ -59,6 +60,23 @@ export class WrCarouselSlide {
     'carousel.slideRoledescription',
     'slide'
   );
+
+  /**
+   * Accessible name of the slide. Falls back to its position, "1 of 6"
+   * (`carousel.slidePosition`); a slide outside a carousel has none.
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  private readonly positionText = useI18nFormatter('carousel.slidePosition', '{{current}} of {{total}}');
+
+  protected readonly label = computed(() => {
+    const own = this.ariaLabel();
+    if (own) return own;
+    if (!this.carousel) return null;
+    const index = this.carousel.indexOf(this);
+    if (index < 0) return null;
+    return this.positionText({ current: index + 1, total: this.carousel.slideCount() });
+  });
 
   /**
    * Whether this slide is one of the ones translated out of view.

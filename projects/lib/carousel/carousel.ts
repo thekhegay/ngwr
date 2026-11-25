@@ -188,6 +188,11 @@ export class WrCarousel implements WrCarouselContext {
     return this.slides().indexOf(slide as WrCarouselSlide);
   }
 
+  /** Number of slides — {@link WrCarouselContext}. */
+  slideCount(): number {
+    return this.count();
+  }
+
   /** Live horizontal drag offset (px) during a touch swipe. */
   protected readonly dragX = signal(0);
   protected readonly dragging = signal(false);
