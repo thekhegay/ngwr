@@ -129,6 +129,13 @@ describe('the table layout stylesheet', () => {
     expect(declarations('.wr-table__table--layout-fixed .wr-table__th')).toMatch(/white-space: normal/);
   });
 
+  it('lets a header title shrink and wrap under a fixed layout only', () => {
+    const fixed = declarations('.wr-table__table--layout-fixed .wr-table__title');
+    expect(fixed).toMatch(/flex: 0 1 auto/);
+    expect(fixed).toMatch(/min-width: 0/);
+    expect(declarations('.wr-table__title')).toMatch(/flex: 0 0 auto/);
+  });
+
   it('keeps the one-line cut on a truncated cell', () => {
     const body = declarations('.wr-table__td--truncate');
     expect(body).toMatch(/overflow: hidden/);
