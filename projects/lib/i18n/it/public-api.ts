@@ -373,6 +373,7 @@ export const wrIt: WrI18nCatalog = {
     label: 'Carosello',
     goToSlide: 'Vai alla diapositiva {{index}}',
     position: 'Diapositiva {{current}} di {{total}}',
+    slidePosition: '{{current}} di {{total}}',
     prev: 'Diapositiva precedente',
     next: 'Diapositiva successiva',
     pagination: 'Paginazione del carosello',

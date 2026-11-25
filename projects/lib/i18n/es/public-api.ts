@@ -365,6 +365,7 @@ export const wrEs: WrI18nCatalog = {
     label: 'Carrusel',
     goToSlide: 'Ir a la diapositiva {{index}}',
     position: 'Diapositiva {{current}} de {{total}}',
+    slidePosition: '{{current}} de {{total}}',
     prev: 'Diapositiva anterior',
     next: 'Diapositiva siguiente',
     pagination: 'Paginación del carrusel',

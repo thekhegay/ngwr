@@ -369,6 +369,7 @@ export const wrJa: WrI18nCatalog = {
     label: 'カルーセル',
     goToSlide: 'スライド{{index}}へ移動',
     position: 'スライド {{total}} 枚中 {{current}} 枚目',
+    slidePosition: '{{total}} 中 {{current}}',
     prev: '前のスライド',
     next: '次のスライド',
     pagination: 'カルーセルのページ送り',

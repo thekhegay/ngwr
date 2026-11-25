@@ -675,3 +675,49 @@ describe('WrCarousel stylesheet', () => {
     expect(track).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*transition: none;/);
   });
 });
+
+@Component({
+  imports: [WrCarousel, WrCarouselSlide],
+  template: `
+    <wr-carousel>
+      <wr-carousel-slide>a</wr-carousel-slide>
+      <wr-carousel-slide ariaLabel="Cover">b</wr-carousel-slide>
+    </wr-carousel>
+  `,
+})
+class NamedHost {}
+
+@Component({ imports: [WrCarouselSlide], template: '<wr-carousel-slide>alone</wr-carousel-slide>' })
+class LoneHost {}
+
+describe('WrCarouselSlide name', () => {
+  const labels = (el: HTMLElement): (string | null)[] =>
+    [...el.querySelectorAll('wr-carousel-slide')].map(s => s.getAttribute('aria-label'));
+
+  it('names each slide by its position and follows additions and removals', () => {
+    const fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(labels(el)).toEqual(['1 of 3', '2 of 3', '3 of 3']);
+
+    fixture.componentInstance.slides.set(['one', 'two']);
+    fixture.detectChanges();
+    expect(labels(el)).toEqual(['1 of 2', '2 of 2']);
+
+    fixture.componentInstance.slides.set(['zero', 'one', 'two', 'three']);
+    fixture.detectChanges();
+    expect(labels(el)).toEqual(['1 of 4', '2 of 4', '3 of 4', '4 of 4']);
+  });
+
+  it('lets ariaLabel override the position', () => {
+    const fixture = TestBed.createComponent(NamedHost);
+    fixture.detectChanges();
+    expect(labels(fixture.nativeElement as HTMLElement)).toEqual(['1 of 2', 'Cover']);
+  });
+
+  it('gives a slide outside a carousel no label', () => {
+    const fixture = TestBed.createComponent(LoneHost);
+    fixture.detectChanges();
+    expect(labels(fixture.nativeElement as HTMLElement)).toEqual([null]);
+  });
+});

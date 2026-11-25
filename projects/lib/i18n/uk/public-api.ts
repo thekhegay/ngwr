@@ -380,6 +380,7 @@ export const wrUk: WrI18nCatalog = {
     label: 'Карусель',
     goToSlide: 'Перейти до слайда {{index}}',
     position: 'Слайд {{current}} з {{total}}',
+    slidePosition: '{{current}} з {{total}}',
     prev: 'Попередній слайд',
     next: 'Наступний слайд',
     pagination: 'Нумерація слайдів',

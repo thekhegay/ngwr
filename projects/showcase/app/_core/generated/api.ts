@@ -303,6 +303,7 @@ export const API = {
   // <wr-carousel-slide>
   WrCarouselSlide: [
     { name: "roledescription", description: "Word a screen reader speaks IN PLACE OF the `group` role. Falls back to `carousel.slideRoledescription`, then `'slide'`.", type: "string | null", default: "null" },
+    { name: "ariaLabel", description: "Accessible name of the slide. Falls back to its position, \"1 of 6\" (`carousel.slidePosition`); a slide outside a carousel has none.", type: "string | null", default: "null" },
   ],
   // <wr-cascader>
   WrCascader: [

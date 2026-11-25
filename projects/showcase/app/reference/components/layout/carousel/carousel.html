@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Carousel"
   description="Slides with previous and next buttons, dots and optional autoplay."
-  updated="16.4.0"
+  updated="16.10.0"
   [keywords]="['carousel', 'slider', 'wr-carousel']"
 >
   <ngwr-doc-section
@@ -55,6 +55,10 @@
         A move by an arrow, a dot, a swipe or <code>next()</code>, <code>prev()</code> and <code>goTo()</code> is
         announced as "Slide 3 of 5", from the <code>carousel.position</code> catalog key. An autoplay tick is not, and
         the live region is <code>aria-live="off"</code> while the slides advance on their own.
+      </li>
+      <li>
+        Each slide is named by its place, "1 of 6", from the <code>carousel.slidePosition</code> catalog key. Set
+        <code>ariaLabel</code> on a slide to name it yourself.
       </li>
       <li>
         The dots sit 24px apart, centre to centre, and each takes a press up to 8px around it. A smaller

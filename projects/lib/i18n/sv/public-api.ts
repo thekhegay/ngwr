@@ -364,6 +364,7 @@ export const wrSv: WrI18nCatalog = {
     label: 'Karusell',
     goToSlide: 'Gå till bild {{index}}',
     position: 'Bild {{current}} av {{total}}',
+    slidePosition: '{{current}} av {{total}}',
     prev: 'Föregående bild',
     next: 'Nästa bild',
     pagination: 'Karusellnavigering',

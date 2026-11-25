@@ -372,6 +372,7 @@ export const wrKo: WrI18nCatalog = {
     label: '캐러셀',
     goToSlide: '{{index}}번 슬라이드로 이동',
     position: '슬라이드 {{total}}개 중 {{current}}번째',
+    slidePosition: '{{total}}개 중 {{current}}번째',
     prev: '이전 슬라이드',
     next: '다음 슬라이드',
     pagination: '캐러셀 페이지 탐색',

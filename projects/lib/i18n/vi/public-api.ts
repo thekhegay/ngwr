@@ -377,6 +377,7 @@ export const wrVi: WrI18nCatalog = {
     label: 'Băng chuyền',
     goToSlide: 'Đến trang chiếu {{index}}',
     position: 'Trang chiếu {{current}} trên {{total}}',
+    slidePosition: '{{current}} trên {{total}}',
     prev: 'Trang chiếu trước',
     next: 'Trang chiếu sau',
     pagination: 'Phân trang băng chuyền',

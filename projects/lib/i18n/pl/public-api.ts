@@ -382,6 +382,7 @@ export const wrPl: WrI18nCatalog = {
     label: 'Karuzela',
     goToSlide: 'Przejdź do slajdu {{index}}',
     position: 'Slajd {{current}} z {{total}}',
+    slidePosition: '{{current}} z {{total}}',
     prev: 'Poprzedni slajd',
     next: 'Następny slajd',
     pagination: 'Paginacja karuzeli',

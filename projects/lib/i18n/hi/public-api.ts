@@ -364,6 +364,7 @@ export const wrHi: WrI18nCatalog = {
     label: 'कैरोसेल',
     goToSlide: 'स्लाइड {{index}} पर जाएं',
     position: '{{total}} में से स्लाइड {{current}}',
+    slidePosition: '{{total}} में से {{current}}',
     prev: 'पिछली स्लाइड',
     next: 'अगली स्लाइड',
     pagination: 'कैरोसेल नेविगेशन',
