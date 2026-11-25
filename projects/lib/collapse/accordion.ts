@@ -5,12 +5,13 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ViewEncapsulation, forwardRef, signal } from '@angular/core';
+import { Component, ViewEncapsulation, forwardRef, input, signal } from '@angular/core';
 
 import { wrCheckStyles } from 'ngwr/utils';
 
+import { wrCollapseHeadingLevel } from './heading-level';
 import { WR_COLLAPSE_GROUP } from './tokens';
-import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
+import type { WrCollapseGroupContext, WrCollapseGroupMember, WrCollapseHeadingLevel } from './types';
 
 /**
  * Accordion — a `<wr-collapse>` container that enforces single-open
@@ -50,6 +51,13 @@ export class WrAccordion implements WrCollapseGroupContext {
 
   /** Always behaves as an accordion. Provided for context-interface symmetry. */
   readonly accordion = signal(true).asReadonly();
+
+  /**
+   * Heading level (1 to 6) a child header sits in when the child sets none. `null` leaves
+   * the header a bare button.
+   * @default null
+   */
+  readonly headingLevel = input<WrCollapseHeadingLevel | null, unknown>(null, { transform: wrCollapseHeadingLevel });
 
   private readonly members = new Map<object, WrCollapseGroupMember>();
 

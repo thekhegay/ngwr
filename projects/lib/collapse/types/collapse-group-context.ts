@@ -8,6 +8,7 @@
 import type { Signal } from '@angular/core';
 
 import type { WrCollapseGroupMember } from './collapse-group-member';
+import type { WrCollapseHeadingLevel } from './collapse-heading-level';
 
 /**
  * Contract a collapse uses to talk to its parent `<wr-collapse-group>`.
@@ -17,6 +18,8 @@ import type { WrCollapseGroupMember } from './collapse-group-member';
 export interface WrCollapseGroupContext {
   /** When true, only one child collapse may be open at a time. */
   readonly accordion: Signal<boolean>;
+  /** Heading level children use when their own `headingLevel` is null. */
+  readonly headingLevel: Signal<WrCollapseHeadingLevel | null>;
   /** Called by a child when it opens — closes siblings in accordion mode. */
   notifyOpened(opener: object): void;
   /** Register a child so the group can call `closeAll()` etc. */

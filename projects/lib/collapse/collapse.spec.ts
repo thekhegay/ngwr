@@ -266,3 +266,54 @@ describe('WrCollapse stylesheet', () => {
     );
   });
 });
+
+describe('WrCollapse heading level', () => {
+  @Component({
+    imports: [WrCollapse, WrCollapseGroup],
+    template: `
+      <wr-collapse-group [headingLevel]="groupLevel()">
+        <wr-collapse title="Inherits">A</wr-collapse>
+        <wr-collapse title="Own" headingLevel="4">B</wr-collapse>
+      </wr-collapse-group>
+    `,
+  })
+  class LevelGroupHost {
+    readonly groupLevel = signal<number | null>(2);
+  }
+
+  @Component({
+    imports: [WrCollapse],
+    template: `<wr-collapse title="One" headingLevel="3">A</wr-collapse>`,
+  })
+  class LevelHost {}
+
+  it('renders no heading by default', () => {
+    const fixture = TestBed.createComponent(WrCollapse);
+    fixture.componentRef.setInput('title', 'Plain');
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[role="heading"]')).toBeNull();
+    expect(el.firstElementChild?.classList.contains('wr-collapse__header')).toBe(true);
+  });
+
+  it('wraps the header button in a heading from a static attribute', () => {
+    const fixture = TestBed.createComponent(LevelHost);
+    fixture.detectChanges();
+    const heading = (fixture.nativeElement as HTMLElement).querySelector('[role="heading"]')!;
+    expect(heading.getAttribute('aria-level')).toBe('3');
+    expect(heading.firstElementChild?.classList.contains('wr-collapse__header')).toBe(true);
+  });
+
+  it('takes the level from the group, and a child level wins', () => {
+    const fixture = TestBed.createComponent(LevelGroupHost);
+    fixture.detectChanges();
+    const levels = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('[role="heading"]'), h =>
+      h.getAttribute('aria-level')
+    );
+    expect(levels).toEqual(['2', '4']);
+
+    fixture.componentInstance.groupLevel.set(null);
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('[role="heading"]')).toHaveLength(1);
+  });
+});

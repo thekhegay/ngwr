@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Collapse"
-  updated="15.8.0"
+  updated="16.10.0"
   description="A panel that opens and closes from its header."
   [keywords]="['collapse', 'accordion', 'wr-collapse', 'wr-accordion', 'wr-collapse-group']"
   [labels]="['Component']"
@@ -64,6 +64,20 @@
         <wr-collapse title="Is there a trial?" indicator="plus" [open]="true">
           Fourteen days, no card needed.
         </wr-collapse>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Heading level"
+    description="`headingLevel` wraps the header button in a heading, as the accordion pattern asks. Set it on a panel or on the group; a panel level wins. Unset keeps a bare button."
+  >
+    <ngwr-doc-snippet [code]="snippets.heading">
+      <div style="width: 100%">
+        <wr-accordion headingLevel="3">
+          <wr-collapse title="Profile">Name, email.</wr-collapse>
+          <wr-collapse title="Security">Password, sessions.</wr-collapse>
+        </wr-accordion>
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

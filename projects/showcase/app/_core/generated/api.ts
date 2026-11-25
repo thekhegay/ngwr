@@ -21,6 +21,10 @@ import type { DocApiRow } from '#core/components';
  * compile error instead of `undefined` at runtime.
  */
 export const API = {
+  // <wr-accordion>
+  WrAccordion: [
+    { name: "headingLevel", description: "Heading level (1 to 6) a child header sits in when the child sets none. `null` leaves the header a bare button.", type: "WrCollapseHeadingLevel | null", default: "null" },
+  ],
   // <[wrAffix]>
   WrAffix: [
     { name: "wrAffixOffsetTop", description: "Pixels from the top of the scroll container when stuck.", type: "number", default: "0" },
@@ -375,10 +379,12 @@ export const API = {
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "bordered", description: "Draws the frame, the panel background and the rounded corners. Turn it off for a flat list: no frame, rows split by a divider line between neighbours.", type: "boolean", default: "true" },
     { name: "indicator", description: "The header glyph: `chevron` turns over, `plus` becomes a minus while open.", type: "WrCollapseIndicator", default: "'chevron'" },
+    { name: "headingLevel", description: "Wraps the header button in an element with `role=\"heading\"` at this `aria-level` (1 to 6). When unset the group's level applies; with neither the header is a bare button.", type: "WrCollapseHeadingLevel | null", default: "null" },
   ],
   // <wr-collapse-group>
   WrCollapseGroup: [
     { name: "accordion", description: "When true, only one child may be open at a time.", type: "boolean", default: "false" },
+    { name: "headingLevel", description: "Heading level (1 to 6) a child header sits in when the child sets none. `null` leaves the header a bare button.", type: "WrCollapseHeadingLevel | null", default: "null" },
   ],
   // <wr-color-picker>
   WrColorPicker: [

@@ -10,8 +10,9 @@ import { Component, ViewEncapsulation, forwardRef, input } from '@angular/core';
 
 import { wrCheckStyles } from 'ngwr/utils';
 
+import { wrCollapseHeadingLevel } from './heading-level';
 import { WR_COLLAPSE_GROUP } from './tokens';
-import type { WrCollapseGroupContext, WrCollapseGroupMember } from './types';
+import type { WrCollapseGroupContext, WrCollapseGroupMember, WrCollapseHeadingLevel } from './types';
 
 /**
  * Visual + behavioral grouping of `<wr-collapse>` children. When
@@ -39,6 +40,13 @@ export class WrCollapseGroup implements WrCollapseGroupContext {
 
   /** When true, only one child may be open at a time. @default false */
   readonly accordion = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Heading level (1 to 6) a child header sits in when the child sets none. `null` leaves
+   * the header a bare button.
+   * @default null
+   */
+  readonly headingLevel = input<WrCollapseHeadingLevel | null, unknown>(null, { transform: wrCollapseHeadingLevel });
 
   private readonly members = new Map<object, WrCollapseGroupMember>();
 

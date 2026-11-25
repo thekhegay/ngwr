@@ -140,7 +140,7 @@ export const UPDATED = {
   "reference/components/carousel": "16.4.0",
   "reference/components/cascader": "16.6.0",
   "reference/components/checkbox": "15.0.0",
-  "reference/components/collapse": "15.8.0",
+  "reference/components/collapse": "16.10.0",
   "reference/components/color-picker": "16.5.0",
   "reference/components/command-palette": "15.0.0",
   "reference/components/context-menu": "16.5.0",
