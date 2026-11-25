@@ -11,7 +11,7 @@
     [attr.aria-readonly]="readonly() || null"
     [attr.aria-invalid]="fieldAria.ariaInvalid()"
     [attr.aria-describedby]="fieldAria.describedBy()"
-    (click)="onTriggerClick()"
+    (click)="onTriggerClick($event)"
     (keydown)="onTriggerKey($event)"
     (blur)="onBlur()"
   >

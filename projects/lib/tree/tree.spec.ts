@@ -924,6 +924,35 @@ describe('WrTree in overlay mode', () => {
       expect(document.activeElement).toBe(document.querySelector<HTMLElement>('[data-tree-index="0"]'));
     });
 
+    it('asks for the focus ring when autoFocus follows a keyboard open, not a pointer one', async () => {
+      fixture.destroy();
+      fixture = TestBed.createComponent(AutoFocusOverlayHost) as unknown as typeof fixture;
+      fixture.detectChanges();
+      const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+      const row = (): HTMLElement => document.querySelector<HTMLElement>('[data-tree-index="0"]')!;
+      const rowCall = (): unknown[] | undefined => focus.mock.calls[focus.mock.contexts.lastIndexOf(row())];
+
+      trigger().focus();
+      pressTrigger('ArrowDown');
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect(document.activeElement).toBe(row());
+      expect(rowCall()).toEqual([{ focusVisible: true }]);
+
+      const pointerClick = async (): Promise<void> => {
+        trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+      };
+      await pointerClick();
+      expect(row()).toBeNull();
+      await pointerClick();
+      expect(document.activeElement).toBe(row());
+      expect(rowCall()).toEqual([undefined]);
+      focus.mockRestore();
+    });
+
     it('expands a branch from the keyboard', async () => {
       await open();
       expect(labels()).not.toContain('app');
