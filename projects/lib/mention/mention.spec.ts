@@ -177,6 +177,18 @@ describe('WrMention', () => {
       expect(rect).toHaveBeenCalled();
     });
 
+    it('refreshes the open list on a keyup after the items changed', () => {
+      type('hi @a');
+      expect(optionLabels()).toContain('Ada Lovelace');
+
+      fixture.componentInstance.items.set([{ id: 'ana', label: 'Ana Ng' }]);
+      fixture.detectChanges();
+      field().dispatchEvent(new KeyboardEvent('keyup', { key: 'Shift', bubbles: true }));
+      fixture.detectChanges();
+
+      expect(optionLabels()).toEqual(['Ana Ng']);
+    });
+
     it('honours a custom trigger set', () => {
       fixture.componentInstance.triggers.set(['#']);
       fixture.detectChanges();

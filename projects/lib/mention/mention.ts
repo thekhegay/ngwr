@@ -198,6 +198,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
    */
   private readonly caretOffset = { dx: 0, dy: 0, lineHeight: 0 };
   private state: ActiveState | null = null;
+  private filteredFrom: readonly unknown[] = [];
   private readonly activeIndex = signal(0);
   private readonly filteredItems = signal<readonly T[]>([]);
   private readonly panelOpen = signal(false);
@@ -434,12 +435,14 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
       open.trigger === trigger &&
       open.query === query &&
       open.startIndex === startIndex &&
-      open.implicit === implicit
+      open.implicit === implicit &&
+      this.filterInputs().every((value, i) => value === this.filteredFrom[i])
     ) {
       return;
     }
     this.state = { trigger, query, startIndex, implicit };
     const previousCount = this.filteredItems().length;
+    this.filteredFrom = this.filterInputs();
     const filtered = this.filter(query).slice(0, this.maxResults());
     this.filteredItems.set(filtered);
     if (filtered.length === 0) {
@@ -454,6 +457,11 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     // Only when the size actually changes. Re-announcing the same count on every
     // keystroke would talk over the per-option speech from activedescendant.
     if (filtered.length !== previousCount) this.announce(this.availableText({ count: filtered.length }));
+  }
+
+  /** What `filter()` and the result cap read, so a skipped refresh never shows a stale list. */
+  private filterInputs(): readonly unknown[] {
+    return [this.wrMentionItems(), this.filterWith(), this.displayWith(), this.maxResults()];
   }
 
   private filter(query: string): readonly T[] {
