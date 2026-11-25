@@ -130,7 +130,7 @@
         [size]="size()"
         [attr.aria-label]="resolvedJump()"
         [disabled]="disabled()"
-        (keydown.enter)="commitJump(jump)"
+        (keydown.enter)="$event.preventDefault(); commitJump(jump)"
         (blur)="commitJump(jump)"
       />
     }

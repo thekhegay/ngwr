@@ -3,7 +3,7 @@ import { type ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
 import { withDates } from 'ngwr/date';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { WrCalendar } from './calendar';
 import type { WrCalendarGranularity, WrCalendarMode } from './types';
@@ -76,6 +76,27 @@ describe('WrCalendar showToday', () => {
     fixture.componentInstance.readonly.set(true);
     fixture.detectChanges();
     expect(button()!.disabled).toBe(true);
+  });
+
+  it('activates from the keyboard instead of selecting the focused day', () => {
+    const { fixture, button } = setup();
+    const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    button()!.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
+    expect(fixture.componentInstance.date()).toEqual(new Date(2020, 0, 15));
+  });
+
+  it('reads the current day when it activates', () => {
+    const { fixture, button } = setup();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date(2031, 4, 9, 12));
+      button()!.click();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.date()?.toDateString()).toBe(new Date(2031, 4, 9).toDateString());
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('is not rendered in range mode or under a period granularity', () => {

@@ -750,11 +750,15 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     () => this.showToday() && this.mode() === 'single' && this.granularity() === 'day'
   );
 
-  protected readonly todayDisabled = computed(() => this.readonly() || this.isDisabled(this.today()));
+  // A method, not a computed: the day is read at each check, so a calendar left open
+  // past midnight acts on the real today. `isToday()` keeps the cached highlight.
+  protected todayDisabled(): boolean {
+    return this.readonly() || this.isDisabled(this.zoneToday());
+  }
 
   protected goToday(): void {
     if (this.todayDisabled()) return;
-    const today = this.today();
+    const today = this.zoneToday();
     this.onCellClick(today);
     this.viewDate.set(today);
     this.setViewMode('day');
@@ -1060,7 +1064,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     // than to a cell, because the calendar moves focus in an `afterNextRender`
     // and jsdom often has focus nowhere at all.
     const target = event.target as Element | null;
-    if (target !== this.host.nativeElement && target?.closest('.wr-calendar__header')) return;
+    if (target !== this.host.nativeElement && target?.closest('.wr-calendar__header, .wr-calendar__today')) return;
 
     // The month and year views are listboxes, and the arrows belong to them
     // while they are up — there is no day grid on screen to drive. Their chips

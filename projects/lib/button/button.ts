@@ -322,13 +322,17 @@ export class WrButton {
     // Not a host binding: that would strip an `[attr.aria-pressed]` a consumer
     // writes on a plain button. Only toggle mode touches the attribute.
     let wrotePressed = false;
+    let consumerPressed: string | null = null;
     effect(() => {
       const pressed = this.ariaPressed();
+      const el = this.hostEl.nativeElement;
       if (pressed !== null) {
-        renderer.setAttribute(this.hostEl.nativeElement, 'aria-pressed', pressed);
+        if (!wrotePressed) consumerPressed = el.getAttribute('aria-pressed');
+        renderer.setAttribute(el, 'aria-pressed', pressed);
         wrotePressed = true;
       } else if (wrotePressed) {
-        renderer.removeAttribute(this.hostEl.nativeElement, 'aria-pressed');
+        if (consumerPressed === null) renderer.removeAttribute(el, 'aria-pressed');
+        else renderer.setAttribute(el, 'aria-pressed', consumerPressed);
         wrotePressed = false;
       }
     });

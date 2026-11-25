@@ -40,6 +40,7 @@
   --wr-btn-gap: var(--wr-space-sm);
   --wr-btn-pressed-bg: var(--wr-color-fill-strong);
   --wr-btn-pressed-border: var(--wr-btn-color);
+  --wr-btn-pressed-color: var(--wr-btn-color);
   --wr-btn-padding-y: var(--wr-control-padding-y-md);
   // 16px. Buttons sit a touch WIDER than input and select, which is why this one
   // reads the spacing scale while every other control dimension here reads the
@@ -287,10 +288,19 @@
   }
 
   // Toggle on. The inset ring thickens the border, so the state does not rest on
-  // colour alone and survives `forced-colors`.
+  // colour alone. `forced-colors` drops the ring and replaces the fill, so there the
+  // button takes the selection pair instead: not an outline, which would collide
+  // with the focus ring, and not a border width, which would resize the button.
+  // The label colour is its own hook because hover and press re-point `--wr-btn-color`.
   &--pressed {
+    color: var(--wr-btn-pressed-color);
     background: var(--wr-btn-pressed-bg);
     box-shadow: inset 0 0 0 1px var(--wr-btn-pressed-border);
+
+    @media (forced-colors: active) {
+      color: HighlightText;
+      background: Highlight;
+    }
   }
 
   // Color variants
@@ -318,6 +328,7 @@
       &:where([outlined]:not([outlined='false'])) {
         --wr-btn-pressed-bg: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
         --wr-btn-pressed-border: var(--wr-color-#{$name}-ink);
+        --wr-btn-pressed-color: var(--wr-color-#{$name}-ink);
 
         // `-ink`, not the bare intent. The label is TEXT on whatever surface the
         // host gives the transparent button, and the bare token does not clear
