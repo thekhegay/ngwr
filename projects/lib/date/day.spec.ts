@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { wrFromDay, wrToDay, wrToday } from './day';
+import { wrAddDays, wrAddMonths, wrFromDay, wrToDay, wrToday } from './day';
 
 /**
  * The runner's zone is `Asia/Almaty` (UTC+5), where a UTC reading of a local
@@ -146,6 +146,133 @@ describe('day strings', () => {
       expect(wrFromDay(undefined)).toBeNull();
       expect(wrFromDay(20260301 as unknown as string)).toBeNull();
       expect(wrFromDay(new Date() as unknown as string)).toBeNull();
+    });
+  });
+
+  describe('with a time zone', () => {
+    it('reads the day on the wall clock of a fixed offset', () => {
+      const instant = new Date('2026-03-01T22:00:00Z');
+      expect(wrToDay(instant, '+05:00')).toBe('2026-03-02');
+      expect(wrToDay(instant, '-03')).toBe('2026-03-01');
+      expect(wrToDay(new Date('2026-03-01T18:59:59Z'), '+0500')).toBe('2026-03-01');
+      expect(wrToDay(new Date('2026-03-01T19:00:00Z'), '+0500')).toBe('2026-03-02');
+    });
+
+    it('reads the day in an IANA zone around a daylight-saving change', () => {
+      // New York springs forward on 8 March 2026 at 02:00 local.
+      expect(wrToDay(new Date('2026-03-08T04:59:59Z'), 'America/New_York')).toBe('2026-03-07');
+      expect(wrToDay(new Date('2026-03-08T05:00:00Z'), 'America/New_York')).toBe('2026-03-08');
+      expect(wrToDay(new Date('2026-03-09T03:59:59Z'), 'America/New_York')).toBe('2026-03-08');
+      expect(wrToDay(new Date('2026-03-09T04:00:00Z'), 'America/New_York')).toBe('2026-03-09');
+    });
+
+    it('falls back to the browser zone for an unknown zone and keeps the empty cases', () => {
+      const instant = new Date(2026, 2, 1, 0, 30);
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      expect(wrToDay(instant, 'Mars/Olympus')).toBe('2026-03-01');
+      expect(wrToDay(instant, '')).toBe('2026-03-01');
+      expect(wrToDay(instant, undefined)).toBe('2026-03-01');
+      expect(wrToDay(new Date(NaN), 'Asia/Almaty')).toBe('');
+    });
+
+    it('reads today in the zone', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-03-01T22:00:00Z'));
+      expect(wrToday('+05:00')).toBe('2026-03-02');
+      expect(wrToday('America/New_York')).toBe('2026-03-01');
+      expect(wrToday()).toBe(wrToDay(new Date()));
+    });
+
+    it('gives the instant of the day midnight in the zone', () => {
+      expect(wrFromDay('2026-03-01', '+05:00')?.toISOString()).toBe('2026-02-28T19:00:00.000Z');
+      expect(wrFromDay('2026-03-01', '-0330')?.toISOString()).toBe('2026-03-01T03:30:00.000Z');
+    });
+
+    it('takes the offset of the day itself in a zone with daylight saving', () => {
+      expect(wrFromDay('2026-03-08', 'America/New_York')?.toISOString()).toBe('2026-03-08T05:00:00.000Z');
+      expect(wrFromDay('2026-03-09', 'America/New_York')?.toISOString()).toBe('2026-03-09T04:00:00.000Z');
+      expect(wrFromDay('2026-11-01', 'America/New_York')?.toISOString()).toBe('2026-11-01T04:00:00.000Z');
+      expect(wrFromDay('2026-11-02', 'America/New_York')?.toISOString()).toBe('2026-11-02T05:00:00.000Z');
+    });
+
+    it('still refuses what is not a day, and ignores an absent zone', () => {
+      expect(wrFromDay('2026-02-30', 'Asia/Almaty')).toBeNull();
+      expect(wrFromDay(null, 'Asia/Almaty')).toBeNull();
+      expect(wrFromDay('2026-03-01', undefined)).toEqual(new Date(2026, 2, 1));
+    });
+
+    it('round-trips a day through the zone', () => {
+      for (const zone of ['Asia/Almaty', 'America/New_York', 'Pacific/Kiritimati', '+05:45']) {
+        const instant = wrFromDay('2026-03-08', zone)!;
+        expect(wrToDay(instant, zone)).toBe('2026-03-08');
+        expect(wrToDay(new Date(instant.getTime() - 1), zone)).toBe('2026-03-07');
+      }
+    });
+
+    it('builds an end-exclusive range with the day after the last', () => {
+      const zone = 'America/New_York';
+      expect(wrFromDay(wrAddDays('2026-03-31', 1), zone)?.toISOString()).toBe('2026-04-01T04:00:00.000Z');
+      expect(wrFromDay(wrAddDays('2026-03-07', 1), zone)?.toISOString()).toBe('2026-03-08T05:00:00.000Z');
+    });
+  });
+
+  describe('wrAddDays', () => {
+    it.each([
+      ['2026-02-28', 1, '2026-03-01'],
+      ['2028-02-28', 1, '2028-02-29'],
+      ['2028-02-29', 1, '2028-03-01'],
+      ['2026-12-31', 1, '2027-01-01'],
+      ['2026-01-01', -1, '2025-12-31'],
+      ['2026-03-08', 0, '2026-03-08'],
+      ['2026-03-01', 366, '2027-03-02'],
+      ['2026-03-01', 1.9, '2026-03-02'],
+    ])('%s plus %d is %s', (day, n, expected) => {
+      expect(wrAddDays(day, n)).toBe(expected);
+    });
+
+    it('does not depend on the machine zone, so a daylight-saving change moves nothing', () => {
+      inZone('America/New_York');
+      expect(wrAddDays('2026-03-07', 1)).toBe('2026-03-08');
+      expect(wrAddDays('2026-03-08', 1)).toBe('2026-03-09');
+      expect(wrAddDays('2026-11-01', 1)).toBe('2026-11-02');
+      expect(wrAddDays('2026-11-01', -1)).toBe('2026-10-31');
+    });
+
+    it('gives an empty string for invalid input and results out of range', () => {
+      expect(wrAddDays('2026-02-30', 1)).toBe('');
+      expect(wrAddDays('2026-3-1', 1)).toBe('');
+      expect(wrAddDays('', 1)).toBe('');
+      expect(wrAddDays(null as unknown as string, 1)).toBe('');
+      expect(wrAddDays('2026-03-01', NaN)).toBe('');
+      expect(wrAddDays('2026-03-01', Infinity)).toBe('');
+      expect(wrAddDays('9999-12-31', 1)).toBe('');
+      expect(wrAddDays('0000-01-01', -1)).toBe('');
+    });
+  });
+
+  describe('wrAddMonths', () => {
+    it.each([
+      ['2026-01-31', 1, '2026-02-28'],
+      ['2028-01-31', 1, '2028-02-29'],
+      ['2026-03-31', 1, '2026-04-30'],
+      ['2026-03-15', -3, '2025-12-15'],
+      ['2026-12-15', 1, '2027-01-15'],
+      ['2026-01-15', -1, '2025-12-15'],
+      ['2026-03-31', -1, '2026-02-28'],
+      ['2026-01-31', 12, '2027-01-31'],
+      ['2028-02-29', 12, '2029-02-28'],
+      ['2026-05-10', 0, '2026-05-10'],
+      ['2026-01-31', -13, '2024-12-31'],
+    ])('%s plus %d months is %s', (day, n, expected) => {
+      expect(wrAddMonths(day, n)).toBe(expected);
+    });
+
+    it('gives an empty string for invalid input and results out of range', () => {
+      expect(wrAddMonths('2026-02-30', 1)).toBe('');
+      expect(wrAddMonths('nope', 1)).toBe('');
+      expect(wrAddMonths('2026-03-01', NaN)).toBe('');
+      expect(wrAddMonths('9999-12-01', 1)).toBe('');
+      expect(wrAddMonths('0000-01-01', -1)).toBe('');
     });
   });
 });
