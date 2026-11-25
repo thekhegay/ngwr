@@ -481,7 +481,9 @@
            "No data" through the spinner. -->
       @if (!loading() && !renderRows().length) {
         <tr>
-          <td class="wr-table__empty" [attr.colspan]="totalCols()">{{ resolvedEmptyLabel() }}</td>
+          <td class="wr-table__empty" [attr.colspan]="totalCols()">
+            <div class="wr-table__empty-label" [style.inline-size.px]="emptyWidth()">{{ resolvedEmptyLabel() }}</div>
+          </td>
         </tr>
       }
     </tbody>
