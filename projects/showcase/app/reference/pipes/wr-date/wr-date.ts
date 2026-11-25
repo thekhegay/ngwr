@@ -111,13 +111,26 @@ wrParseDate(1772343000000);                // epoch milliseconds
 wrParseDate(1772343000000123, { epochUnit: 'auto' }); // microseconds, by size
 wrParseDate('2026-03-01 14:30:00', { zonelessIn: 'display', timeZone: '+0500' }); // 09:30 UTC
 wrParseDate('n/a');                        // null`,
-    day: `import { wrFromDay, wrToDay, wrToday } from 'ngwr/date';
+    day: `import { wrAddDays, wrAddMonths, wrFromDay, wrToDay, wrToday } from 'ngwr/date';
 
 wrToDay(new Date(2026, 2, 1, 0, 30)); // '2026-03-01', in every zone
 wrToday();                            // the same for now
 wrFromDay('2026-03-01');              // 1 March 2026, 00:00 local
 wrFromDay('2026-02-30');              // null
-wrFromDay('2026-03-01T09:30:00Z');    // null: wrParseDate reads that`,
+wrFromDay('2026-03-01T09:30:00Z');    // null: wrParseDate reads that
+
+// In a zone: an IANA name or an offset, as withDates({ timeZone }) takes
+wrToDay(new Date('2026-03-01T22:00:00Z'), 'Asia/Almaty'); // '2026-03-02'
+wrToday('Asia/Almaty');
+wrFromDay('2026-03-01', 'America/New_York');  // 2026-03-01T05:00:00Z
+
+// Calendar arithmetic on the string, no daylight saving in it
+wrAddDays('2026-02-28', 1);    // '2026-03-01'
+wrAddMonths('2026-01-31', 1);  // '2026-02-28', clamped
+
+// An end-exclusive range over a report month
+const from = wrFromDay('2026-03-01', 'Asia/Almaty');
+const to = wrFromDay(wrAddDays('2026-03-31', 1), 'Asia/Almaty');`,
   };
 
   protected readonly api: readonly DocApiRow[] = [
@@ -144,21 +157,35 @@ wrFromDay('2026-03-01T09:30:00Z');    // null: wrParseDate reads that`,
     {
       name: 'wrToDay',
       description:
-        "From `ngwr/date`. The local calendar day of a `Date` as `YYYY-MM-DD`. `''` for an Invalid Date and a year outside 0 to 9999.",
-      type: '(date: Date) => string',
+        "From `ngwr/date`. The calendar day of a `Date` as `YYYY-MM-DD`, in the browser's zone or in `timeZone`. `''` for an Invalid Date and a year outside 0 to 9999.",
+      type: '(date: Date, timeZone?: string) => string',
       default: '—',
     },
     {
       name: 'wrToday',
-      description: "From `ngwr/date`. Today as `YYYY-MM-DD`, in the browser's zone.",
-      type: '() => string',
+      description: "From `ngwr/date`. Today as `YYYY-MM-DD`, in the browser's zone or in `timeZone`.",
+      type: '(timeZone?: string) => string',
       default: '—',
     },
     {
       name: 'wrFromDay',
       description:
-        'From `ngwr/date`. A `YYYY-MM-DD` string as that day at local midnight. `null` for any other form and for a day no calendar has, such as `2026-02-30`.',
-      type: '(day: string | null | undefined) => Date | null',
+        'From `ngwr/date`. A `YYYY-MM-DD` string as that day at local midnight, or at its midnight in `timeZone`. `null` for any other form and for a day no calendar has, such as `2026-02-30`.',
+      type: '(day: string | null | undefined, timeZone?: string) => Date | null',
+      default: '—',
+    },
+    {
+      name: 'wrAddDays',
+      description:
+        "From `ngwr/date`. A `YYYY-MM-DD` day moved by whole days on the calendar, so a daylight-saving change cannot touch it. `''` for an invalid day or count.",
+      type: '(day: string, days: number) => string',
+      default: '—',
+    },
+    {
+      name: 'wrAddMonths',
+      description:
+        "From `ngwr/date`. A `YYYY-MM-DD` day moved by whole months, clamped to the last day of a shorter month. `''` for an invalid day or count.",
+      type: '(day: string, months: number) => string',
       default: '—',
     },
   ];

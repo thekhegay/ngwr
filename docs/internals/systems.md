@@ -201,7 +201,9 @@ one component folder. Reach for them instead of hand-rolling:
   one instant. It must stay free of the adapter and of DI.
   **Day strings** (16.7): `wrToDay`, `wrToday` and `wrFromDay` are plain
   functions too, for a `YYYY-MM-DD` value: the browser-local day, never the UTC
-  one. `wrFromDay` is strict where `wrParseDate` is lenient: that exact form
+  one, unless a `timeZone` is passed (16.10): the same resolver as `withDates`,
+  so an unknown zone reads in the browser's. `wrAddDays` and `wrAddMonths` work
+  on the string through UTC fields, so no zone or DST reaches them. `wrFromDay` is strict where `wrParseDate` is lenient: that exact form
   and a day the calendar has, else `null`. It reads through `wrToLocalDate`
   and checks the result by writing it back, since an engine may carry
   `2026-02-30` over into March. `valueFormat="day"` on `wr-date-picker` holds

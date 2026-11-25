@@ -199,7 +199,7 @@ export const UPDATED = {
   "reference/interfaces/common": "16.0.0",
   "reference/interfaces/theme": "15.0.0",
   "reference/pipes/wr-bytes": "15.4.0",
-  "reference/pipes/wr-date": "16.7.0",
+  "reference/pipes/wr-date": "16.10.0",
   "reference/pipes/wr-duration": "16.2.0",
   "reference/pipes/wr-number": "15.4.0",
   "reference/pipes/wr-plural": "15.4.0",
