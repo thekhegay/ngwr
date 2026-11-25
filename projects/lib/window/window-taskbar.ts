@@ -362,7 +362,7 @@ export class WrWindowTaskbar {
     event.preventDefault();
     next = (next + buttons.length) % buttons.length;
     this.rovingIndex.set(next);
-    buttons[next].focus();
+    buttons[next].focus({ focusVisible: true });
   }
 
   /** A click or a script that focuses a button moves the Tab stop with it. */

@@ -348,7 +348,7 @@ export class WrContextMenuItem {
     this.submenuKeys = this.submenuRef.keydownEvents().subscribe(event => this.onSubmenuKeydown(event));
 
     // A keyboard open walks INTO the submenu; a hover open only shows it.
-    if (this.openedByKeyboard) wrFocusMenuItemAt(pane, 0);
+    if (this.openedByKeyboard) wrFocusMenuItemAt(pane, 0, true);
 
     this.submenuOpen = true;
     WrContextMenuItem.openSubmenus.set(this.host.nativeElement, this);
@@ -393,7 +393,7 @@ export class WrContextMenuItem {
       // Onto the owning row only when the caret was in the pane just closed:
       // dismissing a submenu the pointer opened must not drag it off the row the
       // keyboard user is on.
-      if (focusedPane === pane) this.host.nativeElement.focus();
+      if (focusedPane === pane) this.host.nativeElement.focus({ focusVisible: true });
       return;
     }
     // Falls back to this pane when the caret is outside every menu — nothing

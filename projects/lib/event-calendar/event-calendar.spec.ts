@@ -229,6 +229,17 @@ describe('WrEventCalendar', () => {
       expect(document.activeElement).toBe(cellAt(11));
     });
 
+    it('asks for a visible ring on the cell an arrow moves to', () => {
+      const target = cellAt(10);
+      target.focus();
+      fixture.detectChanges();
+      const focus = vi.spyOn(cellAt(11), 'focus');
+
+      arrow('ArrowRight', target);
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    });
+
     it('holds position on ArrowUp in the first week instead of sliding to Sunday', () => {
       // The top and bottom rows have to behave the same way, and a `Math.max(0, …)`
       // clamp only looks like it does: from the Wednesday of the first week it

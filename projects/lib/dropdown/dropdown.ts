@@ -531,7 +531,7 @@ export class WrDropdown {
 
     const focusAt = (index: number): void => {
       event.preventDefault();
-      items[index]?.focus();
+      items[index]?.focus({ focusVisible: true });
     };
 
     switch (event.key) {

@@ -651,6 +651,16 @@ describe('WrEditor', () => {
         .filter(b => b.tabIndex === 0)
         .map(b => b.getAttribute('aria-label')!);
 
+    it('asks for a visible ring on the tool an arrow moves to', async () => {
+      await mount();
+      tool('Bold').focus();
+      const focus = vi.spyOn(tool('Italic'), 'focus');
+
+      key(tool('Bold'), { key: 'ArrowRight' });
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    });
+
     it('is one tab stop that the arrows rove, wrapping at the ends', async () => {
       await mount();
       expect(root().querySelector('[role="toolbar"]')?.getAttribute('aria-label')).toBe('Formatting');

@@ -93,6 +93,20 @@ describe('WrCalendar keyboard focus', () => {
     expect(active()).toBe('16');
   });
 
+  it('asks for a visible ring on the day an arrow moves to', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    root().querySelector<HTMLElement>('.wr-calendar__day--focused')!.focus();
+    const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+    try {
+      grid().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+      await fixture.whenStable();
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    } finally {
+      focus.mockRestore();
+    }
+  });
+
   it('keeps them together across several moves', async () => {
     fixture.detectChanges();
     await fixture.whenStable();

@@ -1114,7 +1114,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     // `--focused` class is still on the cell we just left, and this focuses
     // that one. The ring moved and real focus did not, permanently: a screen
     // reader kept announcing the previous day.
-    afterNextRender(() => this.focusActiveCell(), { injector: this.injector });
+    afterNextRender(() => this.focusActiveCell(true), { injector: this.injector });
   }
 
   /**
@@ -1174,7 +1174,7 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     // `afterNextRender`, not `queueMicrotask` — same trap as the grid: under
     // zoneless CD the microtask runs before the new `tabindex` is in the DOM, so
     // the focus call would land on the chip the ring just left.
-    afterNextRender(() => this.focusActiveChip(), { injector: this.injector });
+    afterNextRender(() => this.focusActiveChip(true), { injector: this.injector });
   }
 
   /** How many chips the current view renders, read rather than assumed. */
@@ -1235,10 +1235,12 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     return null;
   }
 
-  private focusActiveChip(): void {
+  private focusActiveChip(byKey = false): void {
     // By the tab stop, not by index: it is the same element the ring is on, and
     // asking for it this way cannot drift out of step with the template.
-    this.host.nativeElement.querySelector<HTMLElement>('.wr-calendar__chip[tabindex="0"]')?.focus();
+    this.host.nativeElement
+      .querySelector<HTMLElement>('.wr-calendar__chip[tabindex="0"]')
+      ?.focus(byKey ? { focusVisible: true } : undefined);
   }
 
   /**
@@ -1277,9 +1279,9 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     return null;
   }
 
-  private focusActiveCell(): void {
+  private focusActiveCell(byKey = false): void {
     const el = this.host.nativeElement.querySelector('.wr-calendar__day--focused');
-    (el as HTMLElement | null)?.focus();
+    (el as HTMLElement | null)?.focus(byKey ? { focusVisible: true } : undefined);
   }
 
   /** Used by the template's `track` expression. */

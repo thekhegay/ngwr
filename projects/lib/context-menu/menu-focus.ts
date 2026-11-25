@@ -28,12 +28,15 @@ export function wrMenuItems(pane: HTMLElement): readonly HTMLElement[] {
   return Array.from(pane.querySelectorAll<HTMLElement>('.wr-context-menu-item:not(.wr-context-menu-item--disabled)'));
 }
 
-/** Focus the row at `index`, wrapping at both ends. A pane with no rows is left alone. */
-export function wrFocusMenuItemAt(pane: HTMLElement, index: number): void {
+/**
+ * Focus the row at `index`, wrapping at both ends. A pane with no rows is left alone.
+ * `byKey` asks for the focus ring, which Firefox withholds from a script focus after a click.
+ */
+export function wrFocusMenuItemAt(pane: HTMLElement, index: number, byKey = false): void {
   const items = wrMenuItems(pane);
   if (items.length === 0) return;
   const clamped = ((index % items.length) + items.length) % items.length;
-  items[clamped]?.focus();
+  items[clamped]?.focus(byKey ? { focusVisible: true } : undefined);
 }
 
 /**
@@ -49,16 +52,16 @@ export function wrHandleMenuNavigation(pane: HTMLElement, event: KeyboardEvent):
   const index = active instanceof HTMLElement ? items.indexOf(active) : -1;
   switch (event.key) {
     case 'ArrowDown':
-      wrFocusMenuItemAt(pane, index + 1);
+      wrFocusMenuItemAt(pane, index + 1, true);
       break;
     case 'ArrowUp':
-      wrFocusMenuItemAt(pane, index <= 0 ? items.length - 1 : index - 1);
+      wrFocusMenuItemAt(pane, index <= 0 ? items.length - 1 : index - 1, true);
       break;
     case 'Home':
-      wrFocusMenuItemAt(pane, 0);
+      wrFocusMenuItemAt(pane, 0, true);
       break;
     case 'End':
-      wrFocusMenuItemAt(pane, items.length - 1);
+      wrFocusMenuItemAt(pane, items.length - 1, true);
       break;
     default:
       return false;
@@ -93,7 +96,7 @@ export function wrListenForMenuTypeahead(
     if (index === null) return;
     event.preventDefault();
     if (event.key === ' ') event.stopPropagation();
-    items[index]?.focus();
+    items[index]?.focus({ focusVisible: true });
   };
   pane.addEventListener('keydown', onKeydown, true);
   return onKeydown;

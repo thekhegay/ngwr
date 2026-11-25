@@ -5,7 +5,7 @@ import { provideRouter, Router, RouterOutlet } from '@angular/router';
 
 import { Subject } from 'rxjs';
 
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTabsRouting } from './router/tabs-routing';
 import { WrTab } from './tab';
@@ -138,6 +138,16 @@ describe('WrTabs', () => {
 
     key('ArrowRight');
     expect(selected()).toBe('One');
+  });
+
+  it('asks for a visible ring on the tab an arrow moves to', () => {
+    const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+    try {
+      key('ArrowRight');
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    } finally {
+      focus.mockRestore();
+    }
   });
 
   it('seeds past a disabled first tab, so the strip keeps its tab stop', () => {

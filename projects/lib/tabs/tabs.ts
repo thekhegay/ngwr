@@ -381,6 +381,6 @@ export class WrTabs implements WrTabsContext {
     const headerEl = this.stripRef()?.nativeElement.querySelector<HTMLElement>(
       `#${CSS.escape(this.headerId(next.key()))}`
     );
-    headerEl?.focus();
+    headerEl?.focus({ focusVisible: true });
   }
 }

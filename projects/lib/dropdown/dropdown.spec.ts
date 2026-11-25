@@ -277,6 +277,17 @@ describe('WrDropdown', () => {
     expect(document.activeElement).toBe(items()[2]);
   });
 
+  it('asks for a visible ring on the item an arrow moves to', async () => {
+    trigger().focus();
+    click(trigger());
+    await fixture.whenStable();
+    const focus = vi.spyOn(items()[0], 'focus');
+
+    key(trigger(), 'ArrowDown');
+
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+  });
+
   it('jumps to an item by a letter typed on the trigger', async () => {
     trigger().focus();
     click(trigger());

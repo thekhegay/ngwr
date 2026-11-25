@@ -1714,6 +1714,17 @@ describe('WrTable treegrid row focus', () => {
     expect(row('src').querySelector('.wr-table__tree-toggle')!.hasAttribute('tabindex')).toBe(false);
   });
 
+  it('asks for a visible ring on the row an arrow moves to', async () => {
+    fixture.componentInstance.expanded.set(['src']);
+    await fixture.whenStable();
+    row('src').focus();
+    const focus = vi.spyOn(row('app'), 'focus');
+
+    await press('ArrowDown');
+
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+  });
+
   it('moves between visible rows with the arrows, Home and End', async () => {
     fixture.componentInstance.expanded.set(['src']);
     await fixture.whenStable();

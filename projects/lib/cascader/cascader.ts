@@ -483,7 +483,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       return;
     }
     event.preventDefault();
-    stop?.focus();
+    stop?.focus({ focusVisible: true });
   }
 
   protected onOptionClick(colIndex: number, opt: WrCascaderOption<T>, event: Event): void {
@@ -543,16 +543,16 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
 
     switch (event.key) {
       case 'ArrowDown':
-        enabled[at + 1]?.focus();
+        enabled[at + 1]?.focus({ focusVisible: true });
         break;
       case 'ArrowUp':
-        if (at > 0) enabled[at - 1].focus();
+        if (at > 0) enabled[at - 1].focus({ focusVisible: true });
         break;
       case 'Home':
-        enabled[0]?.focus();
+        enabled[0]?.focus({ focusVisible: true });
         break;
       case 'End':
-        enabled[enabled.length - 1]?.focus();
+        enabled[enabled.length - 1]?.focus({ focusVisible: true });
         break;
       case inward: {
         if (opt.disabled || !opt.children?.length || this.disabled() || this.readonly()) break;
@@ -564,7 +564,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
               .querySelector<HTMLElement>(
                 `#${this.columnId(colIndex + 1)} [role="treeitem"]:not([aria-disabled="true"])`
               )
-              ?.focus(),
+              ?.focus({ focusVisible: true }),
           { injector: this.injector }
         );
         break;
@@ -572,7 +572,8 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
       case outward: {
         if (colIndex > 0) {
           const parent = this.parentOptionId(colIndex);
-          if (parent) this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${parent}`)?.focus();
+          if (parent)
+            this.overlayRef?.overlayElement.querySelector<HTMLElement>(`#${parent}`)?.focus({ focusVisible: true });
         } else if (opt.children?.length && this.isActiveAt(colIndex, opt.value)) {
           this.activePath.set([]);
         }
@@ -614,7 +615,7 @@ export class WrCascader<T = string> implements FormValueControl<unknown> {
     const labels = enabled.map(o => o.querySelector('.wr-cascader__opt-label')?.textContent ?? '');
     const index = this.typeahead.handleKey(event, labels, current ? enabled.indexOf(current) : -1);
     if (index === null || index < 0) return false;
-    enabled[index].focus();
+    enabled[index].focus({ focusVisible: true });
     return true;
   }
 

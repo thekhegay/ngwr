@@ -31,7 +31,7 @@ function listenForTypeahead(pane: HTMLElement, locale?: () => string | undefined
     if (index === null) return;
     event.preventDefault();
     if (event.key === ' ') event.stopPropagation();
-    items[index]?.focus();
+    items[index]?.focus({ focusVisible: true });
   };
   pane.addEventListener('keydown', onKeydown, true);
   return onKeydown;

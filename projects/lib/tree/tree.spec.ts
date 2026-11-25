@@ -337,6 +337,17 @@ describe('WrTree keyboard cursor', () => {
     expect(press('ArrowUp').defaultPrevented).toBe(true);
   });
 
+  it('asks for a visible ring on the row an arrow moves to', async () => {
+    const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+    try {
+      press('ArrowDown');
+      await fixture.whenStable();
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    } finally {
+      focus.mockRestore();
+    }
+  });
+
   it('follows a collapsed ancestor rather than whichever row takes its index', async () => {
     // The cursor was a bare index: collapsing `src` with the mouse while it sat
     // on `main.ts` (index 2) handed the tab stop to whatever row index 2 now

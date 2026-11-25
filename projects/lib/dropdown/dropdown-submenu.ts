@@ -169,7 +169,7 @@ export class WrDropdownSubmenu {
   private show(focus: boolean): void {
     this.clearTimers();
     if (!this.overlayRef) this.attach();
-    if (focus && this.overlayRef) wrDropdownItems(this.overlayRef.overlayElement)[0]?.focus();
+    if (focus && this.overlayRef) wrDropdownItems(this.overlayRef.overlayElement)[0]?.focus({ focusVisible: true });
   }
 
   private attach(): void {

@@ -757,7 +757,7 @@ export class WrEventCalendar {
         event.preventDefault();
         const cell = event.target as HTMLElement;
         const chip = cell.querySelector<HTMLElement>('.wr-event-calendar__chip');
-        if (chip) chip.focus();
+        if (chip) chip.focus({ focusVisible: true });
         else this.onCellClick(this.days()[day], minutes);
         return;
       }
@@ -997,12 +997,15 @@ export class WrEventCalendar {
 
   private focusCursor(from: HTMLElement): void {
     const [day, minutes] = this.cursorCell();
-    from.closest('[role="grid"]')?.querySelector<HTMLElement>(`[data-cell-index="${day}:${minutes}"]`)?.focus();
+    from
+      .closest('[role="grid"]')
+      ?.querySelector<HTMLElement>(`[data-cell-index="${day}:${minutes}"]`)
+      ?.focus({ focusVisible: true });
   }
 
   private focusCell(event: KeyboardEvent): void {
     event.preventDefault();
-    (event.target as HTMLElement).closest<HTMLElement>('[data-cell-date]')?.focus();
+    (event.target as HTMLElement).closest<HTMLElement>('[data-cell-date]')?.focus({ focusVisible: true });
   }
 
   /**

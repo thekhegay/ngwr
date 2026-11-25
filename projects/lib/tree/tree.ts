@@ -1096,18 +1096,18 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     switch (this.inlineKey(event.key)) {
       case 'ArrowDown':
         event.preventDefault();
-        this.focusIndex(Math.min(flat.length - 1, i + 1));
+        this.focusIndex(Math.min(flat.length - 1, i + 1), true);
         break;
       case 'ArrowUp':
         event.preventDefault();
-        this.focusIndex(Math.max(0, i - 1));
+        this.focusIndex(Math.max(0, i - 1), true);
         break;
       case 'ArrowRight':
         event.preventDefault();
         if (current.hasChildren && !this.expandedSet().has(current.node.id)) {
           this.toggleExpanded(current.node.id);
         } else if (current.hasChildren) {
-          this.focusIndex(Math.min(flat.length - 1, i + 1));
+          this.focusIndex(Math.min(flat.length - 1, i + 1), true);
         }
         break;
       case 'ArrowLeft':
@@ -1117,7 +1117,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
         } else if (current.depth > 0) {
           for (let j = i - 1; j >= 0; j--) {
             if (flat[j].depth < current.depth) {
-              this.focusIndex(j);
+              this.focusIndex(j, true);
               break;
             }
           }
@@ -1125,11 +1125,11 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
         break;
       case 'Home':
         event.preventDefault();
-        this.focusIndex(0);
+        this.focusIndex(0, true);
         break;
       case 'End':
         event.preventDefault();
-        this.focusIndex(flat.length - 1);
+        this.focusIndex(flat.length - 1, true);
         break;
       case 'Enter':
       case ' ':
@@ -1282,7 +1282,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       this.flat().map(row => ({ label: row.node.label, disabled: row.status !== null })),
       from
     );
-    if (match >= 0) this.focusIndex(match);
+    if (match >= 0) this.focusIndex(match, true);
     return true;
   }
 
@@ -1767,7 +1767,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     );
   }
 
-  private focusIndex(i: number): void {
+  /** `byKey` is a keyboard move: Firefox draws no focus ring on a scripted focus after a click unless asked. */
+  private focusIndex(i: number, byKey = false): void {
     this.focusedIndex.set(i);
     const row = this.flat()[i];
     // A status row has no id of its own: the slot index alone holds the cursor there.
@@ -1786,7 +1787,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     queueMicrotask(() => {
       const root = this.overlayRef?.overlayElement ?? this.host.nativeElement;
       const row = root.querySelector<HTMLElement>(`[data-tree-index="${i}"]`);
-      row?.focus();
+      row?.focus(byKey ? { focusVisible: true } : undefined);
     });
   }
 

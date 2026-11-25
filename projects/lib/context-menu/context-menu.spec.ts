@@ -347,6 +347,17 @@ describe('WrContextMenu', () => {
       expect(focused()).toBe('More');
     });
 
+    it('asks for a visible ring on the item an arrow moves to', () => {
+      const child = target().querySelector<HTMLElement>('.child')!;
+      child.focus();
+      rightClick();
+      const focus = vi.spyOn(items()[0], 'focus');
+
+      press(child, 'ArrowDown');
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    });
+
     it('jumps to an item by a letter typed outside the menu', () => {
       const child = target().querySelector<HTMLElement>('.child')!;
       child.focus();
