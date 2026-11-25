@@ -13,7 +13,6 @@ import { wrEn } from 'ngwr/i18n/en';
 import { wrRu } from 'ngwr/i18n/ru';
 import { provideWrIcons } from 'ngwr/icon';
 import { provideWrLoadingBarRouter } from 'ngwr/loading-bar/router';
-import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 import { VALIDATION_EN, VALIDATION_RU } from './app.validation';
 import { routing } from './routing';
@@ -89,7 +88,5 @@ export const appConfig: ApplicationConfig = {
       en: { app: { title: 'ngwr i18n demo', hello: 'Hello, {{name}}!' }, validation: VALIDATION_EN },
       ru: { app: { title: 'Демо ngwr i18n', hello: 'Привет, {{name}}!' }, validation: VALIDATION_RU },
     }),
-    // third-party — for the integration guide
-    provideEnvironmentNgxMask(),
   ],
 };

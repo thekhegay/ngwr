@@ -130,6 +130,13 @@
           },
           "configurations": {
             "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1800kB",
+                  "maximumError": "2500kB"
+                }
+              ],
               "outputHashing": "all",
               "extractLicenses": false,
               "sourceMap": false,

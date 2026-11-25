@@ -78,9 +78,32 @@ function buildSet({ name, dir }) {
   return out;
 }
 
+/**
+ * Lucide ships IconNode tuples, not SVG files. The catalog keeps the nodes, so
+ * the page still builds each icon through `wrLucide()`.
+ */
+async function buildLucide() {
+  const all = await import('lucide');
+  const out = {};
+  for (const key of Object.keys(all).sort()) {
+    const value = all[key];
+    if (!/^[A-Z]/.test(key) || !Array.isArray(value)) continue;
+    const name = key.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+    if (!(name in out)) out[name] = value;
+  }
+  return out;
+}
+
 mkdirSync(outDir, { recursive: true });
 
 let total = 0;
+{
+  const data = await buildLucide();
+  const path = join(outDir, 'lucide.json');
+  writeFileSync(path, JSON.stringify(data));
+  console.log(`[icons:sets] lucide — ${Object.keys(data).length} icons → ${path}`);
+  total += Object.keys(data).length;
+}
 for (const set of SETS) {
   const data = buildSet(set);
   if (!data) continue;

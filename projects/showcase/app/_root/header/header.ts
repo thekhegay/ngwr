@@ -9,6 +9,7 @@ import { WrCommandPalette, type WrCommandItem } from 'ngwr/command-palette';
 import { WrDensity, type WrDensityValue } from 'ngwr/density';
 import { WrDrawer } from 'ngwr/drawer';
 import { WrDropdown, WrDropdownItem, WrDropdownMenu } from 'ngwr/dropdown';
+import { WrHotkey } from 'ngwr/hotkey';
 import { wrLucideIcons, provideWrIcons, WrIcon } from 'ngwr/icon';
 import { WrPopover } from 'ngwr/popover';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -298,6 +299,16 @@ export class Header {
     const platformId = inject(PLATFORM_ID);
     if (!isPlatformBrowser(platformId)) return;
 
+    // The palette loads on first use, so the chord is bound here and the palette's own is off.
+    const hotkey = inject(WrHotkey).bind(
+      'mod+k',
+      event => {
+        event.preventDefault();
+        this.searchOpen.update(v => !v);
+      },
+      { allowInInput: true }
+    );
+
     const host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
     const root = document.documentElement;
 
@@ -310,6 +321,7 @@ export class Header {
     publish();
 
     inject(DestroyRef).onDestroy(() => {
+      hotkey.unbind();
       observer.disconnect();
       root.style.removeProperty('--ngwr-header-height');
     });

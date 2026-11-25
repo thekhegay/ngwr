@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { WrInput, WrInputGroup, WrInputPrefix, WrInputSuffix, WrPasswordToggle } from 'ngwr/input';
-import { NgxMaskDirective } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 import {
   DocApiComponent,
@@ -17,6 +17,8 @@ import {
 @Component({
   selector: 'ngwr-input-page',
   templateUrl: './input.html',
+  // Component-level, so ngx-mask stays out of the root providers and the main bundle.
+  providers: [provideNgxMask()],
   imports: [
     FormsModule,
     NgxMaskDirective,
