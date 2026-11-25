@@ -20,25 +20,28 @@ function isPlain(options: object): boolean {
 
 /**
  * Building an `Intl` object costs about a tenth of a millisecond and every one is
- * stateless, so one per distinct key serves every caller. The key is computed from
- * `options` at call time, so a caller that mutates its object afterwards cannot
- * change what an earlier key maps to. Option order is part of the key. Options
- * that are not a plain object, or hold a non-enumerable property, are built
- * fresh: `Intl` reads those properties, `JSON.stringify` does not.
+ * stateless, so one per distinct key serves every caller. The options are read
+ * once into a plain snapshot, which is both the key and what `Intl` is built
+ * from, so a getter, a `toJSON` or a later mutation cannot make the two differ.
+ * Option order is part of the key. Options that are not a plain object, or hold
+ * a non-enumerable property, are built fresh: `Intl` reads those properties and
+ * the snapshot would not.
  */
-function cached<T extends object>(
+function cached<O extends object, T extends object>(
   kind: string,
   locale: string | undefined,
-  options: object | undefined,
-  build: () => T
+  options: O | undefined,
+  build: (options: O | undefined) => T
 ): T {
-  if (options && !isPlain(options)) return build();
+  if (options && !isPlain(options)) return build(options);
+  const entries = options ? Object.entries(options) : undefined;
+  const snapshot = entries ? (Object.fromEntries(entries) as O) : undefined;
   let map = CACHES.get(kind);
   if (!map) CACHES.set(kind, (map = new Map<string, object>()));
-  const key = options ? `${locale}|${JSON.stringify(options)}` : `${locale}`;
+  const key = entries ? `${locale}|${JSON.stringify(entries)}` : `${locale}`;
   let found = map.get(key) as T | undefined;
   if (!found) {
-    found = build();
+    found = build(snapshot);
     if (map.size >= LIMIT) map.clear();
     map.set(key, found);
   }
@@ -51,7 +54,7 @@ function cached<T extends object>(
  * @internal
  */
 export function wrIntlNumberFormat(locale: string | undefined, options?: Intl.NumberFormatOptions): Intl.NumberFormat {
-  return cached('number', locale, options, () => new Intl.NumberFormat(locale, options));
+  return cached('number', locale, options, opts => new Intl.NumberFormat(locale, opts));
 }
 
 /**
@@ -63,7 +66,7 @@ export function wrIntlDateTimeFormat(
   locale: string | undefined,
   options?: Intl.DateTimeFormatOptions
 ): Intl.DateTimeFormat {
-  return cached('date', locale, options, () => new Intl.DateTimeFormat(locale, options));
+  return cached('date', locale, options, opts => new Intl.DateTimeFormat(locale, opts));
 }
 
 /**
@@ -72,7 +75,7 @@ export function wrIntlDateTimeFormat(
  * @internal
  */
 export function wrIntlPluralRules(locale: string | undefined, options?: Intl.PluralRulesOptions): Intl.PluralRules {
-  return cached('plural', locale, options, () => new Intl.PluralRules(locale, options));
+  return cached('plural', locale, options, opts => new Intl.PluralRules(locale, opts));
 }
 
 /**
@@ -81,7 +84,7 @@ export function wrIntlPluralRules(locale: string | undefined, options?: Intl.Plu
  * @internal
  */
 export function wrIntlListFormat(locale: string | undefined, options?: Intl.ListFormatOptions): Intl.ListFormat {
-  return cached('list', locale, options, () => new Intl.ListFormat(locale, options));
+  return cached('list', locale, options, opts => new Intl.ListFormat(locale, opts));
 }
 
 /**
@@ -93,5 +96,5 @@ export function wrIntlRelativeTimeFormat(
   locale: string | undefined,
   options?: Intl.RelativeTimeFormatOptions
 ): Intl.RelativeTimeFormat {
-  return cached('relative', locale, options, () => new Intl.RelativeTimeFormat(locale, options));
+  return cached('relative', locale, options, opts => new Intl.RelativeTimeFormat(locale, opts));
 }
