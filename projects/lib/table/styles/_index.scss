@@ -764,6 +764,15 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   &__empty {
     text-align: center;
     color: var(--wr-color-on-surface-muted);
+    padding: 0;
+  }
+
+  // The cell spans every column, so in a table wider than its scroll box the
+  // label rides along at the inline start, at the scroll box's width the component sets.
+  &__empty-label {
+    position: sticky;
+    inset-inline-start: 0;
+    box-sizing: border-box;
     padding: var(--wr-table-empty-padding);
   }
 

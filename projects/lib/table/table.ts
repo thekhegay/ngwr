@@ -1716,6 +1716,27 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       onCleanup(() => observer.disconnect());
     });
 
+    // (E) The empty label centres on the visible width of the scroll box, not on
+    // a table wider than it.
+    effect(onCleanup => {
+      const el = this.scrollEl()?.nativeElement;
+      if (
+        !el ||
+        this.loading() ||
+        this.renderRows().length ||
+        !isPlatformBrowser(this.platformId) ||
+        typeof ResizeObserver === 'undefined'
+      ) {
+        this.emptyWidth.set(null);
+        return;
+      }
+      const measure = (): void => this.emptyWidth.set(el.clientWidth);
+      const observer = new ResizeObserver(measure);
+      observer.observe(el);
+      measure();
+      onCleanup(() => observer.disconnect());
+    });
+
     // (D) A pinned edge casts its shadow only over content hidden behind it, so
     // the scroll area reports which inline sides it overflows on.
     effect(onCleanup => {
@@ -2127,6 +2148,8 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   });
 
   /** Measured heights (px) of the sticky header and footer, which `scroll-padding` keeps clear; `null` until measured. */
+  /** The scroll box's visible width while the empty row shows, else `null`. */
+  protected readonly emptyWidth = signal<number | null>(null);
   protected readonly stickyEdges = signal<{ head: number | null; foot: number | null }>({ head: null, foot: null });
 
   /** Rendered window [start,end) + spacer pads (px). Pure math, O(1) per scroll frame. */
