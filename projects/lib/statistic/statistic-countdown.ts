@@ -25,6 +25,9 @@ import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 // Helpers
 
+/** A longer `setTimeout` delay overflows and fires at once. */
+const MAX_DELAY = 2_147_483_647;
+
 function toMs(value: Date | string | number): number {
   if (value instanceof Date) return value.getTime();
   if (typeof value === 'number') return value;
@@ -175,7 +178,16 @@ export class WrStatisticCountdown {
     // what keeps a period change from leaving the old interval running beside
     // the new one.
     effect(onCleanup => {
-      if (this.finished() || !this.platform.pageVisible()) return;
+      if (this.finished()) return;
+      if (!this.platform.pageVisible()) {
+        // Hidden, nobody reads the time, but `countdownEnd` still fires on time:
+        // one timer for the target instead of a tick each second.
+        const target = this.targetMs();
+        if (!Number.isFinite(target)) return;
+        const handle = setTimeout(() => this.tick(), Math.min(Math.max(0, target - Date.now()), MAX_DELAY));
+        onCleanup(() => clearTimeout(handle));
+        return;
+      }
       // The shown time comes from the clock, so a hidden stretch is caught up at once.
       untracked(() => this.tick());
       const handle = setInterval(() => this.tick(), this.tickMs());
