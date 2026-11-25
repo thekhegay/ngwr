@@ -808,3 +808,75 @@ describe('WrTab count', () => {
     expect(header(0).hasAttribute('aria-label')).toBe(false);
   });
 });
+
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs [keepMounted]="keep()">
+      <wr-tab title="One" key="one"><input class="draft" /></wr-tab>
+      <wr-tab title="Two" key="two">Panel two</wr-tab>
+      <wr-tab title="Three" key="three">Panel three</wr-tab>
+    </wr-tabs>
+  `,
+})
+class KeepHost {
+  readonly keep = signal(true);
+}
+
+describe('WrTabs keepMounted', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<KeepHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const tabs = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="tab"]')];
+  const panels = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+  const select = (i: number): void => {
+    tabs()[i].click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(KeepHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders a panel on its first visit only', () => {
+    expect(panels()).toHaveLength(1);
+    select(1);
+    expect(panels()).toHaveLength(2);
+    expect(root().textContent).not.toContain('Panel three');
+  });
+
+  it('keeps the state of a panel across a switch', () => {
+    const input = root().querySelector<HTMLInputElement>('.draft')!;
+    input.value = 'typed';
+    select(1);
+    select(0);
+    expect(root().querySelector<HTMLInputElement>('.draft')).toBe(input);
+    expect(input.value).toBe('typed');
+  });
+
+  it('hides the inactive panels', () => {
+    select(1);
+    expect(panels().map(p => p.hidden)).toEqual([true, false]);
+  });
+
+  it('keeps role, id and the labelling on every panel, and aria-controls on a panel that exists', () => {
+    select(1);
+    panels().forEach((p, i) => {
+      expect(tabs()[i].getAttribute('aria-controls')).toBe(p.id);
+      expect(p.getAttribute('aria-labelledby')).toBe(tabs()[i].id);
+    });
+    expect(tabs()[2].hasAttribute('aria-controls')).toBe(false);
+  });
+
+  it('destroys the other panels when off, as before', () => {
+    fixture.componentInstance.keep.set(false);
+    fixture.detectChanges();
+    select(1);
+    expect(panels()).toHaveLength(1);
+    expect(panels()[0].hidden).toBe(false);
+    expect(tabs()[2].getAttribute('aria-controls')).toBeTruthy();
+  });
+});

@@ -1,7 +1,7 @@
 <ngwr-doc-page
   title="Tabs"
   description="Switch between panels, or between routes."
-  updated="16.7.0"
+  updated="16.10.0"
   [keywords]="['tabs', 'wr-tabs', 'wr-tab']"
   [labels]="['Component']"
 >
@@ -20,6 +20,20 @@
 2026-05-21 12:00:00 boot ok
 2026-05-21 12:00:01 ready</pre>
           </wr-tab>
+        </wr-tabs>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Keep panels mounted"
+    description="`keepMounted` renders each panel on its first visit and keeps it, hidden, so typed text and scroll position survive a switch. Content tabs only."
+  >
+    <ngwr-doc-snippet [code]="snippets.keepMounted">
+      <div style="width: 100%">
+        <wr-tabs keepMounted>
+          <wr-tab key="draft" title="Draft"><input wrInput placeholder="Type, switch, come back" /></wr-tab>
+          <wr-tab key="other" title="Other">Other</wr-tab>
         </wr-tabs>
       </div>
     </ngwr-doc-snippet>

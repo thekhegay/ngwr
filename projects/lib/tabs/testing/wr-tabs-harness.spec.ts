@@ -40,6 +40,17 @@ class Host {
   readonly saves = signal(0);
 }
 
+@Component({
+  imports: [WrTab, WrTabs],
+  template: `
+    <wr-tabs keepMounted>
+      <wr-tab title="One" key="one">Panel one</wr-tab>
+      <wr-tab title="Two" key="two">Panel two</wr-tab>
+    </wr-tabs>
+  `,
+})
+class KeepHost {}
+
 @Component({ template: 'Routed page' })
 class Page {}
 
@@ -715,6 +726,25 @@ describe('WrTabHarness — count', () => {
     expect(await sent.getCount()).toBeNull();
     expect(await sent.getAccessibleName()).toBe('Sent');
     expect(await rating.getCount()).toBe(2.5);
+    fixture.destroy();
+  });
+});
+
+describe('WrTabHarness under keepMounted', () => {
+  it('counts only the showing panel, though a visited one stays in the DOM', async () => {
+    const fixture = TestBed.createComponent(KeepHost);
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const tabs = await loader.getHarness(WrTabsHarness);
+    const [one, two] = await tabs.getTabs();
+
+    await two.click();
+    expect((fixture.nativeElement as HTMLElement).querySelectorAll('[role="tabpanel"]')).toHaveLength(2);
+    expect(await one.hasPanel()).toBe(false);
+    expect(await two.hasPanel()).toBe(true);
+    expect(await two.getPanelText()).toContain('Panel two');
+    expect(await two.isPanelBound()).toBe(true);
+    await expect(one.getPanelText()).rejects.toThrow(/not rendered, or is hidden/);
+    expect(await tabs.getPanelText()).toContain('Panel two');
     fixture.destroy();
   });
 });

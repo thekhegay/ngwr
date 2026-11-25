@@ -30,7 +30,9 @@ import type { WrTabHarnessFilters } from './types';
  * the tab's content. The panel is not a descendant of the header — it is a sibling
  * of the whole strip — so it is resolved through the `aria-controls` id, which is
  * also the pairing {@link isPanelBound} checks. Only the SELECTED tab has a panel
- * to reach: `<wr-tabs>` renders one panel and destroys it on every switch.
+ * to reach. Without `keepMounted`, `<wr-tabs>` renders one panel and destroys it on
+ * every switch. With it, a visited tab's panel stays in the DOM but `hidden`, and a
+ * hidden panel does not count as reachable.
  *
  * @example
  * ```ts
@@ -159,7 +161,10 @@ export class WrTabHarness extends ContentContainerComponentHarness {
     return (await this.host()).getAttribute('aria-controls');
   }
 
-  /** Whether this tab's panel is in the DOM right now — true only for the selected tab. */
+  /**
+   * Whether this tab's panel is showing right now — true only for the selected tab.
+   * A panel `keepMounted` keeps in the DOM but `hidden` does not count.
+   */
   async hasPanel(): Promise<boolean> {
     return (await this.panelOrNull()) !== null;
   }
@@ -188,10 +193,10 @@ export class WrTabHarness extends ContentContainerComponentHarness {
    * The text of this tab's panel, trimmed.
    *
    * Throws rather than answering `''` for a tab whose panel is not rendered, and
-   * the message says which of the two reasons it is: `<wr-tabs>` keeps only the
-   * selected tab's panel in the DOM (the content of every other tab sits in an
-   * unrendered `<ng-template>`, so switching tabs destroys a panel and builds the
-   * next one), and a router strip renders no panel at all.
+   * the message says which of the two reasons it is: the panel is not showing
+   * (without `keepMounted` only the selected tab's panel is in the DOM and a switch
+   * destroys it; with it, an unselected panel is `hidden`), or a router strip renders
+   * no panel at all.
    */
   async getPanelText(): Promise<string> {
     return (await this.panelOrThrow('getPanelText')).text();
@@ -236,13 +241,14 @@ export class WrTabHarness extends ContentContainerComponentHarness {
     return this.documentRootLocatorFactory().harnessLoaderFor(WrTabHarness.byId(id));
   }
 
-  /** The panel element, or `null` when this tab has none rendered. */
+  /** The panel element, or `null` when this tab has none showing (absent, or `hidden`). */
   private async panelOrNull(): Promise<TestElement | null> {
     const id = await this.getPanelId();
     if (id === null) return null;
     // From the document root: the panel is a sibling of the strip, not a descendant
     // of the header this harness is hosted on.
-    return this.documentRootLocatorFactory().locatorForOptional(WrTabHarness.byId(id))();
+    const panel = await this.documentRootLocatorFactory().locatorForOptional(WrTabHarness.byId(id))();
+    return panel && !(await panel.getProperty<boolean>('hidden')) ? panel : null;
   }
 
   /** The panel element, or a failure naming which of the two reasons there isn't one. */
@@ -251,9 +257,9 @@ export class WrTabHarness extends ContentContainerComponentHarness {
     const panel = await this.panelOrNull();
     if (!panel) {
       throw new Error(
-        `WrTabHarness.${method}(): the panel for "${await this.getLabel()}" is not rendered. <wr-tabs> keeps ` +
-          'only the SELECTED panel in the DOM — the content of every other tab waits in an unrendered ' +
-          '<ng-template> — so select the tab first.'
+        `WrTabHarness.${method}(): the panel for "${await this.getLabel()}" is not rendered, or is hidden. <wr-tabs> shows ` +
+          'only the SELECTED panel — without keepMounted the others are not rendered, with it they are ' +
+          'hidden — so select the tab first.'
       );
     }
     return panel;
