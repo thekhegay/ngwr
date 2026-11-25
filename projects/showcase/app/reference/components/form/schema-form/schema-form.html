@@ -3,7 +3,7 @@
   description="Draws a whole form from a Signal Forms schema."
   [keywords]="['schema form', 'signal forms', 'generated form', 'metadata', 'wr-schema-form']"
   [labels]="['Component', 'Signal Forms']"
-  updated="16.9.0"
+  updated="16.10.0"
 >
   <ngwr-doc-section
     title="Basic usage"
@@ -62,11 +62,18 @@
 
   <ngwr-doc-section
     title="File limits"
-    description="`maxSize` (bytes per file) and `maxFiles` cap a `file` field. A file past a limit is refused and never reaches the value. State the limits in `hint`."
+    description="`maxSize` (bytes per file) and `maxFiles` cap a `file` field. A file past a limit is refused and never reaches the value. Listen to `(rejected)` to say why."
   >
     <ngwr-doc-snippet [files]="fileLimitsFiles">
       <div style="max-width: 34rem">
-        <wr-schema-form [field]="documents" />
+        <wr-schema-form [field]="documents" (rejected)="refused.set($event)" />
+        @if (refused(); as refusal) {
+          <wr-alert
+            type="warning"
+            style="margin-top: 1rem"
+            [message]="`${refusal.rejections.length} file(s) refused in ${refusal.key}: ${refusal.rejections[0].reason}`"
+          />
+        }
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

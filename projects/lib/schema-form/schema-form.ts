@@ -16,13 +16,14 @@ import {
   inject,
   input,
   isDevMode,
+  output,
 } from '@angular/core';
 import { FormField, type Field, type FieldState, type FieldTree, isFieldTree } from '@angular/forms/signals';
 
 import { WrButton } from 'ngwr/button';
 import { WrCheckbox } from 'ngwr/checkbox';
 import { WrDatePicker, WrDateRangePicker } from 'ngwr/date-picker';
-import { WrFileUpload } from 'ngwr/file-upload';
+import { WrFileUpload, type WrFileUploadRejection } from 'ngwr/file-upload';
 import { WR_FIELD, WrFormField, wrFieldLabel, type WrFieldSpec } from 'ngwr/form';
 import { useI18nText } from 'ngwr/i18n';
 import { WrInput } from 'ngwr/input';
@@ -37,6 +38,7 @@ import { WrTextarea } from 'ngwr/textarea';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 import { WrSchemaFormArrayState } from './array-state';
+import type { WrSchemaFormRejection } from './types';
 
 /** One field the template draws, resolved once per schema change. */
 interface WrRenderedField {
@@ -296,6 +298,14 @@ export class WrSchemaForm<T extends object> {
   /** Text of the button that removes one item of a repeating group. Falls back to `common.remove`. */
   readonly removeLabel = input<string | null>(null);
 
+  /**
+   * Fires when a `kind: 'file'` field refuses files past its `accept`, `maxSize`
+   * or `maxFiles`, once per refusal, with the field's key, the field itself and
+   * the refused files with their reasons. A field inside a repeating group
+   * reaches this output too, `field` telling its item from the others.
+   */
+  readonly rejected = output<WrSchemaFormRejection>();
+
   protected readonly resolvedAdd = useI18nText(this.addLabel, 'common.add', 'Add');
   protected readonly resolvedRemove = useI18nText(this.removeLabel, 'common.remove', 'Remove');
 
@@ -398,6 +408,11 @@ export class WrSchemaForm<T extends object> {
     if (isDevMode()) all.forEach(f => warnOnKindMismatch(f));
     return out;
   });
+
+  /** Passes the refusals of one file field up with the field that made them. */
+  protected reject(f: WrRenderedField, rejections: readonly WrFileUploadRejection[]): void {
+    this.rejected.emit({ key: f.key, field: f.field, rejections });
+  }
 
   /** Types the context of the cell template, which an outlet hands over untyped. */
   protected rendered(field: unknown): WrRenderedField {
