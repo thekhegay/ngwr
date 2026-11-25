@@ -87,6 +87,7 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   --wr-table-selection-bar-height: 2.5rem;
   --wr-table-selection-bar-inset: 2.75rem;
   --wr-table-selection-bar-font-weight: var(--wr-font-weight-medium);
+  --wr-table-loading-backdrop-filter: var(--wr-overlay-backdrop-filter);
   --wr-table-loading-bar-height: 0.125rem;
   --wr-table-loading-bar-color: var(--wr-color-primary);
   --wr-table-loading-bar-track: color-mix(in srgb, var(--wr-color-primary) 20%, transparent);
@@ -887,7 +888,7 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     align-items: center;
     justify-content: center;
     background: color-mix(in srgb, var(--wr-color-surface) 70%, transparent);
-    backdrop-filter: blur(2px);
+    backdrop-filter: var(--wr-table-loading-backdrop-filter);
     // Above the pinned sticky cells (th z-index 2), so loading veils them too.
     z-index: 3;
     // A positioned box over the whole table swallowed every click while leaving

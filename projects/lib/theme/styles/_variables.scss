@@ -164,6 +164,8 @@
   // reference these so global timing tweaks land everywhere in one place.
   --wr-overlay-duration: var(--wr-duration-base);
   --wr-overlay-ease: var(--wr-ease-out);
+  // The blur behind a modal backdrop and the table loading veil.
+  --wr-overlay-backdrop-filter: blur(2px);
 
   // Typography
   //

@@ -21,6 +21,7 @@
   --wr-command-palette-padding-top: 6rem;
   --wr-command-palette-padding-x: var(--wr-space-lg);
   --wr-command-palette-padding-bottom: var(--wr-space-lg);
+  --wr-command-palette-backdrop-filter: blur(4px);
   --wr-command-palette-font-family: var(--wr-font-family-base);
 
   // A `popover="manual"` host: the UA sheet shrinks it to its content, centres
@@ -48,7 +49,7 @@
     position: absolute;
     inset: 0;
     background: var(--wr-color-overlay);
-    backdrop-filter: blur(4px);
+    backdrop-filter: var(--wr-command-palette-backdrop-filter);
     pointer-events: auto;
     animation: wr-cmd-fade var(--wr-duration-base) var(--wr-ease-out);
   }
