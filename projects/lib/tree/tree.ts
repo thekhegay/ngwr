@@ -1178,7 +1178,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   protected onTriggerClick(event: MouseEvent): void {
     if (this.disabled() || this.readonly()) return;
     // Enter and Space reach here as a click with no pointer detail.
-    this.openedByKey = event.detail === 0;
+    this.openedByKey = !this.isOpen() && event.detail === 0;
     this.openState.update(v => !v);
   }
 
