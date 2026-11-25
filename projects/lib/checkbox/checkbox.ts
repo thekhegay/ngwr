@@ -8,11 +8,11 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   Component,
-  DestroyRef,
   type ElementRef,
   ViewEncapsulation,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
   model,
@@ -100,14 +100,23 @@ export class WrCheckbox implements FormCheckboxControl {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('checkbox');
 
-    afterNextRender(() => {
+    afterNextRender(() => this.rendered.set(true));
+
+    // `hasText` only matters while a form field's label could name the box, so
+    // the observer exists only then.
+    effect(onCleanup => {
+      if (
+        !this.rendered() ||
+        !(!this.ariaLabelledby() && !this.group && !this.ariaLabel() && this.fieldAria.labelledBy() !== null)
+      )
+        return;
       const text = this.textEl().nativeElement;
       const sync = (): void => this.hasText.set(hasNamingText(text));
       sync();
       if (typeof MutationObserver === 'undefined') return;
       const observer = new MutationObserver(sync);
       observer.observe(text, { childList: true, characterData: true, subtree: true });
-      this.destroyRef.onDestroy(() => observer.disconnect());
+      onCleanup(() => observer.disconnect());
     });
   }
 
@@ -224,13 +233,13 @@ export class WrCheckbox implements FormCheckboxControl {
 
   private readonly native = viewChild.required<ElementRef<HTMLInputElement>>('native');
   private readonly textEl = viewChild.required<ElementRef<HTMLElement>>('text');
-  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Whether the projected content names the box. Assumed `true` until the first
    * render has looked, so the server renders the own-label path.
    */
   private readonly hasText = signal(true);
+  private readonly rendered = signal(false);
 
   /** Rendered "is checked" — reads the group when grouped, else the `checked` model. */
   protected readonly isChecked = computed(() =>

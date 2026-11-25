@@ -5,7 +5,18 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { Component, ElementRef, ViewEncapsulation, computed, inject, input, output, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  ViewEncapsulation,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 
 import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
@@ -36,8 +47,6 @@ import type { WrToastConfig, WrToastType } from './types';
     '(mouseleave)': 'onPointer(false)',
     '(focusin)': 'onFocusIn()',
     '(focusout)': 'onFocusOut($event)',
-    '(touchstart)': 'onSwipeStart($event)',
-    '(touchmove)': 'onSwipeMove($event)',
     '(touchend)': 'onSwipeEnd()',
     '(touchcancel)': 'onSwipeEnd()',
   },
@@ -45,6 +54,18 @@ import type { WrToastConfig, WrToastType } from './types';
 export class WrToastItem {
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('toast');
+    const destroyRef = inject(DestroyRef);
+    // Passive, so the browser never waits on the handlers to scroll: neither calls `preventDefault`.
+    afterNextRender(() => {
+      const el = this.elRef.nativeElement;
+      const stop = new AbortController();
+      el.addEventListener('touchstart', event => this.onSwipeStart(event), { passive: true, signal: stop.signal });
+      el.addEventListener('touchmove', event => this.onSwipeMove(event), { passive: true, signal: stop.signal });
+      destroyRef.onDestroy(() => stop.abort());
+    });
+    destroyRef.onDestroy(() => {
+      if (this.copyResetTimer) clearTimeout(this.copyResetTimer);
+    });
   }
 
   readonly type = input<WrToastType>('info');

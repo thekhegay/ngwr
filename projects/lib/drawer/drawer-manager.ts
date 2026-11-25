@@ -21,7 +21,7 @@ import {
   wrFocusOverlay,
   wrFollowDirection,
 } from 'ngwr/overlay';
-import { wrIsComposing, wrToClassList } from 'ngwr/utils';
+import { wrIsComposing, wrSetAttribute, wrToClassList } from 'ngwr/utils';
 
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
 import { WrDrawerRef } from './drawer-ref';
@@ -204,8 +204,7 @@ export class WrDrawerManager {
       const labelSync = afterEveryRender(
         () => {
           const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
-          if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
-          else host.removeAttribute('aria-labelledby');
+          wrSetAttribute(host, 'aria-labelledby', titleEl?.id);
         },
         { injector: this.parentInjector }
       );

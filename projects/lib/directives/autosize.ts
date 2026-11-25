@@ -110,8 +110,10 @@ export class WrAutosize {
     node.style.height = 'auto';
     const min = this.minRows() * lineHeight + paddingY + border;
     const max = this.maxRows() > 0 ? this.maxRows() * lineHeight + paddingY + border : Infinity;
-    const next = Math.min(Math.max(node.scrollHeight + border, min), max);
+    const needed = node.scrollHeight + border;
+    const next = Math.min(Math.max(needed, min), max);
     node.style.height = `${next}px`;
-    node.style.overflowY = node.scrollHeight + border > max ? 'auto' : 'hidden';
+    // `next` joins the test because a field taller than its own cap (min above max) overflows.
+    node.style.overflowY = Math.max(needed, next) > max ? 'auto' : 'hidden';
   }
 }

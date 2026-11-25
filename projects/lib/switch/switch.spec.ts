@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { FormField, disabled, form } from '@angular/forms/signals';
 
 import { WrFormField } from 'ngwr/form';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSwitch, type WrSwitchSize } from './switch';
 
@@ -332,5 +332,52 @@ describe('WrSwitch inside a form field', () => {
 
     expect(input().hasAttribute('aria-labelledby')).toBe(false);
     expect(name()).toBe('Explicit');
+  });
+});
+
+@Component({
+  imports: [WrFormField, WrSwitch],
+  template: `
+    @if (inField()) {
+      <wr-form-field label="Field label"><wr-switch>Text</wr-switch></wr-form-field>
+    } @else {
+      <wr-switch>Text</wr-switch>
+    }
+  `,
+})
+class ObserverHost {
+  readonly inField = signal(false);
+}
+
+describe('WrSwitch content observer', () => {
+  const observers: unknown[] = [];
+
+  beforeEach(() => {
+    observers.length = 0;
+    vi.stubGlobal(
+      'MutationObserver',
+      class {
+        constructor() {
+          observers.push(this);
+        }
+        observe = vi.fn();
+        disconnect = vi.fn();
+        takeRecords = vi.fn(() => []);
+      }
+    );
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('watches its text only where a form field label could name it', () => {
+    const fixture = TestBed.createComponent(ObserverHost);
+    fixture.detectChanges();
+    TestBed.tick();
+    expect(observers).toHaveLength(0);
+
+    fixture.componentInstance.inField.set(true);
+    fixture.detectChanges();
+    TestBed.tick();
+    expect(observers).toHaveLength(1);
   });
 });

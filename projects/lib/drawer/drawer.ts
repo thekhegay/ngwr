@@ -32,7 +32,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { useI18nText } from 'ngwr/i18n';
 import { WR_OVERLAY, WrOverlayOrder, WrScrollBlock, wrFocusOverlay, wrFollowDirection } from 'ngwr/overlay';
-import { wrIsComposing, wrToClassList, wrCheckStyles, type WrClassInput, wrRestoreFocus } from 'ngwr/utils';
+import {
+  wrIsComposing,
+  wrToClassList,
+  wrCheckStyles,
+  type WrClassInput,
+  wrRestoreFocus,
+  wrSetAttribute,
+} from 'ngwr/utils';
 
 import { WrDrawerTitle } from './directives/drawer-title';
 import { drawerHasFocus, focusIsLost } from './drawer-focus';
@@ -249,8 +256,7 @@ export class WrDrawer {
     if (!host) return;
 
     const titleEl = host.querySelector<HTMLElement>('[wrDrawerTitle], [wr-drawer-title]');
-    if (titleEl?.id) host.setAttribute('aria-labelledby', titleEl.id);
-    else host.removeAttribute('aria-labelledby');
+    wrSetAttribute(host, 'aria-labelledby', titleEl?.id);
   }
 
   private positionStrategy(pos: WrDrawerPosition): GlobalPositionStrategy {

@@ -11,8 +11,10 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   Component,
   DestroyRef,
+  type ElementRef,
   PLATFORM_ID,
   ViewEncapsulation,
+  afterNextRender,
   computed,
   contentChildren,
   forwardRef,
@@ -21,8 +23,10 @@ import {
   input,
   model,
   signal,
+  viewChild,
 } from '@angular/core';
 
+import { WrInView } from 'ngwr/directives';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
 import { WrPlatform } from 'ngwr/platform';
 import { wrCheckStyles } from 'ngwr/utils';
@@ -67,6 +71,7 @@ const SWIPE_SLOP = 10;
     '(focusin)': 'onFocusIn()',
     '(focusout)': 'onFocusOut()',
   },
+  imports: [WrInView],
   providers: [
     {
       provide: WR_CAROUSEL,
@@ -234,7 +239,11 @@ export class WrCarousel implements WrCarouselContext {
    * followed while the page is open, until the reader presses the button: a
    * press is an explicit answer and outranks the preference.
    */
-  private readonly reducedMotion = inject(WrPlatform).prefersReducedMotion;
+  private readonly platform = inject(WrPlatform);
+  private readonly reducedMotion = this.platform.prefersReducedMotion;
+  /** `wrInView` stays silent for a host that starts out of view, so a browser that can observe starts at `false`. */
+  protected readonly inView = signal(typeof IntersectionObserver === 'undefined');
+  private readonly viewport = viewChild.required<ElementRef<HTMLElement>>('viewport');
 
   /** What the reader last asked of the pause button, `null` until it is pressed. */
   private readonly asked = signal<'play' | 'pause' | null>(null);
@@ -246,7 +255,15 @@ export class WrCarousel implements WrCarouselContext {
   });
 
   /** The slides are advancing on their own right now. */
-  protected readonly rotating = computed(() => this.isBrowser && this.playing() && !this.paused() && this.count() > 1);
+  protected readonly rotating = computed(
+    () =>
+      this.isBrowser &&
+      this.playing() &&
+      !this.paused() &&
+      this.count() > 1 &&
+      this.platform.pageVisible() &&
+      this.inView()
+  );
 
   /**
    * Text of the live region: the position after a move the reader made. Empty
@@ -282,6 +299,18 @@ export class WrCarousel implements WrCarouselContext {
       // NaN and a fraction from the host are repaired here: `Math.min` and `Math.max` keep NaN.
       const clamped = Number.isFinite(current) ? Math.min(Math.max(0, Math.floor(current)), max) : 0;
       if (clamped !== current) this.active.set(clamped);
+    });
+
+    // Passive, so the browser never waits on the handlers to scroll: none of them calls `preventDefault`.
+    afterNextRender(() => {
+      const viewport = this.viewport().nativeElement;
+      const stop = new AbortController();
+      viewport.addEventListener('touchstart', event => this.onSwipeStart(event), {
+        passive: true,
+        signal: stop.signal,
+      });
+      viewport.addEventListener('touchmove', event => this.onSwipeMove(event), { passive: true, signal: stop.signal });
+      this.destroyRef.onDestroy(() => stop.abort());
     });
 
     this.destroyRef.onDestroy(() => {

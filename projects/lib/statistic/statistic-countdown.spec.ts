@@ -71,6 +71,27 @@ describe('WrStatisticCountdown', () => {
     vi.restoreAllMocks();
   });
 
+  it('runs no interval while the page is hidden and shows the right time on return', async () => {
+    const setVisibility = (state: 'visible' | 'hidden'): void => {
+      Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+      fixture.detectChanges();
+    };
+    try {
+      await mount();
+      setVisibility('hidden');
+      const spy = vi.spyOn(globalThis, 'setInterval');
+      vi.advanceTimersByTime(10 * SECOND);
+      expect(text()).toBe('01:00:00');
+
+      setVisibility('visible');
+      expect(text()).toBe('00:59:50');
+      expect(spy).toHaveBeenCalledTimes(1);
+    } finally {
+      Reflect.deleteProperty(document, 'visibilityState');
+    }
+  });
+
   it('shows the time left before the first tick ever fires', async () => {
     // Seeded synchronously, because the prerendered HTML has to hold a real
     // value rather than 00:00:00.

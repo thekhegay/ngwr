@@ -439,6 +439,19 @@ describe('WrToast', () => {
       expect(actions(items()[0])).toHaveLength(0);
     });
 
+    it('binds the swipe touch listeners passive', () => {
+      const spy = vi.spyOn(HTMLElement.prototype, 'addEventListener');
+      try {
+        toast.show({ message: 'Swipe me' });
+        tick();
+        const optionsOf = (type: string): unknown => spy.mock.calls.find(([name]) => name === type)?.[2];
+        expect(optionsOf('touchstart')).toMatchObject({ passive: true });
+        expect(optionsOf('touchmove')).toMatchObject({ passive: true });
+      } finally {
+        spy.mockRestore();
+      }
+    });
+
     it('adds a copy button only when asked for', () => {
       toast.show({ message: 'Plain' });
       toast.show({ message: 'Copyable', showCopy: true });
@@ -476,6 +489,18 @@ describe('WrToast', () => {
         await copy();
 
         expect(writeText).toHaveBeenCalledWith('Profile updated.');
+      });
+
+      it('clears the copy reset timer when the toast goes', async () => {
+        toast.show({ message: 'Hello', showCopy: true });
+        tick();
+        const before = vi.getTimerCount();
+        await copy();
+        expect(vi.getTimerCount()).toBe(before + 1);
+
+        toast.dismissAll();
+        tick();
+        expect(vi.getTimerCount()).toBeLessThanOrEqual(before);
       });
 
       it('copies the title when the toast has nothing else', async () => {

@@ -101,6 +101,18 @@ describe('WrCarousel', () => {
   beforeEach(() => mount());
   afterEach(() => fixture.destroy());
 
+  it('binds the swipe touch listeners passive', () => {
+    const spy = vi.spyOn(HTMLElement.prototype, 'addEventListener');
+    try {
+      mount();
+      const passive = (type: string): unknown => spy.mock.calls.find(([name]) => name === type)?.[2];
+      expect(passive('touchstart')).toMatchObject({ passive: true });
+      expect(passive('touchmove')).toMatchObject({ passive: true });
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
   it('starts on the first slide and moves the track by whole viewports', () => {
     expect(track().style.transform).toBe('translateX(0%)');
 
@@ -357,6 +369,64 @@ describe('WrCarousel', () => {
       expect(active()).toBe(2);
     });
 
+    it('holds while the page is hidden and goes on when it shows again', () => {
+      const setVisibility = (state: 'visible' | 'hidden'): void => {
+        Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+        document.dispatchEvent(new Event('visibilitychange'));
+        fixture.detectChanges();
+      };
+      try {
+        fixture.componentInstance.autoplay.set(true);
+        fixture.detectChanges();
+        setVisibility('hidden');
+        advance(2000);
+        expect(active()).toBe(0);
+
+        setVisibility('visible');
+        advance(500);
+        expect(active()).toBe(1);
+      } finally {
+        Reflect.deleteProperty(document, 'visibilityState');
+      }
+    });
+
+    it('holds while the carousel is out of view', () => {
+      const callbacks: ((
+        entries: { target: Element; isIntersecting: boolean; intersectionRatio: number }[]
+      ) => void)[] = [];
+      vi.stubGlobal(
+        'IntersectionObserver',
+        class {
+          constructor(cb: (typeof callbacks)[number]) {
+            callbacks.push(cb);
+          }
+          observe = vi.fn();
+          unobserve = vi.fn();
+          disconnect = vi.fn();
+        }
+      );
+      try {
+        mount();
+        fixture.componentInstance.autoplay.set(true);
+        fixture.detectChanges();
+        const report = (inView: boolean): void => {
+          callbacks[0]([{ target: viewport(), isIntersecting: inView, intersectionRatio: inView ? 1 : 0 }]);
+          fixture.detectChanges();
+        };
+
+        report(true);
+        report(false);
+        advance(2000);
+        expect(active()).toBe(0);
+
+        report(true);
+        advance(500);
+        expect(active()).toBe(1);
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
     it('schedules nothing on the server', () => {
       // No platform guard meant the prerender ran the timer too — work nobody will
       // ever see, on a slide index that gets serialized.
@@ -509,7 +579,9 @@ describe('WrCarousel', () => {
 
       const mountReduced = (on: boolean): void => {
         reduced = signal(on);
-        mount('browser', 'ltr', [{ provide: WrPlatform, useValue: { prefersReducedMotion: reduced.asReadonly() } }]);
+        mount('browser', 'ltr', [
+          { provide: WrPlatform, useValue: { prefersReducedMotion: reduced.asReadonly(), pageVisible: signal(true) } },
+        ]);
         fixture.componentInstance.autoplay.set(true);
         fixture.detectChanges();
       };

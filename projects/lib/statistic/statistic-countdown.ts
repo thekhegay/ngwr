@@ -20,6 +20,7 @@ import {
 } from '@angular/core';
 
 import { type WrDurationUnit, wrSplitDuration } from 'ngwr/pipes';
+import { WrPlatform } from 'ngwr/platform';
 import { wrNumAttr, wrCheckStyles } from 'ngwr/utils';
 
 // Helpers
@@ -127,6 +128,7 @@ export class WrStatisticCountdown {
   readonly countdownEnd = output<void>();
 
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly platform = inject(WrPlatform);
 
   private readonly targetMs = computed(() => toMs(this.target()));
 
@@ -173,7 +175,9 @@ export class WrStatisticCountdown {
     // what keeps a period change from leaving the old interval running beside
     // the new one.
     effect(onCleanup => {
-      if (this.finished()) return;
+      if (this.finished() || !this.platform.pageVisible()) return;
+      // The shown time comes from the clock, so a hidden stretch is caught up at once.
+      untracked(() => this.tick());
       const handle = setInterval(() => this.tick(), this.tickMs());
       onCleanup(() => clearInterval(handle));
     });

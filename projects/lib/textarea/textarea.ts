@@ -394,14 +394,15 @@ export class WrTextarea implements FormValueControl<string> {
     const toHeight = (scroll: number): number =>
       cs.boxSizing === 'border-box' ? scroll + borderY : Math.max(0, scroll - paddingY);
 
+    const scroll = el.scrollHeight;
     const maxRows = this.maxRows();
     if (maxRows && maxRows > 0) {
       const lineHeight = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2;
       const cap = lineHeight * maxRows + paddingY;
-      el.style.height = `${toHeight(Math.min(el.scrollHeight, cap))}px`;
-      el.style.overflowY = el.scrollHeight > cap ? 'auto' : 'hidden';
+      el.style.height = `${toHeight(Math.min(scroll, cap))}px`;
+      el.style.overflowY = scroll > cap ? 'auto' : 'hidden';
     } else {
-      el.style.height = `${toHeight(el.scrollHeight)}px`;
+      el.style.height = `${toHeight(scroll)}px`;
       el.style.overflowY = 'hidden';
     }
   }
