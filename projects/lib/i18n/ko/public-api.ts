@@ -222,6 +222,7 @@ export const wrKo: WrI18nCatalog = {
     quarter: '{{quarter}}분기',
     prevYears: '이전 12년',
     nextYears: '다음 12년',
+    today: '오늘',
     header: '{{year}}년 {{month}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{date}} {{weekday}}',

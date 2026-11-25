@@ -47,6 +47,7 @@ export default class DatePickerPageComponent {
   protected readonly basic = signal<Date | null>(null);
   protected readonly formatted = signal<Date | null>(null);
   protected readonly bounded = signal<Date | null>(null);
+  protected readonly todayPick = signal<Date | null>(null);
   protected readonly refused = signal<Date | null>(null);
   protected readonly day = signal<string | null>('2026-03-14');
 
@@ -104,6 +105,8 @@ export default class DatePickerPageComponent {
   protected readonly isWeekday = (d: Date): boolean => d.getDay() > 0 && d.getDay() < 6;
 
   protected readonly snippets = {
+    today: `<wr-date-picker showToday [(value)]="picked" />`,
+
     openFromCode: `<wr-date-picker #due [(value)]="picked" (opened)="onOpened()" (closed)="onClosed()" />
 <button wr-btn [attr.aria-expanded]="due.isOpen()" (click)="due.open()">Open</button>`,
 

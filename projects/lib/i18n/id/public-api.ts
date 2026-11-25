@@ -217,6 +217,7 @@ export const wrId: WrI18nCatalog = {
     quarter: 'Kuartal {{quarter}}',
     prevYears: '12 tahun sebelumnya',
     nextYears: '12 tahun berikutnya',
+    today: 'Hari ini',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

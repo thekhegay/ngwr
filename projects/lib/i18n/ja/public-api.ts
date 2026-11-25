@@ -219,6 +219,7 @@ export const wrJa: WrI18nCatalog = {
     quarter: '第{{quarter}}四半期',
     prevYears: '前の12年',
     nextYears: '次の12年',
+    today: '今日',
     header: '{{year}}年{{month}}',
     // The year view's header. The two values are bare years, so the counter goes
     // in here — 「2020年〜2031年」, matching the 年 the day view's header carries.

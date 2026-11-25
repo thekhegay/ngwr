@@ -217,6 +217,7 @@ export const wrHi: WrI18nCatalog = {
     quarter: 'तिमाही {{quarter}}',
     prevYears: 'पिछले 12 साल',
     nextYears: 'अगले 12 साल',
+    today: 'आज',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

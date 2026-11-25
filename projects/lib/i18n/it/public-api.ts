@@ -222,6 +222,7 @@ export const wrIt: WrI18nCatalog = {
     quarter: 'T{{quarter}}',
     prevYears: '12 anni precedenti',
     nextYears: '12 anni successivi',
+    today: 'Oggi',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

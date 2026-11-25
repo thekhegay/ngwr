@@ -217,6 +217,7 @@ export const wrPt: WrI18nCatalog = {
     quarter: 'T{{quarter}}',
     prevYears: '12 anos anteriores',
     nextYears: '12 anos seguintes',
+    today: 'Hoje',
     header: '{{month}} de {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

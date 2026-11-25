@@ -215,6 +215,7 @@ export const wrZh: WrI18nCatalog = {
     quarter: '第{{quarter}}季度',
     prevYears: '前 12 年',
     nextYears: '后 12 年',
+    today: '今天',
     header: '{{year}}年{{month}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{date}} {{weekday}}',

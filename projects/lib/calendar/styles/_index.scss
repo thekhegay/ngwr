@@ -92,6 +92,38 @@
     }
   }
 
+  &__today {
+    align-self: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0 var(--wr-calendar-label-padding-x);
+    color: var(--wr-calendar-accent-ink);
+    font-family: inherit;
+    font-size: var(--wr-calendar-label-font-size);
+    font-weight: var(--wr-calendar-label-font-weight);
+    line-height: var(--wr-calendar-cell-size);
+    border-radius: var(--wr-calendar-day-radius);
+    cursor: pointer;
+    transition:
+      background var(--wr-transition-base),
+      color var(--wr-transition-base);
+
+    &:hover:not(:disabled) {
+      background: var(--wr-color-hover);
+    }
+
+    &:focus-visible {
+      outline: var(--wr-focus-ring-width) solid var(--wr-calendar-accent);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: var(--wr-disabled-opacity);
+    }
+  }
+
   &__nav {
     appearance: none;
     display: inline-flex;

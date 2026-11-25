@@ -220,6 +220,7 @@ export const wrZhTw: WrI18nCatalog = {
     quarter: '第{{quarter}}季',
     prevYears: '前 12 年',
     nextYears: '後 12 年',
+    today: '今天',
     header: '{{year}}年{{month}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{date}}（{{weekday}}）',

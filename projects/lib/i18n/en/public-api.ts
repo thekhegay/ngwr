@@ -293,6 +293,7 @@ export const wrEn: WrI18nCatalog = {
     quarter: 'Q{{quarter}}',
     prevYears: 'Previous 12 years',
     nextYears: 'Next 12 years',
+    today: 'Today',
     // The header above the grid, as ONE template. It was `${month} ${year}` in
     // TypeScript, which is English word order with an English separator: ja-JP
     // writes 2026年3月 and cannot get there by translating a word.

@@ -230,6 +230,7 @@ export const wrHe: WrI18nCatalog = {
     quarter: 'רבעון {{quarter}}',
     prevYears: '12 השנים הקודמות',
     nextYears: '12 השנים הבאות',
+    today: 'היום',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',
