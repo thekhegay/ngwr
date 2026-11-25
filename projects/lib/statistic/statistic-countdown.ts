@@ -184,7 +184,17 @@ export class WrStatisticCountdown {
         // one timer for the target instead of a tick each second.
         const target = this.targetMs();
         if (!Number.isFinite(target)) return;
-        const handle = setTimeout(() => this.tick(), Math.min(Math.max(0, target - Date.now()), MAX_DELAY));
+        let handle: ReturnType<typeof setTimeout>;
+        const arm = (): void => {
+          handle = setTimeout(
+            () => {
+              this.tick();
+              if (!this.finished()) arm();
+            },
+            Math.min(Math.max(0, target - Date.now()), MAX_DELAY)
+          );
+        };
+        arm();
         onCleanup(() => clearTimeout(handle));
         return;
       }
