@@ -18,6 +18,7 @@ import {
   effect,
   inject,
   input,
+  model,
 } from '@angular/core';
 
 import { WrIcon, type WrIconName } from 'ngwr/icon';
@@ -72,6 +73,8 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
     '[attr.role]': 'hostRole()',
     '[attr.tabindex]': 'hostTabIndex()',
     '[attr.aria-disabled]': 'hostAriaDisabled()',
+    '[attr.aria-pressed]': 'ariaPressed()',
+    '(click)': 'onHostClick()',
     '(keydown)': 'onHostKeydown($event)',
     '(focus)': 'onHostFocus()',
     '(blur)': 'onHostBlur()',
@@ -143,6 +146,18 @@ export class WrButton {
    */
   readonly disabledWhenLoading = input(true, { transform: coerceBooleanProperty });
 
+  /**
+   * Toggle state. `undefined` (default) is a plain button: no `aria-pressed`, and a
+   * click changes nothing. A boolean makes it a toggle button: `aria-pressed`, the
+   * `wr-btn--pressed` modifier, and a click flips it (unless the button is disabled
+   * or loading). A `model()` takes no attribute transform, so set it as `[pressed]="true"`
+   * or two-way as `[(pressed)]="on"`; a bare `pressed` attribute is not a value.
+   * Has no effect on an `<a wr-btn>`, which is a link, not a button.
+   *
+   * @default undefined
+   */
+  readonly pressed = model<boolean | undefined>(undefined);
+
   private readonly group = inject(WR_BUTTON_GROUP, { optional: true });
 
   /**
@@ -191,6 +206,17 @@ export class WrButton {
   protected readonly nativeDisabled = computed<'' | null>(() => (this.isOff() ? '' : null));
 
   protected readonly hostRole = computed<'button' | null>(() => (this.isCustomHost ? 'button' : null));
+
+  protected readonly ariaPressed = computed<'true' | 'false' | null>(() => {
+    const pressed = this.pressed();
+    if (this.isAnchorHost || pressed === undefined) return null;
+    return pressed ? 'true' : 'false';
+  });
+
+  protected onHostClick(): void {
+    if (this.isAnchorHost || this.pressed() === undefined || this.isOff()) return;
+    this.pressed.update(value => !value);
+  }
 
   /**
    * Out of the tab order while off — `disabled` is inert on a custom element and on
@@ -338,6 +364,7 @@ export class WrButton {
     if (this.ghost()) parts.push('wr-btn--ghost');
     if (this.block()) parts.push('wr-btn--block');
     if (this.loading()) parts.push('wr-btn--loading');
+    if (this.ariaPressed() === 'true') parts.push('wr-btn--pressed');
 
     const hasAdornment = !!this.icon() || this.loading();
     if (hasAdornment) parts.push(`wr-btn--icon-${this.iconPosition()}`);

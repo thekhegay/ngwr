@@ -46,6 +46,7 @@ export default class ButtonComponent {
   protected readonly colors = WR_COLORS;
   protected readonly shapes: readonly WrButtonShape[] = ['rounded', 'pill', 'squircle'];
   protected readonly loading = signal(false);
+  protected readonly bold = signal<boolean | undefined>(false);
 
   protected readonly snippets = {
     basic: `<wr-btn>Default</wr-btn>
@@ -84,6 +85,7 @@ export default class ButtonComponent {
 <!-- No tooltip: name it yourself -->
 <wr-btn icon="add" color="primary" aria-label="Add" />`,
     disabled: `<wr-btn disabled>Disabled</wr-btn>`,
+    pressed: `<button type="button" wr-btn [(pressed)]="bold">Bold</button>`,
     loading: `<wr-btn [loading]="loading()" [disabledWhenLoading]="false" color="primary" (click)="loading.set(!loading())">
   Click to toggle
 </wr-btn>`,

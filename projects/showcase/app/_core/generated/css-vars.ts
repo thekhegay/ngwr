@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1928 hook(s) across 116 page(s). A property is here only when the
+ * 1930 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -840,6 +840,8 @@ export const CSS_VARS = {
       { name: "--wr-btn-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-btn", overrides: 2 },
       { name: "--wr-btn-padding-x", default: "var(--wr-space-lg)", scope: ".wr-btn", overrides: 2 },
       { name: "--wr-btn-padding-y", default: "var(--wr-control-padding-y-md)", scope: ".wr-btn", overrides: 2 },
+      { name: "--wr-btn-pressed-bg", default: "var(--wr-color-fill-strong)", scope: ".wr-btn", overrides: 3 },
+      { name: "--wr-btn-pressed-border", default: "var(--wr-btn-color)", scope: ".wr-btn", overrides: 3 },
       { name: "--wr-btn-radius", default: "var(--wr-control-radius-md)", scope: ".wr-btn", overrides: 4 },
     ],
   },

@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Button"
-  updated="16.7.0"
+  updated="16.10.0"
   description="A button for an action or a link."
   [keywords]="['button', 'wr-btn']"
   [labels]="['Component']"
@@ -15,7 +15,7 @@
 
   <ngwr-doc-section
     title="Inside a form"
-    description='`<wr-btn>` never submits a form: use `<button wr-btn type="submit">`, or bind the click.'
+    description='`<wr-btn>` never submits a form: use `<button type="button" wr-btn type="submit">`, or bind the click.'
   >
     <ngwr-doc-code [code]="snippets.submit" language="html" />
   </ngwr-doc-section>
@@ -97,6 +97,17 @@
       <wr-btn disabled>Disabled</wr-btn>
       <wr-btn color="primary" disabled>Disabled</wr-btn>
       <wr-btn color="danger" outlined disabled>Disabled</wr-btn>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Pressed"
+    description="`[(pressed)]` makes a toggle button: `aria-pressed`, a `wr-btn--pressed` look and a click that flips it. Leave it unset for a plain button."
+  >
+    <ngwr-doc-snippet [code]="snippets.pressed">
+      <button type="button" wr-btn [(pressed)]="bold">Bold</button>
+      <button type="button" wr-btn color="primary" outlined [(pressed)]="bold">Bold</button>
+      <button type="button" wr-btn color="primary" ghost [(pressed)]="bold">Bold</button>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

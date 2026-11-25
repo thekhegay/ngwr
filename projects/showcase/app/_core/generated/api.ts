@@ -204,6 +204,7 @@ export const API = {
     { name: "block", description: "Stretch the button to fill its parent's width.", type: "boolean", default: "false" },
     { name: "loading", description: "Show a spinner overlaying the label. Layout is preserved.", type: "boolean", default: "false" },
     { name: "disabledWhenLoading", description: "When `loading` is `true` and this is also `true`, pointer events are suppressed and the button reports as disabled to assistive tech.", type: "boolean", default: "true" },
+    { name: "pressed", description: "Toggle state. `undefined` (default) is a plain button: no `aria-pressed`, and a click changes nothing. A boolean makes it a toggle button: `aria-pressed`, the `wr-btn--pressed` modifier, and a click flips it (unless the button is disabled or loading). A `model()` takes no attribute transform, so set it as `[pressed]=\"true\"` or two-way as `[(pressed)]=\"on\"`; a bare `pressed` attribute is not a value. Has no effect on an `<a wr-btn>`, which is a link, not a button.", type: "boolean | undefined", default: "undefined" },
   ],
   // <wr-btn-group>
   WrButtonGroup: [
