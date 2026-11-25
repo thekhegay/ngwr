@@ -63,4 +63,10 @@ describe('wrIntl cache', () => {
 
     expect(wrIntlNumberFormat('en', masked).format(0.5)).toBe('50%');
   });
+
+  it('keeps undefined apart from NaN, so Intl still rejects the bad value', () => {
+    wrIntlNumberFormat('en', { minimumIntegerDigits: undefined });
+
+    expect(() => wrIntlNumberFormat('en', { minimumIntegerDigits: NaN })).toThrow(RangeError);
+  });
 });

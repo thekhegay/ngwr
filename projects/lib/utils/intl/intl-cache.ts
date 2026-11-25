@@ -22,10 +22,11 @@ function isPlain(options: object): boolean {
  * Building an `Intl` object costs about a tenth of a millisecond and every one is
  * stateless, so one per distinct key serves every caller. The options are read
  * once into a plain snapshot, which is both the key and what `Intl` is built
- * from, so a getter, a `toJSON` or a later mutation cannot make the two differ.
- * Option order is part of the key. Options that are not a plain object, or hold
- * a non-enumerable property, are built fresh: `Intl` reads those properties and
- * the snapshot would not.
+ * from, so a getter or a later mutation cannot make the two differ. Each value
+ * is keyed with its type, so `undefined`, `null`, `NaN` and `'1'` versus `1`
+ * stay apart. Option order is part of the key. Options that are not a plain
+ * object, hold a non-enumerable property or an object or function value are
+ * built fresh: the key could not tell them apart.
  */
 function cached<O extends object, T extends object>(
   kind: string,
@@ -36,9 +37,13 @@ function cached<O extends object, T extends object>(
   if (options && !isPlain(options)) return build(options);
   const entries = options ? Object.entries(options) : undefined;
   const snapshot = entries ? (Object.fromEntries(entries) as O) : undefined;
+  if (entries?.some(([, value]) => typeof value === 'function' || (typeof value === 'object' && value !== null))) {
+    return build(snapshot);
+  }
   let map = CACHES.get(kind);
   if (!map) CACHES.set(kind, (map = new Map<string, object>()));
-  const key = entries ? `${locale}|${JSON.stringify(entries)}` : `${locale}`;
+  const typed = entries?.map(([name, value]) => [name, typeof value, String(value)]);
+  const key = typed ? `${locale}|${JSON.stringify(typed)}` : `${locale}`;
   let found = map.get(key) as T | undefined;
   if (!found) {
     found = build(snapshot);
