@@ -199,6 +199,13 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     white-space: normal;
   }
 
+  // A title that cannot shrink adds its whole line to the header's min-content,
+  // so a long one would spill into the next column.
+  &__table--layout-fixed &__title {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
   // `truncate: 'tooltip'`. The cut happens where the column cannot grow: under
   // a fixed layout, or at the `max-width` the component writes from `width`.
   &__td--truncate {
