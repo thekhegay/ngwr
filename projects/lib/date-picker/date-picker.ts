@@ -211,6 +211,15 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
   readonly dateFilter = input<((date: Date) => boolean) | null>(null);
 
   /**
+   * Shows a Today button in the date panel: it commits today, if `min`, `max`
+   * and `dateFilter` allow it, and closes the panel as a day click does. Date
+   * mode only, with no period; the range picker has presets for this.
+   *
+   * @default false
+   */
+  readonly showToday = input(false, { transform: coerceBooleanProperty });
+
+  /**
    * 12 / 24-hour clock, in the time panel and in the field, unless `format` is
    * set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.
    * @default 'auto'
@@ -1086,6 +1095,7 @@ export class WrDatePicker<F extends WrDatePickerValueFormat = 'date'> implements
     ref.setInput('min', this.minDate());
     ref.setInput('max', this.maxDate());
     ref.setInput('dateFilter', this.dateFilter());
+    ref.setInput('showToday', this.showToday());
     ref.setInput('autoFocus', this.autoFocusPanel);
     ref.instance.date.subscribe(next => {
       if (!next) return;

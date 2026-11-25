@@ -221,6 +221,7 @@ export const wrKk: WrI18nCatalog = {
     quarter: '{{quarter}}-тоқсан',
     prevYears: 'Алдыңғы 12 жыл',
     nextYears: 'Келесі 12 жыл',
+    today: 'Бүгін',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

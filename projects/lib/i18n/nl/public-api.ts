@@ -222,6 +222,7 @@ export const wrNl: WrI18nCatalog = {
     quarter: 'K{{quarter}}',
     prevYears: 'Vorige 12 jaar',
     nextYears: 'Volgende 12 jaar',
+    today: 'Vandaag',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

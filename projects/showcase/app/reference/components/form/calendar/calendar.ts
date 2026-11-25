@@ -34,6 +34,7 @@ import { API } from '#core/generated/api';
 })
 export default class CalendarPageComponent {
   protected readonly single = signal<Date | null>(new Date());
+  protected readonly todayPick = signal<Date | null>(null);
   protected readonly range = signal<WrCalendarRange>([null, null]);
 
   protected readonly minDate = new Date(new Date().getFullYear(), 0, 1);
@@ -57,6 +58,8 @@ export default class CalendarPageComponent {
 
   protected readonly snippets = {
     single: `<wr-calendar [(date)]="picked" />`,
+
+    today: `<wr-calendar showToday [(date)]="picked" />`,
 
     range: `<wr-calendar mode="range" [(range)]="picked" />`,
 

@@ -189,6 +189,15 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
     return this.adapter.createDate(zoned.getYear(now), zoned.getMonth(now), zoned.getDate(now));
   }
 
+  /**
+   * Shows a Today button under the grid: it picks today, if `min`, `max` and
+   * `dateFilter` allow it, and brings the day view to its month. Single mode and
+   * day granularity only; a range or a period view has no such pick.
+   *
+   * @default false
+   */
+  readonly showToday = input(false, { transform: coerceBooleanProperty });
+
   /** Currently displayed month (any date inside it). */
   protected readonly viewDate = signal(this.zoneToday());
 
@@ -275,6 +284,10 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   /** Accessible name of the forward arrow on the year view. Falls back to `calendar.nextYears`, then `'Next 12 years'`. */
   readonly nextYearsLabel = input<string | null>(null);
 
+  /** Label of the Today button, `showToday`. Falls back to `calendar.today`. */
+  readonly todayLabel = input<string | null>(null);
+
+  protected readonly resolvedTodayLabel = useI18nText(this.todayLabel, 'calendar.today', 'Today');
   private readonly resolvedPrevMonthLabel = useI18nText(this.prevMonthLabel, 'calendar.prevMonth', 'Previous month');
   private readonly resolvedNextMonthLabel = useI18nText(this.nextMonthLabel, 'calendar.nextMonth', 'Next month');
   protected readonly resolvedMonthListLabel = useI18nText(this.monthListLabel, 'calendar.monthList', 'Months');
@@ -731,6 +744,20 @@ export class WrCalendar implements FormValueControl<WrCalendarValue> {
   /** Through the adapter, not `Date#getDate`: a zoned adapter's day is not the browser's. */
   protected dayOfMonth(date: Date): number {
     return this.adapter.getDate(date);
+  }
+
+  protected readonly todayVisible = computed(
+    () => this.showToday() && this.mode() === 'single' && this.granularity() === 'day'
+  );
+
+  protected readonly todayDisabled = computed(() => this.readonly() || this.isDisabled(this.today()));
+
+  protected goToday(): void {
+    if (this.todayDisabled()) return;
+    const today = this.today();
+    this.onCellClick(today);
+    this.viewDate.set(today);
+    this.setViewMode('day');
   }
 
   protected isToday(date: Date): boolean {

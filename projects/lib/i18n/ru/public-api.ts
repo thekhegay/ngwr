@@ -222,6 +222,7 @@ export const wrRu: WrI18nCatalog = {
     quarter: '{{quarter}} кв.',
     prevYears: 'Предыдущие 12 лет',
     nextYears: 'Следующие 12 лет',
+    today: 'Сегодня',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

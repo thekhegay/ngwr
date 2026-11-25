@@ -224,6 +224,7 @@ export const API = {
     { name: "autoFocus", description: "Move real focus onto the roving cell as soon as the grid is on screen. Off by default: a standalone `<wr-calendar>` sitting in a page must not steal focus on load. `wr-date-picker` turns it on for the popup it opens from its trigger, where the user asked to be taken to the calendar.", type: "boolean", default: "false" },
     { name: "disabled", description: "Disable interaction entirely.", type: "boolean", default: "false" },
     { name: "readonly", description: "Read-only: the grid keeps its tab stop, the arrows still move the cursor and the header still pages through months and years, but picking a day writes nothing. Bound automatically from the field's readonly state when used with `[formField]`. Mirrored as `aria-readonly` on the day grid.", type: "boolean", default: "false" },
+    { name: "showToday", description: "Shows a Today button under the grid: it picks today, if `min`, `max` and `dateFilter` allow it, and brings the day view to its month. Single mode and day granularity only; a range or a period view has no such pick.", type: "boolean", default: "false" },
     { name: "ariaLabel", description: "Accessible name of the day grid, for a calendar that stands alone: a `role=\"grid\"` has no name of its own. Inside a `<wr-form-field>` the field's label names the grid instead.", type: "string | null", default: "null" },
     { name: "prevMonthLabel", description: "Accessible name of the back arrow on the day view. Falls back to `calendar.prevMonth`, then `'Previous month'`.", type: "string | null", default: "null" },
     { name: "nextMonthLabel", description: "Accessible name of the forward arrow on the day view. Falls back to `calendar.nextMonth`, then `'Next month'`.", type: "string | null", default: "null" },
@@ -234,6 +235,7 @@ export const API = {
     { name: "nextYearLabel", description: "Accessible name of the forward arrow on the month view. Falls back to `calendar.nextYear`, then `'Next year'`.", type: "string | null", default: "null" },
     { name: "prevYearsLabel", description: "Accessible name of the back arrow on the year view. Falls back to `calendar.prevYears`, then `'Previous 12 years'`.", type: "string | null", default: "null" },
     { name: "nextYearsLabel", description: "Accessible name of the forward arrow on the year view. Falls back to `calendar.nextYears`, then `'Next 12 years'`.", type: "string | null", default: "null" },
+    { name: "todayLabel", description: "Label of the Today button, `showToday`. Falls back to `calendar.today`.", type: "string | null", default: "null" },
   ],
   // <wr-calendar-heatmap>
   WrCalendarHeatmap: [
@@ -533,6 +535,7 @@ export const API = {
     { name: "min", description: "Min selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that ends before it.", type: "Date | string | undefined", default: "undefined" },
     { name: "max", description: "Max selectable date (forwarded to the calendar): a `Date`, or a `YYYY-MM-DD` string under any `valueFormat`. Ignored in `time` mode, and a string that is not a valid day is no bound. A period mode refuses a period that starts after it.", type: "Date | string | undefined", default: "undefined" },
     { name: "dateFilter", description: "Predicate to disable specific dates (forwarded to the calendar). Ignored in `time` mode. Called with a `Date` at local midnight under either `valueFormat`.", type: "((date: Date) => boolean) | null", default: "null" },
+    { name: "showToday", description: "Shows a Today button in the date panel: it commits today, if `min`, `max` and `dateFilter` allow it, and closes the panel as a day click does. Date mode only, with no period; the range picker has presets for this.", type: "boolean", default: "false" },
     { name: "timeFormat", description: "12 / 24-hour clock, in the time panel and in the field, unless `format` is set. `'auto'` follows the locale. Applies in `time` + `datetime` modes.", type: "'auto' | '12h' | '24h'", default: "'auto'" },
     { name: "showSeconds", description: "Show seconds, in the time panel and in the field, unless `format` is set. Applies in `time` + `datetime` modes.", type: "boolean", default: "false" },
     { name: "step", description: "Minute / second step for the time panel.", type: "number", default: "1" },

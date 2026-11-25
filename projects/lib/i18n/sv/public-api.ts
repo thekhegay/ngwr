@@ -217,6 +217,7 @@ export const wrSv: WrI18nCatalog = {
     quarter: 'Kvartal {{quarter}}',
     prevYears: 'Föregående 12 år',
     nextYears: 'Nästa 12 år',
+    today: 'Idag',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

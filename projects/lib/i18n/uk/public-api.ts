@@ -230,6 +230,7 @@ export const wrUk: WrI18nCatalog = {
     quarter: '{{quarter}} кв.',
     prevYears: 'Попередні 12 років',
     nextYears: 'Наступні 12 років',
+    today: 'Сьогодні',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

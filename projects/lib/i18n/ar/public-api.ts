@@ -226,6 +226,7 @@ export const wrAr: WrI18nCatalog = {
     quarter: 'الربع {{quarter}}',
     prevYears: '12 سنة سابقة',
     nextYears: '12 سنة تالية',
+    today: 'اليوم',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}، {{date}}',

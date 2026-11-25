@@ -217,6 +217,7 @@ export const wrCs: WrI18nCatalog = {
     quarter: '{{quarter}}. čtvrtletí',
     prevYears: 'Předchozích 12 let',
     nextYears: 'Dalších 12 let',
+    today: 'Dnes',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

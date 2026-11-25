@@ -205,3 +205,9 @@
     </div>
   }
 }
+
+@if (todayVisible()) {
+  <button type="button" class="wr-calendar__today" [disabled]="todayDisabled()" (click)="goToday()">
+    {{ resolvedTodayLabel() }}
+  </button>
+}

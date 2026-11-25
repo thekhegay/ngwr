@@ -224,6 +224,7 @@ export const wrDe: WrI18nCatalog = {
     quarter: '{{quarter}}. Quartal',
     prevYears: 'Vorherige 12 Jahre',
     nextYears: 'Nächste 12 Jahre',
+    today: 'Heute',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

@@ -226,6 +226,7 @@ export const wrVi: WrI18nCatalog = {
     // years”, nên hai nút này phải nói rõ là trước đó / tiếp theo.
     prevYears: '12 năm trước đó',
     nextYears: '12 năm tiếp theo',
+    today: 'Hôm nay',
     header: '{{month}} năm {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',

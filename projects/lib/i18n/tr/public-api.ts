@@ -225,6 +225,7 @@ export const wrTr: WrI18nCatalog = {
     quarter: '{{quarter}}. çeyrek',
     prevYears: 'Önceki 12 yıl',
     nextYears: 'Sonraki 12 yıl',
+    today: 'Bugün',
     header: '{{month}} {{year}}',
     yearRange: '{{from}} – {{to}}',
     dayLabel: '{{weekday}}, {{date}}',
