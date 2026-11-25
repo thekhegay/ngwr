@@ -73,7 +73,6 @@ import type { WrButtonIconPosition, WrButtonShape, WrButtonSize } from './types'
     '[attr.role]': 'hostRole()',
     '[attr.tabindex]': 'hostTabIndex()',
     '[attr.aria-disabled]': 'hostAriaDisabled()',
-    '[attr.aria-pressed]': 'ariaPressed()',
     '(click)': 'onHostClick()',
     '(keydown)': 'onHostKeydown($event)',
     '(focus)': 'onHostFocus()',
@@ -314,10 +313,25 @@ export class WrButton {
 
   constructor() {
     if (typeof ngDevMode === 'undefined' || ngDevMode) wrCheckStyles('button');
+    const renderer = inject(Renderer2);
     if (this.isAnchorHost) {
-      const stop = inject(Renderer2).listen(this.hostEl.nativeElement, 'click', this.onAnchorClick, { capture: true });
+      const stop = renderer.listen(this.hostEl.nativeElement, 'click', this.onAnchorClick, { capture: true });
       inject(DestroyRef).onDestroy(stop);
     }
+
+    // Not a host binding: that would strip an `[attr.aria-pressed]` a consumer
+    // writes on a plain button. Only toggle mode touches the attribute.
+    let wrotePressed = false;
+    effect(() => {
+      const pressed = this.ariaPressed();
+      if (pressed !== null) {
+        renderer.setAttribute(this.hostEl.nativeElement, 'aria-pressed', pressed);
+        wrotePressed = true;
+      } else if (wrotePressed) {
+        renderer.removeAttribute(this.hostEl.nativeElement, 'aria-pressed');
+        wrotePressed = false;
+      }
+    });
 
     effect(() => {
       if (this.isOff()) return;
