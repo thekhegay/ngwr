@@ -30,6 +30,7 @@ export const wrCs: WrI18nCatalog = {
     itemsPerPage: 'Položek na stránku',
     perPage: '{{size}} / str.',
     goToPage: 'Přejít na stránku {{page}}',
+    jump: 'Přejít na stránku',
     label: 'Stránkování',
     pageOf: 'Stránka {{current}} z {{total}}',
     range: '{{from}}–{{to}} z {{total}}',

@@ -13,6 +13,7 @@
 // Sass deduplicates `@use` within a compilation, so an app that also loads one of
 // these by hand still emits it once.
 @use '../../button/styles' as button-styles; // WrButton
+@use '../../input/styles' as input-styles; // WrInput
 @use '../../select/styles' as select-styles; // WrSelect
 @include theme.loaded('pagination');
 
@@ -27,6 +28,7 @@
   --wr-pagination-current-font-size: var(--wr-text-sm);
   // The radius `--square` leaves on the strip's end caps so it still reads as
   // one grouped control.
+  --wr-pagination-jump-width: 3.5rem;
   --wr-pagination-cap-radius: var(--wr-border-radius-sm);
 
   display: block;
@@ -160,6 +162,13 @@
       height: var(--wr-pagination-cell, 2rem);
       padding-block: 0;
     }
+  }
+
+  &__jump {
+    width: var(--wr-pagination-jump-width);
+    height: var(--wr-pagination-cell, 2rem);
+    padding-block: 0;
+    text-align: center;
   }
 
   // Size variants — set the cell size; each button gets the matching [size].

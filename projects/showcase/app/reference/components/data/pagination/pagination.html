@@ -3,7 +3,7 @@
   description="Page navigation for a long list."
   [keywords]="['pagination', 'wr-pagination']"
   [labels]="['Component']"
-  updated="16.7.0"
+  updated="16.10.0"
 >
   <ngwr-doc-section title="Basic usage" description="Bind `[total]` and `[(page)]`.">
     <ngwr-doc-snippet [code]="snippets.basic">
@@ -39,6 +39,17 @@
     <ngwr-doc-snippet [code]="snippets.full">
       <div style="width: 100%">
         <wr-pagination [total]="320" [(page)]="fullPage" [(pageSize)]="size" showTotal showSizeChanger align="end" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Jump to a page"
+    description="`showJumper` adds a field. Enter or leaving it goes to that page, clamped to the first and last."
+  >
+    <ngwr-doc-snippet [code]="snippets.jumper">
+      <div style="width: 100%">
+        <wr-pagination [total]="4000" [(page)]="jumpPage" showJumper />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

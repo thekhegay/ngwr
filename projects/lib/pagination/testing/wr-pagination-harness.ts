@@ -5,7 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-import { ComponentHarness, HarnessPredicate } from '@angular/cdk/testing';
+import { ComponentHarness, HarnessPredicate, TestKey } from '@angular/cdk/testing';
 
 import { WrButtonHarness } from 'ngwr/button/testing';
 import type { WrPaginationSize } from 'ngwr/pagination';
@@ -101,6 +101,8 @@ export class WrPaginationHarness extends ComponentHarness {
 
   /** Both kinds of strip slot, in DOM order — cells and the gaps between them. */
   private readonly stripSlots = this.locatorForAll('.wr-pagination__page, .wr-pagination__ellipsis');
+
+  private readonly jumper = this.locatorForOptional('.wr-pagination__jump');
 
   private readonly totalLabel = this.locatorForOptional('.wr-pagination__total');
 
@@ -342,6 +344,34 @@ export class WrPaginationHarness extends ComponentHarness {
   /** Whether the pager renders its page-size changer (the `showSizeChanger` input). */
   async hasPageSizeChanger(): Promise<boolean> {
     return (await this.sizeChanger()) !== null;
+  }
+
+  /** Whether the pager renders its jump-to-page field (the `showJumper` input). */
+  async hasJumper(): Promise<boolean> {
+    return (await this.jumper()) !== null;
+  }
+
+  /**
+   * Type a page number into the jump field and press Enter, the way a user does.
+   *
+   * Accepts a string so input the field must refuse (`'abc'`, `'0'`, `'999'`) can be
+   * driven too: the pager clamps a number past either end and ignores text that is
+   * not a whole number, so re-read {@link getCurrentPage} afterwards. The field
+   * clears itself once committed.
+   *
+   * Throws when there is no field, or the pager is disabled.
+   */
+  async jumpTo(page: number | string): Promise<void> {
+    const field = await this.jumper();
+    if (!field) {
+      throw new Error('WrPaginationHarness.jumpTo(): no jump field here — set `showJumper`.');
+    }
+    if (await this.isDisabled()) {
+      throw new Error('WrPaginationHarness.jumpTo(): the pager is disabled, so its jump field refuses input.');
+    }
+    await field.clear();
+    await field.sendKeys(String(page));
+    await field.sendKeys(TestKey.ENTER);
   }
 
   /**

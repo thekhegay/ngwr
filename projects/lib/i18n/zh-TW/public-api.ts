@@ -30,6 +30,7 @@ export const wrZhTw: WrI18nCatalog = {
     itemsPerPage: '每頁筆數',
     perPage: '{{size}} 筆/頁',
     goToPage: '前往第 {{page}} 頁',
+    jump: '前往頁碼',
     label: '分頁導覽',
     pageOf: '第 {{current}} 頁，共 {{total}} 頁',
     range: '{{from}}–{{to}}，共 {{total}} 筆',

@@ -53,6 +53,7 @@ export const wrEn: WrI18nCatalog = {
     itemsPerPage: 'Items per page',
     perPage: '{{size}} / page',
     goToPage: 'Go to page {{page}}',
+    jump: 'Go to page',
     label: 'Pagination',
     pageOf: 'Page {{current}} of {{total}}',
     // The whole "1–10 of 235" line, as ONE template. It used to be assembled in

@@ -30,6 +30,7 @@ export const wrTr: WrI18nCatalog = {
     itemsPerPage: 'Sayfa başına öğe',
     perPage: '{{size}} / sayfa',
     goToPage: '{{page}}. sayfaya git',
+    jump: 'Sayfaya git',
     label: 'Sayfalama',
     pageOf: 'Sayfa {{current}} / {{total}}',
     range: '{{from}}–{{to}} / {{total}}',

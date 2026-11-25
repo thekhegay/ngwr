@@ -30,6 +30,7 @@ export const wrId: WrI18nCatalog = {
     itemsPerPage: 'Item per halaman',
     perPage: '{{size}} / halaman',
     goToPage: 'Ke halaman {{page}}',
+    jump: 'Ke halaman',
     label: 'Penomoran halaman',
     pageOf: 'Halaman {{current}} dari {{total}}',
     range: '{{from}}–{{to}} dari {{total}}',

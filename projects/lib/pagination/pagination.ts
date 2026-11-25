@@ -10,6 +10,7 @@ import { Component, LOCALE_ID, ViewEncapsulation, computed, effect, inject, inpu
 
 import { WrButton } from 'ngwr/button';
 import { useI18nFormatter, useI18nText } from 'ngwr/i18n';
+import { WrInput } from 'ngwr/input';
 import { WrOption, WrSelect } from 'ngwr/select';
 import { wrNumAttr, wrCheckStyles, wrIntlNumberFormat } from 'ngwr/utils';
 
@@ -41,7 +42,7 @@ type PageEntry = number | typeof ELLIPSIS;
   templateUrl: './pagination.html',
   encapsulation: ViewEncapsulation.None,
   host: { class: 'wr-pagination', '[class]': 'classes()', role: 'navigation', '[attr.aria-label]': 'navLabel()' },
-  imports: [WrButton, WrSelect, WrOption],
+  imports: [WrButton, WrSelect, WrOption, WrInput],
 })
 export class WrPagination {
   /**
@@ -99,6 +100,16 @@ export class WrPagination {
    */
   readonly hideOnSinglePage = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * Render a small field to type a page number into. It commits on Enter and on
+   * blur, clamps to the first and last page, ignores anything that is not a whole
+   * number, and clears itself afterwards. @default false
+   */
+  readonly showJumper = input(false, { transform: coerceBooleanProperty });
+
+  /** Jump field aria-label. Falls back to `pagination.jump`. */
+  readonly jumpLabel = input<string | null>(null);
+
   /** Previous-page button aria-label. Falls back to `pagination.prev`. */
   readonly prevLabel = input<string | null>(null);
 
@@ -114,6 +125,7 @@ export class WrPagination {
   /** Resolved labels. */
   protected readonly resolvedPrev = useI18nText(this.prevLabel, 'pagination.prev', 'Previous page');
   protected readonly resolvedNext = useI18nText(this.nextLabel, 'pagination.next', 'Next page');
+  protected readonly resolvedJump = useI18nText(this.jumpLabel, 'pagination.jump', 'Go to page');
   protected readonly resolvedItemsPerPage = useI18nText(
     this.itemsPerPageLabel,
     'pagination.itemsPerPage',
@@ -279,6 +291,13 @@ export class WrPagination {
     if (typeof page !== 'number') return;
     if (this.disabled() || page < 1 || page > this.totalPages() || page === this.page()) return;
     this.page.set(page);
+  }
+
+  protected commitJump(field: HTMLInputElement): void {
+    const text = field.value.trim();
+    field.value = '';
+    if (!/^\d+$/.test(text)) return;
+    this.goTo(Math.min(Math.max(1, Number(text)), this.totalPages()));
   }
 
   /**

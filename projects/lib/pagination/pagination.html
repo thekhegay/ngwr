@@ -118,5 +118,21 @@
         }
       </wr-select>
     }
+
+    @if (showJumper()) {
+      <input
+        #jump
+        wrInput
+        class="wr-pagination__jump"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        [size]="size()"
+        [attr.aria-label]="resolvedJump()"
+        [disabled]="disabled()"
+        (keydown.enter)="commitJump(jump)"
+        (blur)="commitJump(jump)"
+      />
+    }
   </div>
 }

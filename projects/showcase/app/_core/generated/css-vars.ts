@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1930 hook(s) across 116 page(s). A property is here only when the
+ * 1931 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1695,6 +1695,7 @@ export const CSS_VARS = {
       { name: "--wr-pagination-current-padding-x", default: "var(--wr-space-sm)", scope: ".wr-pagination" },
       { name: "--wr-pagination-font-family", default: "var(--wr-font-family-base)", scope: ".wr-pagination" },
       { name: "--wr-pagination-inner-gap", default: "var(--wr-space-lg)", scope: ".wr-pagination" },
+      { name: "--wr-pagination-jump-width", default: "3.5rem", scope: ".wr-pagination" },
       { name: "--wr-pagination-nav-gap", default: "var(--wr-space-xs)", scope: ".wr-pagination" },
       { name: "--wr-pagination-padding-block", default: "var(--wr-space-sm)", scope: ".wr-pagination" },
       { name: "--wr-pagination-total-font-size", default: "var(--wr-text-sm)", scope: ".wr-pagination" },

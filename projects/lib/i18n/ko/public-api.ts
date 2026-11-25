@@ -30,6 +30,7 @@ export const wrKo: WrI18nCatalog = {
     itemsPerPage: '페이지당 항목 수',
     perPage: '{{size}}개씩',
     goToPage: '{{page}}페이지로 이동',
+    jump: '페이지로 이동',
     label: '페이지 탐색',
     pageOf: '{{total}}페이지 중 {{current}}페이지',
     range: '{{total}}개 중 {{from}}–{{to}}',

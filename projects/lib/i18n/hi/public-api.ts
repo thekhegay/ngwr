@@ -30,6 +30,7 @@ export const wrHi: WrI18nCatalog = {
     itemsPerPage: 'प्रति पेज आइटम',
     perPage: '{{size}} / पेज',
     goToPage: 'पेज {{page}} पर जाएं',
+    jump: 'पेज पर जाएं',
     label: 'पेज नेविगेशन',
     pageOf: '{{total}} में से पेज {{current}}',
     range: '{{total}} में से {{from}}–{{to}}',

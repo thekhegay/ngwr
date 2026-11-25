@@ -24,10 +24,12 @@ import { WrPaginationHarness } from './wr-pagination-harness';
       [pageSizeOptions]="pageSizeOptions()"
       [disabled]="disabled()"
       [responsive]="responsive()"
+      [showJumper]="showJumper()"
     />
   `,
 })
 class Host {
+  readonly showJumper = signal(false);
   readonly page = signal(1);
   readonly pageSize = signal(10);
   readonly total = signal(95);
@@ -335,6 +337,32 @@ describe('WrPaginationHarness', () => {
     await expect(pager.getPageSizeSelect()).rejects.toThrow(/set `showSizeChanger`/);
     await expect(pager.getPageSize()).rejects.toThrow(/set `showSizeChanger`/);
     await expect(pager.setPageSize(20)).rejects.toThrow(/set `showSizeChanger`/);
+  });
+
+  it('types into the jump field and commits with Enter', async () => {
+    const pager = await loader.getHarness(WrPaginationHarness);
+    expect(await pager.hasJumper()).toBe(false);
+    await expect(pager.jumpTo(3)).rejects.toThrow(/set `showJumper`/);
+
+    fixture.componentInstance.showJumper.set(true);
+    await fixture.whenStable();
+    expect(await pager.hasJumper()).toBe(true);
+
+    await pager.jumpTo(4);
+    expect(await pager.getCurrentPage()).toBe(4);
+    await pager.jumpTo('999');
+    expect(await pager.getCurrentPage()).toBe(10);
+    await pager.jumpTo('abc');
+    expect(await pager.getCurrentPage()).toBe(10);
+  });
+
+  it('refuses jumpTo while the pager is disabled', async () => {
+    const pager = await loader.getHarness(WrPaginationHarness);
+    fixture.componentInstance.showJumper.set(true);
+    fixture.componentInstance.disabled.set(true);
+    await fixture.whenStable();
+
+    await expect(pager.jumpTo(3)).rejects.toThrow(/pager is disabled/);
   });
 
   it('turns every control off at once', async () => {
