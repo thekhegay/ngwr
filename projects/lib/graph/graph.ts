@@ -673,7 +673,7 @@ export class WrGraph<TData = unknown> {
   );
 
   /** One `transform` on the stage. Absent at 100% in its natural place, which is also what a prerender ships. */
-  protected readonly stageTransform = computed(() => {
+  private readonly stageTransform = computed(() => {
     const at = this.at();
     if (!this.zoomable() || sameTransform(at, IDENTITY)) return null;
     return `translate(${px(at.x)}px, ${px(at.y)}px) scale(${at.k})`;
@@ -835,6 +835,13 @@ export class WrGraph<TData = unknown> {
         this.pinchFrom = null;
         untracked(() => this.panning.set(false));
       });
+    });
+
+    // Written to the element, not bound: a bound transform would re-check every node and edge binding per pan frame.
+    effect(() => {
+      const stage = this.stageRef()?.nativeElement;
+      const transform = this.stageTransform() ?? '';
+      if (stage && stage.style.transform !== transform) stage.style.transform = transform;
     });
 
     // Fits the first drawing and every one of another size, the result of an

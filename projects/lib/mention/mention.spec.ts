@@ -165,6 +165,18 @@ describe('WrMention', () => {
       expect(el.value).toBe('hi @bo');
     });
 
+    it('measures the caret once for an input and its keyup, again when the caret moves', () => {
+      type('hi @al');
+      const rect = vi.spyOn(field(), 'getBoundingClientRect');
+
+      field().dispatchEvent(new KeyboardEvent('keyup', { key: 'l', bubbles: true }));
+      expect(rect).not.toHaveBeenCalled();
+
+      field().setSelectionRange(5, 5);
+      field().dispatchEvent(new KeyboardEvent('keyup', { key: 'ArrowLeft', bubbles: true }));
+      expect(rect).toHaveBeenCalled();
+    });
+
     it('honours a custom trigger set', () => {
       fixture.componentInstance.triggers.set(['#']);
       fixture.detectChanges();

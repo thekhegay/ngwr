@@ -148,8 +148,10 @@ export class WrCheckboxGroup implements FormValueControl<unknown[]>, WrCheckboxG
 
   // WrCheckboxGroupContext
 
+  private readonly selectedSet = computed(() => new Set<unknown>(this.selected()));
+
   isSelected(value: unknown): boolean {
-    return this.selected().includes(value);
+    return this.selectedSet().has(value);
   }
 
   toggle(value: unknown): void {

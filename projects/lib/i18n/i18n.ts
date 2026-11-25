@@ -251,7 +251,7 @@ export class WrI18n {
 
     if (hit === null) {
       // Fire a background load so a future read can resolve it.
-      void this.loadChain(lc, scope ?? null, true);
+      if (!this.chainHandled(chain, scope ?? null)) void this.loadChain(lc, scope ?? null, true);
       return options?.fallback ?? this.config.missingHandler(key, lc);
     }
     return wrInterpolate(hit, params);
@@ -293,6 +293,14 @@ export class WrI18n {
    */
   private loadChain(locale: string, scope: string | null, auto = false): Promise<unknown> {
     return Promise.all(localeChain(locale).map(candidate => this.loadCatalog(candidate, scope, auto)));
+  }
+
+  /** Every catalog of the chain is cached, loading, or failed: another `loadChain` would only allocate. */
+  private chainHandled(chain: readonly string[], scope: string | null): boolean {
+    return chain.every(candidate => {
+      const ck = cacheKey(candidate, scope);
+      return this.catalogs.has(ck) || this.failed.has(ck) || this.inflight.has(ck);
+    });
   }
 
   /** One warning per service, not one per switch. @internal */

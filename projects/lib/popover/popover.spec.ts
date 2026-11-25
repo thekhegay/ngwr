@@ -700,10 +700,17 @@ describe('WrPopover', () => {
       expect(trigger('tip').getAttribute('aria-describedby')).toBeNull();
     });
 
+    it('monitors focus on a tooltip trigger only', () => {
+      const monitor = TestBed.inject(FocusMonitor);
+      monitor.focusVia(trigger('click'), 'keyboard');
+      monitor.focusVia(trigger('tip'), 'keyboard');
+
+      expect(trigger('click').classList.contains('cdk-focused')).toBe(false);
+      expect(trigger('tip').classList.contains('cdk-focused')).toBe(true);
+    });
+
     it('leaves a POPOVER trigger alone on the one origin that opens a tooltip', () => {
-      // The monitor is attached in both modes, so that a `[mode]` flipped after
-      // the first render is not half-wired. That puts the whole burden on the
-      // handler's `isTooltip()` guard, which is what this asserts.
+      // The handler's `isTooltip()` guard is what this asserts.
       TestBed.inject(FocusMonitor).focusVia(trigger('click'), 'keyboard');
       fixture.detectChanges();
       tick(600);

@@ -319,7 +319,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     ) {
       return;
     }
-    this.detect();
+    this.detect(true);
   }
 
   /** @internal */
@@ -381,7 +381,9 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
 
   // Detection
 
-  private detect(): boolean {
+  // `sameAsOpen` skips the work when the panel already shows this exact trigger, query and
+  // start: the keyup of a typed character follows the `input` that measured it.
+  private detect(sameAsOpen = false): boolean {
     const el = this.host.nativeElement;
     if (el.disabled || el.readOnly) {
       this.close();
@@ -400,7 +402,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
         const before = i - 2 >= 0 ? text[i - 2] : '';
         if (i - 2 < 0 || /\s/.test(before)) {
           const query = text.substring(i);
-          this.activate(ch, query, i - 1);
+          this.activate(ch, query, i - 1, false, sameAsOpen);
           return true;
         }
         break;
@@ -415,7 +417,7 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     if (implicit && caret >= implicit.startIndex) {
       const query = text.substring(implicit.startIndex);
       if (!/\s/.test(query)) {
-        this.activate(implicit.trigger, query, implicit.startIndex, true);
+        this.activate(implicit.trigger, query, implicit.startIndex, true, sameAsOpen);
         return true;
       }
     }
@@ -423,7 +425,19 @@ export class WrMention<T extends WrMentionItem = WrMentionItem> {
     return false;
   }
 
-  private activate(trigger: string, query: string, startIndex: number, implicit = false): void {
+  private activate(trigger: string, query: string, startIndex: number, implicit = false, sameAsOpen = false): void {
+    const open = this.state;
+    if (
+      sameAsOpen &&
+      open &&
+      this.panelOpen() &&
+      open.trigger === trigger &&
+      open.query === query &&
+      open.startIndex === startIndex &&
+      open.implicit === implicit
+    ) {
+      return;
+    }
     this.state = { trigger, query, startIndex, implicit };
     const previousCount = this.filteredItems().length;
     const filtered = this.filter(query).slice(0, this.maxResults());

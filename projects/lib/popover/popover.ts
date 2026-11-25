@@ -308,6 +308,7 @@ export class WrPopover implements AfterViewInit {
   private finder: FocusTrap | null = null;
   /** Whether the HOST itself holds focus — not a descendant of it. */
   private hostFocused = false;
+  private monitoring = false;
   private hoverCloseTimer: ReturnType<typeof setTimeout> | null = null;
   /**
    * Whether Enter or Space opened a `trigger="hover"` popover. The pointer owns
@@ -383,11 +384,9 @@ export class WrPopover implements AfterViewInit {
     // itself a keystroke — Escape on a drawer, Enter on its ✕. See
     // `WrCurrentKeystroke` for the key that tells a navigation from a dismissal.
     //
-    // Monitored in EVERY mode rather than only under `mode="tooltip"` — the mode
-    // is an input and may flip after this runs, and a subscription that only
-    // half-exists is the failure this fix is about. The handler asks instead. The
-    // cost is the CDK's own `cdk-*-focused` classes on the host, which nothing in
-    // ngwr styles.
+    // Monitoring starts the first time the mode is a tooltip, and the handler
+    // still asks, since the mode may flip afterwards. The cost is the CDK's own
+    // `cdk-*-focused` classes on the host, which nothing in ngwr styles.
     //
     // `afterNextRender` because monitoring binds document listeners: there is no
     // DOM to bind them to on the server.
@@ -422,26 +421,11 @@ export class WrPopover implements AfterViewInit {
     // After render: whether the host has a name depends on its projected content
     // and on attributes other directives bind.
     afterRenderEffect(() => this.syncName());
-    afterNextRender(() => {
-      this.focusMonitor
-        .monitor(this.host)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(origin => {
-          if (origin) {
-            this.hostFocused = true;
-            if (this.isTooltip() && origin === 'keyboard' && this.fromNavigationKey()) this.scheduleShow();
-            return;
-          }
-          // A null origin is a blur, and the CDK reports one for a DESCENDANT
-          // too: `_onFocus` bails when the event target is not the monitored
-          // element, `_onBlur` has no such guard. The old `(blur)` binding never
-          // bubbled, so hiding on one is new — hover a wrapper, click the button
-          // inside it, tab away, and the tooltip the POINTER opened vanished
-          // while the pointer never moved. Only the host's own focus counts.
-          if (!this.hostFocused) return;
-          this.hostFocused = false;
-          if (this.isTooltip()) this.scheduleHide();
-        });
+    // Only a tooltip reads the monitor, so a popover that never is one never starts it.
+    effect(() => {
+      if (!this.isTooltip() || this.onServer || this.monitoring) return;
+      this.monitoring = true;
+      untracked(() => afterNextRender(() => this.monitorFocus(), { injector: this.injector }));
     });
     this.destroyRef.onDestroy(() => {
       this.clearTimers();
@@ -451,6 +435,28 @@ export class WrPopover implements AfterViewInit {
       // either way, but the CDK's own bookkeeping only clears from here.
       this.focusMonitor.stopMonitoring(this.host);
     });
+  }
+
+  private monitorFocus(): void {
+    this.focusMonitor
+      .monitor(this.host)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(origin => {
+        if (origin) {
+          this.hostFocused = true;
+          if (this.isTooltip() && origin === 'keyboard' && this.fromNavigationKey()) this.scheduleShow();
+          return;
+        }
+        // A null origin is a blur, and the CDK reports one for a DESCENDANT
+        // too: `_onFocus` bails when the event target is not the monitored
+        // element, `_onBlur` has no such guard. The old `(blur)` binding never
+        // bubbled, so hiding on one is new — hover a wrapper, click the button
+        // inside it, tab away, and the tooltip the POINTER opened vanished
+        // while the pointer never moved. Only the host's own focus counts.
+        if (!this.hostFocused) return;
+        this.hostFocused = false;
+        if (this.isTooltip()) this.scheduleHide();
+      });
   }
 
   /**

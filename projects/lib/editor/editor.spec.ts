@@ -723,6 +723,21 @@ describe('WrEditor', () => {
       expect(document.activeElement).toBe(surface());
     });
 
+    it('leaves the toolbar alone when the caret moves inside the same formatting', async () => {
+      await mount();
+      await caretIn('Hello', 1);
+      const toolbar = root().querySelector('[role="toolbar"]')!;
+      const records: MutationRecord[] = [];
+      const observer = new MutationObserver(r => records.push(...r));
+      observer.observe(toolbar, { subtree: true, attributes: true, childList: true, characterData: true });
+
+      await caretIn('Hello', 3);
+      records.push(...observer.takeRecords());
+      observer.disconnect();
+
+      expect(records).toEqual([]);
+    });
+
     it('draws only the separators between two groups', async () => {
       await mount(h => h.toolbar.set(['|', 'bold', '|', '|', 'italic', '|']));
 
