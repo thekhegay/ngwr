@@ -813,3 +813,69 @@ describe('WrButton ghost', () => {
     expect(rule('.wr-btn--primary.wr-btn--ghost:hover')).toMatch(/--wr-btn-bg:\s*var\(--wr-btn-ghost-bg-hover\)/);
   });
 });
+
+describe('WrButton pressed', () => {
+  @Component({
+    imports: [WrButton],
+    template: `
+      <button type="button" wr-btn id="plain">Plain</button>
+      <button type="button" wr-btn id="toggle" [(pressed)]="on" [disabled]="off()">Bold</button>
+      <wr-btn id="el" [(pressed)]="on">Bold</wr-btn>
+      <a wr-btn id="link" [pressed]="true">Link</a>
+    `,
+  })
+  class PressedHost {
+    readonly on = signal<boolean | undefined>(false);
+    readonly off = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<PressedHost>>;
+  const get = (id: string): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`#${id}`)!;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(PressedHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('adds nothing while pressed is undefined', () => {
+    get('plain').click();
+    fixture.detectChanges();
+    expect(get('plain').hasAttribute('aria-pressed')).toBe(false);
+    expect(get('plain').classList.contains('wr-btn--pressed')).toBe(false);
+  });
+
+  it('reflects true and false', () => {
+    expect(get('toggle').getAttribute('aria-pressed')).toBe('false');
+    expect(get('toggle').classList.contains('wr-btn--pressed')).toBe(false);
+    fixture.componentInstance.on.set(true);
+    fixture.detectChanges();
+    expect(get('toggle').getAttribute('aria-pressed')).toBe('true');
+    expect(get('toggle').classList.contains('wr-btn--pressed')).toBe(true);
+  });
+
+  it('flips on click and emits pressedChange', () => {
+    get('toggle').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.on()).toBe(true);
+    expect(get('toggle').getAttribute('aria-pressed')).toBe('true');
+    get('el').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.on()).toBe(false);
+  });
+
+  it('does not flip while disabled', () => {
+    fixture.componentInstance.off.set(true);
+    fixture.detectChanges();
+    get('toggle').click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.on()).toBe(false);
+  });
+
+  it('gives an anchor host no aria-pressed', () => {
+    expect(get('link').hasAttribute('aria-pressed')).toBe(false);
+    expect(get('link').classList.contains('wr-btn--pressed')).toBe(false);
+  });
+});
