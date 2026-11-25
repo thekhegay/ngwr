@@ -26,7 +26,8 @@ import { WrTabHarness } from './wr-tab-harness';
  * - **Content** — the tabs are `<button role="tab">`s, the strip is ONE tab stop
  *   (the roving `tabindex` sits on the selected tab), and the arrow keys ACTIVATE
  *   the tab they move to, the APG's automatic-activation pattern. `<wr-tabs>`
- *   renders exactly one panel: the selected tab's.
+ *   shows exactly one panel: the selected tab's. Without `keepMounted` it is the
+ *   only one in the DOM; with it, visited panels stay but the others are `hidden`.
  * - **Router** — one `routerLink` on any child switches the whole strip over. The
  *   tabs become `<a role="tab">`s whose `aria-selected` follows the resolved route
  *   (the same `routerActive()` that paints `--active`) and the strip renders NO

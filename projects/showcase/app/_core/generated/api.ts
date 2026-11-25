@@ -1744,6 +1744,7 @@ export const API = {
   WrTabs: [
     { name: "active", description: "Two-way bindable active tab key (content mode).", type: "string | null", default: "null" },
     { name: "size", description: "Visual size variant.", type: "WrTabsSize", default: "'md'" },
+    { name: "keepMounted", description: "Content mode only: render each panel on its first visit and keep it in the DOM, hidden while its tab is inactive, so a form, a scroll position or a chart survives a tab switch. Router mode is out of scope: it renders no panel and ignores this.", type: "boolean", default: "false" },
   ],
   // <wr-tag>
   WrTag: [

@@ -183,7 +183,7 @@ export const UPDATED = {
   "reference/components/stepper": "16.9.0",
   "reference/components/switch": "15.0.0",
   "reference/components/table": "16.7.0",
-  "reference/components/tabs": "16.7.0",
+  "reference/components/tabs": "16.10.0",
   "reference/components/textarea": "16.3.0",
   "reference/components/timeline": "15.0.0",
   "reference/components/toast": "16.6.0",

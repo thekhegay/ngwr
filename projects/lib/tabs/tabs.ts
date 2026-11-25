@@ -6,6 +6,7 @@
  */
 
 import { Directionality } from '@angular/cdk/bidi';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
@@ -21,6 +22,7 @@ import {
   input,
   model,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 
@@ -115,7 +117,30 @@ export class WrTabs implements WrTabsContext {
   /** Visual size variant. */
   readonly size = input<WrTabsSize>('md');
 
+  /**
+   * Content mode only: render each panel on its first visit and keep it in the
+   * DOM, hidden while its tab is inactive, so a form, a scroll position or a
+   * chart survives a tab switch. Router mode is out of scope: it renders no panel and ignores this.
+   *
+   * @default false
+   */
+  readonly keepMounted = input(false, { transform: coerceBooleanProperty });
+
   protected readonly tabs = contentChildren(WrTab);
+
+  private readonly visited = signal<ReadonlySet<string>>(new Set());
+
+  /** Keep-mounted mode: the tabs whose panel is rendered, in tab order. */
+  protected readonly mountedTabs = computed(() => {
+    const visited = this.visited();
+    const active = this.activeTab();
+    return this.tabs().filter(t => t === active || visited.has(t.key()));
+  });
+
+  /** Whether the tab's panel is in the DOM, so `aria-controls` never dangles in keep-mounted mode. */
+  protected isPanelRendered(tab: WrTab): boolean {
+    return !this.keepMounted() || this.mountedTabs().includes(tab);
+  }
 
   private readonly dir = inject(Directionality, { optional: true });
 
@@ -250,6 +275,13 @@ export class WrTabs implements WrTabsContext {
       if (tabs.length > 0 && (key === null || removed)) {
         this.active.set((tabs.find(t => !t.disabled()) ?? tabs[0]).key());
       }
+    });
+
+    effect(() => {
+      const key = this.activeTab()?.key();
+      if (!this.keepMounted() || key === undefined) return;
+      const seen = untracked(this.visited);
+      if (!seen.has(key)) this.visited.set(new Set(seen).add(key));
     });
 
     const destroyRef = inject(DestroyRef);

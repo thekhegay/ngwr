@@ -46,7 +46,7 @@
         role="tab"
         [attr.id]="headerId(tab.key())"
         [attr.aria-label]="tab.accessibleName()"
-        [attr.aria-controls]="panelId(tab.key())"
+        [attr.aria-controls]="isPanelRendered(tab) ? panelId(tab.key()) : null"
         [attr.tabindex]="tab === contentStop() ? 0 : -1"
         [class.wr-tabs__tab--active]="tab === activeTab()"
         [class.wr-tabs__tab--disabled]="tab.disabled()"
@@ -63,14 +63,29 @@
   }
 </div>
 
-@if (!isRouter() && activeTab(); as tab) {
-  <div
-    class="wr-tabs__panel"
-    role="tabpanel"
-    tabindex="0"
-    [attr.id]="panelId(tab.key())"
-    [attr.aria-labelledby]="headerId(tab.key())"
-  >
-    <ng-container [ngTemplateOutlet]="tab.contentTpl()" />
-  </div>
+@if (!isRouter()) {
+  @if (keepMounted()) {
+    @for (tab of mountedTabs(); track tab.key()) {
+      <div
+        class="wr-tabs__panel"
+        role="tabpanel"
+        tabindex="0"
+        [hidden]="tab !== activeTab()"
+        [attr.id]="panelId(tab.key())"
+        [attr.aria-labelledby]="headerId(tab.key())"
+      >
+        <ng-container [ngTemplateOutlet]="tab.contentTpl()" />
+      </div>
+    }
+  } @else if (activeTab(); as tab) {
+    <div
+      class="wr-tabs__panel"
+      role="tabpanel"
+      tabindex="0"
+      [attr.id]="panelId(tab.key())"
+      [attr.aria-labelledby]="headerId(tab.key())"
+    >
+      <ng-container [ngTemplateOutlet]="tab.contentTpl()" />
+    </div>
+  }
 }

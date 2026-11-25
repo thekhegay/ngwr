@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 
+import { WrInput } from 'ngwr/input';
 import { WrTab, WrTabs } from 'ngwr/tabs';
 
 import {
@@ -17,6 +18,7 @@ import {
   imports: [
     WrTabs,
     WrTab,
+    WrInput,
     DocPageComponent,
     DocSectionComponent,
     DocSnippetComponent,
@@ -49,6 +51,10 @@ export default class TabsPageComponent {
   <wr-tab title="Inbox" [count]="unread()">…</wr-tab>
   <wr-tab title="Sent">…</wr-tab>
 </wr-tabs>`,
+    keepMounted: `<wr-tabs keepMounted>
+  <wr-tab key="draft" title="Draft"><input wrInput /></wr-tab>
+  <wr-tab key="other" title="Other">…</wr-tab>
+</wr-tabs>`,
     disabled: `<wr-tab title="WIP" disabled>…</wr-tab>`,
     exportAs: `<wr-tabs wrTabsRouting #routing="wrTabsRouting">
   <wr-tab title="Overview" routerLink="overview" />
@@ -62,6 +68,12 @@ export default class TabsPageComponent {
   protected readonly tabsApi: readonly DocApiRow[] = [
     { name: 'active', description: 'Active tab key. Two-way bindable.', type: 'string | null', default: 'null' },
     { name: 'size', description: 'Visual size variant.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+    {
+      name: 'keepMounted',
+      description: 'Render each panel on its first visit and keep it, hidden. Content tabs only.',
+      type: 'boolean',
+      default: 'false',
+    },
   ];
 
   protected readonly tabApi: readonly DocApiRow[] = [
