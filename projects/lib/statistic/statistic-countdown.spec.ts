@@ -114,6 +114,41 @@ describe('WrStatisticCountdown', () => {
     }
   });
 
+  it('re-arms past the longest timer delay while hidden', async () => {
+    const MAX_DELAY = 2_147_483_647;
+    const setVisibility = (state: 'visible' | 'hidden'): void => {
+      Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+      fixture.detectChanges();
+    };
+    try {
+      await mount();
+      fixture.componentInstance.target.set(NOW + MAX_DELAY + SECOND);
+      fixture.detectChanges();
+      const timeout = vi.spyOn(globalThis, 'setTimeout');
+      setVisibility('hidden');
+      const first = timeout.mock.calls.find(([, delay]) => delay === MAX_DELAY);
+      expect(first).toBeDefined();
+
+      vi.advanceTimersByTime(MAX_DELAY);
+      (first![0] as () => void)();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.ended).toBe(0);
+      const second = timeout.mock.calls.find(([, delay]) => delay === SECOND);
+      expect(second).toBeDefined();
+
+      vi.advanceTimersByTime(SECOND);
+      (second![0] as () => void)();
+      fixture.detectChanges();
+      expect(fixture.componentInstance.ended).toBe(1);
+
+      // The first real timer was called by hand, so it is still pending.
+      clearTimeout(timeout.mock.results[timeout.mock.calls.indexOf(first!)].value as number);
+    } finally {
+      Reflect.deleteProperty(document, 'visibilityState');
+    }
+  });
+
   it('shows the time left before the first tick ever fires', async () => {
     // Seeded synchronously, because the prerendered HTML has to hold a real
     // value rather than 00:00:00.
