@@ -113,8 +113,9 @@ export function wrFromDay(day: string | null | undefined, timeZone?: string): Da
   if (zone) {
     const wall = dayTime(day);
     if (wall === null) return null;
-    const instant = wrZoneInstant(wall, zone);
-    return Number.isNaN(new Date(instant).getTime()) ? null : new Date(instant);
+    const date = new Date(wrZoneInstant(wall, zone));
+    // A day the zone skipped (Samoa, 30 December 2011) lands on the next one.
+    return wrToDay(date, timeZone) === day ? date : null;
   }
   const date = wrToLocalDate(day);
   // An engine may refuse 30 February or carry it over into March; neither is that day.
