@@ -16,6 +16,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSchemaForm } from './schema-form';
 import { WrSchemaFormHarness } from './testing';
+import type { WrSchemaFormRejection } from './types';
 
 interface Account {
   readonly roles: readonly string[];
@@ -52,9 +53,10 @@ const accountSchema = schema<Account>(path => {
 
 @Component({
   imports: [WrSchemaForm],
-  template: `<wr-schema-form [field]="account" />`,
+  template: `<wr-schema-form [field]="account" (rejected)="rejections.push($event)" />`,
 })
 class Host {
+  readonly rejections: WrSchemaFormRejection[] = [];
   readonly model = signal<Account>({
     roles: ['editor'],
     labels: ['urgent', 'billing'],
@@ -185,6 +187,20 @@ describe('WrSchemaForm kinds', () => {
     // A spec that names no limit refuses nothing.
     await attachments.selectFiles(large, one, two, three);
     expect(model().attachments).toEqual([large, one, two, three]);
+  });
+
+  it('file reports a refused file through rejected with its key and field', async () => {
+    const scans = (await schemaForm.getFields({ kind: 'file' }))[2];
+    const upload = await scans.getControl('file');
+    const large = new File(['abcdef'], 'large.pdf');
+
+    await upload.selectFiles(large);
+
+    const { rejections } = fixture.componentInstance;
+    expect(rejections).toHaveLength(1);
+    expect(rejections[0].key).toBe('scans');
+    expect(rejections[0].field).toBe(fixture.componentInstance.account.scans);
+    expect(rejections[0].rejections).toEqual([{ file: large, reason: 'size' }]);
   });
 
   it('segmented holds the value of the option picked', async () => {

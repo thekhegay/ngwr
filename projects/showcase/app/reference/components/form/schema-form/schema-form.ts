@@ -12,9 +12,10 @@ import {
   schema,
 } from '@angular/forms/signals';
 
+import { WrAlert } from 'ngwr/alert';
 import { WrButton } from 'ngwr/button';
 import { WR_FIELD } from 'ngwr/form';
-import { WrSchemaForm } from 'ngwr/schema-form';
+import { WrSchemaForm, type WrSchemaFormRejection } from 'ngwr/schema-form';
 
 import {
   DocApiComponent,
@@ -73,6 +74,7 @@ const PLANS = [
   selector: 'ngwr-schema-form-page',
   templateUrl: './schema-form.html',
   imports: [
+    WrAlert,
     WrButton,
     WrSchemaForm,
     DocPageComponent,
@@ -207,16 +209,26 @@ export default class SchemaFormPage {
     })
   );
 
+  protected readonly refused = signal<WrSchemaFormRejection | null>(null);
+
   protected readonly fileLimitsFiles: readonly DocCodeFile[] = [
-    { label: 'HTML', language: 'angular-html', code: `<wr-schema-form [field]="documents" />` },
+    {
+      label: 'HTML',
+      language: 'angular-html',
+      code: `<wr-schema-form [field]="documents" (rejected)="refused.set($event)" />
+@if (refused(); as refusal) {
+  <wr-alert type="warning" [message]="refusal.rejections[0].reason" />
+}`,
+    },
     {
       label: 'TS',
       language: 'angular-ts',
       code: `import { Component, signal } from '@angular/core';
 import { form, metadata, schema } from '@angular/forms/signals';
 
+import { WrAlert } from 'ngwr/alert';
 import { WR_FIELD } from 'ngwr/form';
-import { WrSchemaForm } from 'ngwr/schema-form';
+import { WrSchemaForm, type WrSchemaFormRejection } from 'ngwr/schema-form';
 
 interface Documents {
   scans: readonly File[];
@@ -236,10 +248,11 @@ const documentsSchema = schema<Documents>(path => {
 @Component({
   selector: 'app-documents',
   templateUrl: './documents.html',
-  imports: [WrSchemaForm],
+  imports: [WrSchemaForm, WrAlert],
 })
 export class DocumentsForm {
   protected readonly documents = form(signal<Documents>({ scans: [] }), documentsSchema);
+  protected readonly refused = signal<WrSchemaFormRejection | null>(null);
 }`,
     },
   ];

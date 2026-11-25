@@ -41,6 +41,7 @@
                   [columns]="f.spec.columns ?? 1"
                   [addLabel]="addLabel()"
                   [removeLabel]="removeLabel()"
+                  (rejected)="rejected.emit($event)"
                 />
               </div>
             }
@@ -133,6 +134,7 @@
                 [accept]="f.spec.accept ?? ''"
                 [maxSize]="f.spec.maxSize ?? 0"
                 [maxFiles]="f.spec.maxFiles ?? 0"
+                (rejected)="reject(f, $event)"
               />
             }
             @default {

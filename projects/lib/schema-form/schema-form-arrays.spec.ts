@@ -5,6 +5,7 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
@@ -19,12 +20,14 @@ import {
   schema,
 } from '@angular/forms/signals';
 
+import { WrFileUploadHarness } from 'ngwr/file-upload/testing';
 import { WR_FIELD } from 'ngwr/form';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { wrRu } from 'ngwr/i18n/ru';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrSchemaForm } from './schema-form';
+import type { WrSchemaFormRejection } from './types';
 
 interface Address {
   readonly street: string;
@@ -78,6 +81,28 @@ class Host {
   readonly addLabel = signal<string | null>(null);
   readonly removeLabel = signal<string | null>(null);
   readonly user = form(this.model, userSchema);
+}
+
+interface Folder {
+  readonly pages: readonly { readonly scan: readonly File[] }[];
+}
+
+@Component({
+  imports: [WrSchemaForm],
+  template: `<wr-schema-form [field]="folder" (rejected)="rejections.push($event)" />`,
+})
+class FolderHost {
+  readonly rejections: WrSchemaFormRejection[] = [];
+  readonly model = signal<Folder>({ pages: [{ scan: [] }, { scan: [] }] });
+  readonly folder = form(
+    this.model,
+    schema<Folder>(path => {
+      metadata(path.pages, WR_FIELD, () => ({ kind: 'array' }));
+      applyEach(path.pages, item => {
+        metadata(item.scan, WR_FIELD, () => ({ kind: 'file', multiple: true, maxSize: 4 }));
+      });
+    })
+  );
 }
 
 describe('WrSchemaForm repeating groups', () => {
@@ -328,5 +353,20 @@ describe('WrSchemaForm repeating groups', () => {
       expect(warn.mock.calls[0][0]).toContain(`field "rows" is described as kind 'array'`);
       warn.mockRestore();
     });
+  });
+
+  it('reports a file refused inside an item through rejected, with that item field', async () => {
+    const folder = TestBed.createComponent(FolderHost);
+    folder.detectChanges();
+    const uploads = await TestbedHarnessEnvironment.loader(folder).getAllHarnesses(WrFileUploadHarness);
+
+    await uploads[1].selectFiles(new File(['abcdef'], 'large.pdf'));
+
+    const { rejections, folder: tree } = folder.componentInstance;
+    expect(uploads).toHaveLength(2);
+    expect(rejections).toHaveLength(1);
+    expect(rejections[0].key).toBe('scan');
+    expect(rejections[0].field).toBe(tree.pages[1].scan);
+    expect(rejections[0].rejections[0].reason).toBe('size');
   });
 });

@@ -1421,6 +1421,7 @@ export const API = {
     { name: "columns", description: "Grid columns. A field spans one of them unless its spec says otherwise.", type: "number", default: "1" },
     { name: "addLabel", description: "Text of the button that adds an item to a repeating group. Falls back to `common.add`.", type: "string | null", default: "null" },
     { name: "removeLabel", description: "Text of the button that removes one item of a repeating group. Falls back to `common.remove`.", type: "string | null", default: "null" },
+    { name: "(rejected)", description: "Fires when a `kind: 'file'` field refuses files past its `accept`, `maxSize` or `maxFiles`, once per refusal, with the field's key, the field itself and the refused files with their reasons. A field inside a repeating group reaches this output too, `field` telling its item from the others.", type: "WrSchemaFormRejection" },
   ],
   // <[wrScrollFollow]>
   WrScrollFollow: [
