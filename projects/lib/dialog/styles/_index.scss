@@ -60,8 +60,9 @@
 }
 
 .wr-dialog-backdrop {
+  --wr-dialog-backdrop-filter: var(--wr-overlay-backdrop-filter);
   background: var(--wr-color-overlay);
-  backdrop-filter: blur(2px);
+  backdrop-filter: var(--wr-dialog-backdrop-filter);
 }
 
 // `autoFocus: 'dialog'` focuses the panel by script. It is a container, never a

@@ -123,6 +123,7 @@ export const UPDATED = {
   "guides/theming": "16.6.0",
   "guides/tokens/colors": "16.6.0",
   "guides/tokens/density": "15.0.0",
+  "guides/tokens/motion": "16.10.0",
   "guides/tokens/sizing": "15.0.0",
   "guides/tokens/typography": "15.0.0",
   "guides/translations/usage": "16.1.0",

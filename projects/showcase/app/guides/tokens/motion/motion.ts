@@ -40,6 +40,7 @@ export default class TokensMotionPage {
   protected readonly overlayTokens: readonly Token[] = [
     { name: '--wr-overlay-duration', value: 'var(--wr-duration-base)' },
     { name: '--wr-overlay-ease', value: 'var(--wr-ease-out)' },
+    { name: '--wr-overlay-backdrop-filter', value: 'blur(2px)' },
   ];
 
   protected readonly snippets = {

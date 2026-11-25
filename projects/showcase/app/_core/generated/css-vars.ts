@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1931 hook(s) across 116 page(s). A property is here only when the
+ * 1935 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1008,6 +1008,7 @@ export const CSS_VARS = {
   "reference/components/command-palette": {
     subpath: "ngwr/command-palette",
     vars: [
+      { name: "--wr-command-palette-backdrop-filter", default: "blur(4px)", scope: ".wr-command-palette" },
       { name: "--wr-command-palette-body-padding", default: "var(--wr-space-sm)", scope: ".wr-command-palette__body" },
       { name: "--wr-command-palette-empty-font-size", default: "var(--wr-text-sm)", scope: ".wr-command-palette__empty" },
       { name: "--wr-command-palette-empty-padding-x", default: "var(--wr-space-lg)", scope: ".wr-command-palette__empty" },
@@ -1212,6 +1213,7 @@ export const CSS_VARS = {
   "reference/components/dialog": {
     subpath: "ngwr/dialog",
     vars: [
+      { name: "--wr-dialog-backdrop-filter", default: "var(--wr-overlay-backdrop-filter)", scope: ".wr-dialog-backdrop" },
       { name: "--wr-dialog-bg", default: "var(--wr-color-surface)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-border", default: "var(--wr-border-base)", scope: ".wr-dialog-panel" },
       { name: "--wr-dialog-close-font-size", default: "var(--wr-text-base)", scope: ".wr-dialog-panel", overrides: 2 },
@@ -1255,6 +1257,7 @@ export const CSS_VARS = {
   "reference/components/drawer": {
     subpath: "ngwr/drawer",
     vars: [
+      { name: "--wr-drawer-backdrop-filter", default: "var(--wr-overlay-backdrop-filter)", scope: ".wr-drawer-backdrop" },
       { name: "--wr-drawer-bg", default: "var(--wr-color-surface)", scope: ".wr-drawer__panel" },
       { name: "--wr-drawer-close-font-size", default: "var(--wr-text-base)", scope: ".wr-drawer__close" },
       { name: "--wr-drawer-close-padding", default: "var(--wr-space-xs)", scope: ".wr-drawer__close" },
@@ -2160,6 +2163,7 @@ export const CSS_VARS = {
       { name: "--wr-table-head-letter-spacing", default: "var(--wr-tracking-normal)", scope: ".wr-table" },
       { name: "--wr-table-head-transform", default: "none", scope: ".wr-table" },
       { name: "--wr-table-line-height", default: "var(--wr-text-sm-leading)", scope: ".wr-table" },
+      { name: "--wr-table-loading-backdrop-filter", default: "var(--wr-overlay-backdrop-filter)", scope: ".wr-table" },
       { name: "--wr-table-loading-bar-color", default: "var(--wr-color-primary)", scope: ".wr-table" },
       { name: "--wr-table-loading-bar-duration", default: "1.4s", scope: ".wr-table" },
       { name: "--wr-table-loading-bar-height", default: "0.125rem", scope: ".wr-table" },

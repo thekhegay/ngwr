@@ -2,8 +2,9 @@
 @include theme.loaded('drawer');
 
 .wr-drawer-backdrop {
+  --wr-drawer-backdrop-filter: var(--wr-overlay-backdrop-filter);
   background: var(--wr-color-overlay);
-  backdrop-filter: blur(2px);
+  backdrop-filter: var(--wr-drawer-backdrop-filter);
 }
 
 .wr-drawer-overlay {
