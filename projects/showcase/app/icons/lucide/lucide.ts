@@ -1,8 +1,8 @@
 import { Component, computed } from '@angular/core';
 
-import * as LucideAll from 'lucide';
 import { wrLucide } from 'ngwr/icon';
 
+import lucideData from '../_generated/lucide.json';
 import { IconGridComponent, type IconEntry } from '../_grid/icon-grid';
 
 import { DocCodeComponent, DocInstallComponent, DocPageComponent, DocSectionComponent } from '#core/components';
@@ -13,29 +13,9 @@ let cached: readonly IconEntry[] | null = null;
 function buildLucideEntries(): readonly IconEntry[] {
   if (cached) return cached;
 
-  const Lucide = LucideAll as unknown as Record<string, unknown>;
-  const seen = new Set<string>();
-  const out: IconEntry[] = [];
-
-  for (const key of Object.keys(Lucide).sort()) {
-    if (!/^[A-Z]/.test(key)) continue;
-    const value = Lucide[key];
-    if (!Array.isArray(value)) continue;
-
-    const name = pascalToKebab(key);
-    if (seen.has(name)) continue;
-    seen.add(name);
-
-    const def = wrLucide(name, value as Parameters<typeof wrLucide>[1]);
-    out.push({ name, svg: def.data });
-  }
-
-  cached = out;
-  return out;
-}
-
-function pascalToKebab(value: string): string {
-  return value.replace(/([a-z\d])([A-Z])/g, '$1-$2').toLowerCase();
+  const nodes = lucideData as unknown as Record<string, Parameters<typeof wrLucide>[1]>;
+  cached = Object.keys(nodes).map(name => ({ name, svg: wrLucide(name, nodes[name]).data }));
+  return cached;
 }
 
 function kebabToCamel(value: string): string {
