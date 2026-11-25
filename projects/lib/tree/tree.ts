@@ -766,6 +766,8 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   });
 
   private readonly openState = signal(false);
+  /** The pending open came from a key, so `autoFocus` asks for the ring. */
+  private openedByKey = false;
 
   /**
    * Whether the overlay panel is open. Read-only: `open()` and `close()` change it.
@@ -1173,8 +1175,10 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   // Overlay-mode trigger handlers
 
-  protected onTriggerClick(): void {
+  protected onTriggerClick(event: MouseEvent): void {
     if (this.disabled() || this.readonly()) return;
+    // Enter and Space reach here as a click with no pointer detail.
+    this.openedByKey = event.detail === 0;
     this.openState.update(v => !v);
   }
 
@@ -1249,6 +1253,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && !this.isOpen()) {
       if (this.disabled() || this.readonly()) return;
       event.preventDefault();
+      this.openedByKey = true;
       this.openState.set(true);
       return;
     }
@@ -1846,7 +1851,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     // runs change detection in a macrotask, so a microtask queued here fires
     // first and focuses whatever the panel held before this open — the same trap
     // that once left `wr-calendar`'s ring and real focus on different days.
-    if (this.autoFocus()) afterNextRender(() => this.focusPanel(), { injector: this.injector });
+    const byKey = this.openedByKey;
+    this.openedByKey = false;
+    if (this.autoFocus()) afterNextRender(() => this.focusPanel(byKey), { injector: this.injector });
 
     this.outsideClick
       .outsidePointerEvents(this.overlayRef)
