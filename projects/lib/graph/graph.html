@@ -15,7 +15,6 @@
     [class.wr-graph__stage--animated]="animated()"
     [style.width.px]="graph.width"
     [style.height.px]="graph.height"
-    [style.transform]="stageTransform()"
     (transitionend)="animated.set(false)"
   >
     <svg

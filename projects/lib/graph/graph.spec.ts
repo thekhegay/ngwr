@@ -1,5 +1,5 @@
 import { type Direction, Directionality } from '@angular/cdk/bidi';
-import { Component, LOCALE_ID, signal } from '@angular/core';
+import { Component, LOCALE_ID, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { EMPTY } from 'rxjs';
@@ -38,6 +38,25 @@ const EDGES: readonly WrGraphEdge[] = [
   { from: 'dune', to: 'ember' },
   { from: 'dune', to: 'ember' },
 ];
+
+@Component({
+  imports: [WrGraph, WrGraphNodeTemplate],
+  template: `
+    <wr-graph #graph [nodes]="nodes" [edges]="edges" zoomable>
+      <ng-template wrGraphNode let-node>{{ read(node.id) }}</ng-template>
+    </wr-graph>
+  `,
+})
+class ZoomHost {
+  readonly nodes: readonly WrGraphNode[] = NODES;
+  readonly edges: readonly WrGraphEdge[] = EDGES;
+  readonly graph = viewChild.required(WrGraph);
+  reads = 0;
+  read(id: string): string {
+    this.reads++;
+    return id;
+  }
+}
 
 @Component({
   imports: [WrGraph],
@@ -415,6 +434,23 @@ describe('WrGraph with a node template', () => {
     // The relation text stays with the graph, not the template.
     const person = root.querySelectorAll<HTMLElement>('[role="listitem"]')[1];
     expect(relationText(person)).toBe('Parents: Mira Vale.');
+  });
+});
+
+describe('WrGraph zoom', () => {
+  it('moves the stage without re-checking the node bindings', () => {
+    const fixture = TestBed.createComponent(ZoomHost);
+    fixture.detectChanges();
+    const stage = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-graph__stage')!;
+    const reads = fixture.componentInstance.reads;
+    const before = stage.style.transform;
+
+    fixture.componentInstance.graph().zoom.set(1.5);
+    fixture.detectChanges();
+
+    expect(stage.style.transform).toContain('scale(');
+    expect(stage.style.transform).not.toBe(before);
+    expect(fixture.componentInstance.reads).toBe(reads);
   });
 });
 

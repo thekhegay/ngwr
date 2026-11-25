@@ -263,6 +263,13 @@ describe('WrCheckboxGroup', () => {
     expect(picked()).toEqual([]);
   });
 
+  it('checks the boxes a written value names', () => {
+    fixture.componentInstance.picked.set(['a', 'c']);
+    fixture.detectChanges();
+
+    expect(inputs().map(i => i.checked)).toEqual([true, false, true]);
+  });
+
   it('collects each box under its own checkboxValue', () => {
     click(0);
     click(2);

@@ -154,6 +154,19 @@ describe('WrI18n', () => {
     expect(i18n.t('greeting')).toBe('hi en');
   });
 
+  it('does not start another load chain for a miss once the catalogs are in', async () => {
+    const i18n = await setup();
+    expect(i18n.t('absent.key')).toBe('absent.key');
+    await settle();
+
+    const all = vi.spyOn(Promise, 'all');
+    i18n.t('absent.key');
+    i18n.t('absent.key');
+
+    expect(all).not.toHaveBeenCalled();
+    all.mockRestore();
+  });
+
   it('ignores a locale that is not on the whitelist', async () => {
     const i18n = await setup();
     i18n.use('de');

@@ -70,6 +70,18 @@ function warn(message: string): void {
   console.warn(`[NGWR] <wr-editor>: ${message}`);
 }
 
+function sameToolStates(
+  a: ReadonlyMap<WrEditorCommandTool, WrToolState>,
+  b: ReadonlyMap<WrEditorCommandTool, WrToolState>
+): boolean {
+  if (a.size !== b.size) return false;
+  for (const [tool, state] of a) {
+    const other = b.get(tool);
+    if (other?.active !== state.active || other.available !== state.available) return false;
+  }
+  return true;
+}
+
 /** One toolbar button's state at the current selection. */
 interface WrToolState {
   readonly tool: WrEditorCommandTool;
@@ -364,24 +376,27 @@ export class WrEditor implements FormValueControl<WrEditorValue> {
   });
 
   /** Every button's pressed and available state at the current selection. @internal */
-  protected readonly toolStates = computed<ReadonlyMap<WrEditorCommandTool, WrToolState>>(() => {
-    const state = this.editorState();
-    const editable = this.canEdit();
-    const commands = this.commands();
-    return new Map(
-      this.buttons().map(tool => {
-        const command = commands.get(tool);
-        return [
-          tool,
-          {
+  protected readonly toolStates = computed<ReadonlyMap<WrEditorCommandTool, WrToolState>>(
+    () => {
+      const state = this.editorState();
+      const editable = this.canEdit();
+      const commands = this.commands();
+      return new Map(
+        this.buttons().map(tool => {
+          const command = commands.get(tool);
+          return [
             tool,
-            active: !!state && toolActive(tool, state),
-            available: !!state && editable && !!command && command(state),
-          },
-        ];
-      })
-    );
-  });
+            {
+              tool,
+              active: !!state && toolActive(tool, state),
+              available: !!state && editable && !!command && command(state),
+            },
+          ];
+        })
+      );
+    },
+    { equal: sameToolStates }
+  );
 
   private readonly rovingIndex = signal(0);
 
