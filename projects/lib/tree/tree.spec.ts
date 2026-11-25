@@ -2,6 +2,7 @@ import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal, viewChild } from '@angular/core';
 import { type ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormField, form } from '@angular/forms/signals';
+import { By } from '@angular/platform-browser';
 
 import { Subject } from 'rxjs';
 
@@ -950,6 +951,31 @@ describe('WrTree in overlay mode', () => {
       await pointerClick();
       expect(document.activeElement).toBe(row());
       expect(rowCall()).toEqual([undefined]);
+      focus.mockRestore();
+    });
+
+    it('asks for no ring when a keyboard close is followed by a script open', async () => {
+      fixture.destroy();
+      fixture = TestBed.createComponent(AutoFocusOverlayHost) as unknown as typeof fixture;
+      fixture.detectChanges();
+      const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+      const row = (): HTMLElement => document.querySelector<HTMLElement>('[data-tree-index="0"]')!;
+      const settle = async (): Promise<void> => {
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+      };
+
+      trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+      await settle();
+      trigger().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 0 }));
+      await settle();
+      expect(row()).toBeNull();
+
+      (fixture.debugElement.query(By.directive(WrTree)).componentInstance as WrTree).open();
+      await settle();
+      expect(document.activeElement).toBe(row());
+      expect(focus.mock.calls[focus.mock.contexts.lastIndexOf(row())]).toEqual([undefined]);
       focus.mockRestore();
     });
 
