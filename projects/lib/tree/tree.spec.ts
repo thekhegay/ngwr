@@ -338,14 +338,13 @@ describe('WrTree keyboard cursor', () => {
   });
 
   it('asks for a visible ring on the row an arrow moves to', async () => {
-    const focus = vi.spyOn(HTMLElement.prototype, 'focus');
-    try {
-      press('ArrowDown');
-      await fixture.whenStable();
-      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
-    } finally {
-      focus.mockRestore();
-    }
+    const focus = vi.spyOn(rows()[1], 'focus');
+
+    press('ArrowDown');
+    await fixture.whenStable();
+
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(rows()[1]);
   });
 
   it('follows a collapsed ancestor rather than whichever row takes its index', async () => {
@@ -617,6 +616,16 @@ describe('WrTree arrow keys follow the reading direction', () => {
 
   afterEach(() => fixture.destroy());
 
+  it('asks for a visible ring on the windowed list an arrow moves the cursor in', () => {
+    mount('ltr', true);
+    const focus = vi.spyOn(list(), 'focus');
+
+    press('ArrowDown');
+
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(list());
+  });
+
   it('opens the branch under the cursor on ArrowRight in LTR', () => {
     mount('ltr');
 
@@ -840,6 +849,17 @@ describe('WrTree in overlay mode', () => {
       await fixture.whenStable();
       fixture.detectChanges();
     };
+
+    it('asks for a visible ring on the row the trigger arrow walks into', async () => {
+      await openOnly();
+      const row = document.querySelector<HTMLElement>('[data-tree-index="0"]')!;
+      const focus = vi.spyOn(row, 'focus');
+
+      pressTrigger('ArrowDown');
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(row);
+    });
 
     it('leaves focus on the trigger when a click or a key opens the panel', async () => {
       await openOnly();

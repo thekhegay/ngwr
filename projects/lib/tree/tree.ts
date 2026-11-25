@@ -1240,7 +1240,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Tab') return;
       if (this.flat().length === 0) return;
       event.preventDefault();
-      this.focusPanel();
+      this.focusPanel(true);
       return;
     }
     // The APG combobox keys, and the ones `wr-select` and `wr-cascader` open on:
@@ -1779,7 +1779,7 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       // detection pass, so the id referenced by `aria-activedescendant` is present
       // — no rAF/microtask race, no "points at an absent id" gap.
       this.ensureVisible(i);
-      this.listElement?.focus();
+      this.listElement?.focus(byKey ? { focusVisible: true } : undefined);
       return;
     }
     // Non-virtual roving tabindex: defer so the DOM has updated tabindex, then
@@ -1893,12 +1893,15 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
    * focus via `aria-activedescendant`); the non-virtual shape focuses the
    * roving row, which carries the tab stop.
    */
-  private focusPanel(): void {
+  private focusPanel(byKey = false): void {
+    const options = byKey ? { focusVisible: true } : undefined;
     if (this.virtualized()) {
-      this.listElement?.focus();
+      this.listElement?.focus(options);
       return;
     }
-    this.overlayRef?.overlayElement.querySelector<HTMLElement>(`[data-tree-index="${this.cursorIndex()}"]`)?.focus();
+    this.overlayRef?.overlayElement
+      .querySelector<HTMLElement>(`[data-tree-index="${this.cursorIndex()}"]`)
+      ?.focus(options);
   }
 
   /** `notify: false` is the destroy path: an output cannot emit from a destroyed view. */

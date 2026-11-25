@@ -96,6 +96,7 @@ describe('[wrColorPickerTrigger] focus', () => {
     trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
 
     expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(surface());
   });
 
   it('moves focus onto the surface on open under wrColorPickerTriggerAutoFocus="first-tabbable"', async () => {

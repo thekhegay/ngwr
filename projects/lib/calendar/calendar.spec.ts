@@ -97,14 +97,15 @@ describe('WrCalendar keyboard focus', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     root().querySelector<HTMLElement>('.wr-calendar__day--focused')!.focus();
-    const focus = vi.spyOn(HTMLElement.prototype, 'focus');
-    try {
-      grid().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
-      await fixture.whenStable();
-      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
-    } finally {
-      focus.mockRestore();
-    }
+    const days = [...root().querySelectorAll<HTMLElement>('.wr-calendar__day')];
+    const next = days[days.indexOf(document.activeElement as HTMLElement) + 1];
+    const focus = vi.spyOn(next, 'focus');
+
+    grid().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(next);
   });
 
   it('keeps them together across several moves', async () => {

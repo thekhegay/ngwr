@@ -554,6 +554,7 @@ describe('WrDateRangePicker', () => {
       trigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
 
       expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(ring());
     });
 
     it('moves focus into the panel on a pointer press under autoFocus', async () => {

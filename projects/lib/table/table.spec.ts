@@ -1723,6 +1723,7 @@ describe('WrTable treegrid row focus', () => {
     await press('ArrowDown');
 
     expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(row('app'));
   });
 
   it('moves between visible rows with the arrows, Home and End', async () => {
