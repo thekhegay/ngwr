@@ -228,6 +228,11 @@
       background: var(--wr-calendar-accent);
       color: var(--wr-calendar-accent-contrast);
       font-weight: var(--wr-calendar-day-font-weight);
+
+      // The fill is the accent, so the accent ring would vanish into it.
+      &:focus-visible {
+        outline-color: var(--wr-calendar-accent-contrast);
+      }
     }
 
     &:disabled {
@@ -313,6 +318,11 @@
       background: var(--wr-calendar-accent);
       color: var(--wr-calendar-accent-contrast);
       font-weight: var(--wr-calendar-chip-font-weight);
+
+      // The fill is the accent, so the accent ring would vanish into it.
+      &:focus-visible {
+        outline-color: var(--wr-calendar-accent-contrast);
+      }
     }
 
     &:disabled {

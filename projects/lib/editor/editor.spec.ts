@@ -659,6 +659,7 @@ describe('WrEditor', () => {
       key(tool('Bold'), { key: 'ArrowRight' });
 
       expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(tool('Italic'));
     });
 
     it('is one tab stop that the arrows rove, wrapping at the ends', async () => {

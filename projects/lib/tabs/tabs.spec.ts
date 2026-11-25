@@ -141,13 +141,13 @@ describe('WrTabs', () => {
   });
 
   it('asks for a visible ring on the tab an arrow moves to', () => {
-    const focus = vi.spyOn(HTMLElement.prototype, 'focus');
-    try {
-      key('ArrowRight');
-      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
-    } finally {
-      focus.mockRestore();
-    }
+    const header = tabs()[1];
+    const focus = vi.spyOn(header, 'focus');
+
+    key('ArrowRight');
+
+    expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(header);
   });
 
   it('seeds past a disabled first tab, so the strip keeps its tab stop', () => {

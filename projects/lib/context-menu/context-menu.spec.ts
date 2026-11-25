@@ -356,6 +356,7 @@ describe('WrContextMenu', () => {
       press(child, 'ArrowDown');
 
       expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(items()[0]);
     });
 
     it('jumps to an item by a letter typed outside the menu', () => {

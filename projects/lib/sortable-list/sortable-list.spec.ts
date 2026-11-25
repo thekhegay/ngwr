@@ -200,15 +200,15 @@ describe('WrSortableList', () => {
     });
 
     it('asks for a visible ring on the row a move lands on', async () => {
-      const focus = vi.spyOn(HTMLElement.prototype, 'focus');
-      try {
-        key(0, ' ');
-        key(0, 'ArrowDown');
-        await fixture.whenStable();
-        expect(focus).toHaveBeenCalledWith({ focusVisible: true });
-      } finally {
-        focus.mockRestore();
-      }
+      const row = items()[0];
+      const focus = vi.spyOn(row, 'focus');
+
+      key(0, ' ');
+      key(0, 'ArrowDown');
+      await fixture.whenStable();
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(row);
     });
 
     it('picks up, moves and drops — one reorder for the whole gesture', async () => {

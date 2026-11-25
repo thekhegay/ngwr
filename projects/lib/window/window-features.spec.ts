@@ -649,6 +649,7 @@ describe('WrWindow features', () => {
       key(buttons[0], { key: 'ArrowRight' });
 
       expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(buttons[1]);
     });
   });
 

@@ -286,6 +286,7 @@ describe('WrDropdown', () => {
     key(trigger(), 'ArrowDown');
 
     expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+    expect(document.activeElement).toBe(items()[0]);
   });
 
   it('jumps to an item by a letter typed on the trigger', async () => {

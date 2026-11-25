@@ -238,6 +238,7 @@ describe('WrEventCalendar', () => {
       arrow('ArrowRight', target);
 
       expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(cellAt(11));
     });
 
     it('holds position on ArrowUp in the first week instead of sliding to Sunday', () => {

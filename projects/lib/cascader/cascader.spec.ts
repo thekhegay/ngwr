@@ -175,13 +175,13 @@ describe('WrCascader', () => {
 
     it('asks for a visible ring on the option an arrow moves to', async () => {
       await openOnly();
-      const focus = vi.spyOn(HTMLElement.prototype, 'focus');
-      try {
-        press('ArrowDown');
-        expect(focus).toHaveBeenCalledWith({ focusVisible: true });
-      } finally {
-        focus.mockRestore();
-      }
+      const stop = document.querySelector<HTMLElement>('[role="treeitem"][tabindex="0"]')!;
+      const focus = vi.spyOn(stop, 'focus');
+
+      press('ArrowDown');
+
+      expect(focus).toHaveBeenCalledWith({ focusVisible: true });
+      expect(document.activeElement).toBe(stop);
     });
 
     it('clears from the keyboard — Backspace on the closed trigger is the ×', () => {
