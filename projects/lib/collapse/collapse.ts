@@ -6,12 +6,14 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, ViewEncapsulation, computed, effect, inject, input, model } from '@angular/core';
 
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
+import { wrCollapseHeadingLevel } from './heading-level';
 import { WR_COLLAPSE_GROUP } from './tokens';
-import type { WrCollapseIndicator } from './types';
+import type { WrCollapseHeadingLevel, WrCollapseIndicator } from './types';
 
 /**
  * Expandable panel with a clickable header. Two-way binds the `open`
@@ -35,6 +37,7 @@ import type { WrCollapseIndicator } from './types';
 @Component({
   selector: 'wr-collapse',
   templateUrl: './collapse.html',
+  imports: [NgTemplateOutlet],
   encapsulation: ViewEncapsulation.None,
   // See `WrAlert`: a static `title=` feeds the input AND lands on the host,
   // where the browser draws it as a tooltip over the whole component.
@@ -63,6 +66,13 @@ export class WrCollapse {
    */
   readonly indicator = input<WrCollapseIndicator>('chevron');
 
+  /**
+   * Wraps the header button in an element with `role="heading"` at this `aria-level`
+   * (1 to 6). When unset the group's level applies; with neither the header is a bare button.
+   * @default null
+   */
+  readonly headingLevel = input<WrCollapseHeadingLevel | null, unknown>(null, { transform: wrCollapseHeadingLevel });
+
   /** Identity used by the parent group when tracking children. @internal */
   readonly id = { name: wrRandomId('wr-collapse') };
 
@@ -71,6 +81,8 @@ export class WrCollapse {
 
   private readonly group = inject(WR_COLLAPSE_GROUP, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly level = computed(() => this.headingLevel() ?? this.group?.headingLevel() ?? null);
 
   protected readonly classes = computed(() => {
     const parts: string[] = [];
