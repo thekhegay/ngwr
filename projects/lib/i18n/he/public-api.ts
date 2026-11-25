@@ -30,6 +30,7 @@ export const wrHe: WrI18nCatalog = {
     itemsPerPage: 'פריטים בעמוד',
     perPage: '{{size}} / עמוד',
     goToPage: 'מעבר לעמוד {{page}}',
+    jump: 'מעבר לעמוד',
     label: 'ניווט בין עמודים',
     pageOf: 'עמוד {{current}} מתוך {{total}}',
     range: '{{from}}–{{to}} מתוך {{total}}',

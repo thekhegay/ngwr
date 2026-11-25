@@ -166,7 +166,7 @@ export const UPDATED = {
   "reference/components/lightbox": "16.5.0",
   "reference/components/mention": "15.6.0",
   "reference/components/page-header": "16.6.0",
-  "reference/components/pagination": "16.7.0",
+  "reference/components/pagination": "16.10.0",
   "reference/components/popconfirm": "16.5.0",
   "reference/components/popover": "16.7.0",
   "reference/components/progress": "16.7.0",

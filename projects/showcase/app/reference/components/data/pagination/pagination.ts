@@ -32,6 +32,7 @@ export default class PaginationComponent {
   /** The 320-item demo needs its own page: the 120-item pagers would clamp a shared one. */
   protected readonly fullPage = signal(1);
   protected readonly size = signal(10);
+  protected readonly jumpPage = signal(1);
 
   /** The single-page demo: 8 items fit on one page, 45 do not. */
   protected readonly fewTotal = signal(8);
@@ -76,6 +77,7 @@ export default class PaginationComponent {
   showSizeChanger
   align="end"
 />`,
+    jumper: `<wr-pagination [total]="4000" [(page)]="page" showJumper />`,
     single: `<wr-pagination hideOnSinglePage [total]="total()" [(page)]="page" />`,
     serverHtml: `<wr-pagination
   [total]="total()"

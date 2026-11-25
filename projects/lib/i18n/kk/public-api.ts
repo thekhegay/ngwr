@@ -30,6 +30,7 @@ export const wrKk: WrI18nCatalog = {
     itemsPerPage: 'Беттегі жазбалар саны',
     perPage: '{{size}} / бет',
     goToPage: '{{page}}-бетке өту',
+    jump: 'Бетке өту',
     label: 'Беттеу',
     pageOf: 'Бет {{current}} / {{total}}',
     range: '{{from}}–{{to}} / {{total}}',

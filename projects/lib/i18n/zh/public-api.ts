@@ -30,6 +30,7 @@ export const wrZh: WrI18nCatalog = {
     itemsPerPage: '每页条数',
     perPage: '{{size}} 条/页',
     goToPage: '跳转到第 {{page}} 页',
+    jump: '跳转到页码',
     label: '分页',
     pageOf: '第 {{current}} 页，共 {{total}} 页',
     range: '{{from}}–{{to}}，共 {{total}} 条',

@@ -30,6 +30,7 @@ export const wrJa: WrI18nCatalog = {
     itemsPerPage: '表示件数',
     perPage: '{{size}}件/ページ',
     goToPage: '{{page}}ページへ移動',
+    jump: 'ページへ移動',
     label: 'ページネーション',
     pageOf: '{{total}}ページ中{{current}}ページ目',
     range: '{{total}}件中{{from}}–{{to}}件',

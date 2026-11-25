@@ -34,6 +34,7 @@ export const wrUk: WrI18nCatalog = {
     itemsPerPage: 'Записів на сторінці',
     perPage: '{{size}} / стор.',
     goToPage: 'Перейти до сторінки {{page}}',
+    jump: 'Перейти до сторінки',
     label: 'Нумерація сторінок',
     pageOf: 'Сторінка {{current}} з {{total}}',
     range: '{{from}}–{{to}} з {{total}}',

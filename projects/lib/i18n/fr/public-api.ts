@@ -30,6 +30,7 @@ export const wrFr: WrI18nCatalog = {
     itemsPerPage: 'Éléments par page',
     perPage: '{{size}} / page',
     goToPage: 'Aller à la page {{page}}',
+    jump: 'Aller à la page',
     label: 'Pagination',
     pageOf: 'Page {{current}} sur {{total}}',
     range: '{{from}}–{{to}} sur {{total}}',

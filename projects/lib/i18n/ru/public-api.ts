@@ -30,6 +30,7 @@ export const wrRu: WrI18nCatalog = {
     itemsPerPage: 'Записей на страницу',
     perPage: '{{size}} / стр.',
     goToPage: 'Перейти на страницу {{page}}',
+    jump: 'Перейти к странице',
     label: 'Пагинация',
     pageOf: 'Страница {{current}} из {{total}}',
     range: '{{from}}–{{to}} из {{total}}',

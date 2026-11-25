@@ -1220,6 +1220,8 @@ export const API = {
     { name: "disabled", description: "Disable interaction.", type: "boolean", default: "false" },
     { name: "responsive", description: "Collapse to a compact `‹ page / total ›` pager when the control's own box is too narrow for the full numbered strip (a container query on its own width, not the viewport).", type: "boolean", default: "false" },
     { name: "hideOnSinglePage", description: "Render nothing while everything fits on one page, an empty list included. The host stays in the DOM with `display: none`: no layout box, no tab stop, no landmark, and the total label goes with the strip. With `showSizeChanger` it hides only when the smallest size on offer also gives one page, so choosing a large size cannot remove the way back.", type: "boolean", default: "false" },
+    { name: "showJumper", description: "Render a small field to type a page number into. It commits on Enter and on blur, clamps to the first and last page, ignores anything that is not a whole number, and clears itself afterwards.", type: "boolean", default: "false" },
+    { name: "jumpLabel", description: "Jump field aria-label. Falls back to `pagination.jump`.", type: "string | null", default: "null" },
     { name: "prevLabel", description: "Previous-page button aria-label. Falls back to `pagination.prev`.", type: "string | null", default: "null" },
     { name: "nextLabel", description: "Next-page button aria-label. Falls back to `pagination.next`.", type: "string | null", default: "null" },
     { name: "itemsPerPageLabel", description: "\"Items per page\" label. Falls back to `pagination.itemsPerPage`.", type: "string | null", default: "null" },

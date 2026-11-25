@@ -30,6 +30,7 @@ export const wrSv: WrI18nCatalog = {
     itemsPerPage: 'Objekt per sida',
     perPage: '{{size}} / sida',
     goToPage: 'Gå till sida {{page}}',
+    jump: 'Gå till sida',
     label: 'Sidnavigering',
     pageOf: 'Sida {{current}} av {{total}}',
     range: '{{from}}–{{to}} av {{total}}',

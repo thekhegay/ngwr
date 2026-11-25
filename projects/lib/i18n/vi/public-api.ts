@@ -30,6 +30,7 @@ export const wrVi: WrI18nCatalog = {
     itemsPerPage: 'Số mục mỗi trang',
     perPage: '{{size}} / trang',
     goToPage: 'Đến trang {{page}}',
+    jump: 'Đến trang',
     label: 'Phân trang',
     pageOf: 'Trang {{current}} trên {{total}}',
     range: '{{from}}–{{to}} trong số {{total}}',
