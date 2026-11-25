@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-const read = (path: string): string => readFileSync(join(__dirname, '..', path), 'utf8');
+const read = (path: string): string => readFileSync(join(process.cwd(), 'projects/lib', path), 'utf8');
 
 describe('backdrop filter hooks', () => {
   it('declares the shared token beside the overlay timing', () => {
