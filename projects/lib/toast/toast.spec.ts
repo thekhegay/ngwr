@@ -492,7 +492,7 @@ describe('WrToast', () => {
       });
 
       it('clears the copy reset timer when the toast goes', async () => {
-        toast.show({ message: 'Hello', showCopy: true });
+        toast.show({ message: 'Hello', showCopy: true, duration: 0 });
         tick();
         const before = vi.getTimerCount();
         await copy();
@@ -500,7 +500,7 @@ describe('WrToast', () => {
 
         toast.dismissAll();
         tick();
-        expect(vi.getTimerCount()).toBeLessThanOrEqual(before);
+        expect(vi.getTimerCount()).toBe(before);
       });
 
       it('copies the title when the toast has nothing else', async () => {
