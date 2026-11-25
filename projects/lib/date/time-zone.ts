@@ -69,6 +69,7 @@ function wrResolveZone(value: string | null | undefined): WrResolvedZone | null 
           calendar: 'gregory',
           numberingSystem: 'latn',
           hourCycle: 'h23',
+          era: 'short',
           year: 'numeric',
           month: 'numeric',
           day: 'numeric',
@@ -107,9 +108,15 @@ function wrZoneWallTime(time: number, zone: WrResolvedZone | null): number {
   if (!(Math.abs(time) <= MAX_TIME)) return NaN;
 
   const read: Record<string, number> = {};
-  for (const part of zone.fields.formatToParts(time)) read[part.type] = Number(part.value);
+  let bc = false;
+  for (const part of zone.fields.formatToParts(time)) {
+    if (part.type === 'era') bc = part.value === 'BC';
+    else read[part.type] = Number(part.value);
+  }
+  // The Gregorian era has no year 0: 1 BC is the astronomical year 0.
+  const year = bc ? 1 - read['year'] : read['year'];
   const millis = ((time % 1000) + 1000) % 1000;
-  return wrUtcTime(read['year'], read['month'] - 1, read['day'], read['hour'], read['minute'], read['second'], millis);
+  return wrUtcTime(year, read['month'] - 1, read['day'], read['hour'], read['minute'], read['second'], millis);
 }
 
 /**

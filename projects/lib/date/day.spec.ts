@@ -214,6 +214,18 @@ describe('day strings', () => {
       expect(wrFromDay(wrAddDays('2026-03-31', 1), zone)?.toISOString()).toBe('2026-04-01T04:00:00.000Z');
       expect(wrFromDay(wrAddDays('2026-03-07', 1), zone)?.toISOString()).toBe('2026-03-08T05:00:00.000Z');
     });
+
+    it('keeps year 0000 and refuses a year before it in a named zone', () => {
+      expect(wrToDay(new Date('0000-01-01T00:00:00Z'), 'UTC')).toBe('0000-01-01');
+      expect(wrToDay(new Date('-000001-12-31T00:00:00Z'), 'UTC')).toBe('');
+    });
+
+    it('refuses a day the zone skipped, and keeps one whose midnight it skipped', () => {
+      // Samoa crossed the date line: 29 December 2011 was followed by the 31st.
+      expect(wrFromDay('2011-12-30', 'Pacific/Apia')).toBeNull();
+      // Chile's clocks went from 00:00 to 01:00 on 8 September 2024.
+      expect(wrFromDay('2024-09-08', 'America/Santiago')?.toISOString()).toBe('2024-09-08T04:00:00.000Z');
+    });
   });
 
   describe('wrAddDays', () => {
