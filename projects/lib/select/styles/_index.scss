@@ -87,6 +87,10 @@
     --wr-select-padding-x: var(--wr-control-padding-x-sm);
     --wr-select-font-size: var(--wr-control-font-size-sm);
     --wr-select-line-height: var(--wr-control-line-height-sm);
+    // Chips nest inside the 22px control, so they drop to the sm text step and
+    // lose their block padding or the trigger grows past its neighbours.
+    --wr-select-chip-padding-block: 0;
+    --wr-select-chip-font-size: var(--wr-text-xs);
   }
 
   &--lg,
