@@ -370,7 +370,7 @@ export const INSTALL = {
       { path: "ngwr/speed-dial", symbols: ["WrSpeedDial"], declarables: ["WrSpeedDial"], styled: true },
   ],
   "reference/components/spinner": [
-      { path: "ngwr/spinner", symbols: ["WrSpinner"], declarables: ["WrSpinner"], styled: true },
+      { path: "ngwr/spinner", symbols: ["WrBusy", "WrSpinner"], declarables: ["WrBusy", "WrSpinner"], styled: true },
   ],
   "reference/components/splitter": [
       { path: "ngwr/splitter", symbols: ["WrSplitter"], declarables: ["WrSplitter"], styled: true },

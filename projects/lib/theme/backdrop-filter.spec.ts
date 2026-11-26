@@ -14,6 +14,7 @@ describe('backdrop filter hooks', () => {
     ['dialog/styles/_index.scss', '--wr-dialog-backdrop-filter'],
     ['drawer/styles/_index.scss', '--wr-drawer-backdrop-filter'],
     ['table/styles/_index.scss', '--wr-table-loading-backdrop-filter'],
+    ['spinner/styles/_index.scss', '--wr-busy-backdrop-filter'],
   ])('%s blurs through %s, defaulting to the shared token', (file, hook) => {
     const css = read(file);
     expect(css).toContain(`${hook}: var(--wr-overlay-backdrop-filter);`);
