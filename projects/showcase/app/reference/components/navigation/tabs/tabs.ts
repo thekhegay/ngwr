@@ -1,5 +1,7 @@
 import { Component, signal } from '@angular/core';
 
+import { Bell, Shield, User } from 'lucide';
+import { provideWrIcons, wrLucideIcons } from 'ngwr/icon';
 import { WrInput } from 'ngwr/input';
 import { WrTab, WrTabs } from 'ngwr/tabs';
 
@@ -25,6 +27,7 @@ import {
     DocCodeComponent,
     DocApiComponent,
   ],
+  providers: [provideWrIcons(wrLucideIcons({ user: User, bell: Bell, shield: Shield }))],
 })
 export default class TabsPageComponent {
   protected readonly active = signal<string | null>('overview');
@@ -55,6 +58,14 @@ export default class TabsPageComponent {
   <wr-tab key="draft" title="Draft"><input wrInput /></wr-tab>
   <wr-tab key="other" title="Other">…</wr-tab>
 </wr-tabs>`,
+    icon: `<wr-tabs>
+  <wr-tab title="Profile" icon="user">…</wr-tab>
+  <wr-tab title="Alerts" icon="bell" [count]="2">…</wr-tab>
+</wr-tabs>`,
+    vertical: `<wr-tabs orientation="vertical">
+  <wr-tab title="Profile">…</wr-tab>
+  <wr-tab title="Alerts">…</wr-tab>
+</wr-tabs>`,
     disabled: `<wr-tab title="WIP" disabled>…</wr-tab>`,
     exportAs: `<wr-tabs wrTabsRouting #routing="wrTabsRouting">
   <wr-tab title="Overview" routerLink="overview" />
@@ -68,6 +79,12 @@ export default class TabsPageComponent {
   protected readonly tabsApi: readonly DocApiRow[] = [
     { name: 'active', description: 'Active tab key. Two-way bindable.', type: 'string | null', default: 'null' },
     { name: 'size', description: 'Visual size variant.', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+    {
+      name: 'orientation',
+      description: 'Axis of the strip. `vertical` puts it at the inline start; Up and Down move between tabs.',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+    },
     {
       name: 'keepMounted',
       description: 'Render each panel on its first visit and keep it, hidden. Content tabs only.',
@@ -95,6 +112,12 @@ export default class TabsPageComponent {
       name: 'count',
       description: 'A count badge after the label; part of the accessible name. `null` hides it.',
       type: 'number | null',
+      default: 'null',
+    },
+    {
+      name: 'icon',
+      description: 'A registered icon before the label. Decorative.',
+      type: 'WrIconName | null',
       default: 'null',
     },
     { name: 'disabled', description: 'Disable the tab.', type: 'boolean', default: 'false' },

@@ -17,6 +17,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import type { WrIconName } from 'ngwr/icon';
 import { wrRandomId, wrCheckStyles } from 'ngwr/utils';
 
 import { WR_TABS, WR_TABS_ROUTING } from './tokens';
@@ -74,6 +75,14 @@ export class WrTab {
    * @default null
    */
   readonly count = input<number | null>(null);
+
+  /**
+   * Name of a registered icon, drawn before the label in both content and
+   * router tabs. Decorative: the label stays the accessible name.
+   *
+   * @default null
+   */
+  readonly icon = input<WrIconName | null>(null);
 
   /** Disable the tab. */
   readonly disabled = input(false, { transform: coerceBooleanProperty });

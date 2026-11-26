@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1954 hook(s) across 116 page(s). A property is here only when the
+ * 1957 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -2217,18 +2217,21 @@ export const CSS_VARS = {
       { name: "--wr-tabs-color-hover", default: "var(--wr-color-on-surface)", scope: ".wr-tabs" },
       { name: "--wr-tabs-count-gap", default: "var(--wr-space-sm)", scope: ".wr-tabs" },
       { name: "--wr-tabs-fade", default: "1.5rem", scope: ".wr-tabs__strip" },
-      { name: "--wr-tabs-fade-axis", default: "to right", scope: ".wr-tabs__strip", overrides: 1 },
+      { name: "--wr-tabs-fade-axis", default: "to right", scope: ".wr-tabs__strip", overrides: 2 },
       { name: "--wr-tabs-fade-end", default: "0px", scope: ".wr-tabs__strip", overrides: 1 },
       { name: "--wr-tabs-fade-start", default: "0px", scope: ".wr-tabs__strip", overrides: 1 },
       { name: "--wr-tabs-font-family", default: "var(--wr-font-family-base)", scope: ".wr-tabs" },
       { name: "--wr-tabs-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-tabs", overrides: 2 },
       { name: "--wr-tabs-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-tabs" },
+      { name: "--wr-tabs-icon-gap", default: "var(--wr-space-sm)", scope: ".wr-tabs" },
       { name: "--wr-tabs-indicator", default: "var(--wr-color-primary)", scope: ".wr-tabs" },
       { name: "--wr-tabs-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-tabs", overrides: 2 },
       { name: "--wr-tabs-padding-x", default: "var(--wr-space-lg)", scope: ".wr-tabs", overrides: 2 },
       { name: "--wr-tabs-padding-y", default: "var(--wr-space-md)", scope: ".wr-tabs", overrides: 2 },
+      { name: "--wr-tabs-panel-padding-start", default: "var(--wr-space-lg)", scope: ".wr-tabs" },
       { name: "--wr-tabs-panel-padding-top", default: "var(--wr-space-lg)", scope: ".wr-tabs" },
       { name: "--wr-tabs-strip-gap", default: "var(--wr-space-xs)", scope: ".wr-tabs" },
+      { name: "--wr-tabs-strip-width", default: "auto", scope: ".wr-tabs" },
     ],
   },
   "reference/components/textarea": {

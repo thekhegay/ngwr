@@ -14,6 +14,7 @@ import {
   type ElementRef,
   ViewEncapsulation,
   afterNextRender,
+  afterRenderEffect,
   computed,
   contentChildren,
   effect,
@@ -27,11 +28,12 @@ import {
 } from '@angular/core';
 
 import { WrBadge } from 'ngwr/badge';
+import { WrIcon } from 'ngwr/icon';
 import { wrCheckStyles } from 'ngwr/utils';
 
 import { WrTab } from './tab';
 import { WR_TABS, WR_TABS_ROUTING } from './tokens';
-import type { WrTabsContext, WrTabsSize } from './types';
+import type { WrTabsContext, WrTabsOrientation, WrTabsSize } from './types';
 
 /**
  * Instance counter for the header / panel ids. Deterministic under prerender,
@@ -100,8 +102,9 @@ function idFragment(key: string): string {
     '[class.wr-tabs--fade-end]': 'canScrollEnd()',
     '[class.wr-tabs--sm]': "size() === 'sm'",
     '[class.wr-tabs--lg]': "size() === 'lg'",
+    '[class.wr-tabs--vertical]': "orientation() === 'vertical'",
   },
-  imports: [NgTemplateOutlet, WrBadge],
+  imports: [NgTemplateOutlet, WrBadge, WrIcon],
   providers: [
     {
       provide: WR_TABS,
@@ -116,6 +119,16 @@ export class WrTabs implements WrTabsContext {
 
   /** Visual size variant. */
   readonly size = input<WrTabsSize>('md');
+
+  /**
+   * Axis of the strip. `vertical` stacks the tabs at the inline start with the
+   * panel beside them, and ArrowUp / ArrowDown walk the strip instead of
+   * ArrowLeft / ArrowRight. A vertical strip scrolls only when the host has a
+   * bounded height.
+   *
+   * @default 'horizontal'
+   */
+  readonly orientation = input<WrTabsOrientation>('horizontal');
 
   /**
    * Content mode only: render each panel on its first visit and keep it in the
@@ -285,11 +298,15 @@ export class WrTabs implements WrTabsContext {
     });
 
     const destroyRef = inject(DestroyRef);
-    afterNextRender(() => {
+    // The fades are measured on the strip's own axis, so a flipped orientation re-reads them.
+    afterRenderEffect(() => {
+      this.orientation();
       this.updateFades();
+    });
+    afterNextRender(() => {
       const el = this.stripRef()?.nativeElement;
       if (!el || typeof ResizeObserver === 'undefined') return;
-      // Re-evaluate when the strip's width changes (e.g. the container narrows
+      // Re-evaluate when the strip's size changes (e.g. the container narrows
       // and the tabs start overflowing).
       const ro = new ResizeObserver(() => this.updateFades());
       ro.observe(el);
@@ -301,6 +318,13 @@ export class WrTabs implements WrTabsContext {
   protected updateFades(): void {
     const el = this.stripRef()?.nativeElement;
     if (!el) return;
+    if (this.orientation() === 'vertical') {
+      const maxBlock = el.scrollHeight - el.clientHeight;
+      const scrolledBlock = Math.max(el.scrollTop, 0);
+      this.canScrollStart.set(scrolledBlock > 1);
+      this.canScrollEnd.set(maxBlock > 1 && scrolledBlock < maxBlock - 1);
+      return;
+    }
     const max = el.scrollWidth - el.clientWidth;
     // Distance from the INLINE start, which is what the two fades mean.
     // `scrollLeft` is 0 at the inline start in BOTH directions and counts away
@@ -356,7 +380,7 @@ export class WrTabs implements WrTabsContext {
     return `wr-tabs-${this.uid}-tab-${idFragment(key)}-panel`;
   }
 
-  /** ArrowLeft/Right/Home/End keyboard navigation on the tab strip. */
+  /** Arrow (Left / Right, or Up / Down when vertical), Home and End keyboard navigation on the tab strip. */
   protected onStripKeydown(event: KeyboardEvent): void {
     const tabs = this.tabs().filter(t => !t.disabled());
     if (tabs.length === 0) return;
@@ -382,9 +406,21 @@ export class WrTabs implements WrTabsContext {
     const forward = idx < tabs.length - 1 ? idx + 1 : 0;
     const backward = idx > 0 ? idx - 1 : tabs.length - 1;
     const rtl = this.isRtl();
+    const vertical = this.orientation() === 'vertical';
     let nextIdx: number;
 
+    // Only the arrows of the strip's own axis move focus (WAI-ARIA APG): the
+    // other pair is left to the page.
+    const offAxis = vertical ? ['ArrowLeft', 'ArrowRight'] : ['ArrowUp', 'ArrowDown'];
+    if (offAxis.includes(event.key)) return;
+
     switch (event.key) {
+      case 'ArrowDown':
+        nextIdx = forward;
+        break;
+      case 'ArrowUp':
+        nextIdx = backward;
+        break;
       // Arrow keys follow VISUAL order (WAI-ARIA APG). The strip is mirrored
       // under `dir="rtl"`, so ArrowRight moves toward the visual right, which is
       // the PREVIOUS tab there.

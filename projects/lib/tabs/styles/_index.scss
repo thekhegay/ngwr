@@ -2,6 +2,7 @@
 
 // Styles for the entry points this component's own markup renders.
 @use '../../badge/styles' as badge-styles; // WrBadge
+@use '../../icon/styles' as icon-styles; // WrIcon
 @include theme.loaded('tabs');
 
 .wr-tabs {
@@ -18,7 +19,11 @@
   --wr-tabs-padding-x: var(--wr-space-lg);
   --wr-tabs-strip-gap: var(--wr-space-xs);
   --wr-tabs-count-gap: var(--wr-space-sm);
+  --wr-tabs-icon-gap: var(--wr-space-sm);
   --wr-tabs-panel-padding-top: var(--wr-space-lg);
+  // Vertical orientation only.
+  --wr-tabs-strip-width: auto;
+  --wr-tabs-panel-padding-start: var(--wr-space-lg);
 
   display: block;
   // Claim the full row even when nested in a flex-row demo wrapper.
@@ -127,6 +132,10 @@
     }
   }
 
+  &__icon {
+    margin-inline-end: var(--wr-tabs-icon-gap);
+  }
+
   &__count {
     margin-inline-start: var(--wr-tabs-count-gap);
     vertical-align: middle;
@@ -134,5 +143,43 @@
 
   &__panel {
     padding-top: var(--wr-tabs-panel-padding-top);
+  }
+
+  // Vertical: the strip is a column at the inline start, the panel sits beside it.
+  &--vertical {
+    display: flex;
+  }
+
+  &--vertical &__strip {
+    flex: 0 0 auto;
+    flex-direction: column;
+    inline-size: var(--wr-tabs-strip-width);
+    // rtl-ok: an inset shadow has no logical offset; the RTL rule below mirrors it
+    box-shadow: inset -1px 0 0 var(--wr-tabs-border);
+    overflow-x: hidden;
+    overflow-y: auto;
+    --wr-tabs-fade-axis: to bottom;
+
+    [dir='rtl'] & {
+      // rtl-ok: the mirrored half of the pair above
+      box-shadow: inset 1px 0 0 var(--wr-tabs-border);
+    }
+  }
+
+  &--vertical &__tab {
+    border-bottom-width: 0;
+    border-inline-end: 2px solid transparent;
+    text-align: start;
+
+    &--active {
+      border-inline-end-color: var(--wr-tabs-indicator);
+    }
+  }
+
+  &--vertical &__panel {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-top: 0;
+    padding-inline-start: var(--wr-tabs-panel-padding-start);
   }
 }

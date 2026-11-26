@@ -93,16 +93,11 @@ export class WrTabsHarness extends ComponentHarness {
    * The axis the strip announces, which decides which arrow keys a screen-reader
    * user is told to press.
    *
-   * `<wr-tabs>` ships one orientation — the strip is a horizontal scroller and hard
-   * codes `aria-orientation="horizontal"` — so today this always answers
-   * `'horizontal'`. It is read from the DOM and normalized the way ARIA reads it:
-   * anything that is not `vertical`, a missing attribute included, is `'horizontal'`,
-   * the default for a `tablist`.
-   *
-   * Which means an assertion here catches a strip that starts ANNOUNCING `vertical`
-   * while its arrow keys still walk the horizontal axis — and cannot catch the
-   * mirror image, a vertical mode that forgets to update the attribute: that one
-   * answers `'horizontal'` and looks unchanged. One attribute is all this reads.
+   * The strip's `aria-orientation`, which follows the `orientation` input. It is
+   * read from the DOM and normalized the way ARIA reads it: anything that is not
+   * `vertical`, a missing attribute included, is `'horizontal'`, the default for a
+   * `tablist`. One attribute is all this reads: which arrow keys the strip answers
+   * is {@link pressArrowDown} and {@link pressArrowRight}'s to prove.
    */
   async getOrientation(): Promise<'horizontal' | 'vertical'> {
     return (await (await this.strip()).getAttribute('aria-orientation')) === 'vertical' ? 'vertical' : 'horizontal';
@@ -304,6 +299,20 @@ export class WrTabsHarness extends ComponentHarness {
   /** ArrowLeft on the strip — one tab toward the visual LEFT, mirrored under `dir="rtl"`. */
   async pressArrowLeft(): Promise<void> {
     await this.press(TestKey.LEFT_ARROW);
+  }
+
+  /**
+   * ArrowDown on a vertical strip — the next tab, wrapping at the end and skipping
+   * disabled tabs. A horizontal strip ignores it, as a vertical one ignores
+   * {@link pressArrowRight} and {@link pressArrowLeft}.
+   */
+  async pressArrowDown(): Promise<void> {
+    await this.press(TestKey.DOWN_ARROW);
+  }
+
+  /** ArrowUp on a vertical strip — the previous tab, wrapping at the start. */
+  async pressArrowUp(): Promise<void> {
+    await this.press(TestKey.UP_ARROW);
   }
 
   /**

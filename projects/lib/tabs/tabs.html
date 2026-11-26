@@ -3,7 +3,7 @@
   #strip
   class="wr-tabs__strip"
   role="tablist"
-  aria-orientation="horizontal"
+  [attr.aria-orientation]="orientation()"
   (keydown)="onStripKeydown($event)"
   (scroll)="updateFades()"
 >
@@ -34,6 +34,9 @@
         (click)="onRouterTabClick(tab, $event)"
         (keydown.space)="onRouterTabSpace($event)"
       >
+        @if (tab.icon(); as icon) {
+          <wr-icon class="wr-tabs__icon" [name]="icon" />
+        }
         <span class="wr-tabs__tab-label">{{ tab.title() }}</span>
         @if (tab.count() !== null) {
           <wr-badge class="wr-tabs__count" size="sm" shape="pill" [color]="null">{{ tab.count() }}</wr-badge>
@@ -54,6 +57,9 @@
         [disabled]="tab.disabled()"
         (click)="onTabClick(tab)"
       >
+        @if (tab.icon(); as icon) {
+          <wr-icon class="wr-tabs__icon" [name]="icon" />
+        }
         <span class="wr-tabs__tab-label">{{ tab.title() }}</span>
         @if (tab.count() !== null) {
           <wr-badge class="wr-tabs__count" size="sm" shape="pill" [color]="null">{{ tab.count() }}</wr-badge>

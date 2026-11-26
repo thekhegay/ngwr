@@ -68,6 +68,36 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
+  <ngwr-doc-section
+    title="Icon"
+    description="`icon` draws a registered icon before the label, in content and router tabs. It is decorative: the label stays the name."
+  >
+    <ngwr-doc-snippet [code]="snippets.icon">
+      <div style="width: 100%">
+        <wr-tabs>
+          <wr-tab key="profile" title="Profile" icon="user">Profile</wr-tab>
+          <wr-tab key="alerts" title="Alerts" icon="bell" [count]="2">Alerts</wr-tab>
+          <wr-tab key="security" title="Security" icon="shield">Security</wr-tab>
+        </wr-tabs>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Vertical"
+    description='`orientation="vertical"` puts the strip at the inline start with the panel beside it. Up and Down move between tabs. `--wr-tabs-strip-width` sizes the strip.'
+  >
+    <ngwr-doc-snippet [code]="snippets.vertical">
+      <div style="width: 100%">
+        <wr-tabs orientation="vertical">
+          <wr-tab key="profile" title="Profile" icon="user">Profile settings</wr-tab>
+          <wr-tab key="alerts" title="Alerts" icon="bell">Alert settings</wr-tab>
+          <wr-tab key="security" title="Security" icon="shield">Security settings</wr-tab>
+        </wr-tabs>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
   <ngwr-doc-section title="Disabled tab">
     <ngwr-doc-snippet [code]="snippets.disabled">
       <div style="width: 100%">
