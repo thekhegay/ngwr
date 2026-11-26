@@ -235,6 +235,11 @@ describe('WrCommandPalette', () => {
     expect(activeDescendant()).toBe(options()[0].getAttribute('id'));
   });
 
+  it('leaves the page it renders in reachable, itself included', () => {
+    expect(root().querySelector('.wr-command-palette')).toBeTruthy();
+    expect(root().hasAttribute('inert')).toBe(false);
+  });
+
   it('closes on Escape and stops rendering the panel', () => {
     press('Escape');
     expect(fixture.componentInstance.open()).toBe(false);

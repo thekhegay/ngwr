@@ -335,6 +335,36 @@ describe('WrDialog', () => {
     }
   });
 
+  it('makes the page behind inert until the last of two stacked dialogs closes', async () => {
+    const page = fixture.nativeElement as HTMLElement;
+    expect(page.hasAttribute('inert')).toBe(false);
+
+    const first = await open();
+    const second = await open();
+    expect(page.hasAttribute('inert')).toBe(true);
+    expect(document.querySelector('.wr-overlay-container')!.hasAttribute('inert')).toBe(false);
+
+    first.close();
+    await settle();
+    expect(page.hasAttribute('inert')).toBe(true);
+
+    second.close();
+    await settle();
+    expect(page.hasAttribute('inert')).toBe(false);
+  });
+
+  it('leaves a page that was inert already inert after the dialog closes', async () => {
+    const page = fixture.nativeElement as HTMLElement;
+    page.setAttribute('inert', '');
+
+    const ref = await open();
+    ref.close();
+    await settle();
+
+    expect(page.hasAttribute('inert')).toBe(true);
+    page.removeAttribute('inert');
+  });
+
   it('ignores Escape when closeOnEscape is false', async () => {
     await open({ closeOnEscape: false });
 

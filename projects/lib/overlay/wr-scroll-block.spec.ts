@@ -63,4 +63,102 @@ describe('WrScrollBlock', () => {
     second.disable();
     expect(blocked()).toBe(false);
   });
+
+  describe('the page behind', () => {
+    const added: HTMLElement[] = [];
+    const child = (setup?: (el: HTMLElement) => void): HTMLElement => {
+      const el = document.createElement('div');
+      setup?.(el);
+      document.body.appendChild(el);
+      added.push(el);
+      return el;
+    };
+
+    afterEach(() => {
+      added.splice(0).forEach(el => el.remove());
+    });
+
+    it('is inert while any holder is enabled, and not after the last one', () => {
+      const page = child();
+      const lock = TestBed.inject(WrScrollBlock);
+      const first = lock.strategy();
+      const second = lock.strategy();
+      expect(page.hasAttribute('inert')).toBe(false);
+
+      first.enable();
+      second.enable();
+      expect(page.hasAttribute('inert')).toBe(true);
+
+      first.disable();
+      expect(page.hasAttribute('inert')).toBe(true);
+
+      second.disable();
+      expect(page.hasAttribute('inert')).toBe(false);
+    });
+
+    it('leaves overlay containers, what holds one, and live regions reachable', () => {
+      const container = child(el => el.classList.add('cdk-overlay-container'));
+      const holder = child(el => (el.innerHTML = '<div class="cdk-overlay-container"></div>'));
+      const polite = child(el => el.setAttribute('aria-live', 'polite'));
+      const status = child(el => el.setAttribute('role', 'status'));
+      const holderOfNone = child();
+      const strategy = TestBed.inject(WrScrollBlock).strategy();
+
+      strategy.enable();
+
+      for (const el of [container, holder, polite, status]) expect(el.hasAttribute('inert')).toBe(false);
+      expect(holderOfNone.hasAttribute('inert')).toBe(true);
+      strategy.disable();
+    });
+
+    it('leaves an element that was inert already inert after the release', () => {
+      const own = child(el => el.setAttribute('inert', ''));
+      const strategy = TestBed.inject(WrScrollBlock).strategy();
+
+      strategy.enable();
+      strategy.disable();
+
+      expect(own.hasAttribute('inert')).toBe(true);
+    });
+
+    it('covers what joined the page before a later holder', () => {
+      const lock = TestBed.inject(WrScrollBlock);
+      const first = lock.strategy();
+      const second = lock.strategy();
+
+      first.enable();
+      const late = child();
+      second.enable();
+      expect(late.hasAttribute('inert')).toBe(true);
+
+      first.disable();
+      second.disable();
+      expect(late.hasAttribute('inert')).toBe(false);
+    });
+
+    it('only blocks the scroll for a modal that renders inside the page', () => {
+      const page = child();
+      const lock = TestBed.inject(WrScrollBlock);
+      const inPage = lock.strategy(false);
+      const modal = lock.strategy();
+
+      inPage.enable();
+      expect(page.hasAttribute('inert')).toBe(false);
+
+      modal.enable();
+      modal.disable();
+      expect(page.hasAttribute('inert')).toBe(false);
+      inPage.disable();
+    });
+
+    it('releases the page when the application is torn down with a modal open', () => {
+      const page = child();
+      TestBed.inject(WrScrollBlock).strategy().enable();
+      expect(page.hasAttribute('inert')).toBe(true);
+
+      TestBed.resetTestingModule();
+
+      expect(page.hasAttribute('inert')).toBe(false);
+    });
+  });
 });

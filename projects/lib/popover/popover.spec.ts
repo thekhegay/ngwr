@@ -170,6 +170,12 @@ describe('WrPopover', () => {
       expect(popoverPane()).toBeNull();
     });
 
+    it('leaves the page behind reachable: a popover is not modal', () => {
+      open();
+      expect(popoverPane()).toBeTruthy();
+      expect(root().hasAttribute('inert')).toBe(false);
+    });
+
     it('opens on click and flips aria-expanded', () => {
       open();
       expect(trigger('click').getAttribute('aria-expanded')).toBe('true');

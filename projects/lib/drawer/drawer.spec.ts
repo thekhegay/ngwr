@@ -397,6 +397,24 @@ describe('WrDrawer without a backdrop', () => {
     expect(document.querySelector('.cdk-overlay-backdrop')).toBeNull();
   });
 
+  it('leaves the page reachable, and makes it inert only as a modal', async () => {
+    const page = fixture.nativeElement as HTMLElement;
+    await openFrom(q('.opener'));
+    expect(page.hasAttribute('inert')).toBe(false);
+
+    fixture.componentInstance.open.set(false);
+    fixture.componentInstance.hasBackdrop.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await openFrom(q('.opener'));
+    expect(page.hasAttribute('inert')).toBe(true);
+
+    fixture.componentInstance.open.set(false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(page.hasAttribute('inert')).toBe(false);
+  });
+
   it('still moves focus into the panel on open', async () => {
     await openFrom(q('.opener'));
 

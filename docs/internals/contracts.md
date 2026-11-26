@@ -76,6 +76,16 @@ because it is guidance rather than a plan.
   `tabindex="-1"` with `outline: none` on `:focus`. The library's own
   `cdkFocusInitial` (confirm, alert) follows the option and is only emitted
   under `'first-tabbable'`; the consumer's own always wins.
+- While a modal is open every other child of `<body>` is `inert`: the dialog,
+  a drawer with its backdrop and the lightbox viewer, all through
+  `WrScrollBlock`, which counts holders and releases with the last one.
+  It is what `aria-modal="true"` promises. Left alone: the overlay containers
+  (global toasts and other overlays live there), an element holding one, live
+  regions, and anything that was inert already, which stays inert after. A
+  `<wr-toast-outlet>` in the page is behind the modal and goes inert with it. A
+  drawer without a backdrop and the tour card make nothing inert: the page
+  beside them is the point. Neither does `wr-command-palette`, which renders
+  inside the page (`strategy(false)`): an inert page would take it along.
 - Components do not move focus on open unless asked; keyboard navigation
   inside composites does (since 16.5). An overlay that is a dialog (a
   popconfirm, a tour card, the lightbox viewer, a window) focuses its PANEL,

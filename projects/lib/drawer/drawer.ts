@@ -336,13 +336,17 @@ export class WrDrawer {
     // the whole point, since the direction inside the drawer really did change.
     wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
+    if (this.isBrowser) {
+      // Read before the attach, which makes the page behind a modal inert.
+      const active = document.activeElement;
+      this.previouslyFocused = active instanceof HTMLElement ? active : null;
+    }
+
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
     this.overlayRef.detachments().subscribe(this.order.add(this.overlayRef.hostElement, this.toasts()));
 
     if (this.isBrowser) {
-      const active = document.activeElement;
-      this.previouslyFocused = active instanceof HTMLElement ? active : null;
       const host = this.overlayRef.overlayElement;
       host.setAttribute('role', 'dialog');
       if (modal) host.setAttribute('aria-modal', 'true');

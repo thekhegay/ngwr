@@ -6,10 +6,22 @@
  */
 
 import { type ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
-import { Service, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, DestroyRef, PLATFORM_ID, Service, inject } from '@angular/core';
+
+/** What stays reachable beside a modal: overlay containers, whatever holds one, and live regions. */
+const KEEP = '.cdk-overlay-container, [aria-live], [role="status"], [role="alert"], [role="log"]';
 
 /**
- * Page scroll lock shared by every modal NGWR overlay.
+ * Page lock shared by every modal NGWR overlay: the scroll, and the content
+ * behind the modal, which is `inert` while any holder is enabled. That is what
+ * `aria-modal="true"` promises, and a screen reader in browse mode does not
+ * take the attribute's word for it.
+ *
+ * Every child of `<body>` goes inert except the overlay containers (toasts
+ * and other overlays live there) and live regions, which an inert subtree
+ * would silence. Only the elements made inert here are released: one that was
+ * inert already stays so.
  *
  * CDK's `block()` strategy has no counter: a second one refuses to engage while
  * the first holds the page, and its `disable()` is then a no-op, so closing the
@@ -22,10 +34,23 @@ import { Service, inject } from '@angular/core';
 @Service()
 export class WrScrollBlock {
   private readonly block = inject(ScrollStrategyOptions).block();
+  private readonly doc = inject(DOCUMENT);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly inerted = new Set<Element>();
   private holders = 0;
+  private isolating = 0;
 
-  /** A scroll strategy for one overlay (or one component) that blocks the page while it is enabled. */
-  strategy(): ScrollStrategy {
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.release());
+  }
+
+  /**
+   * A scroll strategy for one overlay (or one component) that blocks the page while it is enabled.
+   *
+   * @param inert `false` for a modal that renders inside the page rather than
+   * in the overlay container: an inert page would take it along.
+   */
+  strategy(inert = true): ScrollStrategy {
     let held = false;
     return {
       attach: () => undefined,
@@ -33,16 +58,34 @@ export class WrScrollBlock {
         if (!held) {
           held = true;
           this.holders++;
+          if (inert) this.isolating++;
         }
         // CDK ignores an enable while the page is already blocked, and one that
         // found nothing to block at the first holder may find it at a later one.
         this.block.enable();
+        if (inert) this.isolate();
       },
       disable: () => {
         if (!held) return;
         held = false;
         if (--this.holders === 0) this.block.disable();
+        if (inert && --this.isolating === 0) this.release();
       },
     };
+  }
+
+  // Runs at every enable: a later modal also covers what joined the page since.
+  private isolate(): void {
+    if (!this.isBrowser) return;
+    for (const el of Array.from(this.doc.body.children)) {
+      if (el.hasAttribute('inert') || el.matches(KEEP) || el.querySelector('.cdk-overlay-container')) continue;
+      el.setAttribute('inert', '');
+      this.inerted.add(el);
+    }
+  }
+
+  private release(): void {
+    this.inerted.forEach(el => el.removeAttribute('inert'));
+    this.inerted.clear();
   }
 }
