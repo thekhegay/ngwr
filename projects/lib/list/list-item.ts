@@ -51,7 +51,7 @@ import { WR_LIST } from './list-context';
     role: 'listitem',
     '[attr.tabindex]': 'tabindex()',
     '[attr.aria-disabled]': 'unavailable() || null',
-    '(click)': 'list?.pick(this)',
+    '(click)': 'onClick($event)',
     '(focus)': 'list?.activate(this)',
     '(keydown.enter)': 'onActivate($event)',
     '(keydown.space)': 'onActivate($event)',
@@ -130,6 +130,12 @@ export class WrListItem {
   /** Focus the row. */
   focus(options?: FocusOptions): void {
     this.host.nativeElement.focus(options);
+  }
+
+  protected onClick(event: Event): void {
+    // A click on a row of a list nested in this one belongs to that row.
+    if ((event.target as Element).closest('wr-list-item') !== this.host.nativeElement) return;
+    this.list?.pick(this);
   }
 
   protected onActivate(event: Event): void {

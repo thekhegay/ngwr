@@ -190,6 +190,11 @@ describe('WrList selection with wrapped rows', () => {
     fixture.detectChanges();
     expect(document.activeElement).toBe(sent);
 
+    work.click();
+    fixture.detectChanges();
+    expect(work.getAttribute('aria-selected')).toBe('true');
+    expect(fixture.componentInstance.value()).toBeNull();
+
     sent.click();
     fixture.detectChanges();
     expect(fixture.componentInstance.value()).toBe('sent');
