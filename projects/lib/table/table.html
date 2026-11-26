@@ -82,17 +82,40 @@
     [attr.role]="treeMode() ? 'treegrid' : editGrid() ? 'grid' : null"
     [attr.aria-multiselectable]="treeMode() && rowSelection() === 'multiple' ? true : null"
   >
-    <colgroup>
-      @if (rowSelection()) {
-        <col class="wr-table__col--lead" />
+    <!-- A `scope="colgroup"` header heads the whole column group it starts in,
+         whatever its `colspan`, so a grouped header gets a `<colgroup>` per cell
+         of the group row. -->
+    @if (headGroups(); as groups) {
+      @if (rowSelection() || expandable()) {
+        <colgroup>
+          @if (rowSelection()) {
+            <col class="wr-table__col--lead" />
+          }
+          @if (expandable()) {
+            <col class="wr-table__col--lead" />
+          }
+        </colgroup>
       }
-      @if (expandable()) {
-        <col class="wr-table__col--lead" />
+      @for (group of groups; track group.key) {
+        <colgroup>
+          @for (index of group.cols; track index) {
+            <col [style.width.px]="colWidths()[index]" />
+          }
+        </colgroup>
       }
-      @for (col of cellColumns(); track col.key) {
-        <col [style.width.px]="colWidths()[$index]" />
-      }
-    </colgroup>
+    } @else {
+      <colgroup>
+        @if (rowSelection()) {
+          <col class="wr-table__col--lead" />
+        }
+        @if (expandable()) {
+          <col class="wr-table__col--lead" />
+        }
+        @for (col of cellColumns(); track col.key) {
+          <col [style.width.px]="colWidths()[$index]" />
+        }
+      </colgroup>
+    }
     <thead #head>
       @if (headGroups(); as groups) {
         <tr #headGroupsRow class="wr-table__head-groups">

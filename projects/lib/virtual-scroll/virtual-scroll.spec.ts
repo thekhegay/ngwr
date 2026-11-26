@@ -1,7 +1,10 @@
+import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { CdkFixedSizeVirtualScroll, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+
+import { Subject } from 'rxjs';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -239,6 +242,39 @@ describe('WrVirtualScroll', () => {
       expect([el.scrollLeft, el.scrollTop]).toEqual([3200, 0]);
       expect(rows()).toContain('100:Row 100');
       expect(rows()).not.toContain('0:Row 0');
+    });
+
+    // The CDK reads the direction from `Directionality`, never from a `dir` in the DOM.
+    it('renders the window toward the inline start under an RTL Directionality', async () => {
+      fixture.destroy();
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          {
+            provide: Directionality,
+            useValue: { value: 'rtl', valueSignal: signal<Direction>('rtl'), change: new Subject<Direction>() },
+          },
+        ],
+      });
+      fixture = TestBed.createComponent(Host);
+      fixture.componentInstance.orientation.set('horizontal');
+      fixture.detectChanges();
+      await settle();
+      const el = viewport();
+      // jsdom keeps a positive `scrollLeft` under RTL, the CDK's "inverted" axis.
+      el.scrollTo = ((options: ScrollToOptions): void => {
+        if (options.left != null) el.scrollLeft = options.left;
+      }) as typeof el.scrollTo;
+
+      const scroller = fixture.debugElement.query(By.directive(WrVirtualScroll)).componentInstance as WrVirtualScroll;
+      scroller.scrollToIndex(100);
+      el.dispatchEvent(new Event('scroll'));
+      await settle();
+
+      expect(rows()).toContain('100:Row 100');
+      expect(rows()).not.toContain('0:Row 0');
+      const wrapper = root().querySelector<HTMLElement>('.cdk-virtual-scroll-content-wrapper')!;
+      expect(wrapper.style.transform).toMatch(/^translateX\(-\d+px\)$/);
     });
 
     it('re-measures when the orientation changes', async () => {

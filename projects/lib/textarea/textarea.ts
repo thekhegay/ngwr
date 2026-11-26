@@ -282,6 +282,8 @@ export class WrTextarea implements FormValueControl<string> {
       if (!this.isBrowser || !this.autosize()) return;
       const el = this.native().nativeElement;
       if (this.growsInLayout) {
+        // A height left by a resize drag would hold the field at it.
+        el.style.height = '';
         // `line-height: normal` has no number, and `autofit` caps at 1.2 of the font
         // size there, where `1lh` is the real line.
         this.size();

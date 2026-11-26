@@ -468,6 +468,7 @@ describe('WrTextarea autosize where the browser grows the field', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
   let observed: number;
   let measured: number;
+  let mounted: boolean;
 
   const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-textarea')!;
   const native = (): HTMLTextAreaElement => host().querySelector<HTMLTextAreaElement>('.wr-textarea__native')!;
@@ -475,6 +476,7 @@ describe('WrTextarea autosize where the browser grows the field', () => {
 
   const mount = (): void => {
     fixture = TestBed.createComponent(Host);
+    mounted = true;
     fixture.detectChanges();
     const el = native();
     el.style.lineHeight = '20px';
@@ -490,6 +492,7 @@ describe('WrTextarea autosize where the browser grows the field', () => {
   beforeEach(() => {
     observed = 0;
     measured = 0;
+    mounted = false;
 
     vi.spyOn(CSS, 'supports').mockImplementation(
       (property: string, value?: string) => `${property}:${value}` === 'field-sizing:content'
@@ -511,7 +514,7 @@ describe('WrTextarea autosize where the browser grows the field', () => {
   });
 
   afterEach(() => {
-    fixture.destroy();
+    if (mounted) fixture.destroy();
     vi.unstubAllGlobals();
   });
 
@@ -535,6 +538,15 @@ describe('WrTextarea autosize where the browser grows the field', () => {
 
     expect(measured).toBe(0);
     expect(observed).toBe(0);
+    expect(native().style.height).toBe('');
+  });
+
+  it('drops the height a resize drag left, which would hold the field at it', async () => {
+    mount();
+    native().style.height = '120px';
+
+    await autosize(true);
+
     expect(native().style.height).toBe('');
   });
 

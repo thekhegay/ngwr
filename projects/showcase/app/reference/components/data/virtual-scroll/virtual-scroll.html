@@ -28,7 +28,7 @@
 
   <ngwr-doc-section
     title="Horizontal"
-    description="A horizontal `orientation` scrolls a row of same-width items. The viewport fills its width, `height` is the height of the strip and `itemSize` the width of an item."
+    description="A horizontal `orientation` scrolls a row of same-width items. The viewport fills its width, `height` is the height of the strip and `itemSize` the width of an item. Under RTL the row runs from the right when the direction is the document's `dir` or a `dir` under the CDK's `BidiModule`."
   >
     <ngwr-doc-snippet [files]="horizontalFiles">
       <wr-virtual-scroll

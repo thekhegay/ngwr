@@ -133,6 +133,8 @@ interface HeadGroup {
   readonly label: string | null;
   readonly pin: 'left' | 'right' | null;
   readonly span: number;
+  /** Positions of its columns among the shown ones, for its `<colgroup>`. */
+  readonly cols: readonly number[];
   readonly edgeLeft: boolean;
   readonly edgeRight: boolean;
   /** Sticky offsets of a pinned cell: its first column's start, its last column's end. */
@@ -1921,7 +1923,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
     const cols = this.cellColumns();
     if (!cols.some(c => c.column.group)) return null;
     const cells: HeadGroup[] = [];
-    for (const col of cols) {
+    for (const [index, col] of cols.entries()) {
       const label = col.column.group ?? null;
       const pin = col.column.pin ?? null;
       const last = cells.at(-1);
@@ -1929,6 +1931,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
         cells[cells.length - 1] = {
           ...last,
           span: last.span + 1,
+          cols: [...last.cols, index],
           edgeLeft: last.edgeLeft || col.edgeLeft,
           edgeRight: last.edgeRight || col.edgeRight,
           end: col.end,
@@ -1939,6 +1942,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
           label,
           pin,
           span: 1,
+          cols: [index],
           edgeLeft: col.edgeLeft,
           edgeRight: col.edgeRight,
           start: col.start,

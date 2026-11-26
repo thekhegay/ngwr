@@ -380,7 +380,9 @@ one component folder. Reach for them instead of hand-rolling:
   makes the header cells under it `inert`. A column's `group` adds a row above
   the titles (`headGroups`, `.wr-table__head-groups`): a `<th scope="colgroup">`
   per run of neighbours sharing a group and a pinned side, a blank `<td>` over
-  the rest. The title row stays the one `#thCell` list every measurement and
+  the rest, and a `<colgroup>` per cell of that row, which is what bounds a
+  `colgroup` header to its own columns (ungrouped, the table keeps its one
+  `<colgroup>`). The title row stays the one `#thCell` list every measurement and
   the drop list read, so its cells never take a `rowspan`; under a sticky
   header it sticks at `--wr-table-head-group-height`, the group row's measured
   height. `stateChange` reports reader actions
