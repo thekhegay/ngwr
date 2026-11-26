@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="Splitter"
   description="Two panes with a divider the user drags or moves with the arrow keys."
+  updated="16.10.0"
   [keywords]="['splitter', 'pane', 'wr-splitter']"
 >
   <ngwr-doc-section
@@ -33,6 +34,31 @@
         <div wrSplitterStart style="padding: 0.75rem">Preview</div>
         <div wrSplitterEnd style="padding: 0.75rem; background: var(--wr-color-fill)">Logs</div>
       </wr-splitter>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Collapsible"
+    description="`collapsible` names the pane that shuts. Enter on the divider or a double-click toggles it; `[(collapsed)]` does the same from outside. The position comes back on reopen."
+  >
+    <ngwr-doc-code [code]="collapsibleSnippet" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%">
+        <div>
+          <wr-btn size="sm" (click)="filesClosed.set(!filesClosed())">
+            {{ filesClosed() ? 'Show files' : 'Hide files' }}
+          </wr-btn>
+        </div>
+        <wr-splitter
+          [(position)]="collapsiblePos"
+          [(collapsed)]="filesClosed"
+          collapsible="start"
+          style="height: 12rem; border: 1px solid var(--wr-border-base); border-radius: 0.5rem; overflow: hidden"
+        >
+          <div wrSplitterStart style="padding: 0.75rem; background: var(--wr-color-fill)">Files</div>
+          <div wrSplitterEnd style="padding: 0.75rem">Editor</div>
+        </wr-splitter>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

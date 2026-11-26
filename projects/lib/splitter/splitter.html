@@ -1,4 +1,9 @@
-<div class="wr-splitter__pane wr-splitter__pane--start" [style.flex-basis]="startStyle()">
+<div
+  class="wr-splitter__pane wr-splitter__pane--start"
+  [class.wr-splitter__pane--collapsed]="collapsedSide() === 'start'"
+  [attr.inert]="collapsedSide() === 'start' ? '' : null"
+  [style.flex-basis]="startStyle()"
+>
   <ng-content select="[wrSplitterStart]" />
 </div>
 
@@ -8,20 +13,26 @@
   role="separator"
   [attr.aria-label]="resolvedDividerLabel()"
   [attr.aria-orientation]="orientation() === 'horizontal' ? 'vertical' : 'horizontal'"
-  [attr.aria-valuemin]="minPosition()"
-  [attr.aria-valuemax]="maxPosition()"
-  [attr.aria-valuenow]="position()"
+  [attr.aria-valuemin]="valueMin()"
+  [attr.aria-valuemax]="valueMax()"
+  [attr.aria-valuenow]="shownPosition()"
   [attr.aria-disabled]="disabled() || null"
   [attr.tabindex]="disabled() ? -1 : 0"
   (pointerdown)="onPointerDown($event)"
   (pointermove)="onPointerMove($event)"
   (pointerup)="onPointerUp($event)"
   (pointercancel)="onPointerUp($event)"
+  (dblclick)="onDoubleClick()"
   (keydown)="onKeydown($event)"
 >
   <span class="wr-splitter__handle" aria-hidden="true"></span>
 </div>
 
-<div class="wr-splitter__pane wr-splitter__pane--end" [style.flex-basis]="endStyle()">
+<div
+  class="wr-splitter__pane wr-splitter__pane--end"
+  [class.wr-splitter__pane--collapsed]="collapsedSide() === 'end'"
+  [attr.inert]="collapsedSide() === 'end' ? '' : null"
+  [style.flex-basis]="endStyle()"
+>
   <ng-content select="[wrSplitterEnd]" />
 </div>

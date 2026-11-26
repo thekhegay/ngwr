@@ -30,6 +30,11 @@ import { wrBeginSeparatorDrag, wrEndSeparatorDrag, wrSeparatorKeyMove } from './
  *   <div wrSplitterStart>Preview</div>
  *   <div wrSplitterEnd>Logs</div>
  * </wr-splitter>
+ *
+ * <wr-splitter collapsible="start" [(collapsed)]="closed">
+ *   <div wrSplitterStart>Files</div>
+ *   <div wrSplitterEnd>Editor</div>
+ * </wr-splitter>
  * ```
  *
  * @see https://ngwr.dev/reference/components/splitter
@@ -62,6 +67,23 @@ export class WrSplitter {
   readonly disabled = input(false, { transform: coerceBooleanProperty });
 
   /**
+   * The pane `collapsed` shuts: `'start'` or `'end'`. Set, Enter on the divider and a
+   * double-click on it toggle `collapsed`. `null` leaves both alone.
+   * @default null
+   */
+  readonly collapsible = input<'start' | 'end' | null>(null);
+
+  /**
+   * Whether the `collapsible` pane is shut. Two-way bindable. A shut pane takes no
+   * space and its content is inert; `position` is kept, so reopening brings the
+   * divider back to where it was. While shut, the divider reports the collapsed
+   * edge (0 or 100) and ignores the drag and the arrows. Ignored without
+   * `collapsible`.
+   * @default false
+   */
+  readonly collapsed = model(false);
+
+  /**
    * Accessible name of the divider. A focusable `role="separator"` is an
    * interactive widget, so it needs one — without it a screen reader reaching the
    * divider announces nothing but "separator" and its number. Falls back to
@@ -92,11 +114,26 @@ export class WrSplitter {
   protected readonly classes = computed(() => {
     const parts = ['wr-splitter', `wr-splitter--${this.orientation()}`];
     if (this.disabled()) parts.push('wr-splitter--disabled');
+    if (this.collapsedSide() !== null) parts.push('wr-splitter--collapsed');
     return parts.join(' ');
   });
 
-  protected readonly startStyle = computed(() => `${this.position()}%`);
-  protected readonly endStyle = computed(() => `${100 - this.position()}%`);
+  protected readonly collapsedSide = computed(() => (this.collapsed() ? this.collapsible() : null));
+
+  /** What the divider reports and the start pane takes: the collapsed edge while a pane is shut. */
+  protected readonly shownPosition = computed(() => {
+    const side = this.collapsedSide();
+    if (side === null) return this.position();
+    return side === 'start' ? 0 : 100;
+  });
+
+  // The collapsed edge can lie outside `minPosition`..`maxPosition`, and a
+  // `valuenow` outside its own range is invalid.
+  protected readonly valueMin = computed(() => Math.min(this.minPosition(), this.shownPosition()));
+  protected readonly valueMax = computed(() => Math.max(this.maxPosition(), this.shownPosition()));
+
+  protected readonly startStyle = computed(() => `${this.shownPosition()}%`);
+  protected readonly endStyle = computed(() => `${100 - this.shownPosition()}%`);
 
   // Drag
 
@@ -106,7 +143,9 @@ export class WrSplitter {
   }
 
   protected onPointerMove(event: PointerEvent): void {
-    if (!this.dragging) return;
+    // A collapsed divider stays put: the jitter of a double-click would
+    // otherwise overwrite the position the reopen restores.
+    if (!this.dragging || this.collapsedSide() !== null) return;
     const rect = this.host.nativeElement.getBoundingClientRect();
     const raw =
       this.orientation() === 'horizontal'
@@ -126,8 +165,19 @@ export class WrSplitter {
     wrEndSeparatorDrag(event);
   }
 
+  protected onDoubleClick(): void {
+    if (this.disabled() || this.collapsible() === null) return;
+    this.collapsed.update(collapsed => !collapsed);
+  }
+
   protected onKeydown(event: KeyboardEvent): void {
     if (this.disabled()) return;
+    if (event.key === 'Enter' && this.collapsible() !== null) {
+      event.preventDefault();
+      this.collapsed.update(collapsed => !collapsed);
+      return;
+    }
+    if (this.collapsedSide() !== null) return;
     const move = wrSeparatorKeyMove(event, this.orientation() === 'horizontal' ? 'inline' : 'block', this.isRtl());
     if (move === null) return;
     event.preventDefault();

@@ -1597,6 +1597,8 @@ export const API = {
     { name: "minPosition", description: "Minimum allowed position.", type: "number", default: "0" },
     { name: "maxPosition", description: "Maximum allowed position.", type: "number", default: "100" },
     { name: "disabled", description: "Disable dragging.", type: "boolean", default: "false" },
+    { name: "collapsible", description: "The pane `collapsed` shuts: `'start'` or `'end'`. Set, Enter on the divider and a double-click on it toggle `collapsed`. `null` leaves both alone.", type: "'start' | 'end' | null", default: "null" },
+    { name: "collapsed", description: "Whether the `collapsible` pane is shut. Two-way bindable. A shut pane takes no space and its content is inert; `position` is kept, so reopening brings the divider back to where it was. While shut, the divider reports the collapsed edge (0 or 100) and ignores the drag and the arrows. Ignored without `collapsible`.", type: "boolean", default: "false" },
     { name: "dividerLabel", description: "Accessible name of the divider. A focusable `role=\"separator\"` is an interactive widget, so it needs one — without it a screen reader reaching the divider announces nothing but \"separator\" and its number. Falls back to `splitter.divider`.", type: "string | null", default: "null" },
   ],
   // <wr-statistic>
