@@ -218,21 +218,15 @@ ref.dismiss();`,
   ];
 
   protected readonly refApi: readonly DocApiRow[] = [
-    { name: 'id', description: 'The id `dismiss(id)` takes.', type: 'number', default: '—' },
-    {
-      name: 'options',
-      description: 'What the toast shows now, updates applied.',
-      type: 'WrToastOptions',
-      default: '—',
-    },
+    { name: 'id', description: 'The id `dismiss(id)` takes.', type: 'number' },
+    { name: 'options', description: 'What the toast shows now, updates applied.', type: 'WrToastOptions' },
     {
       name: 'update(patch)',
       description:
         'Changes the toast in place and starts its countdown again. Takes every option but `outlet` and `position`.',
       type: '(WrToastUpdate) => void',
-      default: '—',
     },
-    { name: 'dismiss()', description: 'Removes the toast.', type: '() => void', default: '—' },
+    { name: 'dismiss()', description: 'Removes the toast.', type: '() => void' },
   ];
 
   protected readonly optionsApi: readonly DocApiRow[] = [

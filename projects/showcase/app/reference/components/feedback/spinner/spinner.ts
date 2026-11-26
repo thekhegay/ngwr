@@ -25,7 +25,7 @@ export default class SpinnerComponent {
   protected readonly busy = signal(false);
 
   protected readonly snippets = {
-    busy: `<form [wrBusy]="saving()" wrBusyLabel="Saving">
+    busy: `<form [wrBusy]="busy()" wrBusyLabel="Saving">
   <input wrInput placeholder="Name" aria-label="Name" />
   <wr-btn (click)="save()">Save</wr-btn>
 </form>`,

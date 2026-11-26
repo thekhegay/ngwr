@@ -37,6 +37,7 @@ export class WrScrollBlock {
   private readonly doc = inject(DOCUMENT);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly inerted = new Set<Element>();
+  private observer: MutationObserver | null = null;
   private holders = 0;
   private isolating = 0;
 
@@ -74,17 +75,40 @@ export class WrScrollBlock {
     };
   }
 
-  // Runs at every enable: a later modal also covers what joined the page since.
+  /**
+   * Whether the node sits in a part of the page this lock made inert. A modal
+   * that renders in the page asks, to step out of it.
+   */
+  isolates(node: Node): boolean {
+    for (const el of this.inerted) if (el.contains(node)) return true;
+    return false;
+  }
+
   private isolate(): void {
     if (!this.isBrowser) return;
-    for (const el of Array.from(this.doc.body.children)) {
-      if (el.hasAttribute('inert') || el.matches(KEEP) || el.querySelector('.cdk-overlay-container')) continue;
-      el.setAttribute('inert', '');
-      this.inerted.add(el);
-    }
+    const { body } = this.doc;
+    for (const el of Array.from(body.children)) this.inertChild(el);
+    if (this.observer || typeof MutationObserver === 'undefined') return;
+    // A sibling appended while a modal is open is behind it too.
+    this.observer = new MutationObserver(records => {
+      for (const record of records) {
+        for (const node of Array.from(record.addedNodes)) {
+          if (node.nodeType === 1 && node.parentNode === body) this.inertChild(node as Element);
+        }
+      }
+    });
+    this.observer.observe(body, { childList: true });
+  }
+
+  private inertChild(el: Element): void {
+    if (el.hasAttribute('inert') || el.matches(KEEP) || el.querySelector('.cdk-overlay-container')) return;
+    el.setAttribute('inert', '');
+    this.inerted.add(el);
   }
 
   private release(): void {
+    this.observer?.disconnect();
+    this.observer = null;
     this.inerted.forEach(el => el.removeAttribute('inert'));
     this.inerted.clear();
   }

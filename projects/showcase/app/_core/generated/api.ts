@@ -194,7 +194,7 @@ export const API = {
   // <[wrBusy]>
   WrBusy: [
     { name: "wrBusy", description: "Whether the host is busy.", type: "boolean", default: "false" },
-    { name: "wrBusyLabel", description: "Accessible name of the spinner. Falls back to `spinner.label`, then `'Loading'`.", type: "string | null", default: "null" },
+    { name: "wrBusyLabel", description: "What is announced when the host turns busy. Falls back to `spinner.label`, then `'Loading'`.", type: "string | null", default: "null" },
   ],
   // <wr-btn, button[wr-btn], a[wr-btn]>
   WrButton: [

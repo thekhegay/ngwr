@@ -136,6 +136,39 @@ describe('WrScrollBlock', () => {
       expect(late.hasAttribute('inert')).toBe(false);
     });
 
+    it('covers a child appended while a modal is open, with the same exclusions', async () => {
+      const strategy = TestBed.inject(WrScrollBlock).strategy();
+      strategy.enable();
+
+      const late = child();
+      const region = child(el => el.setAttribute('aria-live', 'polite'));
+      const own = child(el => el.setAttribute('inert', ''));
+      await Promise.resolve();
+      expect(late.hasAttribute('inert')).toBe(true);
+      expect(region.hasAttribute('inert')).toBe(false);
+
+      strategy.disable();
+      expect(late.hasAttribute('inert')).toBe(false);
+      expect(own.hasAttribute('inert')).toBe(true);
+
+      const after = child();
+      await Promise.resolve();
+      expect(after.hasAttribute('inert')).toBe(false);
+    });
+
+    it('tells whether a node sits in what it made inert', () => {
+      const page = child(el => (el.innerHTML = '<span></span>'));
+      const lock = TestBed.inject(WrScrollBlock);
+      const strategy = lock.strategy();
+      expect(lock.isolates(page.firstElementChild!)).toBe(false);
+
+      strategy.enable();
+      expect(lock.isolates(page.firstElementChild!)).toBe(true);
+
+      strategy.disable();
+      expect(lock.isolates(page.firstElementChild!)).toBe(false);
+    });
+
     it('only blocks the scroll for a modal that renders inside the page', () => {
       const page = child();
       const lock = TestBed.inject(WrScrollBlock);
