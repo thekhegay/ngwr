@@ -71,7 +71,10 @@ export class WrVirtualScroll<T = unknown> {
 
   /**
    * Scroll axis. `'horizontal'` lays the items out in one row along the inline
-   * axis, so it follows the text direction. @default 'vertical'
+   * axis, so it follows the text direction. The scroll offsets take the
+   * direction from the CDK's `Directionality`, like every ngwr component: the
+   * document's `dir`, or a `dir` under `BidiModule`. A bare `dir="rtl"` on an
+   * ancestor reverses the row and not the offsets. @default 'vertical'
    */
   readonly orientation = input<'vertical' | 'horizontal'>('vertical');
 

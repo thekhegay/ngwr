@@ -123,6 +123,48 @@ describe('WrTable grouped column headers', () => {
     expect(groupRow()!.querySelector('.wr-table__th')).toBeNull();
   });
 
+  it('bounds each group header with a column group of its own columns', () => {
+    const spans = (): number[] => [...root().querySelectorAll('colgroup')].map(el => el.children.length);
+    expect(spans()).toEqual([1, 2, 2, 1]);
+
+    host.selection.set('multiple');
+    host.expand.set(true);
+    render();
+    expect(spans()).toEqual([2, 1, 2, 2, 1]);
+    expect(root().querySelectorAll('colgroup:first-of-type > .wr-table__col--lead')).toHaveLength(2);
+
+    host.order.set(['q1', 'name', 'q2', 'q3', 'q4', 'city']);
+    render();
+    expect(spans()).toEqual([2, 1, 1, 1, 2, 1]);
+  });
+
+  it('keeps each column width on its own col across the column groups', () => {
+    host.columns.set({
+      name: { title: 'Name', width: 80 },
+      q1: { title: 'Q1', group: 'Revenue', width: 90 },
+      q2: { title: 'Q2', group: 'Revenue', width: 110 },
+      city: { title: 'City', width: 130 },
+    });
+    render();
+
+    expect([...root().querySelectorAll<HTMLElement>('col')].map(col => col.style.width)).toEqual([
+      '80px',
+      '90px',
+      '110px',
+      '130px',
+    ]);
+  });
+
+  it('keeps the one column group without a group', () => {
+    host.columns.set({ name: { title: 'Name' }, city: { title: 'City' } });
+    host.selection.set('multiple');
+    render();
+
+    const groups = root().querySelectorAll('colgroup');
+    expect(groups).toHaveLength(1);
+    expect(groups[0].children).toHaveLength(3);
+  });
+
   it('renders no extra row and no measured height without a group', () => {
     host.columns.set({ name: { title: 'Name' }, city: { title: 'City' } });
     render();

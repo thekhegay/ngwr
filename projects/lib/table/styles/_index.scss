@@ -595,23 +595,23 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
   }
 
   &--overflow-start &__head-cell--pin-edge-left {
-    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
+    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   &--overflow-end &__head-cell--pin-edge-right {
-    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
+    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   :where([dir='rtl']) &--overflow-start &__head-cell--pin-edge-left {
-    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: this IS the RTL sign for the rule above
+    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   :where([dir='rtl']) &--overflow-end &__head-cell--pin-edge-right {
-    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
     // rtl-ok: this IS the RTL sign for the rule above
+    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
   }
 
   &__th-inner {
