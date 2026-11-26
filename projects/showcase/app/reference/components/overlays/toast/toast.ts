@@ -15,6 +15,8 @@ import {
 } from '#core/components';
 import { API } from '#core/generated/api';
 
+type Intent = Exclude<WrToastType, 'loading'>;
+
 @Component({
   selector: 'ngwr-toast-page',
   templateUrl: './toast.html',
@@ -122,6 +124,15 @@ this.toast.show({
   duration: 0, // no auto-dismiss
 });`,
 
+    update: `const ref = this.toast.loading('Saving');
+ref.update({ type: 'success', message: 'Saved' });
+
+const user = await this.toast.promise(this.save(), {
+  loading: 'Saving',
+  success: user => \`Saved \${user.name}\`,
+  error: 'Not saved',
+});`,
+
     position: `this.toast.setPosition('bottom-end');`,
 
     outlet: `<div class="map" style="position: relative">
@@ -144,7 +155,7 @@ ref.dismiss();`,
   protected readonly serviceApi: readonly DocApiRow[] = [
     {
       name: 'show(options)',
-      description: 'Opens a toast and returns a handle (`dismiss()`).',
+      description: 'Opens a toast and returns a handle (`update()`, `dismiss()`).',
       type: '(WrToastOptions) => WrToastRef',
       default: '—',
     },
@@ -172,6 +183,19 @@ ref.dismiss();`,
       type: "(string, Omit<WrToastOptions, 'message' | 'type'>?) => WrToastRef",
       default: '—',
     },
+    {
+      name: 'loading(message, options?)',
+      description: "`show()` with `type: 'loading'`: a spinner, no auto-dismiss until updated to another type.",
+      type: "(string, Omit<WrToastOptions, 'message' | 'type'>?) => WrToastRef",
+      default: '—',
+    },
+    {
+      name: 'promise(promise, messages, options?)',
+      description:
+        'A `loading` toast that becomes `success` or `danger` in place when the promise settles. Returns the same promise.',
+      type: "(Promise<T>, WrToastPromiseMessages<T>, Omit<WrToastOptions, 'message' | 'type'>?) => Promise<T>",
+      default: '—',
+    },
     { name: 'dismiss(id)', description: 'Removes a single toast by id.', type: '(number) => void', default: '—' },
     {
       name: 'dismissAll(outlet?)',
@@ -193,18 +217,36 @@ ref.dismiss();`,
     },
   ];
 
+  protected readonly refApi: readonly DocApiRow[] = [
+    { name: 'id', description: 'The id `dismiss(id)` takes.', type: 'number', default: '—' },
+    {
+      name: 'options',
+      description: 'What the toast shows now, updates applied.',
+      type: 'WrToastOptions',
+      default: '—',
+    },
+    {
+      name: 'update(patch)',
+      description:
+        'Changes the toast in place and starts its countdown again. Takes every option but `outlet` and `position`.',
+      type: '(WrToastUpdate) => void',
+      default: '—',
+    },
+    { name: 'dismiss()', description: 'Removes the toast.', type: '() => void', default: '—' },
+  ];
+
   protected readonly optionsApi: readonly DocApiRow[] = [
     {
       name: 'type',
-      description: 'Visual variant.',
-      type: "'info' | 'success' | 'warning' | 'danger'",
+      description: 'Visual variant. `loading` draws a spinner and never closes on its own.',
+      type: "'info' | 'success' | 'warning' | 'danger' | 'loading'",
       default: "'info'",
     },
     { name: 'title', description: 'Optional heading.', type: 'string', default: '—' },
     { name: 'message', description: "Body text. `''` for a title-only toast.", type: 'string', required: true },
     {
       name: 'duration',
-      description: 'Auto-dismiss after N ms. 0 disables. Falls back to global config.',
+      description: 'Auto-dismiss after N ms. 0 disables. Falls back to global config. Ignored while `loading`.',
       type: 'number',
       default: 'config.duration',
     },
@@ -288,7 +330,7 @@ ref.dismiss();`,
     },
   ];
 
-  protected fire(type: WrToastType): void {
+  protected fire(type: Intent): void {
     this.toast.show({
       type,
       title: this.titleFor(type),
@@ -298,7 +340,7 @@ ref.dismiss();`,
     });
   }
 
-  protected fireShorthand(type: WrToastType): void {
+  protected fireShorthand(type: Intent): void {
     this.toast[type](this.messageFor(type), { showProgress: this.showProgress(), showCopy: this.showCopy() });
   }
 
@@ -324,6 +366,22 @@ ref.dismiss();`,
         label: 'Undo',
         run: () => this.files.update(files => [...files.slice(0, index), file, ...files.slice(index)]),
       },
+    });
+  }
+
+  protected fireUpdate(): void {
+    const ref = this.toast.loading('Saving');
+    setTimeout(() => ref.update({ type: 'success', message: 'Saved' }), 2000);
+  }
+
+  protected firePromise(ok: boolean): void {
+    const work = new Promise<string>((resolve, reject) =>
+      setTimeout(() => (ok ? resolve('Report.pdf') : reject(new Error('offline'))), 2000)
+    );
+    void this.toast.promise(work, {
+      loading: 'Uploading',
+      success: file => `${file} uploaded`,
+      error: error => `Not uploaded: ${(error as Error).message}`,
     });
   }
 
@@ -398,11 +456,11 @@ ref.dismiss();`,
     this.toast.dismissAll();
   }
 
-  private titleFor(type: WrToastType): string {
+  private titleFor(type: Intent): string {
     return { info: 'Heads up', success: 'Saved', warning: 'Careful', danger: 'Failed' }[type];
   }
 
-  private messageFor(type: WrToastType): string {
+  private messageFor(type: Intent): string {
     return {
       info: 'Just a friendly note.',
       success: 'Profile updated.',

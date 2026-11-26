@@ -5,4 +5,8 @@
  * found in the LICENSE file at https://github.com/thekhegay/ngwr/blob/main/LICENSE
  */
 
-export type WrToastType = 'info' | 'success' | 'warning' | 'danger';
+/**
+ * `loading` draws a spinner and never closes on its own: update the toast to
+ * another type, or dismiss it.
+ */
+export type WrToastType = 'info' | 'success' | 'warning' | 'danger' | 'loading';

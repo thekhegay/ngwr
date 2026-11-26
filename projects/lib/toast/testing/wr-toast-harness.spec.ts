@@ -48,6 +48,20 @@ describe('WrToastHarness', () => {
     expect(await toast.getMessage()).toBe('Profile updated.');
   });
 
+  it('reads and filters by the loading type, and follows an update', async () => {
+    const ref = fixture.componentInstance.toast.loading('Saving');
+    await fixture.whenStable();
+
+    const toast = await rootLoader.getHarness(WrToastHarness.with({ type: 'loading' }));
+    expect(await toast.getType()).toBe('loading');
+
+    ref.update({ type: 'success', message: 'Saved', duration: 0 });
+    await fixture.whenStable();
+
+    expect(await toast.getType()).toBe('success');
+    expect(await toast.getMessage()).toBe('Saved');
+  });
+
   it('reports no title when the toast was shown without one', async () => {
     fixture.componentInstance.toast.show({ message: 'Permalink copied', duration: 0 });
     await fixture.whenStable();

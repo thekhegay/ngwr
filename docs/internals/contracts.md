@@ -262,6 +262,12 @@ because it is guidance rather than a plan.
   sent to a name with no outlet in the page is kept, capped the same way, and
   its countdown starts when the outlet mounts; `dismissAll()` with no name is
   the global stack only, because the global "Close all" button calls it.
+- A `loading` toast ignores `duration` and stays until `update()` gives it
+  another type; the duration then applies to that type. Every `update()` starts
+  the countdown again, a message-only one included, so the new text gets its
+  full time. `WrToast.promise()` returns the promise it was given, not a chain,
+  and a toast dismissed while pending shows no outcome: an update to a toast
+  that is gone is a no-op, never a new toast.
 - `wr-graph` prerenders EMPTY, pending, with an asynchronous `WrGraphLayout`:
   the server never waits for the Promise (no `PendingTasks`), because a layout
   in a worker cannot run there and one that never settles would hang the

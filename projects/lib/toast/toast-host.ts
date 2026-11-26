@@ -63,6 +63,7 @@ function hasKeyboardFocus(el: Element | null | undefined): boolean {
 type ActiveToast = WrToastOptions & {
   readonly id: number;
   readonly resolvedDuration: number;
+  readonly revision?: number;
 };
 
 /**

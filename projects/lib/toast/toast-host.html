@@ -15,6 +15,7 @@
     [showCopy]="showCopyFor(toast)"
     [extraClass]="toast.class ?? null"
     [duration]="toast.resolvedDuration"
+    [revision]="toast.revision ?? 0"
     [labels]="labels()"
     [actionLabel]="toast.action?.label ?? null"
     (dismissed)="onItemDismissed(toast.id, $index)"

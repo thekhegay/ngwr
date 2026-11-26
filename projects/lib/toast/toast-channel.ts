@@ -8,7 +8,7 @@
 import { Service, inject, signal } from '@angular/core';
 
 import { WR_TOAST_CONFIG } from './tokens';
-import type { WrToastOptions } from './types';
+import type { WrToastOptions, WrToastUpdate } from './types';
 
 /** A toast in a channel, with the bookkeeping its countdown needs. */
 export type WrToastEntry = WrToastOptions & {
@@ -20,7 +20,14 @@ export type WrToastEntry = WrToastOptions & {
   startedAt?: number;
   /** Milliseconds left when paused. */
   remaining: number;
+  /** How many times the toast was updated. */
+  readonly revision?: number;
 };
+
+/** `0` for a `loading` toast, which stays until it is updated to another type. */
+export function resolveToastDuration(options: Pick<WrToastOptions, 'type' | 'duration'>, fallback: number): number {
+  return options.type === 'loading' ? 0 : (options.duration ?? fallback);
+}
 
 /**
  * One independent stack of toasts: the global one, or an outlet's.
@@ -105,6 +112,35 @@ export class WrToastChannel {
     this.promote();
     // The host goes with its last toast, and takes the pointer's hold with it.
     if (this.empty) this.held = false;
+    return true;
+  }
+
+  /**
+   * Replace the toast with a patched copy, where it stands, and start its
+   * countdown again. Whether the toast was in this channel.
+   */
+  update(id: number, patch: WrToastUpdate): boolean {
+    const active = this.toasts();
+    const at = active.findIndex(t => t.id === id);
+    const queuedAt = at < 0 ? this.queue.findIndex(t => t.id === id) : -1;
+    if (at < 0 && queuedAt < 0) return false;
+    const old = at < 0 ? this.queue[queuedAt] : active[at];
+    this.stopTimer(old);
+    const merged = { ...old, ...patch };
+    const resolvedDuration = resolveToastDuration(merged, this.duration);
+    const next: WrToastEntry = {
+      ...merged,
+      id,
+      resolvedDuration,
+      remaining: resolvedDuration,
+      revision: (old.revision ?? 0) + 1,
+    };
+    if (at < 0) {
+      this.queue[queuedAt] = next;
+      return true;
+    }
+    this.toasts.set(active.map(entry => (entry === old ? next : entry)));
+    this.startTimer(next);
     return true;
   }
 
@@ -232,6 +268,14 @@ export class WrToastChannels {
       this.channels.set(name, channel);
     }
     return channel;
+  }
+
+  /** Update the toast in whichever channel holds it. */
+  update(id: number, patch: WrToastUpdate): boolean {
+    for (const channel of this.channels.values()) {
+      if (channel.update(id, patch)) return true;
+    }
+    return false;
   }
 
   /** Remove the toast from whichever channel holds it. */
