@@ -3091,13 +3091,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       const rows = this.visibleItems() ?? [];
       const by = this.groupBy();
       if (by === null) return [{ value: WR_TABLE_UNGROUPED, rows }];
-      const buckets = new Map<unknown, Record<string, unknown>[]>();
-      for (const row of rows) {
-        const value = typeof by === 'function' ? by(row) : row[by];
-        const bucket = buckets.get(value);
-        if (bucket) bucket.push(row);
-        else buckets.set(value, [row]);
-      }
+      const buckets = Map.groupBy(rows, row => (typeof by === 'function' ? by(row) : row[by]));
       return Array.from(buckets, ([value, groupRows]) => ({ value, rows: groupRows }));
     }
   );
