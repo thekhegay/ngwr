@@ -180,6 +180,18 @@ describe('WrBusy', () => {
     expect(form().style.position).toBe('sticky');
   });
 
+  it('keeps a priority the consumer changed while busy', async () => {
+    form().style.setProperty('position', 'static');
+
+    fixture.componentInstance.busy.set(true);
+    await render();
+    form().style.setProperty('position', 'relative', 'important');
+    fixture.componentInstance.busy.set(false);
+    await render();
+    expect(form().style.getPropertyValue('position')).toBe('relative');
+    expect(form().style.getPropertyPriority('position')).toBe('important');
+  });
+
   it('cleans up when the host is destroyed while busy', async () => {
     fixture.componentInstance.busy.set(true);
     await render();

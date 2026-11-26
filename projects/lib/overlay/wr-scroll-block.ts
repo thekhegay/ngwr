@@ -80,7 +80,10 @@ export class WrScrollBlock {
    * that renders in the page asks, to step out of it.
    */
   isolates(node: Node): boolean {
-    for (const el of this.inerted) if (el.contains(node)) return true;
+    // Up through shadow hosts: `inert` applies to the flat tree, `contains()` stops at a shadow root.
+    for (let n: Node | null = node; n; n = n.parentNode ?? (n instanceof ShadowRoot ? n.host : null)) {
+      if (n instanceof Element && this.inerted.has(n)) return true;
+    }
     return false;
   }
 

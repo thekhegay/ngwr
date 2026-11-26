@@ -168,8 +168,10 @@ export class WrBusy {
     renderer.removeClass(host, 'wr-busy--relative');
     if (this.inlinePosition) {
       // A value written while busy is the consumer's, and stays.
-      if (host.style.getPropertyValue('position') === 'relative') {
-        host.style.setProperty('position', ...this.inlinePosition);
+      const [, priority] = this.inlinePosition;
+      const style = host.style;
+      if (style.getPropertyValue('position') === 'relative' && style.getPropertyPriority('position') === priority) {
+        style.setProperty('position', ...this.inlinePosition);
       }
       this.inlinePosition = null;
     }
