@@ -598,8 +598,7 @@ export class WrSlider implements FormValueControl<WrSliderValue> {
   /** The next mark above or below `value`; `value` itself when there is none, which `snap` then settles. */
   private adjacentMark(value: number, direction: number): number {
     const marks = this.visibleMarks();
-    const next =
-      direction > 0 ? marks.find(mark => mark.value > value) : [...marks].reverse().find(mark => mark.value < value);
+    const next = direction > 0 ? marks.find(mark => mark.value > value) : marks.findLast(mark => mark.value < value);
     return next?.value ?? value;
   }
 

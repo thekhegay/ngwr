@@ -45,14 +45,10 @@ interface Bucket {
 let listboxUid = 0;
 
 function bucketize(items: readonly WrCommandItem[]): readonly Bucket[] {
-  const map = new Map<string | null, WrCommandItem[]>();
-  for (const item of items) {
-    const key = item.group ?? null;
-    const bucket = map.get(key);
-    if (bucket) bucket.push(item);
-    else map.set(key, [item]);
-  }
-  return [...map.entries()].map(([title, items]) => ({ title, items }));
+  return Array.from(
+    Map.groupBy(items, item => item.group ?? null),
+    ([title, items]) => ({ title, items })
+  );
 }
 
 function matches(item: WrCommandItem, query: string): boolean {
