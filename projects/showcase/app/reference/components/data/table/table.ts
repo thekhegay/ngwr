@@ -371,6 +371,19 @@ export default class TablePageComponent {
     status: { title: 'Status', pin: 'right' },
   };
 
+  protected readonly groupedRows: readonly Record<string, unknown>[] = [
+    { region: 'Europe', revenueQ1: 420, revenueQ2: 465, costsQ1: 310, costsQ2: 322 },
+    { region: 'Asia', revenueQ1: 380, revenueQ2: 441, costsQ1: 270, costsQ2: 296 },
+    { region: 'Americas', revenueQ1: 510, revenueQ2: 498, costsQ1: 365, costsQ2: 371 },
+  ];
+  protected readonly groupedColumns: WrTableColumns = {
+    region: { title: 'Region' },
+    revenueQ1: { title: 'Q1', group: 'Revenue', align: 'end' },
+    revenueQ2: { title: 'Q2', group: 'Revenue', align: 'end' },
+    costsQ1: { title: 'Q1', group: 'Costs', align: 'end' },
+    costsQ2: { title: 'Q2', group: 'Costs', align: 'end' },
+  };
+
   protected readonly resizableColumns: WrTableColumns = {
     name: { title: 'Name', resizable: true, sortable: true },
     email: { title: 'Email', resizable: true, width: 240 },
@@ -680,6 +693,13 @@ effect(() => {
   role:   { title: 'Role' },
   // …more columns in between…
   status: { title: 'Status', pin: 'right' },
+};`,
+    grouped: `const columns: WrTableColumns = {
+  region: { title: 'Region' },
+  revenueQ1: { title: 'Q1', group: 'Revenue', align: 'end' },
+  revenueQ2: { title: 'Q2', group: 'Revenue', align: 'end' },
+  costsQ1: { title: 'Q1', group: 'Costs', align: 'end' },
+  costsQ2: { title: 'Q2', group: 'Costs', align: 'end' },
 };`,
     resizable: `const columns: WrTableColumns = {
   name:  { title: 'Name', resizable: true },
@@ -1095,6 +1115,7 @@ interface WrTableColumn<T = object> {
   sortable?: boolean;
   filterItems?: readonly WrTableFilterItem[];
   pin?: 'left' | 'right';
+  group?: string;
   hideable?: boolean;
   editable?: boolean;
   resizable?: boolean;

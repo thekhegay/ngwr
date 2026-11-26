@@ -16,6 +16,6 @@
     [checked]="!entry.hidden"
     [disabled]="entry.locked"
     (checkedChange)="table().toggleColumn(entry.key)"
-    >{{ entry.title }}</wr-checkbox
+    >{{ entry.group ? `${entry.group} ${entry.title}` : entry.title }}</wr-checkbox
   >
 }

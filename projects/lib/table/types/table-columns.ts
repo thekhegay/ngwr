@@ -81,6 +81,16 @@ export interface WrTableColumn<T extends WrTableRow = WrTableRow> {
    */
   readonly pin?: 'left' | 'right';
   /**
+   * A heading shared with the columns next to it: neighbouring shown columns
+   * with the same `group` sit under one header cell in a row of its own above
+   * the titles, and a column without one gets a blank cell there. Order
+   * decides: a column dragged or hidden out of a run splits or shrinks its
+   * cell, and a group never crosses a pinned edge. The row follows
+   * `stickyHeader` and pinning. Card mode hides it with the header, and
+   * `toCsv()` writes the titles only.
+   */
+  readonly group?: string;
+  /**
    * `false` keeps the column out of reach of `hiddenColumns`: it is always
    * shown, and its checkbox in the column chooser is disabled.
    */
