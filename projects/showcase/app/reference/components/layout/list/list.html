@@ -1,6 +1,7 @@
 <ngwr-doc-page
   title="List"
   description="A list of rows with leading, body and trailing slots."
+  updated="16.10.0"
   [keywords]="['list', 'wr-list', 'wr-list-item']"
   [labels]="['Component']"
 >
@@ -26,6 +27,32 @@
         >
       }
     </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Selectable"
+    description="`selection` makes the list a listbox and a form control. Each row carries a `value`. Arrows, Home and End move, typing jumps to a row, Space or Enter picks."
+  >
+    <ngwr-doc-snippet [code]="selectableSnippet">
+      <div class="ngwr-demo-pair">
+        <div>
+          <p class="ngwr-demo-pair__caption">single: {{ folder() ?? 'none' }}</p>
+          <wr-list bordered selection="single" ariaLabel="Folder" [(value)]="folder">
+            @for (row of rows; track row.label) {
+              <wr-list-item [value]="row.label">{{ row.label }}</wr-list-item>
+            }
+          </wr-list>
+        </div>
+        <div>
+          <p class="ngwr-demo-pair__caption">multiple: {{ folders().join(', ') || 'none' }}</p>
+          <wr-list bordered selection="multiple" ariaLabel="Folders" [(value)]="folders">
+            @for (row of rows; track row.label) {
+              <wr-list-item [value]="row.label">{{ row.label }}</wr-list-item>
+            }
+          </wr-list>
+        </div>
+      </div>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">

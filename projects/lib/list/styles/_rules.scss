@@ -21,6 +21,9 @@
   --wr-list-bg: transparent;
   --wr-list-hover-bg: var(--wr-color-hover);
   --wr-list-active-bg: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
+  --wr-list-selected-bg: var(--wr-color-primary-soft);
+  --wr-list-selected-color: var(--wr-color-primary-ink);
+  --wr-list-selected-font-weight: var(--wr-font-weight-medium);
   --wr-list-font-family: var(--wr-font-family-base);
   --wr-list-font-size: var(--wr-text-sm);
 
@@ -63,7 +66,8 @@
     color: inherit;
     transition: background 0.12s ease;
 
-    &--interactive {
+    &--interactive,
+    &--selectable {
       cursor: pointer;
 
       &:hover {
@@ -80,11 +84,24 @@
       }
     }
 
+    // The weight is what a reader without hue has.
+    &--selected,
+    &--selected:hover {
+      background: var(--wr-list-selected-bg);
+      color: var(--wr-list-selected-color);
+      font-weight: var(--wr-list-selected-font-weight);
+    }
+
     &--disabled {
       opacity: var(--wr-disabled-opacity);
       pointer-events: none;
       cursor: not-allowed;
     }
+  }
+
+  // Still focusable and still showing the selection: it only stops inviting the click.
+  &--readonly &__item--selectable {
+    cursor: default;
   }
 
   &__leading,

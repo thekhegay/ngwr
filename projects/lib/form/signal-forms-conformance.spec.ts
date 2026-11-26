@@ -19,6 +19,7 @@ import { WrFileUpload } from 'ngwr/file-upload';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrInputOtp } from 'ngwr/input-otp';
 import { WrKnob } from 'ngwr/knob';
+import { WrList, WrListItem } from 'ngwr/list';
 import { WrRadio, WrRadioGroup } from 'ngwr/radio';
 import { WrRating } from 'ngwr/rating';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -59,6 +60,7 @@ type Kind =
   | 'input-number'
   | 'input-otp'
   | 'knob'
+  | 'list'
   | 'radio-group'
   | 'rating'
   | 'segmented'
@@ -82,6 +84,7 @@ interface Model {
   inputNumber: number | null;
   inputOtp: string;
   knob: number;
+  list: string | null;
   radioGroup: string | null;
   rating: number | null;
   segmented: string | null;
@@ -109,6 +112,8 @@ interface Model {
     WrInputNumber,
     WrInputOtp,
     WrKnob,
+    WrList,
+    WrListItem,
     WrOption,
     WrRadio,
     WrRadioGroup,
@@ -164,6 +169,12 @@ interface Model {
       }
       @case ('knob') {
         <wr-knob [formField]="f.knob" />
+      }
+      @case ('list') {
+        <wr-list selection="single" ariaLabel="List" [formField]="f.list">
+          <wr-list-item value="a">A</wr-list-item>
+          <wr-list-item value="b">B</wr-list-item>
+        </wr-list>
       }
       @case ('radio-group') {
         <wr-radio-group [formField]="f.radioGroup">
@@ -234,6 +245,7 @@ class Host {
     inputNumber: null,
     inputOtp: '',
     knob: 0,
+    list: null,
     radioGroup: null,
     rating: null,
     segmented: null,
@@ -324,6 +336,7 @@ const CASES: readonly Case[] = [
   // 150 is past the default max of 100: a control that clamps into the model
   // would hand the form back a different value than it was given.
   { kind: 'knob', control: 'WrKnob', values: [150, 20] },
+  { kind: 'list', control: 'WrList', values: ['a', 'b'] },
   { kind: 'radio-group', control: 'WrRadioGroup', values: ['a', 'b'] },
   { kind: 'rating', control: 'WrRating', values: [2, 4] },
   { kind: 'segmented', control: 'WrSegmented', values: ['day', 'week'] },
