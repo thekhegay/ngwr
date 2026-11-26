@@ -45,6 +45,9 @@
   --wr-tag-remove-color: var(--wr-tag-color);
   --wr-tag-remove-hover-bg: color-mix(in srgb, var(--wr-tag-color) 16%, transparent);
   --wr-tag-remove-radius: var(--wr-tag-radius);
+  --wr-tag-selected-bg: var(--wr-color-fill-strong);
+  --wr-tag-selected-border: var(--wr-tag-color);
+  --wr-tag-selected-color: var(--wr-tag-color);
 
   color: var(--wr-tag-color);
   background: var(--wr-tag-bg);
@@ -146,6 +149,30 @@
     }
   }
 
+  // A toggle (`selected` set) is a button.
+  &:where([aria-pressed]:not([aria-disabled='true'])) {
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(0.95);
+    }
+  }
+
+  // Selected: a deeper fill plus an inner ring, so the state is not the hue
+  // alone. The ring is a shadow, so the tag keeps its size.
+  &--selected {
+    color: var(--wr-tag-selected-color);
+    background: var(--wr-tag-selected-bg);
+    box-shadow: inset 0 0 0 1px var(--wr-tag-selected-border);
+
+    @media (forced-colors: active) {
+      --wr-tag-remove-color: HighlightText;
+
+      color: HighlightText;
+      background: Highlight;
+    }
+  }
+
   // Loading: keep size; dim text a touch
   &--loading {
     opacity: 0.85;
@@ -158,6 +185,8 @@
       --wr-tag-color: var(--wr-color-#{$name}-contrast);
       --wr-tag-bg: var(--wr-color-#{$name});
       --wr-tag-border: var(--wr-color-#{$name});
+      --wr-tag-selected-bg: var(--wr-color-#{$name}-darker);
+      --wr-tag-selected-border: var(--wr-color-#{$name}-contrast);
 
       // The ring reads from `-soft-border` rather than a hand-rolled alpha, so
       // it is the same hairline `wr-badge--outlined` draws — one alpha in one
@@ -170,6 +199,8 @@
         --wr-tag-color: var(--wr-color-#{$name}-ink);
         --wr-tag-bg: color-mix(in srgb, var(--wr-color-#{$name}) 6%, transparent);
         --wr-tag-border: var(--wr-color-#{$name}-soft-border);
+        --wr-tag-selected-bg: color-mix(in srgb, var(--wr-color-#{$name}) 20%, transparent);
+        --wr-tag-selected-border: var(--wr-color-#{$name}-ink);
       }
 
       &.wr-tag--transparent,
@@ -177,6 +208,8 @@
         --wr-tag-color: var(--wr-color-#{$name}-ink);
         --wr-tag-bg: color-mix(in srgb, var(--wr-color-#{$name}) 10%, transparent);
         --wr-tag-border: transparent;
+        --wr-tag-selected-bg: color-mix(in srgb, var(--wr-color-#{$name}) 24%, transparent);
+        --wr-tag-selected-border: var(--wr-color-#{$name}-ink);
       }
     }
   }

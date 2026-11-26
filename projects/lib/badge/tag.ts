@@ -10,12 +10,15 @@ import {
   Component,
   ElementRef,
   EnvironmentInjector,
+  Renderer2,
   ViewEncapsulation,
   afterEveryRender,
   afterNextRender,
   computed,
+  effect,
   inject,
   input,
+  model,
   output,
   signal,
 } from '@angular/core';
@@ -27,6 +30,8 @@ import type { WrColor } from 'ngwr/theme';
 import { wrCheckStyles, wrGetFocusableElements, wrWatchContent } from 'ngwr/utils';
 
 import type { WrTagIconPosition, WrTagSize } from './types';
+
+const TOGGLE_ATTRS = ['role', 'tabindex', 'aria-pressed', 'aria-disabled'] as const;
 
 /**
  * Rich inline label — icons, loading state, three visual styles
@@ -40,6 +45,7 @@ import type { WrTagIconPosition, WrTagSize } from './types';
  * <wr-tag color="primary" outlined rounded>Beta</wr-tag>
  * <wr-tag color="warning" loading>Saving</wr-tag>
  * <wr-tag closable (removed)="drop(topic)">{{ topic }}</wr-tag>
+ * <wr-tag outlined [(selected)]="onlyOpen">Open</wr-tag>
  * ```
  *
  * @see https://ngwr.dev/reference/components/badge
@@ -51,6 +57,8 @@ import type { WrTagIconPosition, WrTagSize } from './types';
   host: {
     class: 'wr-tag',
     '[class]': 'classes()',
+    '(click)': 'onHostClick()',
+    '(keydown)': 'onHostKeydown($event)',
     '(keydown.delete)': 'onRemoveKey($event)',
     '(keydown.backspace)': 'onRemoveKey($event)',
   },
@@ -66,6 +74,32 @@ export class WrTag {
         if (this.closable()) this.text.set(this.readText());
       })
     );
+
+    // Not host bindings: those would strip a consumer's own `[attr.role]`,
+    // `[attr.tabindex]` or `[attr.aria-pressed]` from a plain tag.
+    const renderer = inject(Renderer2);
+    const el = this.host.nativeElement;
+    let before: Record<string, string | null> | null = null;
+    const restore = (name: string): void => {
+      const value = before?.[name] ?? null;
+      if (value === null) renderer.removeAttribute(el, name);
+      else renderer.setAttribute(el, name, value);
+    };
+    effect(() => {
+      const selected = this.selected();
+      if (selected === undefined) {
+        if (before) for (const name of Object.keys(before)) restore(name);
+        before = null;
+        return;
+      }
+      before ??= Object.fromEntries(TOGGLE_ATTRS.map(name => [name, el.getAttribute(name)]));
+      renderer.setAttribute(el, 'role', 'button');
+      // A tab stop the consumer set, such as a roving `-1`, stays theirs.
+      if (before['tabindex'] === null) renderer.setAttribute(el, 'tabindex', '0');
+      renderer.setAttribute(el, 'aria-pressed', String(selected));
+      if (this.loading()) renderer.setAttribute(el, 'aria-disabled', 'true');
+      else restore('aria-disabled');
+    });
   }
 
   /**
@@ -161,6 +195,19 @@ export class WrTag {
   readonly removeLabel = input<string | null>(null);
 
   /**
+   * Toggle state, for a filter chip. `undefined` (default) is a plain tag. A
+   * boolean makes the tag a toggle button: `role="button"`, a tab stop,
+   * `aria-pressed`, the `wr-tag--selected` modifier, and a click, Enter or Space
+   * flips it (not while `loading`). A `model()` takes no attribute transform, so
+   * set it as `[selected]="true"` or two-way as `[(selected)]="on"`; a bare
+   * `selected` attribute is not a value. Leave `closable` off such a tag: a
+   * button inside a button does not reach every screen reader.
+   *
+   * @default undefined
+   */
+  readonly selected = model<boolean | undefined>(undefined);
+
+  /**
    * Emitted when the user removes the tag: a click on the remove button, or
    * Delete / Backspace on it (or on the tag itself, if you made it focusable).
    * The click does not reach a `(click)` on the tag. If the button had focus and
@@ -198,12 +245,26 @@ export class WrTag {
     if (this.hoverable()) parts.push('wr-tag--hoverable');
     if (this.loading()) parts.push('wr-tag--loading');
     if (this.closable()) parts.push('wr-tag--closable');
+    if (this.selected()) parts.push('wr-tag--selected');
 
     const hasAdornment = !!this.icon() || this.loading();
     if (hasAdornment) parts.push(`wr-tag--icon-${this.iconPosition()}`);
 
     return parts.join(' ');
   });
+
+  protected onHostClick(): void {
+    if (this.selected() === undefined || this.loading()) return;
+    this.selected.update(value => !value);
+  }
+
+  protected onHostKeydown(event: KeyboardEvent): void {
+    if (this.selected() === undefined || event.target !== this.host.nativeElement) return;
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    // Space would scroll the page.
+    event.preventDefault();
+    if (!this.loading()) this.host.nativeElement.click();
+  }
 
   protected onRemove(event: Event): void {
     event.stopPropagation();

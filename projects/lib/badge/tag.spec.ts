@@ -258,3 +258,134 @@ describe('WrTag closable, around what else the tag holds', () => {
     expect(event.defaultPrevented).toBe(false);
   });
 });
+
+@Component({
+  imports: [WrTag],
+  template: `
+    <wr-tag id="plain" role="status" [attr.tabindex]="-1">Plain</wr-tag>
+    <wr-tag id="toggle" [(selected)]="on" [loading]="loading()" (click)="clicks.push('toggle')">Open</wr-tag>
+    <wr-tag id="closable" closable [(selected)]="closableOn" (removed)="removed.push('closable')">Mine</wr-tag>
+    <wr-tag id="late" role="status" [selected]="late()">Late</wr-tag>
+  `,
+})
+class ToggleHost {
+  readonly on = signal(false);
+  readonly closableOn = signal(false);
+  readonly loading = signal(false);
+  readonly late = signal<boolean | undefined>(undefined);
+  readonly clicks: string[] = [];
+  readonly removed: string[] = [];
+}
+
+describe('WrTag selected', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<ToggleHost>>;
+
+  const get = (id: string): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(`#${id}`)!;
+  const key = (target: EventTarget, name: string): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  beforeEach(async () => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(ToggleHost);
+    await fixture.whenStable();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('adds nothing while selected is undefined', async () => {
+    const plain = get('plain');
+    expect(plain.getAttribute('role')).toBe('status');
+    expect(plain.getAttribute('tabindex')).toBe('-1');
+    expect(plain.hasAttribute('aria-pressed')).toBe(false);
+    expect(plain.classList.contains('wr-tag--selected')).toBe(false);
+
+    plain.click();
+    expect(key(plain, ' ').defaultPrevented).toBe(false);
+    await fixture.whenStable();
+    expect(plain.hasAttribute('aria-pressed')).toBe(false);
+  });
+
+  it('reflects a boolean as a toggle button', async () => {
+    const toggle = get('toggle');
+    expect(toggle.getAttribute('role')).toBe('button');
+    expect(toggle.getAttribute('tabindex')).toBe('0');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    expect(toggle.classList.contains('wr-tag--selected')).toBe(false);
+
+    fixture.componentInstance.on.set(true);
+    await fixture.whenStable();
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    expect(toggle.classList.contains('wr-tag--selected')).toBe(true);
+  });
+
+  it('flips on click and emits selectedChange', async () => {
+    get('toggle').click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.on()).toBe(true);
+    expect(get('toggle').getAttribute('aria-pressed')).toBe('true');
+
+    get('toggle').click();
+    await fixture.whenStable();
+    expect(fixture.componentInstance.on()).toBe(false);
+  });
+
+  it('flips on Enter and on Space, as a click', async () => {
+    const toggle = get('toggle');
+    expect(key(toggle, 'Enter').defaultPrevented).toBe(true);
+    await fixture.whenStable();
+    expect(fixture.componentInstance.on()).toBe(true);
+
+    expect(key(toggle, ' ').defaultPrevented).toBe(true);
+    await fixture.whenStable();
+    expect(fixture.componentInstance.on()).toBe(false);
+    expect(fixture.componentInstance.clicks).toEqual(['toggle', 'toggle']);
+  });
+
+  it('does not flip while loading, and says so', async () => {
+    fixture.componentInstance.loading.set(true);
+    await fixture.whenStable();
+    const toggle = get('toggle');
+    expect(toggle.getAttribute('aria-disabled')).toBe('true');
+
+    toggle.click();
+    key(toggle, 'Enter');
+    await fixture.whenStable();
+    expect(fixture.componentInstance.on()).toBe(false);
+
+    fixture.componentInstance.loading.set(false);
+    await fixture.whenStable();
+    expect(toggle.hasAttribute('aria-disabled')).toBe(false);
+  });
+
+  it('keeps the remove button its own button', async () => {
+    const button = get('closable').querySelector<HTMLButtonElement>('.wr-tag__remove')!;
+    button.click();
+    expect(key(button, 'Enter').defaultPrevented).toBe(false);
+    expect(key(button, ' ').defaultPrevented).toBe(false);
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.removed).toEqual(['closable']);
+    expect(fixture.componentInstance.closableOn()).toBe(false);
+    expect(get('closable').getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('hands the attributes back when selected returns to undefined', async () => {
+    const late = get('late');
+    expect(late.getAttribute('role')).toBe('status');
+
+    fixture.componentInstance.late.set(true);
+    await fixture.whenStable();
+    expect(late.getAttribute('role')).toBe('button');
+    expect(late.getAttribute('tabindex')).toBe('0');
+    expect(late.getAttribute('aria-pressed')).toBe('true');
+
+    fixture.componentInstance.late.set(undefined);
+    await fixture.whenStable();
+    expect(late.getAttribute('role')).toBe('status');
+    expect(late.hasAttribute('tabindex')).toBe(false);
+    expect(late.hasAttribute('aria-pressed')).toBe(false);
+  });
+});
