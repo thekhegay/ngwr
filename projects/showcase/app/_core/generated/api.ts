@@ -191,6 +191,11 @@ export const API = {
     { name: "label", description: "Accessible name for the toggle button. Falls back to `burger.label`, then `'Toggle menu'`.", type: "string | null", default: "null" },
     { name: "disabled", description: "Disable the toggle.", type: "boolean", default: "false" },
   ],
+  // <[wrBusy]>
+  WrBusy: [
+    { name: "wrBusy", description: "Whether the host is busy.", type: "boolean", default: "false" },
+    { name: "wrBusyLabel", description: "Accessible name of the spinner. Falls back to `spinner.label`, then `'Loading'`.", type: "string | null", default: "null" },
+  ],
   // <wr-btn, button[wr-btn], a[wr-btn]>
   WrButton: [
     { name: "color", description: "Color variant. Omit for the neutral default style.", type: "WrColor | null", default: "null" },

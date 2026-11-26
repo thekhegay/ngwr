@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1936 hook(s) across 116 page(s). A property is here only when the
+ * 1940 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -2020,6 +2020,10 @@ export const CSS_VARS = {
   "reference/components/spinner": {
     subpath: "ngwr/spinner",
     vars: [
+      { name: "--wr-busy-backdrop-filter", default: "var(--wr-overlay-backdrop-filter)", scope: ".wr-busy" },
+      { name: "--wr-busy-bg", default: "color-mix(in srgb, var(--wr-color-surface) 70%, transparent)", scope: ".wr-busy" },
+      { name: "--wr-busy-color", default: "var(--wr-color-on-surface)", scope: ".wr-busy" },
+      { name: "--wr-busy-z-index", default: "1", scope: ".wr-busy" },
       { name: "--wr-spinner-size", default: "1.25em", scope: ".wr-spinner", overrides: 2 },
     ],
   },

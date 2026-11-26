@@ -36,6 +36,30 @@
   }
 }
 
+.wr-busy {
+  --wr-busy-bg: color-mix(in srgb, var(--wr-color-surface) 70%, transparent);
+  --wr-busy-color: var(--wr-color-on-surface);
+  --wr-busy-backdrop-filter: var(--wr-overlay-backdrop-filter);
+  --wr-busy-z-index: 1;
+
+  &--relative {
+    position: relative;
+  }
+
+  &__veil {
+    position: absolute;
+    inset: 0;
+    z-index: var(--wr-busy-z-index);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: inherit;
+    background: var(--wr-busy-bg);
+    backdrop-filter: var(--wr-busy-backdrop-filter);
+    color: var(--wr-busy-color);
+  }
+}
+
 @keyframes wr-spinner-rotate {
   100% {
     transform: rotate(360deg);

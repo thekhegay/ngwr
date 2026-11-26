@@ -314,6 +314,7 @@ export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
   "reference/components/select": ["avatar","form"],
   "reference/components/sidebar": ["icon"],
   "reference/components/speed-dial": ["icon"],
+  "reference/components/spinner": ["input"],
   "reference/components/table": ["badge","copy-value","icon","input","input-number","popover","select"],
   "reference/components/tabs": ["input"],
   "reference/components/tree": ["input"],

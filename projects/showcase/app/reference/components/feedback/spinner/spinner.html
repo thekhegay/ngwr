@@ -3,6 +3,7 @@
   description="An inline loading indicator."
   [keywords]="['spinner', 'loading', 'wr-spinner']"
   [labels]="['Component']"
+  updated="16.10.0"
 >
   <ngwr-doc-section title="Basic usage">
     <ngwr-doc-snippet [code]="snippets.basic">
@@ -26,7 +27,28 @@
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 
-  <ngwr-doc-section title="API">
+  <ngwr-doc-section
+    title="Busy container"
+    description="`[wrBusy]` lays a veil with a spinner over its host. The host gets `aria-busy`, its content turns `inert`. `wrBusyLabel` names the spinner."
+  >
+    <ngwr-doc-snippet [code]="snippets.busy">
+      <form
+        style="display: flex; gap: 0.75rem; padding: 1rem; max-width: 24rem"
+        [wrBusy]="busy()"
+        wrBusyLabel="Saving"
+        (submit)="$event.preventDefault()"
+      >
+        <input wrInput placeholder="Name" aria-label="Name" />
+        <wr-btn (click)="save()">Save</wr-btn>
+      </form>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Spinner API">
     <ngwr-doc-api [rows]="api" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="Busy API">
+    <ngwr-doc-api [rows]="busyApi" />
   </ngwr-doc-section>
 </ngwr-doc-page>
