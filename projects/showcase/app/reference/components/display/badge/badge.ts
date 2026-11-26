@@ -48,9 +48,23 @@ export default class BadgeComponent {
 
   protected readonly unread = signal(5);
 
+  protected readonly filters = ['Open', 'Mine', 'Urgent'];
+  protected readonly active = signal<readonly string[]>(['Open']);
+
   protected readonly snippets = {
     removable: `@for (topic of topics(); track topic) {
   <wr-tag closable outlined (removed)="drop(topic)">{{ topic }}</wr-tag>
+}`,
+    checkable: `@for (filter of filters; track filter) {
+  <wr-tag
+    outlined
+    rounded
+    [icon]="active().includes(filter) ? 'checkmark' : null"
+    [selected]="active().includes(filter)"
+    (selectedChange)="toggle(filter, $event)"
+  >
+    {{ filter }}
+  </wr-tag>
 }`,
     basic: `<wr-badge>New</wr-badge>`,
     colors: `<wr-badge color="primary">Primary</wr-badge>
@@ -134,11 +148,22 @@ export class BuildStatus {}`,
       default: 'null',
     },
     {
+      name: '[(selected)]',
+      description:
+        'Toggle state. A boolean makes the tag a toggle button with `aria-pressed`. Unset is a plain tag. Since v16.10.',
+      type: 'boolean | undefined',
+      default: 'undefined',
+    },
+    {
       name: '(removed)',
       description: 'The user removed the tag: the button, or Delete / Backspace on it. Drop the tag yourself.',
       type: 'void',
     },
   ];
+
+  protected toggle(filter: string, on: boolean | undefined): void {
+    this.active.update(all => (on ? [...all, filter] : all.filter(f => f !== filter)));
+  }
 
   protected drop(topic: string): void {
     this.topics.update(all => all.filter(t => t !== topic));

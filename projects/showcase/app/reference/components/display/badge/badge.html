@@ -159,6 +159,27 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Checkable tag"
+    description="`[(selected)]` makes the tag a toggle button: `aria-pressed`, a `wr-tag--selected` look, and a click, Enter or Space flips it. Leave it unset for a plain tag. Since v16.10."
+  >
+    <ngwr-doc-snippet [code]="snippets.checkable">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+        @for (filter of filters; track filter) {
+          <wr-tag
+            outlined
+            rounded
+            [icon]="active().includes(filter) ? 'checkmark' : null"
+            [selected]="active().includes(filter)"
+            (selectedChange)="toggle(filter, $event)"
+          >
+            {{ filter }}
+          </wr-tag>
+        }
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Colour is not a label"
     description="Write the state in the label (`Failed`, not a red `Build`), and give a status tag an `icon` you register."
   >

@@ -199,7 +199,8 @@
   @include focus-ring;
 }
 
-// Tag remove
+// Tag remove, and the tag itself as a toggle
+.wr-tag[aria-pressed]:focus-visible,
 .wr-tag__remove:focus-visible {
   @include focus-ring;
 }
