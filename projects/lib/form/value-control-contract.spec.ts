@@ -14,6 +14,7 @@ import { WrFileUpload } from 'ngwr/file-upload';
 import { WrInputNumber } from 'ngwr/input-number';
 import { WrInputOtp } from 'ngwr/input-otp';
 import { WrKnob } from 'ngwr/knob';
+import { WrList, WrListItem } from 'ngwr/list';
 import { WrRadio, WrRadioGroup } from 'ngwr/radio';
 import { WrRating } from 'ngwr/rating';
 import { WrSegmented, type WrSegmentedOption } from 'ngwr/segmented';
@@ -56,6 +57,7 @@ interface Model {
   inputNumber: number | null;
   inputOtp: string;
   knob: number;
+  list: string | null;
   radioGroup: string | null;
   rating: number | null;
   segmented: string | null;
@@ -89,6 +91,8 @@ const DRAFT: WrEditorJson = {
     WrInputNumber,
     WrInputOtp,
     WrKnob,
+    WrList,
+    WrListItem,
     WrOption,
     WrRadio,
     WrRadioGroup,
@@ -160,6 +164,13 @@ const DRAFT: WrEditorJson = {
       </wr-radio-group>
     </wr-form-field>
 
+    <wr-form-field data-k="list" label="List">
+      <wr-list selection="single" [formField]="f.list">
+        <wr-list-item value="a">A</wr-list-item>
+        <wr-list-item value="b">B</wr-list-item>
+      </wr-list>
+    </wr-form-field>
+
     <wr-form-field data-k="rating" label="Rating">
       <wr-rating [formField]="f.rating" />
     </wr-form-field>
@@ -229,6 +240,7 @@ class Host {
     inputNumber: null,
     inputOtp: '',
     knob: 0,
+    list: null,
     radioGroup: null,
     rating: null,
     segmented: null,
@@ -269,6 +281,7 @@ class Host {
     readonly(path.inputNumber, locked);
     readonly(path.inputOtp, locked);
     readonly(path.knob, locked);
+    readonly(path.list, locked);
     readonly(path.radioGroup, locked);
     readonly(path.rating, locked);
     readonly(path.segmented, locked);
@@ -291,6 +304,7 @@ class Host {
     validate(path.inputNumber, fails);
     validate(path.inputOtp, fails);
     validate(path.knob, fails);
+    validate(path.list, fails);
     validate(path.radioGroup, fails);
     validate(path.rating, fails);
     validate(path.segmented, fails);
@@ -360,6 +374,7 @@ const PROBES: readonly Probe[] = [
   { key: 'input-number', aria: 'input.wr-input', isReadonly: nativeReadonly('input.wr-input') },
   { key: 'input-otp', aria: 'input.wr-input-otp__cell', isReadonly: nativeReadonly('input.wr-input-otp__cell') },
   { key: 'knob', aria: '.wr-knob__surface', isReadonly: ariaReadonly('.wr-knob__surface') },
+  { key: 'list', aria: 'ul.wr-list__items', isReadonly: ariaReadonly('ul.wr-list__items') },
   { key: 'radio-group', aria: 'wr-radio-group', isReadonly: ariaReadonly('wr-radio-group') },
   { key: 'rating', aria: '.wr-rating__row', isReadonly: ariaReadonly('.wr-rating__row') },
   {
@@ -407,7 +422,7 @@ describe('every value control, as a form control', () => {
   it('renders one field per control, and the table covers all of them', () => {
     // A probe table that quietly stopped growing looks exactly like one that
     // covers the catalog, so the count is asserted rather than assumed.
-    expect(PROBES).toHaveLength(21);
+    expect(PROBES).toHaveLength(22);
     for (const probe of PROBES) expect(field(probe.key), probe.key).toBeTruthy();
   });
 

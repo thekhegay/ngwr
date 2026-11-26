@@ -1121,11 +1121,17 @@ export const API = {
     { name: "dividers", description: "Draw a thin divider between items.", type: "boolean", default: "false" },
     { name: "dense", description: "Use compact padding on every item.", type: "boolean", default: "false" },
     { name: "ariaLabel", description: "Optional accessible label for the list.", type: "string", default: "''" },
+    { name: "selection", description: "Make the list a listbox the user picks rows from. `null` keeps the plain `role=\"list\"`. Set, each row is an option carrying its own `value`: Up, Down, Home and End move the focus, typing jumps to a row by its text, and Space, Enter or a click selects. `'single'` keeps one row, `'multiple'` toggles each. A row is one option, so it holds no control of its own in this mode.", type: "WrListSelection | null", default: "null" },
+    { name: "value", description: "The selection: the picked row's `value` or `null` under `selection=\"single\"`, an array of them under `'multiple'`. Bound by `[formField]`, or two-way via `[(value)]`. Unused while `selection` is `null`.", type: "unknown", default: "null" },
+    { name: "(touch)", description: "Emitted when focus leaves a selectable list, so a bound field can mark itself touched.", type: "void" },
+    { name: "disabled", description: "Disable a selectable list: no row takes focus or a click. Bound automatically from the field's disabled state when used with `[formField]`.", type: "boolean", default: "false" },
+    { name: "readonly", description: "Refuse changes to a selectable list while its rows stay focusable and the value still submits. Mirrored as `aria-readonly` on the listbox. Bound automatically from the field's readonly state when used with `[formField]`.", type: "boolean", default: "false" },
   ],
   // <wr-list-item>
   WrListItem: [
     { name: "interactive", description: "Adds hover / cursor styles + keyboard activation.", type: "boolean", default: "false" },
     { name: "disabled", description: "Visual disabled state. Suppresses hover + keyboard activation.", type: "boolean", default: "false" },
+    { name: "value", description: "What the row stands for in a `<wr-list selection>`: the list's `value` is this, or an array of these. Unused in a plain list.", type: "unknown", default: "undefined" },
   ],
   // <wr-loading-bar>
   WrLoadingBarComponent: [

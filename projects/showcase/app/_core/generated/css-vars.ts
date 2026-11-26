@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1957 hook(s) across 116 page(s). A property is here only when the
+ * 1960 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1640,6 +1640,9 @@ export const CSS_VARS = {
       { name: "--wr-list-item-padding-x", default: "var(--wr-space-lg)", scope: ".wr-list" },
       { name: "--wr-list-item-padding-y", default: "var(--wr-space-md)", scope: ".wr-list", overrides: 1 },
       { name: "--wr-list-radius", default: "var(--wr-border-radius-base)", scope: ".wr-list" },
+      { name: "--wr-list-selected-bg", default: "var(--wr-color-primary-soft)", scope: ".wr-list" },
+      { name: "--wr-list-selected-color", default: "var(--wr-color-primary-ink)", scope: ".wr-list" },
+      { name: "--wr-list-selected-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-list" },
     ],
   },
   "reference/components/load-state": {

@@ -1,0 +1,19 @@
+<!--
+  The label goes on the `<ul>`, not on the host. `<wr-list>` is a role-less
+  generic element, and ARIA 1.2 prohibits `aria-label` on one. The field
+  attributes are the listbox's: role `list` supports none of them.
+-->
+<ul
+  class="wr-list__items"
+  [attr.role]="selection() ? 'listbox' : 'list'"
+  [attr.aria-label]="ariaLabel() || null"
+  [attr.aria-labelledby]="selection() && !ariaLabel() ? labelledBy() : null"
+  [attr.aria-multiselectable]="selection() === 'multiple' ? 'true' : null"
+  [attr.aria-disabled]="selection() && disabled() ? 'true' : null"
+  [attr.aria-readonly]="selection() && readonly() ? 'true' : null"
+  [attr.aria-required]="selection() ? ariaRequired() : null"
+  [attr.aria-invalid]="selection() ? ariaInvalid() : null"
+  [attr.aria-describedby]="selection() ? describedBy() : null"
+>
+  <ng-content />
+</ul>

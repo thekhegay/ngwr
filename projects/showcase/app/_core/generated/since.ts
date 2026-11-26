@@ -165,6 +165,7 @@ export const UPDATED = {
   "reference/components/keyboard": "15.5.0",
   "reference/components/layout": "16.6.0",
   "reference/components/lightbox": "16.5.0",
+  "reference/components/list": "16.10.0",
   "reference/components/mention": "15.6.0",
   "reference/components/page-header": "16.6.0",
   "reference/components/pagination": "16.10.0",

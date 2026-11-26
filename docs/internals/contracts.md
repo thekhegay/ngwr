@@ -13,7 +13,9 @@ because it is guidance rather than a plan.
 - `wr-list`'s interactive row keeps `role="listitem"`: inside a
   `<ul role="list">` a `button` or `option` child role breaks the structure
   the container promises. Project a real button into `[wrListItemTrailing]`
-  when the action itself must be announced.
+  when the action itself must be announced. `selection` on `wr-list` keeps
+  that rule by switching the whole container: a `role="listbox"` of
+  `role="option"` rows, never an option inside a `list`.
 - `wr-stepper`'s `linear` REFUSES rather than greys — the disabled header is
   the hint, `onHeaderClick` is the rule. (A real `.click()` on a
   `<button disabled>` is swallowed by the DOM, so dispatch the event
