@@ -352,7 +352,7 @@ export const INSTALL = {
       { path: "ngwr/segmented", symbols: ["WrSegmented"], declarables: ["WrSegmented"], styled: true },
   ],
   "reference/components/select": [
-      { path: "ngwr/select", symbols: ["WrOption", "WrOptionGroup", "WrOptionLeading", "WrSelect", "WrSelectLoadError"], declarables: ["WrOption", "WrOptionGroup", "WrOptionLeading", "WrSelect", "WrSelectLoadError"], styled: true },
+      { path: "ngwr/select", symbols: ["WrOption", "WrOptionGroup", "WrOptionLeading", "WrSelect", "WrSelectFooter", "WrSelectHeader", "WrSelectLoadError"], declarables: ["WrOption", "WrOptionGroup", "WrOptionLeading", "WrSelect", "WrSelectFooter", "WrSelectHeader", "WrSelectLoadError"], styled: true },
   ],
   "reference/components/sidebar": [
       { path: "ngwr/sidebar", symbols: ["WrSidebar"], declarables: ["WrSidebar"], styled: true },

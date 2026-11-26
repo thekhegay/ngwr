@@ -64,6 +64,7 @@ import {
   wrIsComposing,
   wrToClassList,
   wrCheckStyles,
+  wrGetFocusableElements,
   wrTypeahead,
   type WrClassInput,
   type WrTypeaheadItem,
@@ -72,6 +73,7 @@ import {
 import { WrSelectLoadError } from './load-error';
 import { WrOption } from './option';
 import { WrOptionLeading } from './option-leading';
+import { WrSelectFooter, WrSelectHeader } from './panel-slots';
 import { WR_SELECT } from './tokens';
 import type {
   WrOptionLeadingContext,
@@ -1360,6 +1362,12 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
   /** A `<ng-template wrSelectLoadError>` declared as a direct child, or `undefined`. */
   protected readonly loadErrorTpl = contentChild(WrSelectLoadError, { descendants: false });
 
+  /** A `wrSelectHeader` declared as a direct child, or `undefined`. */
+  protected readonly headerSlot = contentChild(WrSelectHeader, { descendants: false });
+
+  /** A `wrSelectFooter` declared as a direct child, or `undefined`. */
+  protected readonly footerSlot = contentChild(WrSelectFooter, { descendants: false });
+
   /** What `wrSelectLoadError` is handed. */
   protected readonly loadErrorContext = computed(() => ({
     $implicit: this.loadErrorValue(),
@@ -1628,6 +1636,35 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
     target.addEventListener('pointerup', () => this.endPanelPress(), options);
     // A touch that becomes a scroll ends with `pointercancel` and never lifts.
     target.addEventListener('pointercancel', () => this.endPanelPress(), options);
+  }
+
+  /** The frame around the panel, there only while a header or footer is drawn. */
+  private frameEl(): HTMLElement | null {
+    return this.overlayRef?.overlayElement.querySelector<HTMLElement>('.wr-select-frame') ?? null;
+  }
+
+  /** The controls of the header and the footer, in Tab order. */
+  private slotTabStops(): readonly HTMLElement[] {
+    const frame = this.frameEl();
+    if (!frame) return [];
+    return Array.from(
+      frame.querySelectorAll<HTMLElement>(':scope > .wr-select-frame__header, :scope > .wr-select-frame__footer')
+    ).flatMap(slot => wrGetFocusableElements(slot));
+  }
+
+  /**
+   * Tab inside a slot. The pane is the last thing in the document, so a Tab left
+   * alone at either end walks out of the page: Shift+Tab off the first control
+   * goes back to the trigger, and Tab off the last closes the panel and lands
+   * there too, where the next Tab goes on through the page.
+   */
+  protected onFrameKey(event: KeyboardEvent): void {
+    if (event.key !== 'Tab') return;
+    const stops = this.slotTabStops();
+    if (event.target !== (event.shiftKey ? stops[0] : stops.at(-1))) return;
+    event.preventDefault();
+    if (!event.shiftKey) this.openState.set(false);
+    this.focus();
   }
 
   private endPanelPress(): void {
@@ -2259,6 +2296,18 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
         // Closing does NOT commit the active option. The cursor is SEEDED on open, so
         // tabbing straight through would select a row the user never looked at — and
         // in multi / search / freeText modes there is no single "the option" to take.
+        //
+        // A header or footer control is the one place Tab goes instead, or it would
+        // be a pointer-only function. Not under `freeText`, where leaving the field
+        // commits the query and closes.
+        if (!event.shiftKey && !this.freeText()) {
+          const stop = this.slotTabStops()[0];
+          if (stop) {
+            event.preventDefault();
+            stop.focus();
+            break;
+          }
+        }
         this.openState.set(false);
         break;
       case 'ArrowDown':
@@ -2534,8 +2583,13 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
   /** `notify: false` is the destroy path: an output cannot emit from a destroyed view. */
   private closeOverlay(notify = true): void {
     if (!this.overlayRef) return;
+    // A slot control that holds focus goes with the pane, and focus with it.
+    const focusInSlot = this.frameEl()?.contains(this.host.nativeElement.ownerDocument.activeElement) ?? false;
     this.overlayRef.dispose();
     this.overlayRef = null;
-    if (notify) this.closed.emit();
+    if (notify) {
+      if (focusInSlot) this.focus();
+      this.closed.emit();
+    }
   }
 }

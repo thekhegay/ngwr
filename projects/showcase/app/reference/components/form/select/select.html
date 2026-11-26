@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Select"
-  updated="16.7.0"
+  updated="16.10.0"
   description="Pick one or several values from a list, with search and free-text tags."
   [keywords]="['select', 'wr-select', 'wr-option', 'overlay']"
   [labels]="['Component', 'CDK Overlay']"
@@ -528,6 +528,34 @@
     description="`open()` and `close()` work through a template reference. `(opened)` and `(closed)` fire for every open and close. `open()` does nothing while disabled or read-only. `isOpen()` reads the state, for an `aria-expanded` on your own trigger."
   >
     <ngwr-doc-code [code]="snippets.openFromCode" language="angular-html" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Header and footer"
+    description="`wrSelectHeader` and `wrSelectFooter` mark content drawn above and below the options, outside their scroll. A click there keeps the panel open: close it with `close()`."
+  >
+    <ngwr-doc-snippet [code]="snippets.slots">
+      <wr-select #team placeholder="Pick an owner" [(value)]="owner">
+        <div wrSelectHeader>People in this project</div>
+        @for (name of owners(); track name) {
+          <wr-option [value]="name">{{ name }}</wr-option>
+        }
+        <div wrSelectFooter>
+          <button wr-btn size="sm" type="button" (click)="addOwner(); team.close()">Add a guest</button>
+        </div>
+      </wr-select>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>Both sit beside the listbox, so they can hold real buttons and inputs.</li>
+      <li>
+        Tab from the open trigger moves to their first control. Shift+Tab from it goes back. Tab past the last one
+        closes the panel and returns to the trigger.
+      </li>
+      <li>
+        The box around them is <code>.wr-select-frame</code>, with <code>--wr-select-frame-*</code> hooks. Without a
+        header or footer it is not rendered.
+      </li>
+    </ul>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="Accessibility">

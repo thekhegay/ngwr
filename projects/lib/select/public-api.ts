@@ -3,6 +3,7 @@ export { WrOption } from './option';
 export { WrOptionGroup } from './option-group';
 export { WrOptionLeading } from './option-leading';
 export { WrSelectLoadError } from './load-error';
+export { WrSelectFooter, WrSelectHeader } from './panel-slots';
 export { WR_SELECT } from './tokens';
 export type {
   WrOptionLeadingContext,

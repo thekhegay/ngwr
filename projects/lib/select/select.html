@@ -395,7 +395,27 @@
   <span class="wr-select__status" role="status" aria-live="polite">{{ announcement() }}</span>
 </ng-template>
 
+<!-- The slots sit beside the listbox, never in it: a listbox owns only options
+     and groups, and a slot may hold a real button. Without one the panel is the
+     pane's only child, as it always was. -->
 <ng-template #panelTpl>
+  @if (headerSlot() || footerSlot()) {
+    <!-- eslint-disable-next-line @angular-eslint/template/interactive-supports-focus -->
+    <div class="wr-select-frame" (pointerdown)="onPanelPointerDown($event)" (keydown)="onFrameKey($event)">
+      @if (headerSlot()) {
+        <div class="wr-select-frame__header"><ng-content select="[wrSelectHeader]" /></div>
+      }
+      <ng-container [ngTemplateOutlet]="listTpl" />
+      @if (footerSlot()) {
+        <div class="wr-select-frame__footer"><ng-content select="[wrSelectFooter]" /></div>
+      }
+    </div>
+  } @else {
+    <ng-container [ngTemplateOutlet]="listTpl" />
+  }
+</ng-template>
+
+<ng-template #listTpl>
   <div
     class="wr-select-panel"
     (pointerdown)="onPanelPointerDown($event)"
