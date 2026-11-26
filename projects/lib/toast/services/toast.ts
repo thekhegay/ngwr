@@ -8,7 +8,7 @@
 import { Directionality } from '@angular/cdk/bidi';
 import { type OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { type ComponentRef, Injector, Service, inject } from '@angular/core';
+import { type ComponentRef, ErrorHandler, Injector, Service, inject } from '@angular/core';
 
 import { WR_OVERLAY, WrOverlayOrder, wrFollowDirection } from 'ngwr/overlay';
 
@@ -54,6 +54,7 @@ export class WrToast {
   private readonly config = inject(WR_TOAST_CONFIG);
   private readonly injector = inject(Injector);
   private readonly dir = inject(Directionality, { optional: true });
+  private readonly errorHandler = inject(ErrorHandler);
 
   private overlayRef: OverlayRef | null = null;
   private hostRef: ComponentRef<WrToastHost> | null = null;
@@ -149,7 +150,8 @@ export class WrToast {
    * A `loading` toast that becomes `success` when the promise resolves and
    * `danger` when it rejects, in place. Returns the promise it was given, so
    * the caller still awaits the value and handles the rejection. A toast
-   * dismissed while pending shows no outcome.
+   * dismissed while pending shows no outcome. A `success` or `error` function
+   * that throws dismisses the toast, and the error goes to `ErrorHandler`.
    */
   promise<T>(
     promise: Promise<T>,
@@ -158,10 +160,16 @@ export class WrToast {
   ): Promise<T> {
     const ref = this.loading(messages.loading, options);
     const { success, error } = messages;
-    promise.then(
-      value => ref.update({ type: 'success', message: typeof success === 'function' ? success(value) : success }),
-      (reason: unknown) => ref.update({ type: 'danger', message: typeof error === 'function' ? error(reason) : error })
-    );
+    promise
+      .then(
+        value => ref.update({ type: 'success', message: typeof success === 'function' ? success(value) : success }),
+        (reason: unknown) =>
+          ref.update({ type: 'danger', message: typeof error === 'function' ? error(reason) : error })
+      )
+      .catch((thrown: unknown) => {
+        ref.dismiss();
+        this.errorHandler.handleError(thrown);
+      });
     return promise;
   }
 

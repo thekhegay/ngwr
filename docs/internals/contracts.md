@@ -86,6 +86,10 @@ because it is guidance rather than a plan.
   drawer without a backdrop and the tour card make nothing inert: the page
   beside them is the point. Neither does `wr-command-palette`, which renders
   inside the page (`strategy(false)`): an inert page would take it along.
+  Opened over a modal, it moves its root into the overlay container for as
+  long as it is open, because the top layer does not lift inherited inertness.
+  A child appended to `<body>` while a modal is open goes inert too, under the
+  same exclusions.
 - Components do not move focus on open unless asked; keyboard navigation
   inside composites does (since 16.5). An overlay that is a dialog (a
   popconfirm, a tour card, the lightbox viewer, a window) focuses its PANEL,
@@ -267,7 +271,8 @@ because it is guidance rather than a plan.
   the countdown again, a message-only one included, so the new text gets its
   full time. `WrToast.promise()` returns the promise it was given, not a chain,
   and a toast dismissed while pending shows no outcome: an update to a toast
-  that is gone is a no-op, never a new toast.
+  that is gone is a no-op, never a new toast. A `success` or `error` function
+  that throws dismisses the loading toast and the error goes to `ErrorHandler`.
 - `wr-graph` prerenders EMPTY, pending, with an asynchronous `WrGraphLayout`:
   the server never waits for the Promise (no `PendingTasks`), because a layout
   in a worker cannot run there and one that never settles would hang the

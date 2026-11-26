@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ErrorHandler } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { provideWr } from 'ngwr';
@@ -326,6 +326,26 @@ describe('WrToast update, loading and promise', () => {
       tick();
 
       expect(items()).toHaveLength(0);
+    });
+
+    it('dismisses the loading toast when a message function throws, and reports it', async () => {
+      const handled = vi.spyOn(TestBed.inject(ErrorHandler), 'handleError').mockImplementation(() => undefined);
+      const broken = new Error('formatter');
+      const throws = (): string => {
+        throw broken;
+      };
+      const failed = Promise.reject<number>(new Error('offline'));
+
+      const resolved = toast.promise(Promise.resolve(3), { loading: 'Saving', success: throws, error: 'Not saved' });
+      const rejected = toast.promise(failed, { loading: 'Sending', success: 'Sent', error: throws });
+      tick();
+      expect(messages()).toEqual(['Saving', 'Sending']);
+      await settle();
+
+      expect(items()).toHaveLength(0);
+      expect(handled.mock.calls).toEqual([[broken], [broken]]);
+      await expect(resolved).resolves.toBe(3);
+      await expect(rejected).rejects.toThrow('offline');
     });
 
     it('shows no outcome for a toast dismissed while pending', async () => {

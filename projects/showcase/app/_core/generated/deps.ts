@@ -110,7 +110,7 @@ export const DEPS: Readonly<Record<string, DocDeps>> = {
   "slider": {"uses":["form"],"usedBy":["schema-form"],"peers":[],"addons":[]},
   "sortable-list": {"uses":[],"usedBy":[],"peers":[{"pkg":"@angular/cdk","parts":["drag-drop"],"optional":false}],"addons":[]},
   "speed-dial": {"uses":["icon"],"usedBy":[],"peers":[],"addons":[]},
-  "spinner": {"uses":[],"usedBy":["avatar","badge","button","input","pull-to-refresh","select","table","textarea","toast","tree"],"peers":[],"addons":[]},
+  "spinner": {"uses":[],"usedBy":["avatar","badge","button","input","pull-to-refresh","select","table","textarea","toast","tree"],"peers":[{"pkg":"@angular/cdk","parts":["a11y"],"optional":false}],"addons":[]},
   "statistic": {"uses":["counter","pipes"],"usedBy":[],"peers":[],"addons":[]},
   "storage": {"uses":[],"usedBy":["density","i18n","resizable","theme","window"],"peers":[],"addons":[]},
   "switch": {"uses":["form"],"usedBy":["schema-form"],"peers":[],"addons":[]},

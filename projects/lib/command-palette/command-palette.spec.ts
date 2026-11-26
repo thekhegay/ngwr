@@ -2,6 +2,7 @@ import { ConfigurableFocusTrapFactory } from '@angular/cdk/a11y';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { WrDrawer } from 'ngwr/drawer';
 import { provideWrI18n, provideWrI18nStaticLoader } from 'ngwr/i18n';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -749,5 +750,82 @@ describe('WrCommandPalette backed by a server', () => {
     type('set');
 
     expect(body.scrollTop).toBe(0);
+  });
+});
+
+/**
+ * A modal drawer makes the page inert, the palette's host included, and the top
+ * layer does not lift that: the palette would show and take no key or click.
+ */
+describe('WrCommandPalette over a modal drawer', () => {
+  @Component({
+    imports: [WrCommandPalette, WrDrawer],
+    template: `
+      <wr-drawer [(open)]="drawer">Drawer</wr-drawer>
+      @if (mounted()) {
+        <wr-command-palette [items]="items" [(open)]="palette" [trigger]="null" />
+      }
+    `,
+  })
+  class StackHost {
+    readonly items = ITEMS;
+    readonly drawer = signal(false);
+    readonly palette = signal(false);
+    readonly mounted = signal(true);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<StackHost>>;
+
+  const palette = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-command-palette');
+  const set = async (key: 'drawer' | 'palette' | 'mounted', value: boolean): Promise<void> => {
+    fixture.componentInstance[key].set(value);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await new Promise<void>(resolve => queueMicrotask(resolve));
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(StackHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('steps out of the inert page, which stays inert, and leaves with the close', async () => {
+    const page = fixture.nativeElement as HTMLElement;
+    await set('drawer', true);
+    expect(page.closest('[inert]')).not.toBeNull();
+
+    await set('palette', true);
+
+    expect(palette()!.closest('[inert]')).toBeNull();
+    expect(palette()!.closest('.cdk-overlay-container')).not.toBeNull();
+    expect(page.closest('[inert]')).not.toBeNull();
+    expect(palette()!.contains(document.activeElement)).toBe(true);
+
+    palette()!
+      .querySelector('input')!
+      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.palette()).toBe(false);
+    expect(palette()).toBeNull();
+  });
+
+  it('stays in the page when nothing made it inert', async () => {
+    await set('palette', true);
+
+    expect((fixture.nativeElement as HTMLElement).contains(palette())).toBe(true);
+  });
+
+  it('leaves nothing in the overlay container when destroyed open over the drawer', async () => {
+    await set('drawer', true);
+    await set('palette', true);
+
+    await set('mounted', false);
+
+    expect(palette()).toBeNull();
   });
 });

@@ -225,6 +225,8 @@ export class WrCommandPalette {
    */
   private scrollBlock: ScrollStrategy | null = null;
   private previouslyFocused: HTMLElement | null = null;
+  /** The root while it sits in the overlay container, where Angular's removal of the host does not reach it. */
+  private moved: HTMLElement | null = null;
 
   /**
    * The open branch below builds the trap inside a `queueMicrotask`, so a
@@ -324,7 +326,7 @@ export class WrCommandPalette {
         // The strategy's `cdk-global-scrollblock` class is styled by the CDK's
         // structural sheet, which the overlay container loads — and an app may
         // open this before it has ever opened an overlay.
-        this.overlayContainer.getContainerElement();
+        const container = this.overlayContainer.getContainerElement();
         // Rendered in the page, not in the overlay container: an inert page
         // would take the palette with it.
         this.scrollBlock ??= this.scrollBlockService.strategy(false);
@@ -337,6 +339,12 @@ export class WrCommandPalette {
           // Set here and not in the template: a `popover` attribute hides the
           // element until it is shown, which a browser without the API never does.
           const root = this.rootEl()?.nativeElement;
+          // Opened over a modal, the page around the palette is inert, and the
+          // top layer does not lift that. The overlay container is not.
+          if (root && this.scrollBlockService.isolates(root)) {
+            container.appendChild(root);
+            this.moved = root;
+          }
           if (typeof root?.showPopover === 'function') {
             root.setAttribute('popover', 'manual');
             root.showPopover();
@@ -347,6 +355,7 @@ export class WrCommandPalette {
         });
       } else {
         this.scrollBlock?.disable();
+        this.dropMoved();
         this.focusTrap?.destroy();
         this.focusTrap = null;
         const restore = this.previouslyFocused;
@@ -381,6 +390,7 @@ export class WrCommandPalette {
       this.focusTrap = null;
       // Same reason: the close branch never runs for a palette destroyed open.
       this.scrollBlock?.disable();
+      this.dropMoved();
     });
   }
 
@@ -496,6 +506,11 @@ export class WrCommandPalette {
     // Ids are position-based and stable, so the element is findable straight away —
     // no need to wait for change detection to re-mark the active row.
     this.panelEl()?.nativeElement.querySelector<HTMLElement>(`#${id}`)?.scrollIntoView({ block: 'nearest' });
+  }
+
+  private dropMoved(): void {
+    this.moved?.remove();
+    this.moved = null;
   }
 
   private commit(item: WrCommandItem): void {
