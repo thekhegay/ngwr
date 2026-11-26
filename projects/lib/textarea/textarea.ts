@@ -58,7 +58,12 @@ export type WrTextareaResize = 'none' | 'vertical' | 'horizontal' | 'both';
   selector: 'wr-textarea',
   templateUrl: './textarea.html',
   encapsulation: ViewEncapsulation.None,
-  host: { class: 'wr-textarea', '[class]': 'classes()' },
+  host: {
+    class: 'wr-textarea',
+    '[class]': 'classes()',
+    '[style.--_rows]': 'growRows()',
+    '[style.--_max-rows]': 'growMaxRows()',
+  },
   imports: [WrSpinner],
 })
 export class WrTextarea implements FormValueControl<string> {
@@ -192,12 +197,38 @@ export class WrTextarea implements FormValueControl<string> {
    */
   protected readonly controlId = computed(() => this.field?.controlId() ?? null);
 
+  /**
+   * `field-sizing: content` grows the field in layout, so nothing has to measure
+   * it. Firefox has none, so the measuring path stays for it.
+   */
+  private readonly growsInLayout =
+    isPlatformBrowser(inject(PLATFORM_ID)) &&
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('field-sizing', 'content');
+
+  /** Autosize left to layout: the stylesheet turns the two counts below into the bounds. */
+  protected readonly grows = computed(() => this.growsInLayout && this.autosize());
+
+  /** The floor in rows. A `rows` that is not a positive integer renders as the default, 2. */
+  protected readonly growRows = computed(() => {
+    if (!this.grows()) return null;
+    const rows = Math.floor(this.rows());
+    return rows > 0 ? rows : 2;
+  });
+
+  protected readonly growMaxRows = computed(() => {
+    const maxRows = this.maxRows();
+    return this.grows() && maxRows && maxRows > 0 ? maxRows : null;
+  });
+
   protected readonly classes = computed(() => {
     const parts: string[] = [];
     const size = this.size();
     if (size !== 'md') parts.push(`wr-textarea--${size}`);
     if (this.rounded()) parts.push('wr-textarea--rounded');
     if (this.autosize()) parts.push('wr-textarea--no-resize');
+    if (this.grows()) parts.push('wr-textarea--grow');
     const resize = this.effectiveResize();
     if (resize === 'horizontal' || resize === 'both') parts.push('wr-textarea--resize-x');
     if (this.focused()) parts.push('wr-textarea--focused');
@@ -250,6 +281,14 @@ export class WrTextarea implements FormValueControl<string> {
     effect(onCleanup => {
       if (!this.isBrowser || !this.autosize()) return;
       const el = this.native().nativeElement;
+      if (this.growsInLayout) {
+        // `line-height: normal` has no number, and `autofit` caps at 1.2 of the font
+        // size there, where `1lh` is the real line.
+        this.size();
+        if (!parseFloat(getComputedStyle(el).lineHeight)) el.style.setProperty('--_cap-row', '1.2em');
+        onCleanup(() => el.style.removeProperty('--_cap-row'));
+        return;
+      }
       // Width only: the height written by the fit must not call it back. It
       // also fires when a hidden field is shown, which a fit skipped until then.
       let width = -1;
@@ -274,7 +313,7 @@ export class WrTextarea implements FormValueControl<string> {
       });
     });
     effect(() => {
-      if (!this.isBrowser || !this.autosize()) return;
+      if (!this.isBrowser || !this.autosize() || this.growsInLayout) return;
       this.value();
       this.rows();
       this.maxRows();

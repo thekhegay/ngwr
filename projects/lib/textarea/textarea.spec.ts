@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { type Direction, Directionality } from '@angular/cdk/bidi';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -43,6 +46,14 @@ class Host {
   readonly disabled = signal(false);
   touched = 0;
 }
+
+/**
+ * jsdom answers yes to `field-sizing: content`, so every block below runs the
+ * measuring path by saying no; the block that says yes is at the end of the
+ * autosize specs.
+ */
+beforeEach(() => vi.spyOn(CSS, 'supports').mockReturnValue(false));
+afterEach(() => vi.restoreAllMocks());
 
 /** jsdom lays nothing out, so the box autosize measures is described by hand. */
 const layOut = (el: HTMLElement, box: { width: number; scroll: number }): void => {
@@ -440,6 +451,143 @@ describe('WrTextarea autosize keeps up with its box', () => {
 
     expect(observers).toHaveLength(0);
     expect(frames.size).toBe(0);
+  });
+});
+
+/**
+ * The other way to grow: where the browser has `field-sizing: content`, layout
+ * follows the text. The component says so with `wr-textarea--grow` and hands the
+ * stylesheet two row counts; the bounds are the stylesheet's maths.
+ *
+ * jsdom has no layout and loads no stylesheet, so what is proven is the
+ * handover: the class, the counts, and that nothing measures or observes. That
+ * the heights equal the script's is a claim about a real engine, and no spec
+ * here can make it.
+ */
+describe('WrTextarea autosize where the browser grows the field', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
+  let observed: number;
+  let measured: number;
+
+  const host = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-textarea')!;
+  const native = (): HTMLTextAreaElement => host().querySelector<HTMLTextAreaElement>('.wr-textarea__native')!;
+  const count = (name: string): string => host().style.getPropertyValue(name);
+
+  const mount = (): void => {
+    fixture = TestBed.createComponent(Host);
+    fixture.detectChanges();
+    const el = native();
+    el.style.lineHeight = '20px';
+    Object.defineProperty(el, 'clientWidth', { configurable: true, get: () => 200 });
+    Object.defineProperty(el, 'scrollHeight', { configurable: true, get: () => (measured++, 60) });
+  };
+
+  const autosize = async (on: boolean): Promise<void> => {
+    fixture.componentInstance.autosize.set(on);
+    await fixture.whenStable();
+  };
+
+  beforeEach(() => {
+    observed = 0;
+    measured = 0;
+
+    vi.spyOn(CSS, 'supports').mockImplementation(
+      (property: string, value?: string) => `${property}:${value}` === 'field-sizing:content'
+    );
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe(): void {
+          observed++;
+        }
+        disconnect(): void {
+          observed--;
+        }
+      }
+    );
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.unstubAllGlobals();
+  });
+
+  it('hands the growing to layout, with rows as the floor', async () => {
+    mount();
+    expect(host().classList.contains('wr-textarea--grow')).toBe(false);
+
+    await autosize(true);
+
+    expect(host().classList.contains('wr-textarea--grow')).toBe(true);
+    expect(count('--_rows')).toBe('3');
+    expect(count('--_max-rows')).toBe('');
+    expect(native().style.height).toBe('');
+  });
+
+  it('measures nothing and observes nothing, typing included', async () => {
+    mount();
+    await autosize(true);
+    fixture.componentInstance.notes.set('one\ntwo\nthree\nfour');
+    await fixture.whenStable();
+
+    expect(measured).toBe(0);
+    expect(observed).toBe(0);
+    expect(native().style.height).toBe('');
+  });
+
+  it('passes maxRows on as the ceiling, and takes it back', async () => {
+    mount();
+    fixture.componentInstance.maxRows.set(6);
+    await autosize(true);
+    expect(count('--_max-rows')).toBe('6');
+
+    fixture.componentInstance.maxRows.set(null);
+    await fixture.whenStable();
+    expect(count('--_max-rows')).toBe('');
+  });
+
+  it('floors at the two rows a browser renders for a rows it cannot use', async () => {
+    mount();
+    fixture.componentInstance.rows.set(0);
+    await autosize(true);
+
+    expect(count('--_rows')).toBe('2');
+  });
+
+  it('keeps the cap autofit uses where line-height has no number', async () => {
+    mount();
+    native().style.lineHeight = 'normal';
+    await autosize(true);
+
+    expect(native().style.getPropertyValue('--_cap-row')).toBe('1.2em');
+  });
+
+  it('gives everything back when autosize is switched off', async () => {
+    mount();
+    native().style.lineHeight = 'normal';
+    fixture.componentInstance.maxRows.set(6);
+    await autosize(true);
+
+    await autosize(false);
+
+    expect(host().classList.contains('wr-textarea--grow')).toBe(false);
+    expect(count('--_rows')).toBe('');
+    expect(count('--_max-rows')).toBe('');
+    expect(native().style.getPropertyValue('--_cap-row')).toBe('');
+  });
+
+  it('has a rule behind the class that turns the counts into the bounds', () => {
+    const sheet = readFileSync(join(process.cwd(), 'projects/lib/textarea/styles/_index.scss'), 'utf8');
+    const rule = /&--grow &__native \{([^}]*)\}/.exec(sheet)?.[1] ?? '';
+
+    expect(rule).toContain('field-sizing: content');
+    expect(rule).toContain('var(--_rows)');
+    expect(rule).toContain('var(--_max-rows)');
+    expect(rule).toMatch(/min-height:/);
+    expect(rule).toMatch(/max-height:/);
   });
 });
 
