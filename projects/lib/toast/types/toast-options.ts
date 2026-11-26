@@ -22,7 +22,10 @@ export interface WrToastOptions {
   readonly title?: string;
   /** Body message. */
   readonly message: string;
-  /** Auto-dismiss after N ms. `0` disables auto-dismiss. Default from global config. */
+  /**
+   * Auto-dismiss after N ms. `0` disables auto-dismiss. Default from global config.
+   * A `loading` toast ignores it until it is updated to another type.
+   */
   readonly duration?: number;
   /**
    * A text button beside the message, such as "Undo". Pressing it closes the
@@ -58,4 +61,20 @@ export interface WrToastOptions {
    * on the `<wr-toast>` element, which belongs to this call alone.
    */
   readonly class?: WrClassInput;
+}
+
+/**
+ * What {@link WrToastRef.update} can change on a live toast: everything but the
+ * stack it sits in.
+ */
+export type WrToastUpdate = Partial<Omit<WrToastOptions, 'outlet' | 'position'>>;
+
+/** The three messages of {@link WrToast.promise}. */
+export interface WrToastPromiseMessages<T> {
+  /** Shown while the promise is pending. */
+  readonly loading: string;
+  /** Shown when it resolves: a string, or a function of the value. */
+  readonly success: string | ((value: T) => string);
+  /** Shown when it rejects: a string, or a function of the error. */
+  readonly error: string | ((error: unknown) => string);
 }

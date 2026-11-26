@@ -11,7 +11,7 @@ import type { WrToastType } from 'ngwr/toast';
 
 import type { WrToastHarnessFilters } from './types';
 
-const TYPES: readonly WrToastType[] = ['info', 'success', 'warning', 'danger'];
+const TYPES: readonly WrToastType[] = ['info', 'success', 'warning', 'danger', 'loading'];
 
 /**
  * Test harness for a toast shown with `WrToast.show()`.

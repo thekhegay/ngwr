@@ -1,4 +1,5 @@
 @use '../../theme/styles' as theme;
+@use '../../spinner/styles' as spinner-styles; // WrSpinner
 @include theme.loaded('toast');
 
 // `info` mapped to `primary` before the `info` intent existed; alert has used
@@ -239,6 +240,12 @@ $toast-colors: (
     height: 1.125rem;
     margin-block-start: calc((var(--wr-toast-title-line-height) - 1.125rem) / 2);
     color: var(--wr-toast-accent);
+
+    .wr-spinner {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
   }
 
   &__body {

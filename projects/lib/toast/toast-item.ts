@@ -18,6 +18,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { WrSpinner } from 'ngwr/spinner';
 import { wrToClassList, wrCheckStyles, type WrClassInput } from 'ngwr/utils';
 
 import type { WrToastConfig, WrToastType } from './types';
@@ -32,6 +33,7 @@ import type { WrToastConfig, WrToastType } from './types';
   selector: 'wr-toast',
   templateUrl: './toast-item.html',
   encapsulation: ViewEncapsulation.None,
+  imports: [WrSpinner],
   host: {
     // See `WrAlert`: a static `title=` feeds the input AND lands on the host.
     '[attr.title]': 'null',
@@ -80,6 +82,8 @@ export class WrToastItem {
   readonly extraClass = input<WrClassInput>(null);
   /** Auto-dismiss duration in ms — used to scale the progress bar. `0` hides it. */
   readonly duration = input<number>(0);
+  /** Goes up with every update, which starts the countdown and so the progress bar again. */
+  readonly revision = input<number>(0);
   /**
    * Already resolved by the host — strings, not the config's nullable shape.
    * The item renders them and never reaches for the catalog itself.

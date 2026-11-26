@@ -15,7 +15,7 @@ export interface WrToastHarnessFilters extends BaseHarnessFilters {
   readonly message?: string | RegExp;
   /** Match the toast's title. A toast with no title never matches. */
   readonly title?: string | RegExp;
-  /** Match the intent: `info`, `success`, `warning` or `danger`. */
+  /** Match the type: `info`, `success`, `warning`, `danger` or `loading`. */
   readonly type?: WrToastType;
   /**
    * Match the toasts of one `<wr-toast-outlet>`, by its name. `null` matches

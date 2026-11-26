@@ -12,11 +12,11 @@ import { type ComponentRef, Injector, Service, inject } from '@angular/core';
 
 import { WR_OVERLAY, WrOverlayOrder, wrFollowDirection } from 'ngwr/overlay';
 
-import { WrToastChannel, WrToastChannels, type WrToastEntry } from '../toast-channel';
+import { WrToastChannel, WrToastChannels, type WrToastEntry, resolveToastDuration } from '../toast-channel';
 import { WrToastHost } from '../toast-host';
 import { WrToastRef } from '../toast-ref';
 import { WR_TOAST_CONFIG } from '../tokens';
-import type { WrToastOptions, WrToastPosition } from '../types';
+import type { WrToastOptions, WrToastPosition, WrToastPromiseMessages, WrToastUpdate } from '../types';
 
 /**
  * Opens toast notifications in a single shared overlay, or in the page
@@ -25,8 +25,9 @@ import type { WrToastOptions, WrToastPosition } from '../types';
  * Global defaults come from {@link WR_TOAST_CONFIG}; register
  * `provideWr(withToast(...))` once at bootstrap to customise. Each
  * `show()` call accepts per-toast overrides via {@link WrToastOptions}.
- * `info()`, `success()`, `warning()` and `danger()` are `show()` with the
- * type set and the message first.
+ * `info()`, `success()`, `warning()`, `danger()` and `loading()` are `show()`
+ * with the type set and the message first. `promise()` shows a `loading` toast
+ * and turns it into the outcome.
  *
  * @example
  * ```ts
@@ -38,6 +39,10 @@ import type { WrToastOptions, WrToastPosition } from '../types';
  * toast.show({ message: 'Item deleted', action: { label: 'Undo', run: () => restore() } });
  * toast.show({ type: 'danger', message: 'Door forced', outlet: 'alarms' });
  * toast.success('Profile updated.', { title: 'Saved' });
+ *
+ * const ref = toast.loading('Saving');
+ * ref.update({ type: 'success', message: 'Saved' });
+ * await toast.promise(save(), { loading: 'Saving', success: 'Saved', error: 'Not saved' });
  * ```
  *
  * @see https://ngwr.dev/reference/components/toast
@@ -71,14 +76,19 @@ export class WrToast {
   );
   private readonly outlets = inject(WrToastChannels);
 
-  /** Open a toast. Returns a handle you can `dismiss()` early. */
+  /** Open a toast. Returns a handle you can `update()` in place or `dismiss()` early. */
   show(options: WrToastOptions): WrToastRef {
     const id = this.nextId++;
-    const ref = new WrToastRef(id, options, toastId => this.dismiss(toastId));
+    const ref = new WrToastRef(
+      id,
+      options,
+      toastId => this.dismiss(toastId),
+      (toastId, patch) => this.update(toastId, patch)
+    );
 
     if (options.outlet != null) {
       const channel = this.outlets.get(options.outlet);
-      const resolvedDuration = options.duration ?? channel.duration;
+      const resolvedDuration = resolveToastDuration(options, channel.duration);
       channel.add({ ...options, id, resolvedDuration, remaining: resolvedDuration });
       return ref;
     }
@@ -92,7 +102,7 @@ export class WrToast {
     // `currentPosition` is seeded from the config, so the default still wins
     // when nobody has called `setPosition`.
     const resolvedPosition = options.position ?? this.currentPosition;
-    const resolvedDuration = options.duration ?? this.config.duration;
+    const resolvedDuration = resolveToastDuration(options, this.config.duration);
 
     this.ensureHost(resolvedPosition);
     // A toast raised now belongs above everything already on screen, and the host
@@ -125,6 +135,40 @@ export class WrToast {
   /** A `danger` toast: `show({ ...options, message, type: 'danger' })`. */
   danger(message: string, options?: Omit<WrToastOptions, 'message' | 'type'>): WrToastRef {
     return this.show({ ...options, message, type: 'danger' });
+  }
+
+  /**
+   * A `loading` toast: a spinner, and no auto-dismiss until `update()` gives it
+   * another type. Then that type's `duration` starts.
+   */
+  loading(message: string, options?: Omit<WrToastOptions, 'message' | 'type'>): WrToastRef {
+    return this.show({ ...options, message, type: 'loading' });
+  }
+
+  /**
+   * A `loading` toast that becomes `success` when the promise resolves and
+   * `danger` when it rejects, in place. Returns the promise it was given, so
+   * the caller still awaits the value and handles the rejection. A toast
+   * dismissed while pending shows no outcome.
+   */
+  promise<T>(
+    promise: Promise<T>,
+    messages: WrToastPromiseMessages<T>,
+    options?: Omit<WrToastOptions, 'message' | 'type'>
+  ): Promise<T> {
+    const ref = this.loading(messages.loading, options);
+    const { success, error } = messages;
+    promise.then(
+      value => ref.update({ type: 'success', message: typeof success === 'function' ? success(value) : success }),
+      (reason: unknown) => ref.update({ type: 'danger', message: typeof error === 'function' ? error(reason) : error })
+    );
+    return promise;
+  }
+
+  private update(id: number, patch: WrToastUpdate): boolean {
+    if (!this.global.update(id, patch)) return this.outlets.update(id, patch);
+    this.pushToHost();
+    return true;
   }
 
   /** Dismiss a single toast by id, in whichever stack holds it. */

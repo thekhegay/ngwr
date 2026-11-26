@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Toast"
-  updated="16.6.0"
+  updated="16.10.0"
   description="Short notifications that stack in a corner of the screen."
   [keywords]="['toast', 'notification', 'wr-toast']"
   [labels]="['Service', 'CDK Overlay']"
@@ -108,6 +108,27 @@
   </ngwr-doc-section>
 
   <ngwr-doc-section
+    title="Loading, update and promise"
+    description="A `loading` toast shows a spinner and stays. `update()` changes a toast in place and starts its countdown again."
+  >
+    <ngwr-doc-code [code]="snippets.update" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap">
+        <wr-btn (click)="fireUpdate()">Loading, then update</wr-btn>
+        <wr-btn color="success" (click)="firePromise(true)">Promise resolves</wr-btn>
+        <wr-btn color="danger" (click)="firePromise(false)">Promise rejects</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+    <ul>
+      <li>
+        <code>promise()</code> returns the promise you gave it: await the value and handle the rejection as usual.
+      </li>
+      <li><code>success</code> and <code>error</code> take a string, or a function of the value or the error.</li>
+      <li>Updating a toast that is already gone does nothing.</li>
+    </ul>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
     title="Layout mode"
     description="`stack` (default) piles toasts up and fans them out on hover; `list` shows a column. Set it with `withToast({ mode })` or `setMode()`."
   >
@@ -198,6 +219,10 @@
 
   <ngwr-doc-section title="Service API">
     <ngwr-doc-api [rows]="serviceApi" />
+  </ngwr-doc-section>
+
+  <ngwr-doc-section title="WrToastRef" description="What `show()` and the shorthands return.">
+    <ngwr-doc-api [rows]="refApi" />
   </ngwr-doc-section>
 
   <ngwr-doc-section
