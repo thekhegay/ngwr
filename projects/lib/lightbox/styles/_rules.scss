@@ -126,7 +126,6 @@
   align-items: center;
   gap: var(--wr-lightbox-viewer-gap);
   max-width: 95vw;
-  max-height: 95vh;
   max-height: 95dvh;
   padding: var(--wr-lightbox-viewer-padding);
   animation: wr-lightbox-viewer-in 0.18s ease;
@@ -284,7 +283,6 @@
 
     display: block;
     max-width: 100%;
-    max-height: calc(95vh - 4rem);
     max-height: calc(95dvh - 4rem);
     object-fit: contain;
     cursor: zoom-out;
