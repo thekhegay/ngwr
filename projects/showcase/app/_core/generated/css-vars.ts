@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1946 hook(s) across 116 page(s). A property is here only when the
+ * 1954 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -1902,6 +1902,14 @@ export const CSS_VARS = {
       { name: "--wr-select-color", default: "var(--wr-color-on-surface)", scope: ".wr-select", overrides: 1 },
       { name: "--wr-select-font-family", default: "var(--wr-font-family-base)", scope: ".wr-select" },
       { name: "--wr-select-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-select", overrides: 2 },
+      { name: "--wr-select-frame-bg", default: "var(--wr-color-surface)", scope: ".wr-select-frame" },
+      { name: "--wr-select-frame-border", default: "var(--wr-border-base)", scope: ".wr-select-frame" },
+      { name: "--wr-select-frame-color", default: "var(--wr-color-on-surface)", scope: ".wr-select-frame" },
+      { name: "--wr-select-frame-font-family", default: "var(--wr-font-family-base)", scope: ".wr-select-frame" },
+      { name: "--wr-select-frame-font-size", default: "var(--wr-control-font-size-md)", scope: ".wr-select-frame" },
+      { name: "--wr-select-frame-radius", default: "var(--wr-border-radius-base)", scope: ".wr-select-frame" },
+      { name: "--wr-select-frame-shadow", default: "var(--wr-shadow-overlay)", scope: ".wr-select-frame" },
+      { name: "--wr-select-frame-slot-padding", default: "var(--wr-space-sm)", scope: ".wr-select-frame" },
       { name: "--wr-select-line-height", default: "var(--wr-control-line-height-md)", scope: ".wr-select", overrides: 2 },
       { name: "--wr-select-min-width", default: "10rem", scope: ".wr-select" },
       { name: "--wr-select-overlay-padding-top", default: "var(--wr-space-xs)", scope: ".wr-select-overlay" },

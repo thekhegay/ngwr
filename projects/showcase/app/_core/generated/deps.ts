@@ -287,7 +287,7 @@ export const DEMO_RELATED: Readonly<Record<string, readonly string[]>> = {
   "charts/chart-legend": ["charts/sparkline"],
   "reference/components/alert": ["icon"],
   "reference/components/avatar": ["badge","select"],
-  "reference/components/badge": ["icon"],
+  "reference/components/badge": ["avatar","icon"],
   "reference/components/breadcrumbs": ["icon"],
   "reference/components/burger": ["drawer"],
   "reference/components/button": ["icon","popover"],

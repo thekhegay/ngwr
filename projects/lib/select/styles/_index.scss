@@ -716,6 +716,52 @@
   }
 }
 
+// --- Header and footer slots -------------------------------------------------
+// Drawn only around a panel that has a slot: the frame takes over the panel's
+// box (border, radius, shadow), and the panel inside is the scroller alone.
+.wr-select-frame {
+  --wr-select-frame-bg: var(--wr-color-surface);
+  --wr-select-frame-color: var(--wr-color-on-surface);
+  --wr-select-frame-border: var(--wr-border-base);
+  --wr-select-frame-radius: var(--wr-border-radius-base);
+  --wr-select-frame-shadow: var(--wr-shadow-overlay);
+  --wr-select-frame-font-family: var(--wr-font-family-base);
+  --wr-select-frame-font-size: var(--wr-control-font-size-md);
+  --wr-select-frame-slot-padding: var(--wr-space-sm);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: var(--wr-select-frame-bg);
+  border: 1px solid var(--wr-select-frame-border);
+  @include theme.smooth-br(var(--wr-select-frame-radius));
+  box-shadow: var(--wr-select-frame-shadow);
+  color: var(--wr-select-frame-color);
+  font-family: var(--wr-select-frame-font-family);
+  font-size: var(--wr-select-frame-font-size);
+
+  > .wr-select-panel {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  &__header,
+  &__footer {
+    flex: none;
+    padding: var(--wr-select-frame-slot-padding);
+  }
+
+  &__header {
+    border-block-end: 1px solid var(--wr-select-frame-border);
+  }
+
+  &__footer {
+    border-block-start: 1px solid var(--wr-select-frame-border);
+  }
+}
+
 // --- Virtual scroll (data-array path) ---------------------------------------
 .wr-select-panel--virtual {
   // The inner `__vlist` owns scrolling; the panel must not add a second scroll

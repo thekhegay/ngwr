@@ -11,6 +11,8 @@ import {
   WrOptionLeading,
   type WrOptionLeadingPlacement,
   WrSelect,
+  WrSelectFooter,
+  WrSelectHeader,
   WrSelectLoadError,
 } from 'ngwr/select';
 
@@ -41,6 +43,8 @@ interface Plan {
     WrOptionGroup,
     WrOptionLeading,
     WrSelectLoadError,
+    WrSelectHeader,
+    WrSelectFooter,
     WrAvatar,
     WrFormField,
     WrFormError,
@@ -80,7 +84,25 @@ export default class SelectComponent {
     this.reactiveForm.markAllAsTouched();
   }
 
+  protected readonly owners = signal<readonly string[]>(['Ada', 'Grace', 'Linus']);
+  protected readonly owner = signal<string | null>(null);
+
+  protected addOwner(): void {
+    const name = `Guest ${this.owners().length - 2}`;
+    this.owners.update(list => [...list, name]);
+    this.owner.set(name);
+  }
+
   protected readonly snippets = {
+    slots: `<wr-select #team placeholder="Pick an owner" [(value)]="owner">
+  <div wrSelectHeader>People in this project</div>
+  @for (name of owners(); track name) {
+    <wr-option [value]="name">{{ name }}</wr-option>
+  }
+  <div wrSelectFooter>
+    <button wr-btn size="sm" type="button" (click)="addOwner(); team.close()">Add a guest</button>
+  </div>
+</wr-select>`,
     openFromCode: `<wr-select #sizes [(value)]="size" (opened)="onOpened()" (closed)="onClosed()">…</wr-select>
 <button wr-btn [attr.aria-expanded]="sizes.isOpen()" (click)="sizes.open()">Open</button>`,
 
