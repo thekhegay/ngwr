@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Table"
-  updated="16.7.0"
+  updated="16.10.0"
   description="Rows of data with sorting, filtering, paging and custom cells."
   [keywords]="['table', 'wr-table', 'wrSortRows', 'wrReadField', 'sort']"
   [labels]="['Component', 'Directive']"
@@ -671,6 +671,18 @@
     <ngwr-doc-snippet code="">
       <div style="width: 34rem; max-width: 100%">
         <wr-table [columns]="wideColumns" [items]="wideRows" />
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Grouped headers"
+    description="`group` puts neighbouring columns under one header cell. A reorder, a hidden column or a pinned edge splits or shrinks it."
+  >
+    <ngwr-doc-code [code]="snippets.grouped" language="angular-ts" />
+    <ngwr-doc-snippet code="">
+      <div style="width: 100%">
+        <wr-table [columns]="groupedColumns" [items]="groupedRows" />
       </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>

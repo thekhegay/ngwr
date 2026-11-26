@@ -126,6 +126,20 @@ type RenderRow =
     }
   | { readonly kind: 'group-foot'; readonly id: string; readonly summaries: ReadonlyMap<string, unknown> };
 
+/** A cell of the group row: a group over its columns, or a blank over columns with none. */
+interface HeadGroup {
+  /** Key of its first column. */
+  readonly key: string;
+  readonly label: string | null;
+  readonly pin: 'left' | 'right' | null;
+  readonly span: number;
+  readonly edgeLeft: boolean;
+  readonly edgeRight: boolean;
+  /** Sticky offsets of a pinned cell: its first column's start, its last column's end. */
+  readonly start: number | null;
+  readonly end: number | null;
+}
+
 /**
  * A display column with everything its cells draw from the column alone, so a
  * cell binding reads a property instead of calling a method on every pass.
@@ -1313,6 +1327,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       return {
         key,
         title: column.title || (column.headerHint ?? key),
+        ...(column.group ? { group: column.group } : {}),
         hidden,
         hideable: column.hideable !== false,
         locked: column.hideable === false || (!hidden && shown.size === 1),
@@ -1716,6 +1731,23 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       onCleanup(() => observer.disconnect());
     });
 
+    // (D) The titles stick under the group row, at its height.
+    effect(onCleanup => {
+      const row = this.headGroupsEl()?.nativeElement;
+      if (!row || !this.scrollable() || !isPlatformBrowser(this.platformId) || typeof ResizeObserver === 'undefined') {
+        this.headGroupHeight.set(null);
+        return;
+      }
+      const measure = (): void => {
+        const height = row.getBoundingClientRect().height;
+        this.headGroupHeight.set(height > 0 ? height : null);
+      };
+      const observer = new ResizeObserver(measure);
+      observer.observe(row);
+      measure();
+      onCleanup(() => observer.disconnect());
+    });
+
     // (E) The empty label centres on the visible width of the scroll box, not on
     // a table wider than it.
     effect(onCleanup => {
@@ -1879,6 +1911,49 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
       };
     });
   });
+
+  /**
+   * The cells of the group row, `null` while no shown column has a `group`:
+   * the header then stays one row. One cell per run of neighbours that share
+   * a group and a pinned side.
+   */
+  protected readonly headGroups = computed<readonly HeadGroup[] | null>(() => {
+    const cols = this.cellColumns();
+    if (!cols.some(c => c.column.group)) return null;
+    const cells: HeadGroup[] = [];
+    for (const col of cols) {
+      const label = col.column.group ?? null;
+      const pin = col.column.pin ?? null;
+      const last = cells.at(-1);
+      if (last?.label === label && last.pin === pin) {
+        cells[cells.length - 1] = {
+          ...last,
+          span: last.span + 1,
+          edgeLeft: last.edgeLeft || col.edgeLeft,
+          edgeRight: last.edgeRight || col.edgeRight,
+          end: col.end,
+        };
+      } else {
+        cells.push({
+          key: col.key,
+          label,
+          pin,
+          span: 1,
+          edgeLeft: col.edgeLeft,
+          edgeRight: col.edgeRight,
+          start: col.start,
+          end: col.end,
+        });
+      }
+    }
+    return cells;
+  });
+
+  /** Header rows, for the row numbers a virtualized table announces. */
+  protected readonly headRows = computed<number>(() => (this.headGroups() ? 2 : 1));
+
+  /** Measured height (px) of the group row, the sticky offset of the titles under it; `null` until measured. */
+  protected readonly headGroupHeight = signal<number | null>(null);
 
   /** The `<col>` widths in px by column position, `null` for auto. A live resize wins; kept apart so a drag does not rebuild the cells. */
   protected readonly colWidths = computed<readonly (number | null)[]>(() => {
@@ -2088,6 +2163,7 @@ export class WrTable<T extends WrTableRow = WrTableRow> {
   /** The `.wr-table__scroll` div (always in the template; only read when virtual). */
   private readonly scrollEl = viewChild<ElementRef<HTMLElement>>('scroll');
   private readonly headEl = viewChild<ElementRef<HTMLElement>>('head');
+  private readonly headGroupsEl = viewChild<ElementRef<HTMLElement>>('headGroupsRow');
   private readonly footEl = viewChild<ElementRef<HTMLElement>>('foot');
   /** Live vertical scroll offset (px); 0 on the server / before first scroll. */
   private readonly scrollTop = signal(0);

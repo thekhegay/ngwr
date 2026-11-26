@@ -557,6 +557,63 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     // rtl-ok: this IS the RTL sign for the rule above
   }
 
+  // --- Grouped column headers ------------------------------------------------
+  // The row above the titles: a `<th>` over each group, a blank `<td>` over the
+  // columns with none. A blank draws no rule, so a group's rule brackets its
+  // own columns.
+  &__head-cell {
+    padding: calc(var(--wr-table-cell-padding-y) * var(--wr-density-y, 1))
+      calc(var(--wr-table-cell-padding-x) * var(--wr-density-x, 1));
+    background: var(--wr-table-head-bg);
+  }
+
+  &__head-cell--group {
+    overflow: hidden;
+    border-bottom: 1px solid var(--wr-table-border);
+    color: var(--wr-color-on-surface-muted);
+    font-weight: var(--wr-table-head-font-weight);
+    font-size: var(--wr-table-head-font-size);
+    letter-spacing: var(--wr-table-head-letter-spacing);
+    text-align: center;
+    text-overflow: ellipsis;
+    text-transform: var(--wr-table-head-transform);
+    white-space: nowrap;
+  }
+
+  &__head-cell--pin-left,
+  &__head-cell--pin-right {
+    position: sticky;
+    z-index: 2;
+    background-color: var(--wr-table-bg);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
+  }
+
+  // The pinned edge shadow of the cells below, on the same host classes.
+  &__head-cell--pin-edge-left,
+  &__head-cell--pin-edge-right {
+    transition: box-shadow var(--wr-transition-base);
+  }
+
+  &--overflow-start &__head-cell--pin-edge-left {
+    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
+    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
+  }
+
+  &--overflow-end &__head-cell--pin-edge-right {
+    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
+    // rtl-ok: `box-shadow` has no logical form; the RTL sign is set explicitly below
+  }
+
+  :where([dir='rtl']) &--overflow-start &__head-cell--pin-edge-left {
+    box-shadow: -0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
+    // rtl-ok: this IS the RTL sign for the rule above
+  }
+
+  :where([dir='rtl']) &--overflow-end &__head-cell--pin-edge-right {
+    box-shadow: 0.375rem 0 0.375rem -0.25rem var(--wr-table-pin-shadow-ink);
+    // rtl-ok: this IS the RTL sign for the rule above
+  }
+
   &__th-inner {
     display: inline-flex;
     align-items: center;
@@ -1103,6 +1160,27 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     z-index: 3;
   }
 
+  // The group row sticks at the top and the titles under it, at its measured height.
+  .wr-table__head-cell {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .wr-table__head-cell:not(.wr-table__head-cell--pin-left):not(.wr-table__head-cell--pin-right) {
+    background-color: var(--wr-table-bg);
+    background-image: linear-gradient(var(--wr-table-head-bg), var(--wr-table-head-bg));
+  }
+
+  .wr-table__head-cell--pin-left,
+  .wr-table__head-cell--pin-right {
+    z-index: 3;
+  }
+
+  .wr-table__head-groups + tr > th {
+    top: var(--wr-table-head-group-height, 0);
+  }
+
   // Grand footer pinned to the viewport bottom; plain cells get the opaque base.
   tfoot .wr-table__foot-cell {
     position: sticky;
@@ -1131,7 +1209,8 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
 .wr-table--selection-bar {
   // The select-all cell stays in view beside the bar while the columns scroll
   // under it, opaque and above the bar.
-  .wr-table__th--select {
+  .wr-table__th--select,
+  .wr-table__head-cell--select {
     position: sticky;
     inset-inline-start: 0;
     z-index: 5;

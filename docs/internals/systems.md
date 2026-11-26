@@ -377,7 +377,13 @@ one component folder. Reach for them instead of hand-rolling:
   `[wrTableSelectionBar]` template draws a bar over the header while rows are
   selected: it sits in a box of no height in front of the scroll area, so it
   needs no sticky rule in any mode, leaves the select-all cell uncovered and
-  makes the header cells under it `inert`. `stateChange` reports reader actions
+  makes the header cells under it `inert`. A column's `group` adds a row above
+  the titles (`headGroups`, `.wr-table__head-groups`): a `<th scope="colgroup">`
+  per run of neighbours sharing a group and a pinned side, a blank `<td>` over
+  the rest. The title row stays the one `#thCell` list every measurement and
+  the drop list read, so its cells never take a `rowspan`; under a sticky
+  header it sticks at `--wr-table-head-group-height`, the group row's measured
+  height. `stateChange` reports reader actions
   only and is emitted from an effect, which is what folds an action that writes
   two parts into one event; `[state]` restores by object identity. A
   `[wrTableEditCell]` template makes its column editable and the table a `grid`

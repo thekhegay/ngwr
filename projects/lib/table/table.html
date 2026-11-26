@@ -68,6 +68,7 @@
   [style.--wr-table-scroll-height]="scrollHeight()"
   [style.--wr-table-head-height.px]="stickyEdges().head"
   [style.--wr-table-foot-height.px]="stickyEdges().foot"
+  [style.--wr-table-head-group-height.px]="headGroupHeight()"
   [attr.tabindex]="scrollable() ? 0 : hasSelectionBar() ? -1 : null"
 >
   <table
@@ -75,7 +76,9 @@
     [class.wr-table__table--fixed]="clippedLayout()"
     [class.wr-table__table--layout-fixed]="layout() === 'fixed'"
     [style.--wr-table-row-h.px]="rowHeightVar()"
-    [attr.aria-rowcount]="virtualized() ? renderRows().length + 1 + (hasSummary() && items()?.length ? 1 : 0) : null"
+    [attr.aria-rowcount]="
+      virtualized() ? renderRows().length + headRows() + (hasSummary() && items()?.length ? 1 : 0) : null
+    "
     [attr.role]="treeMode() ? 'treegrid' : editGrid() ? 'grid' : null"
     [attr.aria-multiselectable]="treeMode() && rowSelection() === 'multiple' ? true : null"
   >
@@ -91,6 +94,44 @@
       }
     </colgroup>
     <thead #head>
+      @if (headGroups(); as groups) {
+        <tr #headGroupsRow class="wr-table__head-groups">
+          @if (rowSelection()) {
+            <td class="wr-table__head-cell wr-table__head-cell--lead wr-table__head-cell--select"></td>
+          }
+          @if (expandable()) {
+            <td class="wr-table__head-cell wr-table__head-cell--lead"></td>
+          }
+          @for (group of groups; track group.key) {
+            @if (group.label) {
+              <th
+                scope="colgroup"
+                class="wr-table__head-cell wr-table__head-cell--group"
+                [attr.colspan]="group.span"
+                [class.wr-table__head-cell--pin-left]="group.pin === 'left'"
+                [class.wr-table__head-cell--pin-right]="group.pin === 'right'"
+                [class.wr-table__head-cell--pin-edge-left]="group.edgeLeft"
+                [class.wr-table__head-cell--pin-edge-right]="group.edgeRight"
+                [style.inset-inline-start.px]="group.start"
+                [style.inset-inline-end.px]="group.end"
+              >
+                {{ group.label }}
+              </th>
+            } @else {
+              <td
+                class="wr-table__head-cell"
+                [attr.colspan]="group.span"
+                [class.wr-table__head-cell--pin-left]="group.pin === 'left'"
+                [class.wr-table__head-cell--pin-right]="group.pin === 'right'"
+                [class.wr-table__head-cell--pin-edge-left]="group.edgeLeft"
+                [class.wr-table__head-cell--pin-edge-right]="group.edgeRight"
+                [style.inset-inline-start.px]="group.start"
+                [style.inset-inline-end.px]="group.end"
+              ></td>
+            }
+          }
+        </tr>
+      }
       <tr
         cdkDropList
         cdkDropListOrientation="horizontal"
@@ -327,7 +368,7 @@
               [class]="rowClasses(entry.row, i, link !== null)"
               [class.wr-table__tr--selected]="rowSelection() && isRowSelected(entry.row)"
               [class.wr-table__tr--child]="entry.depth > 0"
-              [attr.aria-rowindex]="virtualized() ? windowStart() + i + 2 : null"
+              [attr.aria-rowindex]="virtualized() ? windowStart() + i + 1 + headRows() : null"
               [attr.aria-level]="treeMode() ? entry.depth + 1 : null"
               [attr.aria-posinset]="treeMode() ? entry.posinset : null"
               [attr.aria-setsize]="treeMode() ? entry.setsize : null"
