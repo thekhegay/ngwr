@@ -421,14 +421,16 @@ export class WrLightbox {
     // a flip while the viewer is open leaves the button on the wrong corner.
     wrFollowDirection(this.overlayRef, this.dir, this.injector);
 
+    // Read before the attach, which makes the page behind inert.
+    const active = document.activeElement;
+    this.previouslyFocused = active instanceof HTMLElement ? active : null;
+
     const portal = new TemplatePortal(this.panelTpl(), this.vcr);
     this.overlayRef.attach(portal);
 
     // The viewer declares role="dialog" + aria-modal="true", which promises the
     // rest of the page is inert. Without a focus trap that promise is a lie:
     // Tab walks straight out of the viewer into the page behind the backdrop.
-    const active = document.activeElement;
-    this.previouslyFocused = active instanceof HTMLElement ? active : null;
     const pane = this.overlayRef.overlayElement;
     this.focusTrap = this.focusTrapFactory.create(pane);
     // Onto the viewer itself by default, the element that carries the dialog

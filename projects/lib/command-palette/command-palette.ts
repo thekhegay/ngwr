@@ -325,7 +325,9 @@ export class WrCommandPalette {
         // structural sheet, which the overlay container loads — and an app may
         // open this before it has ever opened an overlay.
         this.overlayContainer.getContainerElement();
-        this.scrollBlock ??= this.scrollBlockService.strategy();
+        // Rendered in the page, not in the overlay container: an inert page
+        // would take the palette with it.
+        this.scrollBlock ??= this.scrollBlockService.strategy(false);
         this.scrollBlock.enable();
         queueMicrotask(() => {
           if (this.destroyed) return;

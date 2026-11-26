@@ -207,6 +207,16 @@ describe('WrLightbox', () => {
     expect(document.activeElement).toBe(trigger());
   });
 
+  it('makes the page behind inert while the viewer is open, the trigger with it', () => {
+    trigger()!.focus();
+    open();
+    expect(root().hasAttribute('inert')).toBe(true);
+
+    click(closeBtn());
+    expect(root().hasAttribute('inert')).toBe(false);
+    expect(document.activeElement).toBe(trigger());
+  });
+
   it('closes on Escape', () => {
     open();
     document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
