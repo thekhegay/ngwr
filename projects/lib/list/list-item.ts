@@ -58,7 +58,8 @@ import { WR_LIST } from './list-context';
   },
 })
 export class WrListItem {
-  protected readonly list = inject(WR_LIST, { optional: true });
+  /** @internal The list this row belongs to. */
+  readonly list = inject(WR_LIST, { optional: true });
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   constructor() {

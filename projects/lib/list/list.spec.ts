@@ -150,6 +150,55 @@ class SelectHost {
   readonly touched = signal(0);
 }
 
+@Component({
+  imports: [WrList, WrListItem],
+  template: `
+    <wr-list ariaLabel="Mail" selection="single" [(value)]="value">
+      <div role="group" aria-label="Folders">
+        <wr-list-item value="inbox">Inbox</wr-list-item>
+        <wr-list-item value="sent">
+          Sent
+          <wr-list ariaLabel="Labels" selection="single">
+            <wr-list-item value="work">Work</wr-list-item>
+          </wr-list>
+        </wr-list-item>
+      </div>
+    </wr-list>
+  `,
+})
+class WrappedHost {
+  readonly value = signal<unknown>(null);
+}
+
+describe('WrList selection with wrapped rows', () => {
+  it('navigates and picks rows inside a wrapper, but not the rows of a nested list', () => {
+    TestBed.resetTestingModule();
+    const fixture = TestBed.createComponent(WrappedHost);
+    document.body.appendChild(fixture.nativeElement);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const [inbox, sent, work] = [...root.querySelectorAll<HTMLElement>('wr-list-item')];
+
+    expect([inbox, sent, work].map(row => row.getAttribute('tabindex'))).toEqual(['0', '-1', '0']);
+
+    inbox.focus();
+    inbox.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    expect(document.activeElement).toBe(sent);
+
+    sent.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    expect(document.activeElement).toBe(sent);
+
+    sent.click();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.value()).toBe('sent');
+
+    root.remove();
+    fixture.destroy();
+  });
+});
+
 /**
  * `selection` switches the WHOLE container: a listbox of options, never an
  * option inside a `role="list"`. jsdom lays nothing out, so nothing here says

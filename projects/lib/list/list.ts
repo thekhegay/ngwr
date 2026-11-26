@@ -140,7 +140,9 @@ export class WrList implements FormValueControl<unknown>, WrListContext {
   protected readonly ariaInvalid = this.fieldAria.ariaInvalid;
   protected readonly ariaRequired = this.fieldAria.ariaRequired;
 
-  private readonly items = contentChildren(WrListItem);
+  // Rows in a wrapper element count too; rows of a list nested in a row do not.
+  private readonly rows = contentChildren(WrListItem, { descendants: true });
+  private readonly items = computed(() => this.rows().filter(row => row.list === this));
   private readonly enabledItems = computed(() =>
     this.disabled() ? [] : this.items().filter(item => !item.disabled())
   );
