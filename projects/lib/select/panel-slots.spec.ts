@@ -277,3 +277,183 @@ describe('WrSelect header and footer slots', () => {
     expect(frame()!.lastElementChild!.contains(q('.t-footer'))).toBe(true);
   });
 });
+
+@Component({
+  imports: [WrSelect, WrOption, WrSelectHeader, WrSelectFooter],
+  template: `
+    <wr-select ariaLabel="Owner" [(value)]="owner">
+      <div wrSelectHeader>
+        <input class="t-all" type="radio" name="scope" value="all" />
+        <input class="t-mine" type="radio" name="scope" value="mine" checked />
+        <input class="t-team" type="radio" name="scope" value="team" />
+      </div>
+      <wr-option value="ada">Ada</wr-option>
+      @if (filter()) {
+        <div wrSelectFooter><input class="t-filter" type="text" aria-label="Filter" /></div>
+      }
+    </wr-select>
+  `,
+})
+class ControlsHost {
+  readonly filter = signal(false);
+  readonly owner = signal<unknown>(null);
+}
+
+describe('WrSelect slot controls', () => {
+  let fixture: ComponentFixture<ControlsHost>;
+
+  const trigger = (): HTMLElement =>
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!;
+  const panel = (): HTMLElement | null => document.querySelector<HTMLElement>('.wr-select-panel');
+  const q = (selector: string): HTMLElement => document.querySelector<HTMLElement>(selector)!;
+
+  const open = (): void => {
+    trigger().click();
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    // jsdom lays nothing out, and a control with no box is not a tab stop.
+    vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue([{}] as unknown as DOMRectList);
+    fixture = TestBed.createComponent(ControlsHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    vi.restoreAllMocks();
+  });
+
+  it('moves Tab from the trigger to the checked radio of a group, its one tab stop', () => {
+    open();
+    trigger().focus();
+    trigger().dispatchEvent(key('Tab'));
+    fixture.detectChanges();
+
+    expect(document.activeElement).toBe(q('.t-mine'));
+  });
+
+  it('treats the checked radio as both ends of the slot, though unchecked ones sit around it', () => {
+    open();
+    q('.t-mine').focus();
+    const back = key('Tab', { shiftKey: true });
+    q('.t-mine').dispatchEvent(back);
+    fixture.detectChanges();
+
+    expect(back.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(trigger());
+    expect(panel()).not.toBeNull();
+
+    q('.t-mine').focus();
+    const forward = key('Tab');
+    q('.t-mine').dispatchEvent(forward);
+    fixture.detectChanges();
+
+    expect(forward.defaultPrevented).toBe(true);
+    expect(panel()).toBeNull();
+    expect(document.activeElement).toBe(trigger());
+  });
+
+  it('keeps the panel on the Escape that cancels a conversion in a slot field', () => {
+    fixture.componentInstance.filter.set(true);
+    fixture.detectChanges();
+    open();
+    q('.t-filter').focus();
+
+    q('.t-filter').dispatchEvent(key('Escape', { isComposing: true }));
+    fixture.detectChanges();
+    expect(panel(), 'the reading was cancelled and the panel went too').not.toBeNull();
+
+    // Safari's committing keystroke carries only the key code.
+    q('.t-filter').dispatchEvent(key('Escape', { keyCode: 229 }));
+    fixture.detectChanges();
+    expect(panel()).not.toBeNull();
+
+    q('.t-filter').dispatchEvent(key('Escape'));
+    fixture.detectChanges();
+    expect(panel()).toBeNull();
+  });
+});
+
+@Component({
+  imports: [WrSelect, WrSelectFooter],
+  template: `
+    <wr-select ariaLabel="Numbers" virtualScroll [rowHeight]="20" [viewportHeight]="200" [options]="options">
+      @if (footer()) {
+        <div wrSelectFooter>Footer</div>
+      }
+    </wr-select>
+  `,
+})
+class VirtualToggleHost {
+  readonly options = Array.from({ length: 500 }, (_, i) => `Item ${i}`);
+  readonly footer = signal(true);
+}
+
+describe('WrSelect virtual list under a slot that comes and goes', () => {
+  let fixture: ComponentFixture<VirtualToggleHost>;
+  // A descriptor, not the function: jsdom has no `Element.scrollTo`, and the list calls it.
+  let realScrollTo: PropertyDescriptor | undefined;
+
+  const vlist = (): HTMLElement => document.querySelector<HTMLElement>('.wr-select-panel__vlist')!;
+  const labels = (): string[] =>
+    [...document.querySelectorAll<HTMLElement>('[role="option"]')].map(row => row.textContent.trim());
+  // The listener is attached from a microtask and coalesces through a frame.
+  const scrollTo = async (top: number): Promise<void> => {
+    await fixture.whenStable();
+    const list = vlist();
+    Object.defineProperty(list, 'scrollTop', { value: top, configurable: true, writable: true });
+    list.dispatchEvent(new Event('scroll'));
+    await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    realScrollTo = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollTo');
+    Object.defineProperty(Element.prototype, 'scrollTo', {
+      value: (): void => undefined,
+      configurable: true,
+      writable: true,
+    });
+    fixture = TestBed.createComponent(VirtualToggleHost);
+    fixture.detectChanges();
+    (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-select__trigger')!.click();
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+    if (realScrollTo) Object.defineProperty(Element.prototype, 'scrollTo', realScrollTo);
+    else delete (Element.prototype as { scrollTo?: unknown }).scrollTo;
+  });
+
+  it('follows the scroll of the viewport drawn once the last slot is gone', async () => {
+    await fixture.whenStable();
+    const framed = vlist();
+
+    fixture.componentInstance.footer.set(false);
+    fixture.detectChanges();
+    expect(vlist()).not.toBe(framed);
+    expect(document.querySelector('.wr-select-frame')).toBeNull();
+
+    await scrollTo(100 * 20);
+    expect(labels()).not.toContain('Item 0');
+    expect(labels()).toContain('Item 100');
+  });
+
+  it('follows the scroll of the viewport drawn once the first slot appears', async () => {
+    fixture.componentInstance.footer.set(false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const bare = vlist();
+
+    fixture.componentInstance.footer.set(true);
+    fixture.detectChanges();
+    expect(vlist()).not.toBe(bare);
+    expect(document.querySelector('.wr-select-frame')).not.toBeNull();
+
+    await scrollTo(100 * 20);
+    expect(labels()).not.toContain('Item 0');
+    expect(labels()).toContain('Item 100');
+  });
+});

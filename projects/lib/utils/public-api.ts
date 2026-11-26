@@ -38,6 +38,7 @@ export {
   wrResolveCssColor,
   wrResolveCssColorChannels,
   wrTrapFocus,
+  wrIsTabStop,
   wrWatchColorScheme,
   wrCheckStyles,
   wrContentDispositionFileName,

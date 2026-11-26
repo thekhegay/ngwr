@@ -210,7 +210,8 @@
       translate: -50% -50%;
     }
 
-    &:empty {
+    // A dot draws no content at all.
+    &:empty:not(.wr-badge--dot) {
       display: none;
     }
   }

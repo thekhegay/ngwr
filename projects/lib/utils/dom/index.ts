@@ -3,7 +3,14 @@ export { wrContentDispositionFileName } from './content-disposition-file-name';
 export { wrDownloadBlob } from './download-blob';
 export { wrFileNameForType } from './file-name-for-type';
 export { wrGetRootFontSize } from './get-root-font-size';
-export { wrGetFocusableElements, wrTrapFocus, wrRestoreFocus, wrNoteFocusReturn, wrFocusFirstInvalid } from './focus';
+export {
+  wrGetFocusableElements,
+  wrIsTabStop,
+  wrTrapFocus,
+  wrRestoreFocus,
+  wrNoteFocusReturn,
+  wrFocusFirstInvalid,
+} from './focus';
 export type { WrFocusFirstInvalidOptions } from './focus';
 export { wrResolveCssColor, wrResolveCssColorChannels } from './resolve-css-color';
 export { wrWatchColorScheme } from './watch-color-scheme';

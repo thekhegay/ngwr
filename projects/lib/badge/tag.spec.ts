@@ -266,6 +266,7 @@ describe('WrTag closable, around what else the tag holds', () => {
     <wr-tag id="toggle" [(selected)]="on" [loading]="loading()" (click)="clicks.push('toggle')">Open</wr-tag>
     <wr-tag id="closable" closable [(selected)]="closableOn" (removed)="removed.push('closable')">Mine</wr-tag>
     <wr-tag id="late" role="status" [selected]="late()">Late</wr-tag>
+    <wr-tag id="roving" [attr.tabindex]="stop()" [selected]="roving()" [loading]="loading()">Roving</wr-tag>
   `,
 })
 class ToggleHost {
@@ -273,6 +274,8 @@ class ToggleHost {
   readonly closableOn = signal(false);
   readonly loading = signal(false);
   readonly late = signal<boolean | undefined>(undefined);
+  readonly roving = signal<boolean | undefined>(false);
+  readonly stop = signal<number | null>(null);
   readonly clicks: string[] = [];
   readonly removed: string[] = [];
 }
@@ -387,5 +390,29 @@ describe('WrTag selected', () => {
     expect(late.getAttribute('role')).toBe('status');
     expect(late.hasAttribute('tabindex')).toBe(false);
     expect(late.hasAttribute('aria-pressed')).toBe(false);
+  });
+
+  it('keeps a tabindex the consumer sets after init, through loading, selected and leaving the mode', async () => {
+    const roving = get('roving');
+    expect(roving.getAttribute('tabindex')).toBe('0');
+
+    fixture.componentInstance.stop.set(-1);
+    await fixture.whenStable();
+    expect(roving.getAttribute('tabindex')).toBe('-1');
+
+    fixture.componentInstance.loading.set(true);
+    await fixture.whenStable();
+    expect(roving.getAttribute('aria-disabled')).toBe('true');
+    expect(roving.getAttribute('tabindex')).toBe('-1');
+
+    fixture.componentInstance.roving.set(true);
+    await fixture.whenStable();
+    expect(roving.getAttribute('aria-pressed')).toBe('true');
+    expect(roving.getAttribute('tabindex')).toBe('-1');
+
+    fixture.componentInstance.roving.set(undefined);
+    await fixture.whenStable();
+    expect(roving.hasAttribute('role')).toBe(false);
+    expect(roving.getAttribute('tabindex')).toBe('-1');
   });
 });

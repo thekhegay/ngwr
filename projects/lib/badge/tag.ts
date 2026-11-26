@@ -80,6 +80,7 @@ export class WrTag {
     const renderer = inject(Renderer2);
     const el = this.host.nativeElement;
     let before: Record<string, string | null> | null = null;
+    let ownTabStop = false;
     const restore = (name: string): void => {
       const value = before?.[name] ?? null;
       if (value === null) renderer.removeAttribute(el, name);
@@ -88,14 +89,22 @@ export class WrTag {
     effect(() => {
       const selected = this.selected();
       if (selected === undefined) {
-        if (before) for (const name of Object.keys(before)) restore(name);
+        if (before) {
+          for (const name of Object.keys(before)) if (name !== 'tabindex') restore(name);
+          if (ownTabStop && el.getAttribute('tabindex') === '0') renderer.removeAttribute(el, 'tabindex');
+        }
         before = null;
+        ownTabStop = false;
         return;
       }
-      before ??= Object.fromEntries(TOGGLE_ATTRS.map(name => [name, el.getAttribute(name)]));
+      if (!before) {
+        before = Object.fromEntries(TOGGLE_ATTRS.map(name => [name, el.getAttribute(name)]));
+        // Written once, on entering the mode: a tab stop the consumer sets, before
+        // or after, such as a roving `-1`, stays theirs.
+        ownTabStop = before['tabindex'] === null;
+        if (ownTabStop) renderer.setAttribute(el, 'tabindex', '0');
+      }
       renderer.setAttribute(el, 'role', 'button');
-      // A tab stop the consumer set, such as a roving `-1`, stays theirs.
-      if (before['tabindex'] === null) renderer.setAttribute(el, 'tabindex', '0');
       renderer.setAttribute(el, 'aria-pressed', String(selected));
       if (this.loading()) renderer.setAttribute(el, 'aria-disabled', 'true');
       else restore('aria-disabled');
