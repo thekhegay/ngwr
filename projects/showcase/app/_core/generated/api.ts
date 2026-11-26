@@ -1662,6 +1662,7 @@ export const API = {
     { name: "routerLink", description: "Router target — when set, the tab becomes a `[routerLink]` link.", type: "string | readonly string[] | null", default: "null" },
     { name: "exact", description: "Router tab only: select it on its own path, not on the paths below it, so an \"Overview\" tab at `/project/42` is not selected on `/project/42/settings`. Query params, fragment and matrix params are matched as without it.", type: "boolean", default: "false" },
     { name: "count", description: "A count after the label, as a small badge: unread messages, results. `null` (default) shows nothing, `0` shows `0`. The tab's accessible name becomes the label and the count, \"Inbox, 3\".", type: "number | null", default: "null" },
+    { name: "icon", description: "Name of a registered icon, drawn before the label in both content and router tabs. Decorative: the label stays the accessible name.", type: "WrIconName | null", default: "null" },
     { name: "disabled", description: "Disable the tab.", type: "boolean", default: "false" },
   ],
   // <wr-table>
@@ -1761,6 +1762,7 @@ export const API = {
   WrTabs: [
     { name: "active", description: "Two-way bindable active tab key (content mode).", type: "string | null", default: "null" },
     { name: "size", description: "Visual size variant.", type: "WrTabsSize", default: "'md'" },
+    { name: "orientation", description: "Axis of the strip. `vertical` stacks the tabs at the inline start with the panel beside them, and ArrowUp / ArrowDown walk the strip instead of ArrowLeft / ArrowRight. A vertical strip scrolls only when the host has a bounded height.", type: "WrTabsOrientation", default: "'horizontal'" },
     { name: "keepMounted", description: "Content mode only: render each panel on its first visit and keep it in the DOM, hidden while its tab is inactive, so a form, a scroll position or a chart survives a tab switch. Router mode is out of scope: it renders no panel and ignores this.", type: "boolean", default: "false" },
   ],
   // <wr-tag>

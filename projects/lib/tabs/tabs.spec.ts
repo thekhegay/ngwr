@@ -5,6 +5,7 @@ import { provideRouter, Router, RouterOutlet } from '@angular/router';
 
 import { Subject } from 'rxjs';
 
+import { provideWrIcons, wrSvgIcon } from 'ngwr/icon';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { WrTabsRouting } from './router/tabs-routing';
@@ -878,5 +879,209 @@ describe('WrTabs keepMounted', () => {
     expect(panels()).toHaveLength(1);
     expect(panels()[0].hidden).toBe(false);
     expect(tabs()[2].getAttribute('aria-controls')).toBeTruthy();
+  });
+});
+
+const ICON = '<svg viewBox="0 0 24 24"><path d="M1 1" /></svg>';
+
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs>
+      <wr-tab title="Home" key="home" [icon]="icon()">Home</wr-tab>
+      <wr-tab title="Plain" key="plain">Plain</wr-tab>
+    </wr-tabs>
+  `,
+})
+class IconHost {
+  readonly icon = signal<string | null>('folder');
+}
+
+@Component({
+  imports: [WrTabs, WrTab, WrTabsRouting],
+  template: `
+    <wr-tabs wrTabsRouting>
+      <wr-tab title="One" routerLink="/one" icon="folder" />
+      <wr-tab title="Two" routerLink="/two" />
+    </wr-tabs>
+  `,
+})
+class IconRouterHost {}
+
+describe('WrTab icon', () => {
+  const tabsOf = (root: HTMLElement): HTMLElement[] => [...root.querySelectorAll<HTMLElement>('[role="tab"]')];
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([]), provideWrIcons([wrSvgIcon('folder', ICON)])],
+    });
+  });
+
+  it('draws the icon before the label, hidden from the name, and nothing without one', () => {
+    const fixture = TestBed.createComponent(IconHost);
+    fixture.detectChanges();
+    const [home, plain] = tabsOf(fixture.nativeElement as HTMLElement);
+
+    const icon = home.querySelector<HTMLElement>('wr-icon.wr-tabs__icon')!;
+    expect(icon.getAttribute('data-icon')).toBe('folder');
+    expect(icon.nextElementSibling?.classList.contains('wr-tabs__tab-label')).toBe(true);
+    expect(icon.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(home.textContent?.trim()).toBe('Home');
+    expect(plain.querySelector('.wr-tabs__icon')).toBeNull();
+
+    fixture.componentInstance.icon.set(null);
+    fixture.detectChanges();
+    expect(home.querySelector('.wr-tabs__icon')).toBeNull();
+    fixture.destroy();
+  });
+
+  it('draws it on a router tab too', () => {
+    const fixture = TestBed.createComponent(IconRouterHost);
+    fixture.detectChanges();
+    const [one, two] = tabsOf(fixture.nativeElement as HTMLElement);
+
+    expect(one.tagName).toBe('A');
+    expect(one.querySelector('wr-icon.wr-tabs__icon')?.getAttribute('data-icon')).toBe('folder');
+    expect(two.querySelector('.wr-tabs__icon')).toBeNull();
+    fixture.destroy();
+  });
+});
+
+@Component({
+  imports: [WrTabs, WrTab],
+  template: `
+    <wr-tabs [orientation]="orientation()" [keepMounted]="keep()">
+      <wr-tab title="One" key="one">Panel one</wr-tab>
+      <wr-tab title="Two" key="two" [count]="3">Panel two</wr-tab>
+      <wr-tab title="Three" key="three" [disabled]="true">Panel three</wr-tab>
+      <wr-tab title="Four" key="four">Panel four</wr-tab>
+    </wr-tabs>
+  `,
+})
+class OrientationHost {
+  readonly orientation = signal<'horizontal' | 'vertical'>('vertical');
+  readonly keep = signal(false);
+}
+
+describe('WrTabs orientation', () => {
+  let fixture: ReturnType<typeof TestBed.createComponent<OrientationHost>>;
+
+  const root = (): HTMLElement => fixture.nativeElement as HTMLElement;
+  const host = (): HTMLElement => root().querySelector<HTMLElement>('wr-tabs')!;
+  const strip = (): HTMLElement => root().querySelector<HTMLElement>('[role="tablist"]')!;
+  const tabs = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="tab"]')];
+  const panels = (): HTMLElement[] => [...root().querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+  const selected = (): string | null | undefined =>
+    tabs()
+      .find(t => t.getAttribute('aria-selected') === 'true')
+      ?.querySelector('.wr-tabs__tab-label')?.textContent;
+  const key = (name: string): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
+    strip().dispatchEvent(event);
+    fixture.detectChanges();
+    return event;
+  };
+  const mount = (dir: Direction = 'ltr'): void => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Directionality, useValue: { value: dir, valueSignal: signal(dir), change: new Subject() } },
+      ],
+    });
+    fixture = TestBed.createComponent(OrientationHost);
+    fixture.detectChanges();
+  };
+
+  afterEach(() => fixture.destroy());
+
+  it('announces the axis and paints the modifier', () => {
+    mount();
+    expect(strip().getAttribute('aria-orientation')).toBe('vertical');
+    expect(host().classList.contains('wr-tabs--vertical')).toBe(true);
+
+    fixture.componentInstance.orientation.set('horizontal');
+    fixture.detectChanges();
+    expect(strip().getAttribute('aria-orientation')).toBe('horizontal');
+    expect(host().classList.contains('wr-tabs--vertical')).toBe(false);
+  });
+
+  it('walks a vertical strip with Up and Down, moving focus and skipping a disabled tab', () => {
+    mount();
+
+    expect(key('ArrowDown').defaultPrevented).toBe(true);
+    expect(selected()).toBe('Two');
+    expect(root().ownerDocument.activeElement).toBe(tabs()[1]);
+
+    key('ArrowDown');
+    expect(selected()).toBe('Four');
+    key('ArrowDown');
+    expect(selected()).toBe('One');
+    key('ArrowUp');
+    expect(selected()).toBe('Four');
+
+    key('Home');
+    expect(selected()).toBe('One');
+    key('End');
+    expect(selected()).toBe('Four');
+  });
+
+  it('leaves Left and Right to the page when vertical, in both directions', () => {
+    for (const dir of ['ltr', 'rtl'] as const) {
+      mount(dir);
+      expect(key('ArrowRight').defaultPrevented, dir).toBe(false);
+      expect(key('ArrowLeft').defaultPrevented, dir).toBe(false);
+      expect(selected(), dir).toBe('One');
+      // Down is the next tab whatever the reading direction.
+      key('ArrowDown');
+      expect(selected(), dir).toBe('Two');
+      fixture.destroy();
+    }
+    mount();
+  });
+
+  it('leaves Up and Down to the page when horizontal', () => {
+    mount();
+    fixture.componentInstance.orientation.set('horizontal');
+    fixture.detectChanges();
+
+    expect(key('ArrowDown').defaultPrevented).toBe(false);
+    expect(key('ArrowUp').defaultPrevented).toBe(false);
+    expect(selected()).toBe('One');
+    key('ArrowRight');
+    expect(selected()).toBe('Two');
+  });
+
+  it('keeps the count and the visited panels when vertical', () => {
+    mount();
+    fixture.componentInstance.keep.set(true);
+    fixture.detectChanges();
+
+    expect(tabs()[1].querySelector('.wr-tabs__count')?.textContent).toBe('3');
+    key('ArrowDown');
+    expect(panels().map(p => p.hidden)).toEqual([true, false]);
+    expect(tabs()[1].getAttribute('aria-controls')).toBe(panels()[1].id);
+  });
+
+  it('measures the fades on the block axis when vertical', () => {
+    mount();
+    const el = strip();
+    Object.defineProperties(el, {
+      scrollHeight: { configurable: true, value: 400 },
+      clientHeight: { configurable: true, value: 200 },
+      scrollTop: { configurable: true, writable: true, value: 0 },
+    });
+    const fades = (): { start: boolean; end: boolean } => ({
+      start: host().classList.contains('wr-tabs--fade-start'),
+      end: host().classList.contains('wr-tabs--fade-end'),
+    });
+
+    el.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    expect(fades()).toEqual({ start: false, end: true });
+
+    el.scrollTop = 200;
+    el.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    expect(fades()).toEqual({ start: true, end: false });
   });
 });

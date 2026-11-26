@@ -91,6 +91,18 @@ class NestedHost {}
 @Component({ imports: [WrTabs], template: '<wr-tabs />' })
 class EmptyHost {}
 
+@Component({
+  imports: [WrTab, WrTabs],
+  template: `
+    <wr-tabs orientation="vertical">
+      <wr-tab title="One" key="one">Panel one</wr-tab>
+      <wr-tab title="Two" key="two">Panel two</wr-tab>
+      <wr-tab title="Three" key="three">Panel three</wr-tab>
+    </wr-tabs>
+  `,
+})
+class VerticalHost {}
+
 describe('WrTabsHarness', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<Host>>;
   let loader: ReturnType<typeof TestbedHarnessEnvironment.loader>;
@@ -118,9 +130,9 @@ describe('WrTabsHarness', () => {
     const tabs = await loader.getHarness(WrTabsHarness);
     const strip = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.wr-tabs__strip')!;
 
-    // The component hard-codes `horizontal`, so an assertion of `horizontal` passes
-    // whatever the harness reads — including nothing. Changing the attribute in the
-    // rendered DOM is what pins the read to that attribute.
+    // `horizontal` is also the answer for a missing attribute, so an assertion of it
+    // passes whatever the harness reads. Changing the attribute in the rendered DOM is
+    // what pins the read to that attribute.
     strip.setAttribute('aria-orientation', 'vertical');
     expect(await tabs.getOrientation()).toBe('vertical');
 
@@ -745,6 +757,27 @@ describe('WrTabHarness under keepMounted', () => {
     expect(await two.isPanelBound()).toBe(true);
     await expect(one.getPanelText()).rejects.toThrow(/not rendered, or is hidden/);
     expect(await tabs.getPanelText()).toContain('Panel two');
+    fixture.destroy();
+  });
+
+  it('reads a vertical strip and walks it with Up and Down', async () => {
+    const fixture = TestBed.createComponent(VerticalHost);
+    const tabs = await TestbedHarnessEnvironment.loader(fixture).getHarness(WrTabsHarness);
+
+    expect(await tabs.getOrientation()).toBe('vertical');
+
+    await tabs.focusTabStop();
+    await tabs.pressArrowDown();
+    expect(await tabs.getSelectedLabel()).toBe('Two');
+    expect(await tabs.getFocusedLabel()).toBe('Two');
+
+    await tabs.pressArrowUp();
+    await tabs.pressArrowUp();
+    expect(await tabs.getSelectedLabel()).toBe('Three');
+
+    // The other axis is not the strip's.
+    await tabs.pressArrowRight();
+    expect(await tabs.getSelectedLabel()).toBe('Three');
     fixture.destroy();
   });
 });
