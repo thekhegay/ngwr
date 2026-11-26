@@ -169,6 +169,21 @@ describe('WrScrollBlock', () => {
       expect(lock.isolates(page.firstElementChild!)).toBe(false);
     });
 
+    it('sees a node inside a shadow root as inside what it made inert', () => {
+      const page = child();
+      const shadow = page.attachShadow({ mode: 'open' });
+      const inner = document.createElement('span');
+      shadow.appendChild(inner);
+      const lock = TestBed.inject(WrScrollBlock);
+      const strategy = lock.strategy();
+
+      strategy.enable();
+      expect(lock.isolates(inner)).toBe(true);
+
+      strategy.disable();
+      expect(lock.isolates(inner)).toBe(false);
+    });
+
     it('only blocks the scroll for a modal that renders inside the page', () => {
       const page = child();
       const lock = TestBed.inject(WrScrollBlock);
