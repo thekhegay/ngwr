@@ -215,7 +215,8 @@ export class WrTextareaHarness extends ComponentHarness {
 
   /**
    * Whether autosize currently OWNS the field's height: the inline `height` it
-   * writes on the native element, and hands back when `autosize` goes off.
+   * writes on the native element, or `wr-textarea--grow` where the browser grows
+   * the field itself, and hands back when `autosize` goes off.
    *
    * The fitted number itself is not exposed — see the class docs. What is worth
    * asserting is the handover: a field left frozen at the last fitted height
@@ -226,7 +227,7 @@ export class WrTextareaHarness extends ComponentHarness {
    */
   async hasFittedHeight(): Promise<boolean> {
     const style = (await (await this.native()).getAttribute('style')) ?? '';
-    return /(?:^|;)\s*height\s*:/.test(style);
+    return /(?:^|;)\s*height\s*:/.test(style) || (await this.host()).hasClass('wr-textarea--grow');
   }
 
   /**

@@ -105,6 +105,22 @@
     resize: none;
   }
 
+  // `autosize` where the browser has `field-sizing`: layout grows the field and
+  // these are the heights the measuring script lands on. `rows` is the floor,
+  // because the attribute stops sizing the field here, and `maxRows` the
+  // ceiling, which also wins over a taller `rows`. The field is border-box with
+  // no border, so each bound is its lines plus the block padding.
+  &--grow &__native {
+    --_pad-block: calc(2 * var(--wr-textarea-padding-y) * var(--wr-density-y, 1));
+    --_floor: calc(var(--_rows) * 1lh + var(--_pad-block));
+    // Invalid without `--_max-rows`, which is what makes the fallbacks apply.
+    --_cap: calc(var(--_max-rows) * var(--_cap-row, 1lh) + var(--_pad-block));
+
+    field-sizing: content;
+    min-height: min(var(--_floor), var(--_cap, var(--_floor)));
+    max-height: var(--_cap, none);
+  }
+
   &__native {
     display: block;
     width: 100%;
