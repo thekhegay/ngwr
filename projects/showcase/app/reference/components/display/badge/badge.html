@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Badge"
-  updated="16.3.0"
+  updated="16.10.0"
   description="A small label for a count or a status."
   [keywords]="['badge', 'tag', 'status', 'wr-badge', 'wr-tag']"
   [labels]="['Component']"
@@ -55,6 +55,64 @@
       @for (c of colors; track c) {
         <wr-badge [color]="c" outlined>{{ c }}</wr-badge>
       }
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Count"
+    description="`count` draws the number. Past `max` it reads `99+`. A zero hides the badge unless `showZero` is set. Since v16.10."
+  >
+    <ngwr-doc-snippet [code]="snippets.count">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+        <wr-badge color="danger" shape="pill" [count]="unread()" />
+        <wr-badge color="danger" shape="pill" [count]="120" />
+        <wr-badge color="danger" shape="pill" [count]="0" showZero />
+        <wr-btn size="sm" outlined (click)="unread.set(unread() + 1)">Add</wr-btn>
+        <wr-btn size="sm" outlined (click)="unread.set(0)">Clear</wr-btn>
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Dot"
+    description="`dot` is a circle with no text. Name it with `ariaLabel`, unless the words beside it say the state. Since v16.10."
+  >
+    <ngwr-doc-snippet [code]="snippets.dot">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem">
+        <wr-badge dot color="success" ariaLabel="Online" />
+        <wr-badge dot color="danger" /> Build failed
+      </div>
+    </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Anchored"
+    description="`anchor` pins the badge to the top end corner of a `.wr-badge-anchor` wrapper. `--wr-badge-anchor-offset-x` and `-y` pull it inward. Since v16.10."
+  >
+    <ngwr-doc-snippet [code]="snippets.anchor">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem">
+        <span class="wr-badge-anchor">
+          <wr-btn icon="bell" outlined aria-label="Notifications" />
+          <wr-badge
+            anchor
+            color="danger"
+            size="sm"
+            shape="pill"
+            [count]="unread()"
+            [ariaLabel]="`${unread()} unread`"
+          />
+        </span>
+        <span class="wr-badge-anchor">
+          <wr-avatar name="Ada Lovelace" shape="circle" />
+          <wr-badge
+            anchor
+            dot
+            color="success"
+            ariaLabel="Online"
+            style="--wr-badge-anchor-offset-x: 14%; --wr-badge-anchor-offset-y: 14%"
+          />
+        </span>
+      </div>
     </ngwr-doc-snippet>
   </ngwr-doc-section>
 

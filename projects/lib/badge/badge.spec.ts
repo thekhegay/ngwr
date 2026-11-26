@@ -90,6 +90,126 @@ describe('WrBadge', () => {
   });
 });
 
+describe('WrBadge count, dot and anchor', () => {
+  @Component({
+    imports: [WrBadge],
+    template: `<span class="wr-badge-anchor">
+      <button type="button">Inbox</button>
+      <wr-badge
+        [count]="count()"
+        [max]="max()"
+        [showZero]="showZero()"
+        [dot]="dot()"
+        [ariaLabel]="label()"
+        [anchor]="anchor()"
+      />
+    </span>`,
+  })
+  class CountHost {
+    readonly count = signal<number | null>(5);
+    readonly max = signal(99);
+    readonly showZero = signal(false);
+    readonly dot = signal(false);
+    readonly label = signal<string | null>(null);
+    readonly anchor = signal(false);
+  }
+
+  let fixture: ReturnType<typeof TestBed.createComponent<CountHost>>;
+
+  const badge = (): HTMLElement => (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-badge')!;
+  const set = (patch: (host: CountHost) => void): void => {
+    patch(fixture.componentInstance);
+    fixture.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    fixture = TestBed.createComponent(CountHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('draws the count', () => {
+    expect(badge().textContent).toBe('5');
+    expect([...badge().classList].sort()).toEqual(['wr-badge', 'wr-badge--count', 'wr-badge--primary']);
+  });
+
+  it('draws the cap with a plus past max, and the count itself at max', () => {
+    set(host => host.count.set(100));
+    expect(badge().textContent).toBe('99+');
+
+    set(host => host.count.set(99));
+    expect(badge().textContent).toBe('99');
+
+    set(host => {
+      host.max.set(9);
+      host.count.set(10);
+    });
+    expect(badge().textContent).toBe('9+');
+  });
+
+  it('groups a large count per the locale', () => {
+    set(host => {
+      host.max.set(9999);
+      host.count.set(1234);
+    });
+    expect(badge().textContent).toBe('1,234');
+  });
+
+  it('hides a zero count unless showZero is set', () => {
+    set(host => host.count.set(0));
+    expect(badge().classList).toContain('wr-badge--hidden');
+
+    set(host => host.showZero.set(true));
+    expect(badge().classList).not.toContain('wr-badge--hidden');
+    expect(badge().textContent).toBe('0');
+  });
+
+  it('is a plain badge again once the count is null', () => {
+    set(host => host.count.set(null));
+    expect(badge().className).toBe('wr-badge wr-badge--primary');
+    expect(badge().querySelector('.wr-badge__count')).toBeNull();
+  });
+
+  it('draws a dot with no number, named by ariaLabel', () => {
+    set(host => {
+      host.dot.set(true);
+      host.label.set('Online');
+    });
+    expect(badge().classList).toContain('wr-badge--dot');
+    expect(badge().classList).not.toContain('wr-badge--count');
+    expect(badge().querySelector('.wr-badge__count')).toBeNull();
+    expect(badge().querySelector('.wr-badge__label')!.textContent).toBe('Online');
+    expect(badge().textContent).toBe('Online');
+  });
+
+  it('keeps a dot on screen whatever the count', () => {
+    set(host => {
+      host.dot.set(true);
+      host.count.set(0);
+    });
+    expect(badge().classList).not.toContain('wr-badge--hidden');
+  });
+
+  it('reads ariaLabel in place of the bare number', () => {
+    expect(badge().querySelector('.wr-badge__count')!.hasAttribute('aria-hidden')).toBe(false);
+
+    set(host => host.label.set('5 unread messages'));
+    expect(badge().querySelector('.wr-badge__count')!.getAttribute('aria-hidden')).toBe('true');
+    expect(badge().querySelector('.wr-badge__label')!.textContent).toBe('5 unread messages');
+  });
+
+  it('marks an anchored badge, and leaves one with nothing to draw empty', () => {
+    set(host => host.anchor.set(true));
+    expect(badge().classList).toContain('wr-badge--anchor');
+
+    set(host => host.count.set(null));
+    // Comments only, so `.wr-badge--anchor:empty` hides it.
+    expect([...badge().childNodes].every(node => node.nodeType === Node.COMMENT_NODE)).toBe(true);
+  });
+});
+
 /**
  * Every documented `[iconPosition]` on `wr-tag`. The modifier only exists when
  * the tag HAS an adornment, so the host carries an icon — without one the class
@@ -151,5 +271,24 @@ describe('WrBadge hooks', () => {
     expect(rule(css, '.wr-badge--outlined')).toMatch(/--wr-badge-bg:\s*transparent/);
     expect(rule(css, '.wr-badge--outlined')).toMatch(/box-shadow:\s*inset 0 0 0 1px var\(--wr-badge-border\)/);
     expect(rule(css, '.wr-badge--outlined.wr-badge--primary')).not.toMatch(/box-shadow|(?:^|;)\s*color:/);
+  });
+
+  it('pins an anchored badge with logical insets and mirrors the shift under RTL', () => {
+    const anchor = rule(css, '.wr-badge--anchor');
+    expect(anchor).toMatch(/position:\s*absolute/);
+    expect(anchor).toMatch(/inset-block-start:\s*var\(--wr-badge-anchor-offset-y\)/);
+    expect(anchor).toMatch(/inset-inline-end:\s*var\(--wr-badge-anchor-offset-x\)/);
+    expect(anchor).not.toMatch(/(?:^|;)\s*(?:top|right|left):/);
+    expect(anchor).toMatch(/translate:\s*50% -50%/);
+    expect(rule(css, '.wr-badge--anchor:dir(rtl)')).toMatch(/translate:\s*-50% -50%/);
+    expect(rule(css, '.wr-badge--anchor:empty')).toMatch(/display:\s*none/);
+    expect(rule(css, '.wr-badge-anchor')).toMatch(/position:\s*relative/);
+  });
+
+  it('sizes a dot from its hook and hides a zero count', () => {
+    const dot = rule(css, '.wr-badge--dot');
+    expect(dot).toMatch(/width:\s*var\(--wr-badge-dot-size\)/);
+    expect(dot).toMatch(/height:\s*var\(--wr-badge-dot-size\)/);
+    expect(rule(css, '.wr-badge--hidden')).toMatch(/display:\s*none/);
   });
 });

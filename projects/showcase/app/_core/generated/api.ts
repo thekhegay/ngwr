@@ -97,6 +97,12 @@ export const API = {
     { name: "size", description: "Size variant.", type: "WrBadgeSize", default: "'md'" },
     { name: "shape", description: "Corner treatment. Mirrors `<wr-btn>` — `rounded` (default) uses the small form-radius; `pill` rounds the ends fully.", type: "WrBadgeShape", default: "'rounded'" },
     { name: "outlined", description: "Outlined style — transparent fill, colored border and text.", type: "boolean", default: "false" },
+    { name: "count", description: "A number the badge draws itself, grouped per `LOCALE_ID`. `null` draws nothing and leaves the badge to its projected text. `0` hides the badge unless `showZero` is set.", type: "number | null", default: "null" },
+    { name: "max", description: "The largest `count` drawn as is: past it the badge reads `99+`.", type: "number", default: "99" },
+    { name: "showZero", description: "Keep a `count` of `0` on screen.", type: "boolean", default: "false" },
+    { name: "dot", description: "A small circle with no text, which also drops the `count`. Colour is all it shows, so name it with `ariaLabel` unless the words beside it already say the state.", type: "boolean", default: "false" },
+    { name: "ariaLabel", description: "Text for a screen reader, drawn visually hidden: the name of a `dot`, or what a `count` counts (`3 unread messages`), read in place of the bare number.", type: "string | null", default: "null" },
+    { name: "anchor", description: "Pin the badge to the top end corner of the nearest `.wr-badge-anchor` wrapper, over an icon button or an avatar. An anchored badge with nothing to draw is hidden.", type: "boolean", default: "false" },
   ],
   // <wr-bar-chart>
   WrBarChart: [

@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1940 hook(s) across 116 page(s). A property is here only when the
+ * 1943 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -759,15 +759,18 @@ export const CSS_VARS = {
   "reference/components/badge": {
     subpath: "ngwr/badge",
     vars: [
+      { name: "--wr-badge-anchor-offset-x", default: "0", scope: ".wr-badge" },
+      { name: "--wr-badge-anchor-offset-y", default: "0", scope: ".wr-badge" },
       { name: "--wr-badge-bg", default: "var(--wr-color-fill)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-border", default: "var(--wr-border-base)", scope: ".wr-badge", overrides: 1 },
       { name: "--wr-badge-color", default: "var(--wr-color-on-surface)", scope: ".wr-badge", overrides: 2 },
+      { name: "--wr-badge-dot-size", default: "0.5rem", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-font-size", default: "var(--wr-text-xs)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-badge-font-weight", default: "600", scope: ".wr-badge" },
       { name: "--wr-badge-min-height", default: "1.5rem", scope: ".wr-badge", overrides: 2 },
-      { name: "--wr-badge-padding-x", default: "var(--wr-space-sm)", scope: ".wr-badge", overrides: 3 },
+      { name: "--wr-badge-padding-x", default: "var(--wr-space-sm)", scope: ".wr-badge", overrides: 4 },
       { name: "--wr-badge-padding-y", default: "var(--wr-space-xs)", scope: ".wr-badge", overrides: 2 },
-      { name: "--wr-badge-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-badge", overrides: 1 },
+      { name: "--wr-badge-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-badge", overrides: 2 },
       { name: "--wr-tag-bg", default: "var(--wr-color-fill)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-border", default: "var(--wr-border-base)", scope: ".wr-tag", overrides: 3 },
       { name: "--wr-tag-color", default: "var(--wr-color-on-surface)", scope: ".wr-tag", overrides: 3 },
