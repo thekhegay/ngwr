@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 
-import { Check, CircleCheck, OctagonAlert } from 'lucide';
+import { Bell, Check, CircleCheck, OctagonAlert } from 'lucide';
+import { WrAvatar } from 'ngwr/avatar';
 import { type WrBadgeShape, type WrTagSize, WrBadge, WrTag } from 'ngwr/badge';
 import { WrButton } from 'ngwr/button';
 import { wrLucideIcons, provideWrIcons } from 'ngwr/icon';
@@ -22,6 +23,7 @@ import { API } from '#core/generated/api';
   imports: [
     WrBadge,
     WrTag,
+    WrAvatar,
     WrButton,
     DocPageComponent,
     DocSectionComponent,
@@ -30,7 +32,9 @@ import { API } from '#core/generated/api';
     DocApiComponent,
   ],
   providers: [
-    provideWrIcons(wrLucideIcons({ checkmark: Check, 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert })),
+    provideWrIcons(
+      wrLucideIcons({ bell: Bell, checkmark: Check, 'circle-check': CircleCheck, 'octagon-alert': OctagonAlert })
+    ),
   ],
 })
 export default class BadgeComponent {
@@ -41,6 +45,8 @@ export default class BadgeComponent {
 
   protected readonly allTopics = ['Angular', 'Signals', 'Forms'];
   protected readonly topics = signal(this.allTopics);
+
+  protected readonly unread = signal(5);
 
   protected readonly snippets = {
     removable: `@for (topic of topics(); track topic) {
@@ -56,6 +62,20 @@ export default class BadgeComponent {
 <wr-badge color="primary" shape="pill">Beta</wr-badge>
 <wr-badge color="primary" shape="squircle">Beta</wr-badge>`,
     outlined: `<wr-badge color="primary" outlined>Beta</wr-badge>`,
+    count: `<wr-badge color="danger" shape="pill" [count]="unread()" />
+<wr-badge color="danger" shape="pill" [count]="120" />
+<wr-badge color="danger" shape="pill" [count]="0" showZero />`,
+    dot: `<wr-badge dot color="success" ariaLabel="Online" />
+<wr-badge dot color="danger" /> Build failed`,
+    anchor: `<span class="wr-badge-anchor">
+  <wr-btn icon="bell" outlined aria-label="Notifications" />
+  <wr-badge anchor color="danger" size="sm" shape="pill" [count]="unread()" [ariaLabel]="\`\${unread()} unread\`" />
+</span>
+
+<span class="wr-badge-anchor">
+  <wr-avatar name="Ada Lovelace" shape="circle" />
+  <wr-badge anchor dot color="success" ariaLabel="Online" style="--wr-badge-anchor-offset-x: 14%; --wr-badge-anchor-offset-y: 14%" />
+</span>`,
     tag: `<wr-tag color="success" icon="checkmark">Done</wr-tag>
 <wr-tag color="primary" outlined rounded>Beta</wr-tag>
 <wr-tag color="warning" loading>Saving</wr-tag>`,

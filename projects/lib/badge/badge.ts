@@ -6,10 +6,10 @@
  */
 
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
-import { Component, ViewEncapsulation, computed, input } from '@angular/core';
+import { Component, LOCALE_ID, ViewEncapsulation, computed, inject, input, numberAttribute } from '@angular/core';
 
 import type { WrColor } from 'ngwr/theme';
-import { wrCheckStyles } from 'ngwr/utils';
+import { wrCheckStyles, wrIntlNumberFormat } from 'ngwr/utils';
 
 import type { WrBadgeShape, WrBadgeSize } from './types';
 
@@ -24,13 +24,22 @@ import type { WrBadgeShape, WrBadgeSize } from './types';
  * <wr-badge color="success">Active</wr-badge>
  * <wr-badge color="danger" size="sm">3</wr-badge>
  * <wr-badge color="primary" shape="pill">New</wr-badge>
+ *
+ * <span class="wr-badge-anchor">
+ *   <wr-btn icon="bell" aria-label="Notifications" />
+ *   <wr-badge anchor color="danger" size="sm" shape="pill" [count]="unread()" />
+ * </span>
  * ```
  *
  * @see https://ngwr.dev/reference/components/badge
  */
 @Component({
   selector: 'wr-badge',
-  template: '<ng-content />',
+  // One line, so a badge with nothing to draw holds no text node and `:empty` matches.
+  template:
+    '@if (text(); as value) {<span class="wr-badge__count" [attr.aria-hidden]="ariaLabel() ? true : null">{{ value }}</span>}' +
+    '@if (ariaLabel(); as label) {<span class="wr-badge__label">{{ label }}</span>}' +
+    '<ng-content />',
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-badge',
@@ -76,6 +85,66 @@ export class WrBadge {
    */
   readonly outlined = input(false, { transform: coerceBooleanProperty });
 
+  /**
+   * A number the badge draws itself, grouped per `LOCALE_ID`. `null` draws
+   * nothing and leaves the badge to its projected text. `0` hides the badge
+   * unless `showZero` is set.
+   *
+   * @default null
+   */
+  readonly count = input<number | null>(null);
+
+  /**
+   * The largest `count` drawn as is: past it the badge reads `99+`.
+   *
+   * @default 99
+   */
+  readonly max = input(99, { transform: numberAttribute });
+
+  /**
+   * Keep a `count` of `0` on screen.
+   *
+   * @default false
+   */
+  readonly showZero = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * A small circle with no text, which also drops the `count`. Colour is all
+   * it shows, so name it with `ariaLabel` unless the words beside it already
+   * say the state.
+   *
+   * @default false
+   */
+  readonly dot = input(false, { transform: coerceBooleanProperty });
+
+  /**
+   * Text for a screen reader, drawn visually hidden: the name of a `dot`, or
+   * what a `count` counts (`3 unread messages`), read in place of the bare
+   * number.
+   *
+   * @default null
+   */
+  readonly ariaLabel = input<string | null>(null);
+
+  /**
+   * Pin the badge to the top end corner of the nearest `.wr-badge-anchor`
+   * wrapper, over an icon button or an avatar. An anchored badge with nothing
+   * to draw is hidden.
+   *
+   * @default false
+   */
+  readonly anchor = input(false, { transform: coerceBooleanProperty });
+
+  private readonly locale = inject(LOCALE_ID);
+
+  protected readonly text = computed(() => {
+    const count = this.count();
+    if (count === null || this.dot()) return null;
+    const max = this.max();
+    const format = wrIntlNumberFormat(this.locale);
+    return count > max ? `${format.format(max)}+` : format.format(count);
+  });
+
   protected readonly classes = computed(() => {
     const parts: string[] = [];
 
@@ -92,6 +161,15 @@ export class WrBadge {
     }
     if (this.outlined()) {
       parts.push('wr-badge--outlined');
+    }
+    if (this.dot()) {
+      parts.push('wr-badge--dot');
+    } else if (this.count() !== null) {
+      parts.push('wr-badge--count');
+      if (this.count() === 0 && !this.showZero()) parts.push('wr-badge--hidden');
+    }
+    if (this.anchor()) {
+      parts.push('wr-badge--anchor');
     }
     return parts.join(' ');
   });

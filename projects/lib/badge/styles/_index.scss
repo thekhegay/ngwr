@@ -146,4 +146,78 @@
       }
     }
   }
+
+  // Count: one digit sits in a circle under `shape="pill"`, and the box only
+  // widens once the number does.
+  &--count {
+    --wr-badge-padding-x: calc(var(--wr-badge-padding-y) + 0.125rem);
+    // The containing block of the hidden label.
+    position: relative;
+    min-width: var(--wr-badge-min-height);
+    font-variant-numeric: tabular-nums;
+  }
+
+  // Dot: the fill alone, no text box.
+  --wr-badge-dot-size: 0.5rem;
+
+  &--sm {
+    --wr-badge-dot-size: 0.375rem;
+  }
+
+  &--lg {
+    --wr-badge-dot-size: 0.625rem;
+  }
+
+  &--dot {
+    --wr-badge-radius: var(--wr-border-radius-pill);
+    // The containing block of the hidden label.
+    position: relative;
+    flex: none;
+    width: var(--wr-badge-dot-size);
+    height: var(--wr-badge-dot-size);
+    min-height: 0;
+    padding: 0;
+
+    // Forced colors paints every background `Canvas`, and a dot is nothing else.
+    @media (forced-colors: active) {
+      background-color: CanvasText;
+    }
+  }
+
+  &__label {
+    @include theme.visually-hidden;
+  }
+
+  &--hidden {
+    display: none;
+  }
+
+  // Anchored: centred on the top end corner of `.wr-badge-anchor`. The offsets
+  // pull it inward, for a round avatar whose corner is outside the circle.
+  --wr-badge-anchor-offset-x: 0;
+  --wr-badge-anchor-offset-y: 0;
+
+  &--anchor {
+    position: absolute;
+    inset-block-start: var(--wr-badge-anchor-offset-y);
+    inset-inline-end: var(--wr-badge-anchor-offset-x);
+    z-index: 1;
+    // rtl-ok: half the badge's own width outward, mirrored under RTL below
+    translate: 50% -50%;
+
+    &:dir(rtl) {
+      // rtl-ok: the mirror of the pair above
+      translate: -50% -50%;
+    }
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+.wr-badge-anchor {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
 }
