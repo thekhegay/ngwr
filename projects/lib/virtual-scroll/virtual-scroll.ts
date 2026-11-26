@@ -44,25 +44,39 @@ import {
   styleUrl: './virtual-scroll.scss',
   encapsulation: ViewEncapsulation.None,
   imports: [ScrollingModule, NgTemplateOutlet],
-  host: { class: 'wr-virtual-scroll' },
+  host: {
+    class: 'wr-virtual-scroll',
+    '[class.wr-virtual-scroll--horizontal]': "orientation() === 'horizontal'",
+  },
 })
 export class WrVirtualScroll<T = unknown> {
   /** Items to render. */
   readonly items = input.required<readonly T[]>();
 
-  /** Per-item pixel height. All rows must be the same height. @default 32 */
+  /**
+   * Per-item pixel size along the scroll axis: the height of a row, or the width
+   * of an item when `orientation` is `'horizontal'`. All items must share it.
+   * @default 32
+   */
   readonly itemSize = input(32, {
     transform: (v: unknown): number => Math.max(1, coerceNumberProperty(v, 32)),
   });
 
   /**
    * Viewport height. Pass a number (`px`) or any CSS length string
-   * (`'80vh'`, `'40rem'`). @default 256
+   * (`'80vh'`, `'40rem'`). A horizontal viewport fills the width of its
+   * container, and `height` is then the height of the strip. @default 256
    */
   readonly height = input<number | string>(256);
 
   /**
-   * Pixels of rendered content kept above + below the viewport. CDK
+   * Scroll axis. `'horizontal'` lays the items out in one row along the inline
+   * axis, so it follows the text direction. @default 'vertical'
+   */
+  readonly orientation = input<'vertical' | 'horizontal'>('vertical');
+
+  /**
+   * Pixels of rendered content kept before + after the viewport. CDK
    * keeps adding rows until at least this many pixels are buffered.
    * @default itemSize * 4
    */
@@ -117,12 +131,13 @@ export class WrVirtualScroll<T = unknown> {
     // rendered window sized for the old box: grown, a blank band under the last
     // row that no scrolling filled. Re-measured after the render that applied
     // the new height, never on the first one, which the CDK measures itself.
+    // A change of orientation swaps the measured axis, so it re-measures too.
     let applied: string | null = null;
     afterRenderEffect(() => {
-      const height = this.resolvedHeight();
+      const box = `${this.orientation()} ${this.resolvedHeight()}`;
       const viewport = this.viewport();
-      if (applied !== null && applied !== height) viewport.checkViewportSize();
-      applied = height;
+      if (applied !== null && applied !== box) viewport.checkViewportSize();
+      applied = box;
     });
   }
 

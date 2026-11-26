@@ -4,11 +4,13 @@ import { WrVirtualScroll } from 'ngwr/virtual-scroll';
 
 import {
   type DocApiRow,
+  type DocCodeFile,
   type DocControl,
   DocApiComponent,
   DocPageComponent,
   DocPlaygroundComponent,
   DocSectionComponent,
+  DocSnippetComponent,
 } from '#core/components';
 
 interface Row {
@@ -19,7 +21,14 @@ interface Row {
 @Component({
   selector: 'ngwr-virtual-scroll-page',
   templateUrl: './virtual-scroll.html',
-  imports: [WrVirtualScroll, DocPageComponent, DocSectionComponent, DocPlaygroundComponent, DocApiComponent],
+  imports: [
+    WrVirtualScroll,
+    DocPageComponent,
+    DocSectionComponent,
+    DocPlaygroundComponent,
+    DocSnippetComponent,
+    DocApiComponent,
+  ],
 })
 export default class VirtualScrollPage {
   protected readonly count = signal(10_000);
@@ -51,6 +60,27 @@ export default class VirtualScrollPage {
 
   protected readonly snippets = {};
 
+  protected readonly horizontalFiles: readonly DocCodeFile[] = [
+    {
+      label: 'HTML',
+      language: 'angular-html',
+      code: `<wr-virtual-scroll orientation="horizontal" [items]="rows" [itemSize]="96" [height]="96">
+  <ng-template let-row let-i="index">
+    <div class="cell">{{ i + 1 }}</div>
+  </ng-template>
+</wr-virtual-scroll>`,
+    },
+    {
+      label: 'SCSS',
+      language: 'scss',
+      code: `.cell {
+  display: grid;
+  place-items: center;
+  width: 96px;
+}`,
+    },
+  ];
+
   protected readonly api: readonly DocApiRow[] = [
     {
       name: 'items',
@@ -60,7 +90,7 @@ export default class VirtualScrollPage {
     },
     {
       name: 'itemSize',
-      description: 'Per-row pixel height. All rows must share this height.',
+      description: 'Per-item pixel size along the scroll axis: row height, or item width when horizontal.',
       type: 'number',
       default: '32',
     },
@@ -71,8 +101,14 @@ export default class VirtualScrollPage {
       default: '256',
     },
     {
+      name: 'orientation',
+      description: 'Scroll axis. Horizontal lays the items out in one row and follows the text direction.',
+      type: `'vertical' | 'horizontal'`,
+      default: `'vertical'`,
+    },
+    {
       name: 'minBufferPx',
-      description: 'Pixels of rendered content kept above + below the viewport.',
+      description: 'Pixels of rendered content kept before + after the viewport.',
       type: 'number',
       default: 'itemSize * 4',
     },

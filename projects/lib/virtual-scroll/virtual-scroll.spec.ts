@@ -14,6 +14,7 @@ import { WrVirtualScroll } from './virtual-scroll';
       [items]="items()"
       [itemSize]="itemSize()"
       [height]="height()"
+      [orientation]="orientation()"
       [minBufferPx]="minBuffer()"
       [maxBufferPx]="maxBuffer()"
     >
@@ -27,6 +28,7 @@ class Host {
   readonly items = signal<readonly string[]>(Array.from({ length: 1000 }, (_, i) => `Row ${i}`));
   readonly itemSize = signal(32);
   readonly height = signal<number | string>(256);
+  readonly orientation = signal<'vertical' | 'horizontal'>('vertical');
   readonly minBuffer = signal<number | undefined>(undefined);
   readonly maxBuffer = signal<number | undefined>(undefined);
 }
@@ -166,5 +168,88 @@ describe('WrVirtualScroll', () => {
 
     expect(rows()).toEqual([]);
     expect(viewport()).not.toBeNull();
+  });
+
+  describe('orientation', () => {
+    /**
+     * jsdom lays nothing out, so the viewport is given a width and no height by
+     * hand: which of the two the CDK reads is then visible in how many items it
+     * renders. What this cannot prove is the row itself, the items sitting side by
+     * side, which is the stylesheet's and needs a real browser.
+     */
+    const WIDTH = 640;
+    let width: { mockRestore: () => void };
+
+    const settle = async (): Promise<void> => {
+      for (let i = 0; i < 3; i++) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+        fixture.detectChanges();
+        await fixture.whenStable();
+      }
+    };
+
+    const mountAs = async (orientation: 'vertical' | 'horizontal'): Promise<void> => {
+      remount(host => host.orientation.set(orientation));
+      fixture.detectChanges();
+      await settle();
+    };
+
+    beforeEach(() => {
+      width = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(WIDTH);
+    });
+
+    afterEach(() => width.mockRestore());
+
+    it('stays vertical by default, with no modifier on the host', async () => {
+      await mountAs('vertical');
+
+      const host = root().querySelector('wr-virtual-scroll')!;
+      expect(host.classList.contains('wr-virtual-scroll--horizontal')).toBe(false);
+      expect(viewport().classList.contains('cdk-virtual-scroll-orientation-vertical')).toBe(true);
+      // The width is not what a vertical viewport measures: only the buffer renders.
+      expect(rows().length).toBeLessThan(WIDTH / 32);
+    });
+
+    it('renders a window of items sized by the viewport width when horizontal', async () => {
+      await mountAs('horizontal');
+
+      const host = root().querySelector('wr-virtual-scroll')!;
+      expect(host.classList.contains('wr-virtual-scroll--horizontal')).toBe(true);
+      expect(viewport().classList.contains('cdk-virtual-scroll-orientation-horizontal')).toBe(true);
+      expect(rows()[0]).toBe('0:Row 0');
+      expect(rows().length).toBeGreaterThanOrEqual(WIDTH / 32);
+      expect(rows().length).toBeLessThan(1000);
+      // The strip keeps the height it was given.
+      expect(viewport().style.height).toBe('256px');
+    });
+
+    it('scrolls a horizontal viewport on the inline axis', async () => {
+      await mountAs('horizontal');
+      const el = viewport();
+      el.scrollTo = ((options: ScrollToOptions): void => {
+        if (options.left != null) el.scrollLeft = options.left;
+        if (options.top != null) el.scrollTop = options.top;
+      }) as typeof el.scrollTo;
+
+      const scroller = fixture.debugElement.query(By.directive(WrVirtualScroll)).componentInstance as WrVirtualScroll;
+      scroller.scrollToIndex(100);
+      el.dispatchEvent(new Event('scroll'));
+      await settle();
+
+      expect([el.scrollLeft, el.scrollTop]).toEqual([3200, 0]);
+      expect(rows()).toContain('100:Row 100');
+      expect(rows()).not.toContain('0:Row 0');
+    });
+
+    it('re-measures when the orientation changes', async () => {
+      await mountAs('vertical');
+      const before = rows().length;
+
+      fixture.componentInstance.orientation.set('horizontal');
+      fixture.detectChanges();
+      await settle();
+
+      expect(rows().length).toBeGreaterThan(before);
+    });
   });
 });

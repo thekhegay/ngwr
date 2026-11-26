@@ -22,4 +22,14 @@
       border-radius: var(--wr-virtual-scroll-thumb-radius);
     }
   }
+
+  // The CDK wrapper is a block: a horizontal viewport needs its items in one
+  // row, and an absolutely positioned flex row would shrink them to fit.
+  &--horizontal .cdk-virtual-scroll-content-wrapper {
+    display: flex;
+
+    > * {
+      flex: none;
+    }
+  }
 }
