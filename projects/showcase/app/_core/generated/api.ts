@@ -1951,9 +1951,10 @@ export const API = {
   // <wr-virtual-scroll>
   WrVirtualScroll: [
     { name: "items", description: "Items to render.", type: "readonly T[]", required: true },
-    { name: "itemSize", description: "Per-item pixel height. All rows must be the same height.", type: "number", default: "32" },
-    { name: "height", description: "Viewport height. Pass a number (`px`) or any CSS length string (`'80vh'`, `'40rem'`).", type: "number | string", default: "256" },
-    { name: "minBufferPx", description: "Pixels of rendered content kept above + below the viewport. CDK keeps adding rows until at least this many pixels are buffered.", type: "number | undefined", default: "itemSize * 4" },
+    { name: "itemSize", description: "Per-item pixel size along the scroll axis: the height of a row, or the width of an item when `orientation` is `'horizontal'`. All items must share it.", type: "number", default: "32" },
+    { name: "height", description: "Viewport height. Pass a number (`px`) or any CSS length string (`'80vh'`, `'40rem'`). A horizontal viewport fills the width of its container, and `height` is then the height of the strip.", type: "number | string", default: "256" },
+    { name: "orientation", description: "Scroll axis. `'horizontal'` lays the items out in one row along the inline axis, so it follows the text direction.", type: "'vertical' | 'horizontal'", default: "'vertical'" },
+    { name: "minBufferPx", description: "Pixels of rendered content kept before + after the viewport. CDK keeps adding rows until at least this many pixels are buffered.", type: "number | undefined", default: "itemSize * 4" },
     { name: "maxBufferPx", description: "Maximum pixels of buffered content before CDK starts recycling rows. Must be ≥ `minBufferPx`.", type: "number | undefined", default: "itemSize * 8" },
     { name: "trackBy", description: "`trackBy` function for the inner `*cdkVirtualFor`. Defaults to identity (recreates rows when the item reference changes).", type: "TrackByFunction<T>", default: "(_, item) => item" },
   ],

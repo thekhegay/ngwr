@@ -3,6 +3,7 @@
   description="A long list of same-height rows that renders only the rows on screen."
   [keywords]="['virtual-scroll', 'wr-virtual-scroll', 'cdk-virtual-scroll-viewport', 'list', 'performance']"
   [labels]="['Component']"
+  updated="16.10.0"
 >
   <ngwr-doc-section title="Playground">
     <ngwr-doc-playground [code]="snippet()" [controls]="controls">
@@ -23,6 +24,35 @@
         </ng-template>
       </wr-virtual-scroll>
     </ngwr-doc-playground>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Horizontal"
+    description="A horizontal `orientation` scrolls a row of same-width items. The viewport fills its width, `height` is the height of the strip and `itemSize` the width of an item."
+  >
+    <ngwr-doc-snippet [files]="horizontalFiles">
+      <wr-virtual-scroll
+        orientation="horizontal"
+        [items]="rows()"
+        [itemSize]="96"
+        [height]="96"
+        style="border: 1px solid var(--wr-border-base); border-radius: 0.5rem"
+      >
+        <ng-template let-row let-i="index">
+          <div
+            style="
+              display: grid;
+              place-items: center;
+              width: 96px;
+              border-inline-end: 1px solid var(--wr-border-base);
+              font-variant-numeric: tabular-nums;
+            "
+          >
+            {{ i + 1 }}
+          </div>
+        </ng-template>
+      </wr-virtual-scroll>
+    </ngwr-doc-snippet>
   </ngwr-doc-section>
 
   <ngwr-doc-section title="API">
