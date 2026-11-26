@@ -402,3 +402,180 @@ describe('WrSplitter and reading direction', () => {
     }
   });
 });
+
+@Component({
+  imports: [WrSplitter],
+  template: `
+    <wr-splitter
+      [(position)]="split"
+      [(collapsed)]="collapsed"
+      [collapsible]="collapsible()"
+      [minPosition]="min()"
+      [disabled]="disabled()"
+    >
+      <div wrSplitterStart><button type="button">left</button></div>
+      <div wrSplitterEnd>right</div>
+    </wr-splitter>
+  `,
+})
+class CollapsibleHost {
+  readonly split = signal(30);
+  readonly collapsed = signal(false);
+  readonly collapsible = signal<'start' | 'end' | null>('start');
+  readonly min = signal(20);
+  readonly disabled = signal(false);
+}
+
+describe('WrSplitter collapsible pane', () => {
+  let host: ReturnType<typeof TestBed.createComponent<CollapsibleHost>>;
+
+  const el = (selector: string): HTMLElement =>
+    (host.nativeElement as HTMLElement).querySelector<HTMLElement>(selector)!;
+  const sep = (): HTMLElement => el('[role="separator"]');
+  const start = (): HTMLElement => el('.wr-splitter__pane--start');
+  const end = (): HTMLElement => el('.wr-splitter__pane--end');
+  const key = (name: string): KeyboardEvent => {
+    const event = new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true });
+    sep().dispatchEvent(event);
+    host.detectChanges();
+    return event;
+  };
+  const doubleClick = (): void => {
+    sep().dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    host.detectChanges();
+  };
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    host = TestBed.createComponent(CollapsibleHost);
+    host.detectChanges();
+  });
+
+  afterEach(() => host.destroy());
+
+  it('shuts the pane on Enter and brings the position back on the next', () => {
+    const event = key('Enter');
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(host.componentInstance.collapsed()).toBe(true);
+    expect([start().style.flexBasis, end().style.flexBasis]).toEqual(['0%', '100%']);
+    expect(el('wr-splitter').classList.contains('wr-splitter--collapsed')).toBe(true);
+    // The bound value is untouched, which is what the reopen restores.
+    expect(host.componentInstance.split()).toBe(30);
+
+    key('Enter');
+
+    expect(host.componentInstance.collapsed()).toBe(false);
+    expect([start().style.flexBasis, end().style.flexBasis]).toEqual(['30%', '70%']);
+    expect(sep().getAttribute('aria-valuenow')).toBe('30');
+    expect(el('wr-splitter').classList.contains('wr-splitter--collapsed')).toBe(false);
+  });
+
+  it('toggles on a double-click of the divider', () => {
+    doubleClick();
+    expect(host.componentInstance.collapsed()).toBe(true);
+    expect(start().style.flexBasis).toBe('0%');
+
+    doubleClick();
+    expect(host.componentInstance.collapsed()).toBe(false);
+    expect(start().style.flexBasis).toBe('30%');
+  });
+
+  it('reports the collapsed edge, inside a range widened to hold it', () => {
+    key('Enter');
+
+    expect(sep().getAttribute('aria-valuenow')).toBe('0');
+    expect(sep().getAttribute('aria-valuemin')).toBe('0');
+
+    key('Enter');
+    expect(sep().getAttribute('aria-valuemin')).toBe('20');
+  });
+
+  it('makes the shut pane inert, and only that pane', () => {
+    expect(start().hasAttribute('inert')).toBe(false);
+
+    key('Enter');
+
+    expect(start().hasAttribute('inert')).toBe(true);
+    expect(start().classList.contains('wr-splitter__pane--collapsed')).toBe(true);
+    expect(end().hasAttribute('inert')).toBe(false);
+    expect(sep().getAttribute('tabindex')).toBe('0');
+
+    key('Enter');
+    expect(start().hasAttribute('inert')).toBe(false);
+    expect(start().classList.contains('wr-splitter__pane--collapsed')).toBe(false);
+  });
+
+  it('shuts the end pane when that is the collapsible one', () => {
+    host.componentInstance.collapsible.set('end');
+    host.componentInstance.collapsed.set(true);
+    host.detectChanges();
+
+    expect([start().style.flexBasis, end().style.flexBasis]).toEqual(['100%', '0%']);
+    expect(sep().getAttribute('aria-valuenow')).toBe('100');
+    expect(end().hasAttribute('inert')).toBe(true);
+    expect(start().hasAttribute('inert')).toBe(false);
+  });
+
+  it('follows `collapsed` set from outside', () => {
+    host.componentInstance.collapsed.set(true);
+    host.detectChanges();
+    expect(start().style.flexBasis).toBe('0%');
+
+    host.componentInstance.collapsed.set(false);
+    host.detectChanges();
+    expect(start().style.flexBasis).toBe('30%');
+  });
+
+  it('keeps the position while shut, whatever the arrows and the pointer do', () => {
+    key('Enter');
+
+    key('ArrowRight');
+    key('End');
+    const divider = sep();
+    divider.setPointerCapture = () => undefined;
+    const down = new MouseEvent('pointerdown', { bubbles: true, cancelable: true, button: 0 });
+    Object.defineProperty(down, 'isPrimary', { value: true });
+    divider.dispatchEvent(down);
+    divider.dispatchEvent(new MouseEvent('pointermove', { bubbles: true, clientX: 150 }));
+    host.detectChanges();
+
+    expect(host.componentInstance.split()).toBe(30);
+    expect(host.componentInstance.collapsed()).toBe(true);
+  });
+
+  it('does not toggle a disabled splitter from the divider', () => {
+    host.componentInstance.disabled.set(true);
+    host.detectChanges();
+
+    key('Enter');
+    doubleClick();
+
+    expect(host.componentInstance.collapsed()).toBe(false);
+  });
+
+  it('changes nothing without `collapsible`', () => {
+    host.componentInstance.collapsible.set(null);
+    host.detectChanges();
+
+    const event = key('Enter');
+    doubleClick();
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(host.componentInstance.collapsed()).toBe(false);
+
+    // Even a `collapsed` written from outside shuts nothing.
+    host.componentInstance.collapsed.set(true);
+    host.detectChanges();
+
+    expect([start().style.flexBasis, end().style.flexBasis]).toEqual(['30%', '70%']);
+    expect(sep().getAttribute('aria-valuenow')).toBe('30');
+    expect(sep().getAttribute('aria-valuemin')).toBe('20');
+    expect(start().hasAttribute('inert')).toBe(false);
+    expect(el('wr-splitter').classList.contains('wr-splitter--collapsed')).toBe(false);
+
+    key('ArrowRight');
+    expect(host.componentInstance.split()).toBe(31);
+  });
+});

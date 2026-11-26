@@ -35,6 +35,13 @@
     min-width: 0;
     min-height: 0;
     overflow: auto;
+
+    // With `inert` on the pane: nothing in a shut pane paints past its zero box
+    // or takes focus where `inert` is not supported.
+    &--collapsed {
+      visibility: hidden;
+      overflow: hidden;
+    }
   }
 
   &__divider {
@@ -91,6 +98,10 @@
     width: 2rem;
     height: 0.875rem;
     @include theme.smooth-br(var(--wr-splitter-handle-radius));
+  }
+
+  &--collapsed &__divider {
+    cursor: pointer;
   }
 
   &--disabled &__divider {

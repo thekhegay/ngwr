@@ -86,7 +86,10 @@ export class WrSplitterHarness extends ComponentHarness {
     return (await this.divider()).getAttribute('aria-orientation');
   }
 
-  /** The divider's position as a percentage, from `aria-valuenow`. */
+  /**
+   * The divider's position as a percentage, from `aria-valuenow`. While a pane is
+   * collapsed this is the collapsed edge, 0 or 100, not the position it reopens at.
+   */
   async getPosition(): Promise<number> {
     return this.numeric('aria-valuenow');
   }
@@ -146,6 +149,19 @@ export class WrSplitterHarness extends ComponentHarness {
    */
   async isDisabled(): Promise<boolean> {
     return (await (await this.divider()).getAttribute('aria-disabled')) === 'true';
+  }
+
+  /** Whether the `collapsible` pane is shut, from the host modifier. */
+  async isCollapsed(): Promise<boolean> {
+    return (await this.host()).hasClass('wr-splitter--collapsed');
+  }
+
+  /**
+   * Press Enter on the divider: shuts the `collapsible` pane, or reopens it at the
+   * position it had. Does nothing on a splitter without `collapsible`, or a disabled one.
+   */
+  async toggleCollapsed(): Promise<void> {
+    return (await this.divider()).sendKeys(TestKey.ENTER);
   }
 
   /** Whether the divider is a tab stop (`tabindex="0"`). */
@@ -236,7 +252,7 @@ export class WrSplitterHarness extends ComponentHarness {
         if (now === before) {
           throw new Error(
             `WrSplitterHarness.setPosition(${target}): the divider stopped moving at ${now}. A disabled ` +
-              'splitter ignores its arrows, which is the usual reason this happens.'
+              'or collapsed splitter ignores its arrows, which is the usual reason this happens.'
           );
         }
         delta = target - now;

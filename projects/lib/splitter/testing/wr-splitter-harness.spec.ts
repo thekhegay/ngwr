@@ -18,6 +18,7 @@ import { WrSplitterHarness } from './wr-splitter-harness';
       [maxPosition]="max()"
       [disabled]="disabled()"
       [dividerLabel]="dividerLabel()"
+      [collapsible]="collapsible()"
     >
       <div wrSplitterStart>Files</div>
       <div wrSplitterEnd>Editor</div>
@@ -31,6 +32,7 @@ class Host {
   readonly max = signal(100);
   readonly disabled = signal(false);
   readonly dividerLabel = signal<string | null>(null);
+  readonly collapsible = signal<'start' | 'end' | null>(null);
 }
 
 /**
@@ -209,6 +211,35 @@ describe('WrSplitterHarness', () => {
 
     await harness.focusDivider();
     expect(await harness.isDividerFocused()).toBe(true);
+  });
+
+  it('shuts the collapsible pane with Enter and reopens it where it was', async () => {
+    fixture.componentInstance.collapsible.set('start');
+    fixture.componentInstance.position.set(30);
+    await fixture.whenStable();
+
+    const harness = await splitter();
+    expect(await harness.isCollapsed()).toBe(false);
+
+    await harness.toggleCollapsed();
+
+    expect(await harness.isCollapsed()).toBe(true);
+    expect(await harness.getPosition()).toBe(0);
+    expect(await harness.getPaneSizes()).toEqual({ start: 0, end: 100 });
+
+    await harness.toggleCollapsed();
+
+    expect(await harness.isCollapsed()).toBe(false);
+    expect(await harness.getPosition()).toBe(30);
+  });
+
+  it('leaves Enter alone on a splitter that is not collapsible', async () => {
+    const harness = await splitter();
+
+    await harness.toggleCollapsed();
+
+    expect(await harness.isCollapsed()).toBe(false);
+    expect(await harness.getPosition()).toBe(50);
   });
 
   it('matches on the axis, the divider name and the disabled state', async () => {
