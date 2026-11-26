@@ -39,7 +39,7 @@ import type { WrBadgeShape, WrBadgeSize } from './types';
   template:
     '@if (text(); as value) {<span class="wr-badge__count" [attr.aria-hidden]="ariaLabel() ? true : null">{{ value }}</span>}' +
     '@if (ariaLabel(); as label) {<span class="wr-badge__label">{{ label }}</span>}' +
-    '<ng-content />',
+    '@if (!dot()) {<ng-content />}',
   encapsulation: ViewEncapsulation.None,
   host: {
     class: 'wr-badge',
@@ -109,7 +109,8 @@ export class WrBadge {
   readonly showZero = input(false, { transform: coerceBooleanProperty });
 
   /**
-   * A small circle with no text, which also drops the `count`. Colour is all
+   * A small circle with no text, which also drops the `count` and any
+   * projected text. Colour is all
    * it shows, so name it with `ariaLabel` unless the words beside it already
    * say the state.
    *

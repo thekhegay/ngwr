@@ -208,6 +208,25 @@ describe('WrBadge count, dot and anchor', () => {
     // Comments only, so `.wr-badge--anchor:empty` hides it.
     expect([...badge().childNodes].every(node => node.nodeType === Node.COMMENT_NODE)).toBe(true);
   });
+
+  it('draws no projected text in a dot, and draws it again once the dot is off', () => {
+    @Component({
+      imports: [WrBadge],
+      template: `<wr-badge [dot]="dot()">Online</wr-badge>`,
+    })
+    class TextHost {
+      readonly dot = signal(true);
+    }
+    const text = TestBed.createComponent(TextHost);
+    text.detectChanges();
+    const el = (text.nativeElement as HTMLElement).querySelector<HTMLElement>('wr-badge')!;
+    expect(el.textContent).toBe('');
+
+    text.componentInstance.dot.set(false);
+    text.detectChanges();
+    expect(el.textContent).toBe('Online');
+    text.destroy();
+  });
 });
 
 /**
@@ -281,7 +300,9 @@ describe('WrBadge hooks', () => {
     expect(anchor).not.toMatch(/(?:^|;)\s*(?:top|right|left):/);
     expect(anchor).toMatch(/translate:\s*50% -50%/);
     expect(rule(css, '.wr-badge--anchor:dir(rtl)')).toMatch(/translate:\s*-50% -50%/);
-    expect(rule(css, '.wr-badge--anchor:empty')).toMatch(/display:\s*none/);
+    // An anchored dot with no label is empty too, and stays on screen.
+    expect(rule(css, '.wr-badge--anchor:empty:not(.wr-badge--dot)')).toMatch(/display:\s*none/);
+    expect(rule(css, '.wr-badge--anchor:empty')).toBe('');
     expect(rule(css, '.wr-badge-anchor')).toMatch(/position:\s*relative/);
   });
 

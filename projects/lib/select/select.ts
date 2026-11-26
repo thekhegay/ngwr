@@ -65,6 +65,7 @@ import {
   wrToClassList,
   wrCheckStyles,
   wrGetFocusableElements,
+  wrIsTabStop,
   wrTypeahead,
   type WrClassInput,
   type WrTypeaheadItem,
@@ -1643,13 +1644,14 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
     return this.overlayRef?.overlayElement.querySelector<HTMLElement>('.wr-select-frame') ?? null;
   }
 
-  /** The controls of the header and the footer, in Tab order. */
+  /** The controls of the header and the footer Tab lands on, in Tab order. */
   private slotTabStops(): readonly HTMLElement[] {
     const frame = this.frameEl();
     if (!frame) return [];
-    return Array.from(
+    const controls = Array.from(
       frame.querySelectorAll<HTMLElement>(':scope > .wr-select-frame__header, :scope > .wr-select-frame__footer')
     ).flatMap(slot => wrGetFocusableElements(slot));
+    return controls.filter(el => wrIsTabStop(el, controls));
   }
 
   /**
@@ -1953,6 +1955,9 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
     effect(onCleanup => {
       if (!isPlatformBrowser(this.platformId)) return;
       if (!this.isOpen() || !this.virtualActive()) return;
+      // The first slot to appear and the last to go re-create the viewport.
+      this.headerSlot();
+      this.footerSlot();
       let raf = 0;
       let ro: ResizeObserver | null = null;
       let el: HTMLElement | null = null;
@@ -2564,7 +2569,8 @@ export class WrSelect<T = unknown, V = T> implements FormValueControl<V | readon
       .keydownEvents()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
-        if (event.key === 'Escape') {
+        // A slot may hold a field of the app's own, with a conversion open in it.
+        if (event.key === 'Escape' && !this.imeOwnsKey(event)) {
           event.preventDefault();
           this.openState.set(false);
         }
