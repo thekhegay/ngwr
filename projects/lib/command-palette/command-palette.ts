@@ -450,6 +450,8 @@ export class WrCommandPalette {
       }
       case 'Escape':
         event.preventDefault();
+        // The CDK closes its top overlay on an Escape that reaches the body: a drawer under the palette went too.
+        event.stopPropagation();
         this.close();
         break;
       default:

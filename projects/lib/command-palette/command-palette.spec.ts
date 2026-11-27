@@ -812,6 +812,7 @@ describe('WrCommandPalette over a modal drawer', () => {
 
     expect(fixture.componentInstance.palette()).toBe(false);
     expect(palette()).toBeNull();
+    expect(fixture.componentInstance.drawer()).toBe(true);
   });
 
   it('stays in the page when nothing made it inert', async () => {
