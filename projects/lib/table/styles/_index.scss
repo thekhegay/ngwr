@@ -1181,6 +1181,20 @@ $row-controls: "a[href], button, input, select, textarea, label, [role='button']
     top: var(--wr-table-head-group-height, 0);
   }
 
+  // A collapsed border is painted where the table laid it out, not with the
+  // sticky cell, so the scrolled body showed through it: the line rides in the cell.
+  .wr-table__head-cell--group {
+    border-bottom: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      inset-block-end: 0;
+      border-block-end: 1px solid var(--wr-table-border);
+    }
+  }
+
   // Grand footer pinned to the viewport bottom; plain cells get the opaque base.
   tfoot .wr-table__foot-cell {
     position: sticky;
