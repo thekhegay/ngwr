@@ -272,8 +272,10 @@
     border-block-end: 1px solid var(--wr-tree-sticky-border);
   }
 
-  // The real row's box. The tints are layered over the surface as an image,
-  // so a translucent one cannot let the rows beneath show through.
+  // The real row's box, square like the select's pinned select-all: a rounded
+  // tint sat badly on the stack's straight bottom line. The tints are layered
+  // over the surface as an image, so a translucent one cannot let the rows
+  // beneath show through.
   &__sticky-row {
     position: absolute;
     inset-block-start: 0;
@@ -284,7 +286,6 @@
     gap: var(--wr-tree-row-gap);
     padding: var(--wr-tree-row-padding-y) var(--wr-tree-row-padding-x);
     padding-inline-start: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
-    border-radius: var(--wr-tree-row-radius);
     background-color: var(--wr-tree-sticky-bg);
     cursor: pointer;
     user-select: none;
