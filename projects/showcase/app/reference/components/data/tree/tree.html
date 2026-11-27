@@ -1,6 +1,6 @@
 <ngwr-doc-page
   title="Tree"
-  updated="16.5.0"
+  updated="16.10.0"
   description="A nested list to browse and select from, inline or as a dropdown picker."
   [keywords]="['tree', 'tree-select', 'wr-tree', 'hierarchy', 'folders']"
   [labels]="['Composite']"
@@ -105,6 +105,28 @@
         Picked: {{ bigPick().join(', ') || '(none)' }}
       </small>
     </ngwr-doc-snippet>
+  </ngwr-doc-section>
+
+  <ngwr-doc-section
+    title="Sticky parents"
+    description="With `virtualScroll` on, `stickyParents` pins the open parents of the top row while the tree scrolls. Click a pinned row to go back to it, or its arrow to collapse it."
+  >
+    <ngwr-doc-code [code]="snippets.sticky" language="angular-html" />
+    <ngwr-doc-snippet code="">
+      <wr-tree
+        ariaLabel="Generated folders"
+        [nodes]="bigTree"
+        [(expanded)]="stickyExpanded"
+        virtualScroll
+        stickyParents
+        [viewportHeight]="320"
+      />
+    </ngwr-doc-snippet>
+    <p>
+      The pinned rows take a third of the viewport at most, outermost levels first. They paint through
+      <code>--wr-tree-sticky-bg</code> and <code>--wr-tree-sticky-border</code>: set the first when the tree sits on a
+      surface of another colour.
+    </p>
   </ngwr-doc-section>
 
   <ngwr-doc-section

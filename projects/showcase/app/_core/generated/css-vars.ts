@@ -13,7 +13,7 @@
  * that shows them. Rename a hook or retune a default in `projects/lib` and
  * re-run; this follows. The scan is `scripts/lib/build-css-var-map.ts`.
  *
- * 1960 hook(s) across 116 page(s). A property is here only when the
+ * 1962 hook(s) across 116 page(s). A property is here only when the
  * library READS it — a hook nothing reads is reported by the generator as a
  * finding rather than listed as a knob — and only when the component that
  * declares it also owns it: 75 declaration(s) are one component setting
@@ -2384,6 +2384,8 @@ export const CSS_VARS = {
       { name: "--wr-tree-row-selected-font-weight", default: "var(--wr-font-weight-medium)", scope: ".wr-tree" },
       { name: "--wr-tree-status-color", default: "var(--wr-color-on-surface-muted)", scope: ".wr-tree" },
       { name: "--wr-tree-status-error-color", default: "var(--wr-color-danger-ink)", scope: ".wr-tree" },
+      { name: "--wr-tree-sticky-bg", default: "var(--wr-color-surface)", scope: ".wr-tree" },
+      { name: "--wr-tree-sticky-border", default: "var(--wr-border-base)", scope: ".wr-tree" },
       { name: "--wr-tree-toggle-radius", default: "var(--wr-border-radius-sm)", scope: ".wr-tree" },
       { name: "--wr-tree-trigger-bg", default: "var(--wr-color-surface)", scope: ".wr-tree", overrides: 1 },
       { name: "--wr-tree-trigger-border", default: "var(--wr-border-base)", scope: ".wr-tree" },

@@ -90,6 +90,7 @@ export default class TreePageComponent {
   }));
   protected readonly bigExpanded = signal<readonly string[]>(Array.from({ length: 20 }, (_, g) => `g${g}`));
   protected readonly bigPick = signal<readonly string[]>([]);
+  protected readonly stickyExpanded = signal<readonly string[]>(Array.from({ length: 20 }, (_, g) => `g${g}`));
 
   // Lazy loading: a fake server that answers after 800ms, and fails for one folder.
   protected readonly remote: readonly WrTreeNode[] = [
@@ -210,6 +211,15 @@ intoFolders: WrTreeCanDrop = (node, target) => target.parent === null || !!targe
   [(expanded)]="expanded"
   [(selected)]="picked"
   virtualScroll
+  [viewportHeight]="320"
+/>`,
+
+    sticky: `<wr-tree
+  ariaLabel="Generated folders"
+  [nodes]="bigTree"
+  [(expanded)]="expanded"
+  virtualScroll
+  stickyParents
   [viewportHeight]="320"
 />`,
   };
