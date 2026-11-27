@@ -160,7 +160,8 @@
 
   &__group-title {
     --wr-command-palette-group-title-padding-top: var(--wr-space-sm);
-    --wr-command-palette-group-title-padding-x: var(--wr-space-md);
+    // With the body's padding, titles and rows start on the search field's and the footer's line.
+    --wr-command-palette-group-title-padding-x: var(--wr-space-sm);
     --wr-command-palette-group-title-padding-bottom: var(--wr-space-xs);
     --wr-command-palette-group-title-font-size: var(--wr-text-xs);
     --wr-command-palette-group-title-font-weight: var(--wr-font-weight-semibold);
@@ -178,7 +179,7 @@
   &__option {
     --wr-command-palette-option-gap: var(--wr-space-md);
     --wr-command-palette-option-padding-y: var(--wr-space-sm);
-    --wr-command-palette-option-padding-x: var(--wr-space-md);
+    --wr-command-palette-option-padding-x: var(--wr-space-sm);
     --wr-command-palette-option-radius: var(--wr-border-radius-sm);
     --wr-command-palette-option-font-size: var(--wr-text-sm);
     --wr-command-palette-option-line-height: var(--wr-leading-tight);
