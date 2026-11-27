@@ -143,6 +143,25 @@
   border: 0;
 }
 
+/// The keyboard cursor on a row reached through `aria-activedescendant`, where
+/// focus stays in the field and no ring can show: a 2px edge at the inline start
+/// that follows the row's own corners. The row must be positioned.
+///
+/// @example scss
+///   .wr-option--active {
+///     @include cursor-bar;
+///   }
+@mixin cursor-bar($color: var(--wr-color-primary)) {
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-inline-start: 2px solid $color;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+}
+
 /// Paints with `--wr-color-canvas`, the page background one step behind
 /// `--wr-color-surface`: `body` when included at the stylesheet root, that
 /// element when included inside a rule. Opt-in: loading the theme paints

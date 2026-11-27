@@ -208,15 +208,7 @@
       // Text on the `-soft` tint: `-ink`. Bare measured 4.17:1 light / 3.65:1 dark.
       color: var(--wr-color-primary-ink);
 
-      &::before {
-        content: '';
-        position: absolute;
-        inset-block: 0;
-        inset-inline-start: 0;
-        width: 2px;
-        border-radius: inherit;
-        background: var(--wr-color-primary);
-      }
+      @include theme.cursor-bar;
     }
   }
 

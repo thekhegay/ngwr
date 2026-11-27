@@ -585,13 +585,8 @@
 
     // The keyboard cursor: focus stays in the trigger, so this bar is the only
     // sign of where the arrows are, as it is on a virtual row.
-    &--active::before {
-      content: '';
-      position: absolute;
-      inset-block: 0;
-      inset-inline-start: 0;
-      width: 2px;
-      background: var(--wr-select-panel-select-all-cursor);
+    &--active {
+      @include theme.cursor-bar(var(--wr-select-panel-select-all-cursor));
     }
 
     &--disabled {
@@ -671,14 +666,7 @@
   &--active {
     background: var(--wr-color-hover);
 
-    &::before {
-      content: '';
-      position: absolute;
-      inset-block: 0;
-      inset-inline-start: 0;
-      width: 2px;
-      background: var(--wr-color-primary);
-    }
+    @include theme.cursor-bar;
   }
 
   // After the cursor, so a selected row keeps its own tint (the bar still shows
