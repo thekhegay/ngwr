@@ -142,6 +142,45 @@
     @let mark = dropMark();
     @let moving = movingNode();
     @let query = filterQuery();
+    @if (sticky()) {
+      <!-- A copy of the open ancestors of the top row, for the eye only: the real
+           rows stay the tree. Zero-height and sticky, so it takes no scroll extent. -->
+      <li class="wr-tree__sticky" role="presentation" aria-hidden="true">
+        @if (stickyRows().length) {
+          <div class="wr-tree__sticky-stack" [style.height.px]="stickyHeight()">
+            @for (pin of stickyRows(); track pin.entry.key) {
+              <div
+                class="wr-tree__sticky-row"
+                [class.wr-tree__sticky-row--selected]="!isCascade() && selectedSet().has(pin.entry.node.id)"
+                [class.wr-tree__sticky-row--disabled]="pin.entry.node.disabled"
+                [style.height.px]="effRowH()"
+                [style.transform]="`translateY(${pin.top}px)`"
+                [style.z-index]="$count - $index"
+                [style.--wr-tree-depth]="pin.entry.depth"
+                (click)="onStickyClick(pin.entry, $event)"
+              >
+                <span class="wr-tree__toggle">
+                  <svg width="10" height="10" viewBox="0 0 10 10">
+                    <path d="M3 1 L7 5 L3 9 Z" fill="currentColor" />
+                  </svg>
+                </span>
+                @if (isCascade()) {
+                  <ng-container
+                    [ngTemplateOutlet]="checkTpl"
+                    [ngTemplateOutletContext]="{ $implicit: pin.entry.node.id }"
+                  />
+                }
+                @if (query) {
+                  <span class="wr-tree__label" [innerHTML]="pin.entry.node.label | wrMark: query"></span>
+                } @else {
+                  <span class="wr-tree__label">{{ pin.entry.node.label }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </li>
+    }
     @if (virtualized() && virtualWindow().padTop > 0) {
       <!-- `aria-setsize` / `aria-posinset` in BOTH shapes: the list is flat with no
            `role="group"` either way, so the set a row belongs to is never expressed
@@ -234,39 +273,7 @@
             <!-- The checkbox's own box, drawn from its classes: the row is the
                  control and announces `aria-checked`, so a second focusable
                  input inside it would be one tab stop too many. -->
-            <span
-              class="wr-checkbox wr-checkbox--sm wr-tree__check"
-              aria-hidden="true"
-              [class.wr-checkbox--checked]="selectedSet().has(entry.node.id)"
-              [class.wr-checkbox--indeterminate]="mixedSet().has(entry.node.id)"
-            >
-              <span class="wr-checkbox__box">
-                @if (mixedSet().has(entry.node.id)) {
-                  <svg viewBox="0 0 16 16" class="wr-checkbox__dash">
-                    <line
-                      x1="3.5"
-                      y1="8"
-                      x2="12.5"
-                      y2="8"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                } @else {
-                  <svg viewBox="0 0 16 16" class="wr-checkbox__mark">
-                    <polyline
-                      points="3.5 8.5 6.5 11.5 12.5 5"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                }
-              </span>
-            </span>
+            <ng-container [ngTemplateOutlet]="checkTpl" [ngTemplateOutletContext]="{ $implicit: entry.node.id }" />
           }
           @if (query) {
             <span class="wr-tree__label" [innerHTML]="entry.node.label | wrMark: query"></span>
@@ -294,4 +301,32 @@
     <p class="wr-tree__sr-only" [id]="moveHelpId">{{ resolvedMoveHelp() }}</p>
     <p class="wr-tree__sr-only" role="status">{{ announcement() }}</p>
   }
+</ng-template>
+
+<ng-template #checkTpl let-id>
+  <span
+    class="wr-checkbox wr-checkbox--sm wr-tree__check"
+    aria-hidden="true"
+    [class.wr-checkbox--checked]="selectedSet().has(id)"
+    [class.wr-checkbox--indeterminate]="mixedSet().has(id)"
+  >
+    <span class="wr-checkbox__box">
+      @if (mixedSet().has(id)) {
+        <svg viewBox="0 0 16 16" class="wr-checkbox__dash">
+          <line x1="3.5" y1="8" x2="12.5" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      } @else {
+        <svg viewBox="0 0 16 16" class="wr-checkbox__mark">
+          <polyline
+            points="3.5 8.5 6.5 11.5 12.5 5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      }
+    </span>
+  </span>
 </ng-template>

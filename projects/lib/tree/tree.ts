@@ -44,6 +44,7 @@ import { WrMark } from 'ngwr/pipes';
 import { WrSpinner } from 'ngwr/spinner';
 import { WR_LIVE_LOCALE, wrToClassList, wrCheckStyles, wrTypeahead, type WrClassInput } from 'ngwr/utils';
 
+import { treeRowSpans, treeStickyChain } from './sticky-chain';
 import type {
   WrTreeCanDrop,
   WrTreeChildrenLoader,
@@ -327,6 +328,19 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
 
   /** Extra rows kept rendered above and below the viewport as scroll headroom. @default 6 */
   readonly overscan = input(6, { transform: (v: unknown): number => Math.max(0, coerceNumberProperty(v, 6)) });
+
+  /**
+   * Pins the open ancestors of the row at the top of the scroll area while the
+   * tree scrolls: one row per level, outermost first. The next branch pushes a
+   * pinned row out as its own rows run out. A click on a pinned row scrolls to
+   * the real one and puts the cursor on it, and its arrow collapses the branch.
+   * The pinned rows are a copy for the eye, hidden from assistive technology.
+   * They take a third of the viewport at most (one row at least): a deeper
+   * chain pins its outermost levels only. Needs `virtualScroll`, which is what
+   * gives the tree a scroll area of its own.
+   * @default false
+   */
+  readonly stickyParents = input(false, { transform: coerceBooleanProperty });
 
   /**
    * `openOn="overlay"` only: focus the cursor row when the panel opens (the
@@ -808,6 +822,9 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
   /** Measured first-row height (px) when `rowHeight` is auto; 0 until measured. */
   private readonly measuredRowPx = signal(0);
 
+  /** The list's own block-start padding (px): the rows start that far below scroll offset 0. */
+  private readonly listPadPx = signal(0);
+
   /** Virtualization active (opt-in and there is anything to window). */
   protected readonly virtualized = computed(() => this.virtualScroll() && this.flat().length > 0);
 
@@ -856,6 +873,30 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     return this.flat().slice(start, end);
   });
 
+  protected readonly sticky = computed(() => this.stickyParents() && this.virtualized());
+
+  private readonly rowSpans = computed(() => (this.sticky() ? treeRowSpans(this.flat()) : NO_NODES));
+
+  /** The most rows the stack may pin: a third of the viewport, one row at least. */
+  private readonly stickyMax = computed(() => {
+    const vp = this.viewportPx() || this.fallbackViewportPx();
+    return Math.max(1, Math.floor(vp / this.effRowH() / 3));
+  });
+
+  /** The pinned copies, outermost first, each with its offset from the viewport's top. */
+  protected readonly stickyRows = computed<readonly { readonly entry: FlatNode<TId>; readonly top: number }[]>(() => {
+    if (!this.sticky()) return NO_NODES;
+    const flat = this.flat();
+    return treeStickyChain(this.rowSpans(), this.scrollTop() - this.listPadPx(), this.effRowH(), this.stickyMax()).map(
+      ({ index, top }) => ({ entry: flat[index], top })
+    );
+  });
+
+  protected readonly stickyHeight = computed(() => {
+    const rows = this.stickyRows();
+    return rows.length ? Math.max(0, rows[rows.length - 1].top + this.effRowH()) : 0;
+  });
+
   /** Stable id for a row at flat index `i` — the `aria-activedescendant` target. */
   protected rowId(i: number): string {
     return `${this.panelId}-row-${i}`;
@@ -886,8 +927,12 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
     const vp = this.viewportPx() || this.fallbackViewportPx();
     const top = i * h;
     const cur = this.scrollTop();
+    // Sticky: the stack that would cover row `i` at the top is its pinned
+    // ancestors, so the row lands right under them.
+    const lead = this.sticky() ? Math.min(this.flat()[i]?.depth ?? 0, this.stickyMax()) * h : 0;
+    const from = this.sticky() ? Math.max(0, top + this.listPadPx() - lead) : top;
     let next = cur;
-    if (top < cur) next = top;
+    if (from < cur) next = from;
     else if (top + h > cur + vp) next = top + h - vp;
     if (next !== cur) {
       this.scrollTop.set(next);
@@ -971,6 +1016,12 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       // `ResizeObserver` that nothing is left to remove.
       let cancelled = false;
       const onScroll = (): void => {
+        // Written in the event itself, so the pinned rows repaint in the frame
+        // that scrolled: a frame behind, the row being pushed out trails the push.
+        if (el && this.stickyParents()) {
+          this.scrollTop.set(el.scrollTop);
+          return;
+        }
         if (raf) return;
         raf = requestAnimationFrame(() => {
           raf = 0;
@@ -987,8 +1038,13 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
         // while the new DOM sits at scrollTop 0). No-op on first open / inline.
         if (el.scrollTop !== this.scrollTop()) el.scrollTop = this.scrollTop();
         this.viewportPx.set(el.clientHeight);
+        this.listPadPx.set(parseFloat(getComputedStyle(el).paddingTop) || 0);
         if (this.rowHeight() === 0) {
-          const h = el.querySelector<HTMLElement>('.wr-tree__row')?.offsetHeight ?? 0;
+          // The rect keeps the fraction `offsetHeight` rounds away: half a pixel a
+          // row is a whole row every sixty-odd. A rect further off is a transformed one.
+          const row = el.querySelector<HTMLElement>('.wr-tree__row');
+          const exact = row?.getBoundingClientRect().height ?? 0;
+          const h = row && Math.abs(exact - row.offsetHeight) < 1 ? exact : (row?.offsetHeight ?? 0);
           if (h > 0) this.measuredRowPx.set(h);
         }
         el.addEventListener('scroll', onScroll, { passive: true });
@@ -1044,6 +1100,17 @@ export class WrTree<TId = string> implements FormValueControl<unknown> {
       }
     }
     this.select(flat.node.id, event.ctrlKey || event.metaKey);
+  }
+
+  /** A pinned row: its arrow collapses the branch, the rest of it goes to the real row. */
+  protected onStickyClick(flat: FlatNode<TId>, event: MouseEvent): void {
+    if (this.disabled()) return;
+    if (!flat.node.disabled && (event.target as HTMLElement).closest('.wr-tree__toggle')) {
+      this.toggleExpanded(flat.node.id);
+      this.ensureVisible(flat.index);
+      return;
+    }
+    this.focusIndex(flat.index);
   }
 
   protected onToggleClick(node: WrTreeNode<TId>, event: MouseEvent): void {

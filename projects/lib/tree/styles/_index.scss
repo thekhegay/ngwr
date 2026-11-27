@@ -26,6 +26,8 @@
   --wr-tree-match-bg: var(--wr-color-warning-soft);
   --wr-tree-match-color: var(--wr-color-warning-ink);
   --wr-tree-drop-color: var(--wr-color-primary);
+  --wr-tree-sticky-bg: var(--wr-color-surface);
+  --wr-tree-sticky-border: var(--wr-border-base);
 }
 
 .wr-tree {
@@ -244,6 +246,67 @@
     &:focus-visible {
       @include theme.focus-ring;
     }
+  }
+
+  // `stickyParents`: the pinned copies. The anchor is a zero-height sticky item,
+  // so the stack rides the top of the scroll area and adds no scroll extent.
+  &__sticky {
+    position: sticky;
+    // A sticky box stops at the scroller's padding edge: step back over it.
+    inset-block-start: calc(-1 * var(--wr-tree-list-padding-y));
+    z-index: 1;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // Opaque, and clipped: a row being pushed out slides under the one above it.
+  &__sticky-stack {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    box-sizing: content-box;
+    overflow: hidden;
+    background: var(--wr-tree-sticky-bg);
+    border-block-end: 1px solid var(--wr-tree-sticky-border);
+  }
+
+  // The real row's box. The tints are layered over the surface as an image,
+  // so a translucent one cannot let the rows beneath show through.
+  &__sticky-row {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: var(--wr-tree-row-gap);
+    padding: var(--wr-tree-row-padding-y) var(--wr-tree-row-padding-x);
+    padding-inline-start: calc(0.5rem + var(--wr-tree-depth, 0) * var(--wr-tree-indent));
+    border-radius: var(--wr-tree-row-radius);
+    background-color: var(--wr-tree-sticky-bg);
+    cursor: pointer;
+    user-select: none;
+
+    &--selected {
+      background-image: linear-gradient(var(--wr-color-primary-soft), var(--wr-color-primary-soft));
+      font-weight: var(--wr-tree-row-selected-font-weight);
+      color: var(--wr-color-primary-ink);
+    }
+
+    &:hover {
+      background-image: linear-gradient(var(--wr-tree-row-hover-bg), var(--wr-tree-row-hover-bg));
+    }
+
+    &--disabled {
+      // Mixed toward the surface, not `opacity`: the copy has to stay opaque.
+      color: color-mix(in srgb, currentColor calc(var(--wr-disabled-opacity) * 100%), var(--wr-tree-sticky-bg));
+    }
+  }
+
+  &__sticky-row &__toggle {
+    transform: rotate(90deg);
   }
 
   // Height-only reserved rows contribute nothing but scroll extent.
@@ -581,7 +644,8 @@
 // both the row and its toggle are comfortable tap targets. Fine pointers keep
 // the compact desktop rows above.
 @media (pointer: coarse) {
-  .wr-tree__row {
+  .wr-tree__row,
+  .wr-tree__sticky-row {
     --wr-tree-row-padding-y: var(--wr-space-sm);
   }
 

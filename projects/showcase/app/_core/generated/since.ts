@@ -193,7 +193,7 @@ export const UPDATED = {
   "reference/components/toast": "16.10.0",
   "reference/components/toolbar": "16.9.0",
   "reference/components/transfer": "16.3.0",
-  "reference/components/tree": "16.5.0",
+  "reference/components/tree": "16.10.0",
   "reference/components/virtual-scroll": "16.10.0",
   "reference/components/window": "16.5.0",
   "reference/directives/autofocus": "16.6.0",
