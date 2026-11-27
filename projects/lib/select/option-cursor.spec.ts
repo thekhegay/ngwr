@@ -29,9 +29,8 @@ describe('select option cursor', () => {
     () => {
       expect(body('.wr-option')).toContain('position: relative');
       const bar = body('.wr-option--active::before');
-      expect(bar).toContain('inset-inline-start: 0');
-      expect(bar).toContain('width: 2px');
-      expect(bar).toContain('var(--wr-color-primary)');
+      expect(bar).toContain('border-inline-start: 2px solid var(--wr-color-primary)');
+      expect(bar).toContain('border-radius: inherit');
     },
     COMPILE_TIMEOUT
   );

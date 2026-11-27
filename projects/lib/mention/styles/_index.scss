@@ -79,15 +79,7 @@
     &--active {
       background: color-mix(in srgb, var(--wr-color-primary) 8%, transparent);
 
-      &::before {
-        content: '';
-        position: absolute;
-        inset-block: 0;
-        inset-inline-start: 0;
-        width: 2px;
-        border-radius: inherit;
-        background: var(--wr-color-primary);
-      }
+      @include theme.cursor-bar;
     }
   }
 
